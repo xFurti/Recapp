@@ -34,6 +34,7 @@ class Settings:
     render_api_key: str
     render_workflow_task: str
     web_dist: Path
+    extra_hosts: tuple[str, ...]
 
     @property
     def is_dev(self) -> bool:
@@ -71,6 +72,12 @@ def load_settings() -> Settings:
         render_api_key=_env("RENDER_API_KEY"),
         render_workflow_task=_env("RENDER_WORKFLOW_TASK"),
         web_dist=Path(_env("WEB_DIST", str(ROOT / "web" / "dist"))),
+        # Render sets RENDER_EXTERNAL_HOSTNAME (e.g. ieri.onrender.com); EXTRA_HOSTS is comma-separated.
+        extra_hosts=tuple(
+            h.strip().lower()
+            for h in [_env("RENDER_EXTERNAL_HOSTNAME"), *_env("EXTRA_HOSTS").split(",")]
+            if h.strip()
+        ),
     )
 
 

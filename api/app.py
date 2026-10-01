@@ -35,8 +35,9 @@ SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 def _origin_allowed(origin: str) -> bool:
     if not origin:
         return True
-    host = urlparse(origin).netloc
-    allowed = {urlparse(settings.public_url).netloc}
+    host = urlparse(origin).netloc.lower()
+    public = urlparse(settings.public_url).netloc.lower()
+    allowed = {public, f"www.{public}", *settings.extra_hosts}
     if settings.is_dev:
         allowed |= {"localhost:5173", "127.0.0.1:5173", "localhost:8000", "127.0.0.1:8000"}
     return host in allowed

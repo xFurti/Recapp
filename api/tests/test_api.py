@@ -255,3 +255,16 @@ def test_attachment_upload_strips_metadata(client):
 def test_foreign_origin_rejected(client):
     r = client.post("/api/auth/demo", headers={"Origin": "https://evil.example"})
     assert r.status_code == 403
+
+
+def test_render_hostname_allowed(monkeypatch):
+    import dataclasses
+
+    from api import app as app_module
+
+    patched = dataclasses.replace(app_module.settings, app_env="prod", public_url="https://bassaleo.xyz", extra_hosts=("ieri.onrender.com",))
+    monkeypatch.setattr(app_module, "settings", patched)
+    assert app_module._origin_allowed("https://ieri.onrender.com")
+    assert app_module._origin_allowed("https://www.bassaleo.xyz")
+    assert not app_module._origin_allowed("https://evil.example")
+    assert not app_module._origin_allowed("http://localhost:5173")
