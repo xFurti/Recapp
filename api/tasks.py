@@ -291,11 +291,22 @@ Return ONLY JSON: {"items": [{"tipo": "compito|verifica|evento|lab", "materia": 
 Rules:
 - Today is @TODAY@ (@WEEKDAY@). Resolve relative dates ("ven", "domani", "prossima lezione") to real dates.
 - Subjects of this class (code = name): @SUBJECTS@.
+  Common abbreviations: mate/mat = MAT, info/inf = INI, sistemi/sis/reti = SRI, tpsit = TPI,
+  tele/tlc = TCI, ita = LIT, sto = STO, ing/eng = ING, motoria/ginnastica = SMS, religione = IRC.
 - Next lesson date for each subject: @NEXT_LESSONS@. Use it for "per la prossima lezione".
-- Upcoming school days: @SCHOOL_DAYS@.
+- Calendar of the next school days (use it to resolve weekday names): @SCHOOL_DAYS@.
 - "verifica", "test", "interrogazione" => tipo "verifica". Assemblies, trips, meetings => "evento".
+- One line can contain several items separated by commas or ";": return one item for each.
+  Exercises/pages to do are a "compito", even when a test is mentioned in the same line.
+- "titolo" describes the item in Italian (e.g. "Esercizi 12-15 pag. 112", "Verifica di matematica",
+  "Assemblea di istituto"). Never use only the type word as title.
+- A subject written before ":" applies to every item of that line.
+- If a date is unclear use null. Never invent items. Max 8 items.
 - Ignore grades, student names, absences and anything that is not a task, test or event.
-- If a date is unclear use null. Never invent items. Max 8 items."""
+
+Example. Input: "Mate: es. 3-5 pag 40, verifica lun" with MAT next lesson 2026-01-08 and today 2026-01-07 (mercoledì)
+Output: {"items": [{"tipo": "compito", "materia": "MAT", "titolo": "Esercizi 3-5 pag. 40", "quando": "2026-01-08", "ora": null, "fonte": "detto in classe"},
+{"tipo": "verifica", "materia": "MAT", "titolo": "Verifica di matematica", "quando": "2026-01-12", "ora": null, "fonte": "detto in classe"}]}"""
 
 WEEKDAY_NAMES = ["lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato", "domenica"]
 
@@ -320,7 +331,9 @@ def build_system_prompt(ctx: dict) -> str:
         "@WEEKDAY@": WEEKDAY_NAMES[today.weekday()],
         "@SUBJECTS@": ", ".join(f'{s["code"]} = {s["name_it"]}' for s in ctx.get("subjects", [])),
         "@NEXT_LESSONS@": json.dumps(ctx.get("next_lessons", {})),
-        "@SCHOOL_DAYS@": ", ".join(ctx.get("school_days", [])[:10]),
+        "@SCHOOL_DAYS@": ", ".join(
+            f"{d} {WEEKDAY_NAMES[date.fromisoformat(d).weekday()]}" for d in ctx.get("school_days", [])[:12]
+        ),
     }
     system = SYSTEM_PROMPT
     for token, value in fields.items():
