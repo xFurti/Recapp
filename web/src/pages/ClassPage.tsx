@@ -1,0 +1,466 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
+import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
+import { api } from '../api'
+import { InviteModal } from '../components/InviteModal'
+import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
+import { todayIso } from '../lib/clock'
+import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
+import { classPath, useClass } from '../queries'
+import type { Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
+
+type Tab = 'members' | 'turns' | 'timetable'
+
+export default function ClassPage() {
+  const { t } = useTranslation()
+  const [params, setParams] = useSearchParams()
+  const tab = (params.get('tab') as Tab) || 'members'
+  return (
+    <div>
+      <h1 className="mb-4 text-2xl font-extrabold tracking-tight">{t('nav.class')}</h1>
+      <Segmented
+        value={tab}
+        onChange={(v) => setParams({ tab: v }, { replace: true })}
+        options={[
+          { value: 'members', label: t('class.tab_members') },
+          { value: 'turns', label: t('class.tab_turns') },
+          { value: 'timetable', label: t('class.tab_timetable') },
+        ]}
+      />
+      <div className="mt-5">
+        {tab === 'members' && <Members />}
+        {tab === 'turns' && <Turns />}
+        {tab === 'timetable' && <Timetable />}
+      </div>
+    </div>
+  )
+}
+
+// ---- members ---------------------------------------------------------------------
+function Members() {
+  const info = useClass()
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  const list = useQuery({ queryKey: ['members', info.code], queryFn: () => api.get<{ members: MemberRow[]; can_manage: boolean }>(classPath(info.code, '/members')) })
+  const [adding, setAdding] = useState(false)
+  const [invite, setInvite] = useState<Invite | null>(null)
+  const [menu, setMenu] = useState<number | null>(null)
+  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public'].includes(String(q.queryKey[0])) })
+  const act = useMutation({
+    mutationFn: async ({ kind, m }: { kind: 'reset' | 'admin' | 'member' | 'remove'; m: MemberRow }) => {
+      if (kind === 'reset') return api.post<Invite>(classPath(info.code, `/members/${m.id}/reset-invite`))
+      if (kind === 'remove') return api.del(classPath(info.code, `/members/${m.id}`))
+      return api.patch(classPath(info.code, `/members/${m.id}`), { role: kind })
+    },
+    onSuccess: (data, { kind }) => {
+      setMenu(null)
+      if (kind === 'reset') setInvite(data as Invite)
+      refresh()
+    },
+  })
+
+  if (list.isLoading) return <Spinner />
+  if (list.error) return <ErrorBox error={list.error} onRetry={() => list.refetch()} />
+  const { members, can_manage } = list.data!
+
+  const confirmAct = (kind: 'reset' | 'admin' | 'member' | 'remove', m: MemberRow) => {
+    if (kind === 'reset' && !window.confirm(t('class.reset_confirm', { nick: m.nick }))) return
+    if (kind === 'remove' && !window.confirm(t('class.remove_confirm', { nick: m.nick }))) return
+    act.mutate({ kind, m })
+  }
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="text-sm font-semibold text-muted">{t('class.members_count', { count: members.length })}</p>
+        {can_manage && (
+          <Button size="sm" onClick={() => setAdding(true)}>
+            <UserPlus className="size-4" /> {t('class.add')}
+          </Button>
+        )}
+      </div>
+      {act.error && <div className="mb-3"><ErrorBox error={act.error} /></div>}
+      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        {members.map((m) => (
+          <li key={m.id} className="relative flex items-center gap-3 px-4 py-3">
+            <Avatar nick={m.nick} color={m.color} />
+            <div className="min-w-0 flex-1">
+              <p className="flex flex-wrap items-center gap-1.5 font-semibold">
+                {m.nick}
+                {m.is_me && <span className="text-xs font-medium text-muted">({t('common.you')})</span>}
+                {m.role === 'admin' && <Badge className="bg-bordeaux-soft text-bordeaux"><Crown className="size-3" /> {t('class.admin')}</Badge>}
+                {m.is_today_scribe && <Badge className="bg-giallo text-ink"><Pencil className="size-3" /> {t('class.scribe_today')}</Badge>}
+                {!m.activated && <Badge className="bg-ink/5 text-muted">{t('class.not_activated')}</Badge>}
+              </p>
+              <p className="text-xs text-muted">
+                {t('class.days_written', { count: m.days_written })} · {t('class.items_added', { count: m.items_added })}
+              </p>
+            </div>
+            {can_manage && (
+              <div className="relative">
+                <button onClick={() => setMenu(menu === m.id ? null : m.id)} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('class.manage')} aria-expanded={menu === m.id}>
+                  <MoreVertical className="size-5" />
+                </button>
+                {menu === m.id && (
+                  <div className="absolute right-0 z-20 mt-1 w-60 rounded-2xl border border-line bg-white p-1.5 shadow-lg" role="menu">
+                    <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', m)} />
+                    {m.role === 'member' ? (
+                      <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', m)} />
+                    ) : (
+                      <MenuItem icon={Crown} label={t('class.make_member')} onClick={() => confirmAct('member', m)} />
+                    )}
+                    {!m.is_me && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', m)} />}
+                  </div>
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+      <AddMemberModal open={adding} onClose={() => setAdding(false)} onCreated={(inv) => { setAdding(false); setInvite(inv); refresh() }} />
+      {invite && (
+        <InviteModal open onClose={() => setInvite(null)} nick={invite.nick} invite={invite.invite} joinUrl={invite.join_url} classCode={info.code} />
+      )}
+    </div>
+  )
+}
+
+function MenuItem({ icon: Icon, label, hint, onClick, danger }: { icon: typeof Crown; label: string; hint?: string; onClick: () => void; danger?: boolean }) {
+  return (
+    <button role="menuitem" onClick={onClick} className={`flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left text-sm ${danger ? 'text-rosa-ink hover:bg-rosa-soft' : 'hover:bg-ink/5'}`}>
+      <Icon className="mt-0.5 size-4 shrink-0" />
+      <span>
+        <span className="block font-semibold">{label}</span>
+        {hint && <span className="block text-xs text-muted">{hint}</span>}
+      </span>
+    </button>
+  )
+}
+
+function AddMemberModal({ open, onClose, onCreated }: { open: boolean; onClose: () => void; onCreated: (i: Invite) => void }) {
+  const info = useClass()
+  const { t } = useTranslation()
+  const [nick, setNick] = useState('')
+  const [admin, setAdmin] = useState(false)
+  const add = useMutation({
+    mutationFn: () => api.post<Invite>(classPath(info.code, '/members'), { nick, role: admin ? 'admin' : 'member' }),
+    onSuccess: (inv) => {
+      setNick('')
+      setAdmin(false)
+      onCreated(inv)
+    },
+  })
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    add.mutate()
+  }
+  return (
+    <Modal open={open} onClose={onClose} title={t('class.add')}>
+      <form onSubmit={submit} className="space-y-4">
+        <Field label={t('class.nick_label')}>
+          <input className={inputClass} value={nick} onChange={(e) => setNick(e.target.value)} placeholder={t('class.nick_ph')} maxLength={16} required autoFocus />
+        </Field>
+        <label className="flex items-center gap-2 text-sm font-semibold">
+          <input type="checkbox" className="size-4 accent-bordeaux" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
+          {t('class.as_admin')}
+        </label>
+        {add.error && <p className="text-sm font-medium text-rosa-ink">{(add.error as Error).message}</p>}
+        <Button type="submit" className="w-full" loading={add.isPending} disabled={nick.trim().length < 2}>
+          {t('class.add_btn')}
+        </Button>
+      </form>
+    </Modal>
+  )
+}
+
+// ---- turns -------------------------------------------------------------------------
+function Turns() {
+  const info = useClass()
+  const { t, i18n } = useTranslation()
+  const qc = useQueryClient()
+  const rot = useQuery({
+    queryKey: ['rotation', info.code],
+    queryFn: () => api.get<{ days: RotationDay[]; order: MemberBrief[]; not_activated: MemberBrief[] }>(classPath(info.code, '/rotation?days=10')),
+  })
+  const [swapMode, setSwapMode] = useState(false)
+  const [picked, setPicked] = useState<string | null>(null)
+  const [msg, setMsg] = useState<string | null>(null)
+  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['rotation', 'today', 'members'].includes(String(q.queryKey[0])) })
+  const swap = useMutation({
+    mutationFn: (days: [string, string]) => api.post(classPath(info.code, '/rotation/swap'), { day_a: days[0], day_b: days[1] }),
+    onSuccess: () => {
+      setPicked(null)
+      setSwapMode(false)
+      setMsg(t('class.swap_done'))
+      refresh()
+    },
+  })
+  const order = useMutation({
+    mutationFn: (ids: number[]) => api.patch(classPath(info.code, '/rotation/order'), { member_ids: ids }),
+    onSuccess: refresh,
+  })
+
+  if (rot.isLoading) return <Spinner />
+  if (rot.error) return <ErrorBox error={rot.error} onRetry={() => rot.refetch()} />
+  const data = rot.data!
+  const today = todayIso()
+  const todayRow = data.days.find((d) => d.day === today && d.school)
+  const manage = info.viewer.can_manage
+
+  const pick = (day: string) => {
+    if (!swapMode) return
+    if (!picked) setPicked(day)
+    else if (picked === day) setPicked(null)
+    else swap.mutate([picked, day])
+  }
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const ids = data.order.map((m) => m.id)
+    const j = idx + dir
+    if (j < 0 || j >= ids.length) return
+    ;[ids[idx], ids[j]] = [ids[j], ids[idx]]
+    order.mutate(ids)
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card className="flex items-center gap-3">
+        {todayRow?.scribe ? <Avatar nick={todayRow.scribe.nick} color={todayRow.scribe.color} size="lg" /> : null}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-muted">{t('class.turns_today')}</p>
+          <p className="text-xl font-extrabold">{todayRow?.scribe?.nick ?? t('class.turns_nobody')}</p>
+        </div>
+      </Card>
+
+      <section>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted">{t('class.turns_next')}</h2>
+          {manage && (
+            <Button size="sm" variant={swapMode ? 'primary' : 'secondary'} onClick={() => { setSwapMode((s) => !s); setPicked(null); setMsg(null) }}>
+              <ArrowLeftRight className="size-4" /> {t('class.swap')}
+            </Button>
+          )}
+        </div>
+        {swapMode && <p className="mb-2 text-sm text-muted">{t('class.swap_help')}</p>}
+        {msg && <p className="mb-2 text-sm font-semibold text-verde-ink">{msg}</p>}
+        {swap.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(swap.error as Error).message}</p>}
+        <ol className="space-y-1.5">
+          {data.days.map((d) =>
+            d.school ? (
+              <li key={d.day}>
+                <button
+                  onClick={() => pick(d.day)}
+                  disabled={!swapMode}
+                  className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
+                    picked === d.day ? 'border-bordeaux ring-2 ring-bordeaux/30' : 'border-line'
+                  } ${swapMode ? 'hover:border-ink/40' : ''} ${d.day === today ? 'bg-giallo-soft' : 'bg-white'}`}
+                >
+                  <span className="w-24 shrink-0 text-sm font-semibold">{capitalize(shortDay(d.day, i18n.language))}</span>
+                  {d.scribe ? (
+                    <span className="flex min-w-0 flex-1 items-center gap-2">
+                      <Avatar nick={d.scribe.nick} color={d.scribe.color} size="sm" />
+                      <span className="truncate font-semibold">{d.scribe.nick}</span>
+                    </span>
+                  ) : (
+                    <span className="flex-1 text-sm text-muted">{t('class.turns_nobody')}</span>
+                  )}
+                  {d.override_reason && <Badge className="bg-ink/5 text-muted">{t(`class.ov_${d.override_reason}`)}</Badge>}
+                  {d.card_status && (
+                    <Badge className={d.card_status === 'published' ? 'bg-verde-soft text-verde-ink' : 'bg-giallo-soft text-ink'}>
+                      {t(`class.st_${d.card_status}`)}
+                    </Badge>
+                  )}
+                </button>
+              </li>
+            ) : (
+              <li key={d.day} className="flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm text-muted">
+                <span className="w-24 shrink-0">{capitalize(shortDay(d.day, i18n.language))}</span>
+                <span className="italic">{t('class.turns_skipped', { reason: d.reason })}</span>
+              </li>
+            ),
+          )}
+        </ol>
+      </section>
+
+      <section>
+        <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-muted">{t('class.turns_order')}</h2>
+        <p className="mb-2 text-sm text-muted">{t('class.turns_order_help')}</p>
+        <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+          {data.order.map((m, i) => (
+            <li key={m.id} className="flex items-center gap-3 px-3 py-2">
+              <span className="w-6 text-center text-sm font-bold text-muted">{i + 1}</span>
+              <Avatar nick={m.nick} color={m.color} size="sm" />
+              <span className="flex-1 font-semibold">{m.nick}</span>
+              {manage && (
+                <>
+                  <button onClick={() => move(i, -1)} disabled={i === 0 || order.isPending} className="rounded-full p-1.5 hover:bg-ink/5 disabled:opacity-30" aria-label={t('class.move_up')}>
+                    <ArrowUp className="size-4" />
+                  </button>
+                  <button onClick={() => move(i, 1)} disabled={i === data.order.length - 1 || order.isPending} className="rounded-full p-1.5 hover:bg-ink/5 disabled:opacity-30" aria-label={t('class.move_down')}>
+                    <ArrowDown className="size-4" />
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ol>
+        {data.not_activated.length > 0 && (
+          <p className="mt-3 text-sm text-muted">
+            {t('class.turns_pending')}: {data.not_activated.map((m) => m.nick).join(', ')}
+          </p>
+        )}
+      </section>
+    </div>
+  )
+}
+
+// ---- timetable ---------------------------------------------------------------------
+const MONDAY = new Date(2026, 8, 28)
+
+function weekdayName(i: number, lang: string, style: 'short' | 'long' = 'long') {
+  const d = new Date(MONDAY)
+  d.setDate(d.getDate() + i)
+  return capitalize(new Intl.DateTimeFormat(locale(lang), { weekday: style }).format(d))
+}
+
+type Slot = TimetableData['slots'][number]
+
+function Timetable() {
+  const info = useClass()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language
+  const qc = useQueryClient()
+  const tt = useQuery({ queryKey: ['timetable', info.code], queryFn: () => api.get<TimetableData>(classPath(info.code, '/timetable')) })
+  const [editing, setEditing] = useState<Slot[] | null>(null)
+  const [cell, setCell] = useState<{ weekday: number; hour: number } | null>(null)
+  const [saved, setSaved] = useState(false)
+  const save = useMutation({
+    mutationFn: (slots: Slot[]) => api.put(classPath(info.code, '/timetable'), { slots: slots.map(({ weekday, hour, subject_code, room }) => ({ weekday, hour, subject_code, room })) }),
+    onSuccess: () => {
+      setEditing(null)
+      setSaved(true)
+      qc.invalidateQueries({ predicate: (q) => ['timetable', 'today', 'card'].includes(String(q.queryKey[0])) })
+    },
+  })
+  if (tt.isLoading) return <Spinner />
+  if (tt.error) return <ErrorBox error={tt.error} />
+  const data = tt.data!
+  const slots = editing ?? data.slots
+  const at = (w: number, h: number) => slots.find((s) => s.weekday === w && s.hour === h)
+  const hasAny = slots.length > 0
+
+  const setSlot = (w: number, h: number, subject: string | null, room: string) => {
+    setEditing((prev) => {
+      const base = (prev ?? data.slots).filter((s) => !(s.weekday === w && s.hour === h))
+      return subject ? [...base, { weekday: w, hour: h, subject_code: subject, room, is_lab: /^l/i.test(room.trim()) }] : base
+    })
+  }
+
+  return (
+    <div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm text-muted">{t('class.tt_lab_hint')}</p>
+        {data.can_edit && !editing && (
+          <Button size="sm" variant="secondary" onClick={() => { setEditing(data.slots); setSaved(false) }}>
+            <Pencil className="size-4" /> {t('class.tt_edit')}
+          </Button>
+        )}
+        {editing && (
+          <div className="flex gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>{t('common.cancel')}</Button>
+            <Button size="sm" onClick={() => save.mutate(editing)} loading={save.isPending}>{t('class.tt_save')}</Button>
+          </div>
+        )}
+      </div>
+      {saved && <p className="mb-2 text-sm font-semibold text-verde-ink">{t('class.tt_saved')}</p>}
+      {save.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
+      {!hasAny && !editing && <Card><EmptyState title={t('today.no_lessons')} /></Card>}
+      {(hasAny || editing) && (
+        <div className="-mx-4 overflow-x-auto px-4">
+          <table className="w-full min-w-[40rem] table-fixed border-separate border-spacing-1 text-sm">
+            <thead>
+              <tr>
+                <th className="w-20" />
+                {[0, 1, 2, 3, 4].map((w) => (
+                  <th key={w} className="rounded-lg bg-ink py-2 text-xs font-bold text-white">{weekdayName(w, lang)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.hours.map((h) => (
+                <tr key={h.hour}>
+                  <td className="pr-1 text-right align-middle text-xs text-muted">
+                    <span className="block font-bold text-ink">{h.hour}ª</span>
+                    {h.start}
+                  </td>
+                  {[0, 1, 2, 3, 4].map((w) => {
+                    const s = at(w, h.hour)
+                    const content = s ? (
+                      <>
+                        <span className="block truncate font-bold" style={{ color: subjectColor(data.subjects, s.subject_code) }}>{s.subject_code}</span>
+                        <span className="block truncate text-[11px] text-muted">{s.room}</span>
+                      </>
+                    ) : (
+                      <span className="text-xs text-muted/50">—</span>
+                    )
+                    const cls = `h-14 w-full rounded-lg border px-2 py-1 text-left ${s?.is_lab ? 'border-verde/40 bg-verde-soft' : 'border-line bg-white'}`
+                    return (
+                      <td key={w}>
+                        {editing ? (
+                          <button className={`${cls} hover:border-ink/40`} onClick={() => setCell({ weekday: w, hour: h.hour })} aria-label={t('class.tt_cell', { day: weekdayName(w, lang), hour: h.hour })} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>
+                            {content}
+                          </button>
+                        ) : (
+                          <div className={cls} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>{content}</div>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {cell && (
+        <CellModal
+          key={`${cell.weekday}-${cell.hour}`}
+          title={t('class.tt_cell', { day: weekdayName(cell.weekday, lang), hour: cell.hour })}
+          slot={at(cell.weekday, cell.hour)}
+          subjects={data.subjects}
+          onClose={() => setCell(null)}
+          onSave={(subject, room) => {
+            setSlot(cell.weekday, cell.hour, subject, room)
+            setCell(null)
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+function CellModal({ title, slot, subjects, onClose, onSave }: { title: string; slot?: Slot; subjects: TimetableData['subjects']; onClose: () => void; onSave: (subject: string | null, room: string) => void }) {
+  const { t, i18n } = useTranslation()
+  const [subject, setSubject] = useState(slot?.subject_code ?? '')
+  const [room, setRoom] = useState(slot?.room ?? '')
+  return (
+    <Modal open onClose={onClose} title={title}>
+      <div className="space-y-4">
+        <Field label={t('class.tt_subject')}>
+          <select className={inputClass} value={subject} onChange={(e) => setSubject(e.target.value)}>
+            <option value="">{t('class.tt_free')}</option>
+            {subjects.map((s) => (
+              <option key={s.code} value={s.code}>{s.code} · {subjectName(subjects, s.code, i18n.language)}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label={t('class.tt_room')} hint={t('class.tt_lab_hint')}>
+          <input className={inputClass} value={room} onChange={(e) => setRoom(e.target.value.toUpperCase())} placeholder="A215 / L143" maxLength={20} disabled={!subject} />
+        </Field>
+        <Button className="w-full" onClick={() => onSave(subject || null, room)}>{t('common.save')}</Button>
+      </div>
+    </Modal>
+  )
+}

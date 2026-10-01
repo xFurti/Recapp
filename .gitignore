@@ -1,0 +1,27 @@
+# secrets
+.dev_secret
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local data
+*.db
+*.db-journal
+uploads/
+
+# web
+web/node_modules/
+web/dist/
+web/*.tsbuildinfo
+web/node_modules/.tmp/
+
+# editors / os
+.DS_Store
+.idea/
+.vscode/

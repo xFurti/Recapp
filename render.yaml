@@ -1,0 +1,42 @@
+# Render Blueprint for the web service (site + API on one address).
+# The Render Workflows service for OCR is created from the dashboard: see DEPLOY.md.
+services:
+  - type: web
+    name: ieri
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    healthCheckPath: /api/healthz
+    autoDeploy: true
+    domains:
+      - bassaleo.xyz
+      - www.bassaleo.xyz
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: PUBLIC_URL
+        value: https://bassaleo.xyz
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: OWNER_USERNAME
+        sync: false
+      - key: OWNER_PASSWORD
+        sync: false
+      - key: OWNER_DISPLAY_NAME
+        value: Dirigenza
+      - key: OCR_PROVIDER
+        value: featherless
+      - key: FEATHERLESS_API_KEY
+        sync: false
+      - key: FEATHERLESS_MODEL
+        sync: false
+      - key: FEATHERLESS_TEXT_MODEL
+        sync: false
+      - key: TASK_RUNNER
+        value: render
+      - key: RENDER_API_KEY
+        sync: false
+      - key: RENDER_WORKFLOW_TASK
+        sync: false

@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-bordeaux: #a02848;
+  --color-bordeaux-dark: #7e1d37;
+  --color-bordeaux-soft: #f7e6eb;
+  --color-giallo: #f8b828;
+  --color-giallo-soft: #fff4d6;
+  --color-azzurro: #1898c8;
+  --color-azzurro-ink: #0b6a92;
+  --color-azzurro-soft: #e3f3fa;
+  --color-verde: #80b830;
+  --color-verde-ink: #4a7512;
+  --color-verde-soft: #eef6e1;
+  --color-rosa: #e01058;
+  --color-rosa-ink: #b00c45;
+  --color-rosa-soft: #fde6ee;
+  --color-viola: #8038b8;
+  --color-viola-ink: #6a2a9c;
+  --color-viola-soft: #f2e9f9;
+
+  --color-paper: #f6f4f1;
+  --color-ink: #1d1b1e;
+  --color-muted: #6b6570;
+  --color-line: #e7e2de;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-azzurro);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}

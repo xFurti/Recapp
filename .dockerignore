@@ -1,0 +1,12 @@
+.git
+.venv
+.env
+.env.*
+.dev_secret
+*.db
+**/__pycache__
+.pytest_cache
+web/node_modules
+web/dist
+api/tests
+loghimarconi.png
