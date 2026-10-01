@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 _tmp = Path(tempfile.mkdtemp(prefix="ieri-test-"))
-os.environ["DATABASE_URL"] = f"sqlite:///{_tmp / 'test.db'}"
+os.environ["DATABASE_URL"] = os.environ.get("TEST_DATABASE_URL") or f"sqlite:///{_tmp / 'test.db'}"
 os.environ["APP_ENV"] = "dev"
 os.environ["OCR_PROVIDER"] = "mock"
 os.environ["TASK_RUNNER"] = "inline"

@@ -25,3 +25,6 @@ web/node_modules/.tmp/
 .DS_Store
 .idea/
 .vscode/
+
+# local test crops
+test-*

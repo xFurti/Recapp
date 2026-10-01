@@ -1,6 +1,6 @@
 import base64
 import logging
-from datetime import date, timedelta
+from datetime import date
 
 from sqlmodel import Session, select
 
@@ -19,7 +19,7 @@ def ocr_context(cal: ClassCalendar, today: date) -> dict:
         "today": today.isoformat(),
         "subjects": [{"code": s.code, "name_it": s.name_it, "name_en": s.name_en} for s in subjects],
         "next_lessons": cal.next_lessons(today),
-        "school_days": [d.isoformat() for d in cal.school_days(today + timedelta(days=1), 20)],
+        "school_days": [d.isoformat() for d in cal.school_days(today, 21)],
     }
 
 

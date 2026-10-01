@@ -109,10 +109,15 @@ def validate_drafts(raw: Any, ctx: dict, default_source: str) -> list[dict]:
             reasons.append("non è un giorno di scuola")
         if r.get("_guessed_date"):
             reasons.append("data dedotta")
+        subject = _subject_code(r.get("materia") or r.get("subject"), ctx)
+        if title.lower() in (tipo, *TYPE_KEYWORDS.get(tipo, [])):
+            name = next((s["name_it"] for s in ctx.get("subjects", []) if s["code"] == subject), "")
+            title = f"{tipo} {name}".strip()
+        title = title[0].upper() + title[1:]
         out.append(
             {
                 "type": tipo,
-                "subject_code": _subject_code(r.get("materia") or r.get("subject"), ctx),
+                "subject_code": subject,
                 "title": title,
                 "due_date": due.isoformat(),
                 "due_time": due_time,
@@ -185,7 +190,7 @@ def _find_date(text: str, today: date, subject: Optional[str], ctx: dict) -> tup
     if re.search(r"\bdopodomani\b", low):
         return today + timedelta(days=2), "dopodomani"
     if re.search(r"\bdomani\b", low):
-        nd = ctx.get("school_days", [])
+        nd = [d for d in ctx.get("school_days", []) if d > today.isoformat()]
         return (date.fromisoformat(nd[0]) if nd else today + timedelta(days=1)), "domani"
     m = re.search(r"\btra\s+(una|1|due|2)\s+settiman[ae]\b", low)
     if m:
@@ -265,7 +270,7 @@ def parse_text(text: str, ctx: dict, default_source: str = "detto in classe") ->
 
 
 def mock_image(ctx: dict) -> list[dict]:
-    school_days = ctx.get("school_days") or []
+    school_days = [d for d in ctx.get("school_days") or [] if d > ctx["today"]]
     first = school_days[1] if len(school_days) > 1 else ctx["today"]
     later = school_days[3] if len(school_days) > 3 else first
     return validate_drafts(
@@ -284,10 +289,10 @@ Return ONLY JSON: {"items": [{"tipo": "compito|verifica|evento|lab", "materia": 
 "titolo": "<short Italian title, max 80 chars>", "quando": "YYYY-MM-DD or null", "ora": "HH:MM or null",
 "fonte": "ClasseViva|Classroom|Campus|detto in classe|altro"}]}
 Rules:
-- Today is {today} ({weekday}). Resolve relative dates ("ven", "domani", "prossima lezione") to real dates.
-- Subjects of this class (code = name): {subjects}.
-- Next lesson date for each subject: {next_lessons}. Use it for "per la prossima lezione".
-- Upcoming school days: {school_days}.
+- Today is @TODAY@ (@WEEKDAY@). Resolve relative dates ("ven", "domani", "prossima lezione") to real dates.
+- Subjects of this class (code = name): @SUBJECTS@.
+- Next lesson date for each subject: @NEXT_LESSONS@. Use it for "per la prossima lezione".
+- Upcoming school days: @SCHOOL_DAYS@.
 - "verifica", "test", "interrogazione" => tipo "verifica". Assemblies, trips, meetings => "evento".
 - Ignore grades, student names, absences and anything that is not a task, test or event.
 - If a date is unclear use null. Never invent items. Max 8 items."""
@@ -308,6 +313,21 @@ def _json_from_text(content: str) -> Any:
     raise ValueError("Risposta AI non in formato JSON")
 
 
+def build_system_prompt(ctx: dict) -> str:
+    today = date.fromisoformat(ctx["today"])
+    fields = {
+        "@TODAY@": ctx["today"],
+        "@WEEKDAY@": WEEKDAY_NAMES[today.weekday()],
+        "@SUBJECTS@": ", ".join(f'{s["code"]} = {s["name_it"]}' for s in ctx.get("subjects", [])),
+        "@NEXT_LESSONS@": json.dumps(ctx.get("next_lessons", {})),
+        "@SCHOOL_DAYS@": ", ".join(ctx.get("school_days", [])[:10]),
+    }
+    system = SYSTEM_PROMPT
+    for token, value in fields.items():
+        system = system.replace(token, value)
+    return system
+
+
 def featherless_extract(payload: dict) -> list[dict]:
     ctx = payload["context"]
     api_key = payload.get("api_key") or os.getenv("FEATHERLESS_API_KEY", "")
@@ -319,14 +339,7 @@ def featherless_extract(payload: dict) -> list[dict]:
     )
     if not api_key or not model:
         raise RuntimeError("Featherless non configurato (FEATHERLESS_API_KEY / FEATHERLESS_MODEL)")
-    today = date.fromisoformat(ctx["today"])
-    system = SYSTEM_PROMPT.format(
-        today=ctx["today"],
-        weekday=WEEKDAY_NAMES[today.weekday()],
-        subjects=", ".join(f'{s["code"]} = {s["name_it"]}' for s in ctx.get("subjects", [])),
-        next_lessons=json.dumps(ctx.get("next_lessons", {})),
-        school_days=", ".join(ctx.get("school_days", [])[:10]),
-    )
+    system = build_system_prompt(ctx)
     if is_image:
         user_content: Any = [
             {"type": "text", "text": "Estrai compiti, verifiche ed eventi da questo ritaglio."},

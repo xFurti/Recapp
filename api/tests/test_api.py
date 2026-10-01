@@ -207,6 +207,18 @@ def test_validate_flags_bad_dates():
     assert out[1]["type"] == "compito" and out[1]["needs_check"]
     assert out[2]["needs_check"], "saturday is not a school day"
 
+    titled = validate_drafts([{"tipo": "verifica", "materia": "MAT", "titolo": "verifica", "quando": "2026-10-02"}], CTX, "altro")
+    assert titled[0]["title"] == "Verifica Matematica"
+
+
+def test_system_prompt_fills_context():
+    from api.tasks import build_system_prompt
+
+    prompt = build_system_prompt(CTX)
+    assert "2026-09-30 (mercoledì)" in prompt
+    assert "MAT = Matematica" in prompt and '"MAT": "2026-10-02"' in prompt
+    assert '{"items": [' in prompt and "@" not in prompt
+
 
 def test_ocr_text_job(client):
     reset_demo(client)
