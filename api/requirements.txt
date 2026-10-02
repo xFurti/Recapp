@@ -9,3 +9,4 @@ httpx==0.28.*
 python-multipart==0.0.*
 python-dotenv==1.0.*
 tzdata
+render>=1.2.0

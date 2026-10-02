@@ -229,6 +229,36 @@ def test_ocr_text_job(client):
     assert job["status"] == "done" and job["drafts"][0]["type"] == "verifica"
 
 
+def test_ocr_via_render_workflows(client, monkeypatch):
+    import dataclasses
+    from types import SimpleNamespace
+
+    import render
+
+    from api import jobs
+    from api.tasks import extract_items
+
+    runs = {}
+
+    class FakeWorkflows:
+        def start_task(self, slug, args):
+            runs["run-1"] = extract_items(args[0])
+            return SimpleNamespace(id="run-1", status="PENDING")
+
+        def get_task_run(self, run_id):
+            return SimpleNamespace(status="TaskRunStatus.SUCCEEDED", results=[runs[run_id]])
+
+    monkeypatch.setattr(render, "Render", lambda token=None: SimpleNamespace(workflows=FakeWorkflows()))
+    monkeypatch.setattr(jobs, "settings", dataclasses.replace(jobs.settings, task_runner="render", render_api_key="k", render_workflow_task="ieri-ocr/extract_items"))
+
+    reset_demo(client)
+    client.post("/api/auth/demo")
+    started = client.post("/api/classes/DEMO/ocr", json={"text": "Mate: verifica ven"}).json()
+    assert started["status"] == "running"
+    job = client.get(f"/api/classes/DEMO/ocr/{started['job_id']}").json()
+    assert job["status"] == "done" and job["drafts"][0]["type"] == "verifica"
+
+
 def test_attachment_upload_strips_metadata(client):
     import io
 

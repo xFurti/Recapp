@@ -85,7 +85,7 @@ def refresh_job(session: Session, job: OcrJob) -> OcrJob:
         client = Render(token=settings.render_api_key)
         details = client.workflows.get_task_run(job.render_run_id)
         status = str(getattr(details, "status", "")).lower()
-        if status.endswith("completed"):
+        if status.endswith(("completed", "succeeded")):
             results = getattr(details, "results", []) or []
             _store_result(job, results[0] if results else {"drafts": []})
         elif any(status.endswith(s) for s in ("failed", "canceled", "cancelled")):
