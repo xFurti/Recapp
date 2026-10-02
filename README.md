@@ -99,9 +99,19 @@ More: [landing](docs/screenshots/01-landing.png), [members](docs/screenshots/06-
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, react-i18next (Italian / English) |
 | Backend | FastAPI, SQLModel, SQLite locally / Postgres (Neon) in production |
-| AI | Featherless (OpenAI-compatible API) for crop/line extraction, run as a Render Workflows task |
-| Hosting | One Render web service (Docker) serving the app and the API on the same domain |
+| AI | Featherless: `Qwen3-VL-8B-Instruct` for screenshots, `Qwen3-30B-A3B-Instruct-2507` for pasted text |
+| Background jobs | **Render Workflows**: the extraction runs as the `extract_items` task, with an in-process fallback |
+| Hosting | One Render web service (Docker) serving the app and the API on the same domain, `bassaleo.xyz` from gen.xyz |
 | Voice | Browser Web Speech API |
+| Quality | 16 pytest tests (also run against Postgres), TypeScript strict build, oxlint |
+
+```mermaid
+flowchart LR
+  Browser -->|"HTTPS bassaleo.xyz"| Web["Render web service: FastAPI + React"]
+  Web --> Neon["Neon Postgres"]
+  Web -->|"start_task"| Wf["Render Workflows: extract_items"]
+  Wf --> Feather["Featherless"]
+```
 
 ```
 web/            React app (pages: Today, Yesterday, Upcoming, Class, Editor, School area)
@@ -139,29 +149,39 @@ Tests:
 ```
 
 Configuration is documented in [`.env.example`](.env.example); deployment in
-[`DEPLOY.md`](DEPLOY.md).
+[`DEPLOY.md`](DEPLOY.md). Technical documentation for the team (architecture, data model, API,
+AI pipeline, security, operations) is in [`docs/`](docs/README.md), written in Italian.
 
 ## AI disclosure
 
 We used AI in two different ways and want to be clear about both.
 
 **While building.** We used Cursor, an AI coding assistant, to discuss the plan, write large parts
-of the code (backend, React pages, tests) and debug it. We decided the product and its rules:
-the problem, the three layers (class-written now, screenshots next, official integrations only
-with the school's permission), the privacy limits, the note-taker rotation and the 18:00
-takeover. We reviewed the generated code, ran it, tested it on our real timetables, and can
-explain how every part works.
+of the code (backend, React pages, tests, Docker and Render configuration) and debug it. We
+decided the product and its rules: the problem, the three layers (class-written now, screenshots
+next, official integrations only with the school's permission), the privacy limits, the
+note-taker rotation and the 18:00 takeover, what each screen shows. We reviewed the generated
+code, ran it, tested it on our real timetables and on the live site with classmates, and fed the
+problems we found back into the work (for example a timezone bug and AI prompts that confused
+weekdays). We can explain how every part works; the [`docs/`](docs/README.md) folder is our map.
 
 **Inside the product.** The note-taker can ask AI (Featherless models, called from a Render
-Workflows task) to turn a pasted line or a cropped screenshot into draft items. The AI never
+Workflows task) to turn a pasted line or a cropped screenshot into draft items. Only the cleaned
+image (no metadata) and the class context (subjects, dates) are sent; never nicknames. The AI never
 publishes: every draft is shown to a human who accepts, corrects or discards it, and dates that
 look wrong (weekends, holidays, too far ahead) are flagged. Without an AI key the app uses a
 simple rule-based parser instead. The "Listen" button uses the browser's built-in speech
 synthesis; it is not generative AI.
 
+## Built with
+
+React · TypeScript · Vite · Tailwind CSS · TanStack Query · react-i18next · FastAPI · SQLModel ·
+Pydantic · Pillow · Postgres (Neon) · Docker · Render (web service + Workflows) · Featherless ·
+Web Speech API · gen.xyz · Cursor (AI coding assistant)
+
 ## Team and credits
 
-Three students of ITI G. Marconi, Verona, 4th year Computer Science.
+Three students of ITI G. Marconi, Verona, 4th year Computer Science: [ name ], [ name ], [ name ].
 
 The ITI G. Marconi logo belongs to the school and is used with its permission for this pilot;
 it is not covered by the MIT license of the code.

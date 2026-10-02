@@ -45,7 +45,7 @@ Checklist per mettere online Ieri su `https://bassaleo.xyz`. Le chiavi vanno **s
    | `OWNER_USERNAME` / `OWNER_PASSWORD` | account dell'Area scuola (password lunga) |
    | `FEATHERLESS_API_KEY`, `FEATHERLESS_MODEL`, `FEATHERLESS_TEXT_MODEL` | da Featherless |
    | `RENDER_API_KEY` | Account Settings → API Keys |
-   | `RENDER_WORKFLOW_TASK` | slug del task, es. `ieri-ocr/extract_items` (vedi punto 5) |
+   | `RENDER_WORKFLOW_TASK` | slug del task: da noi `recap-ai/extract_items` (vedi punto 5) |
    `SECRET_KEY` viene generata da Render.
 3. Al primo avvio, nei **Logs** del servizio compaiono i codici classe di 4AI e 4BI e un invito
    admin per ciascuna (mostrati una sola volta). Salvali in un posto sicuro e dalli ai rappresentanti.
@@ -53,12 +53,13 @@ Checklist per mettere online Ieri su `https://bassaleo.xyz`. Le chiavi vanno **s
 
 ## 5. Render Workflows (OCR)
 
-1. Render → New → **Workflow** → stesso repo.
+1. Render → New → **Workflow** → stesso repo (da noi si chiama `recap-ai`). Root Directory vuota.
 2. Build command: `pip install -r api/requirements-workflow.txt`
-3. Start command: `python -m api.workflow`
+3. Start command: `python -m api.workflow` (con `-m`: `python api/workflow.py` non funziona per
+   l'import relativo e dà "Could not detect tasks").
 4. Environment: `FEATHERLESS_API_KEY`, `FEATHERLESS_MODEL`, `FEATHERLESS_TEXT_MODEL`.
 5. Dopo il deploy, il task `extract_items` compare nella dashboard con il suo slug
-   (es. `ieri-ocr/extract_items`): copialo in `RENDER_WORKFLOW_TASK` del Web Service.
+   (`recap-ai/extract_items`): copialo in `RENDER_WORKFLOW_TASK` del Web Service.
 6. Se Workflows dà problemi: metti `TASK_RUNNER=inline` nel Web Service. L'OCR gira dentro
    l'app e tutto funziona uguale; si perde solo l'idoneità al premio Render.
 
