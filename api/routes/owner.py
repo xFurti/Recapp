@@ -8,7 +8,7 @@ from ..config import settings
 from ..db import get_session
 from ..models import Classroom, DayCard, Holiday, Member
 from ..schemas import HolidayIn, OwnerClassIn
-from ..seed import create_class
+from ..seed import DEMO_CODE, create_class
 from ..services import classroom_out, week_bounds
 
 router = APIRouter(prefix="/api/owner", dependencies=[Depends(require_owner)])
@@ -19,7 +19,11 @@ def owner_classes(request: Request, session: Session = Depends(get_session)):
     today = request_now(request).date()
     start, end = week_bounds(today)
     out = []
-    for c in session.exec(select(Classroom).order_by(Classroom.is_demo, Classroom.name)).all():
+    for c in session.exec(
+        select(Classroom)
+        .where((Classroom.is_demo == False) | (Classroom.code == DEMO_CODE))  # noqa: E712
+        .order_by(Classroom.is_demo, Classroom.name)
+    ).all():
         last = session.exec(
             select(DayCard.day)
             .where(DayCard.class_id == c.id, DayCard.status == "published")

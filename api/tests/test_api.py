@@ -45,6 +45,12 @@ def test_private_demos_stay_apart(client):
     assert again.json()["code"] == a.json()["code"]
     shared = make_client().post("/api/auth/demo")
     assert shared.json()["code"] == "DEMO"
+    client.post("/api/auth/logout")
+    assert client.post("/api/owner/login", json={"username": "preside", "password": "test-password"}).status_code == 200
+    listed = {c["code"] for c in client.get("/api/owner/classes").json()}
+    assert "DEMO" in listed
+    assert a.json()["code"] not in listed
+    assert b.json()["code"] not in listed
 
 
 def test_demo_enter_does_not_ask_for_a_pin(client):

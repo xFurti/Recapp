@@ -316,15 +316,13 @@ def open_private_demo(session: Session, token: str) -> Classroom:
     return classroom
 
 
-def purge_private_demos(session: Session, days: int = 7) -> None:
-    cutoff = datetime.now(TZ).date() - timedelta(days=days)
+def purge_private_demos(session: Session) -> None:
+    """Removes the per-browser demo copies. The shared DEMO class stays.
+    They are not real classes and must not pile up in the school area."""
     rows = session.exec(
         select(Classroom).where(Classroom.is_demo == True, Classroom.code != DEMO_CODE)  # noqa: E712
     ).all()
     for classroom in rows:
-        seen = classroom.demo_seen_on or (classroom.created_at.date() if classroom.created_at else cutoff)
-        if seen >= cutoff:
-            continue
         _wipe_demo(session, classroom)
         session.exec(delete(Member).where(Member.class_id == classroom.id))
         session.delete(classroom)
