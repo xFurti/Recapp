@@ -89,7 +89,7 @@ export function LangToggle() {
     <button
       type="button"
       onClick={() => setLanguage(next)}
-      className="lang-btn flex size-8 items-center justify-center rounded-full border border-line bg-surface text-[11px] font-bold uppercase tracking-wide text-ink"
+      className={`lang-btn lang-flag lang-flag-${lang} flex size-8 items-center justify-center overflow-hidden rounded-full border border-black/15 text-[11px] font-bold uppercase tracking-wide`}
       title={label}
       aria-label={label}
     >
