@@ -12,7 +12,7 @@ Prima della pubblicazione il team deve approvare i testi, come richiesto dall’
 
 ## Profili
 
-L’array `creators` in `web/src/content/about.ts` è volutamente vuoto finché il team non fornisce nomi o nickname, ruoli, biografie, eventuali foto e link autorizzati. La pagina mostra soltanto le informazioni collettive già documentate nel README. Non sostituire i dati mancanti con identità inventate.
+L’array `creators` in `web/src/content/about.ts` contiene i nickname forniti dal team: Leo, Luca e Alex, tutti con ruolo “Developer e creatore” (inglese: “Developer and creator”). Biografie, foto e link personali saranno aggiunti dal team in seguito. Finché la biografia è vuota non viene mostrato un paragrafo, e in assenza di foto compare la grafica con iniziali. Non inventare le informazioni personali mancanti.
 
 Ogni profilo usa `id`, `name`, `role: { it, en }`, `bio: { it, en }`, una foto opzionale `{ src, alt: { it, en } }` e link opzionali `{ label, href }`. Usare immagini ridimensionate e compresse (preferibilmente WebP), con ritaglio quadrato. Il componente riserva lo spazio dell’immagine e usa una grafica con iniziali quando la foto manca o non si carica.
 

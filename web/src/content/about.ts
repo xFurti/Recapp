@@ -21,7 +21,12 @@ export const faqItems = [
 ] as const
 
 // Add only team-supplied profiles and personal links. Do not publish guessed identities.
-export const creators: Creator[] = []
+export const creators: Creator[] = ['Leo', 'Luca', 'Alex'].map((name) => ({
+  id: name.toLowerCase(),
+  name,
+  role: { it: 'Developer e creatore', en: 'Developer and creator' },
+  bio: { it: '', en: '' },
+}))
 
 export function localized(text: LocalizedText, language: string): string {
   return language.startsWith('en') ? text.en : text.it

@@ -47,7 +47,7 @@ export function CreatorSlideshow({ profiles }: { profiles: Creator[] }) {
             <div className="min-w-0 [overflow-wrap:anywhere]">
               <p className="text-sm font-semibold text-bordeaux">{localized(creator.role, i18n.language)}</p>
               <h3 className="mt-1 text-2xl font-extrabold tracking-tight">{creator.name}</h3>
-              <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-muted">{localized(creator.bio, i18n.language)}</p>
+              {localized(creator.bio, i18n.language).trim() && <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-muted">{localized(creator.bio, i18n.language)}</p>}
               {!!creator.links?.length && <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
                 {creator.links.filter(link => /^https?:\/\//i.test(link.href)).map(link => <li key={link.href}><a href={link.href} className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-bordeaux underline underline-offset-4">{link.label}<ExternalLink className="size-4" aria-hidden /></a></li>)}
               </ul>}
