@@ -5,13 +5,14 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { ItemRow, TYPE_STYLE } from '../components/items'
-import { Button, Card, Chip, EmptyState, ErrorBox, Segmented, Spinner } from '../components/ui'
+import { Button, Card, Chip, EmptyState, ErrorBox, Segmented, Spinner, inputClass } from '../components/ui'
 import { useDone } from '../lib/done'
-import { capitalize, relativeDay, shortDay } from '../lib/format'
+import { capitalize, relativeDay, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass, useToday } from '../queries'
 import type { Item, ItemType } from '../types'
 
 type Range = 'week' | 'next' | 'all'
+type SubjectFilter = 'all' | 'none' | string
 const TYPES: ItemType[] = ['compito', 'verifica', 'evento', 'lab']
 
 function groupByDay(items: Item[]): [string, Item[]][] {
@@ -30,6 +31,7 @@ export default function Upcoming() {
   const qc = useQueryClient()
   const [type, setType] = useState<ItemType | null>(null)
   const [range, setRange] = useState<Range>('all')
+  const [subject, setSubject] = useState<SubjectFilter>('all')
   const [showPast, setShowPast] = useState(false)
   const [form, setForm] = useState<ItemInput | null>(null)
   const { done, toggle } = useDone(info.code)
@@ -66,6 +68,21 @@ export default function Upcoming() {
 
   const openEdit = (it: Item) =>
     setForm({ id: it.id, type: it.type, subject_code: it.subject_code, title: it.title, due_date: it.due_date, due_time: it.due_time, source: it.source, link: it.link })
+
+  const bySubject = (items: Item[]) => items.filter((it) => {
+    if (subject === 'all') return true
+    if (subject === 'none') return !it.subject_code
+    return it.subject_code === subject
+  })
+  const visible = bySubject(list.data ?? [])
+  const pastVisible = bySubject(past.data ?? [])
+  const filtersOn = type !== null || range !== 'all' || subject !== 'all'
+  const resetFilters = () => {
+    setType(null)
+    setRange('all')
+    setSubject('all')
+  }
+  const subjectColorDot = subject === 'all' || subject === 'none' ? 'var(--color-line)' : subjectColor(info.subjects, subject)
 
   const renderGroups = (items: Item[]) =>
     groupByDay(items).map(([day, group]) => {
@@ -127,21 +144,51 @@ export default function Upcoming() {
           { value: 'all', label: t('upcoming.everything') },
         ]}
       />
+      <label className="mt-3 block">
+        <span className="mb-1.5 block text-sm font-semibold">{t('upcoming.subject')}</span>
+        <span className="flex items-center gap-2">
+          <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: subjectColorDot }} aria-hidden />
+          <select
+            className={inputClass}
+            value={subject}
+            aria-label={t('upcoming.subject')}
+            onChange={(e) => setSubject(e.target.value)}
+          >
+            <option value="all">{t('subject.all_subjects')}</option>
+            <option value="none">{t('upcoming.no_subject')}</option>
+            {info.subjects.map((s) => (
+              <option key={s.code} value={s.code}>{subjectName(info.subjects, s.code, i18n.language)}</option>
+            ))}
+          </select>
+        </span>
+      </label>
 
       {list.isLoading && <Spinner />}
       {list.error && <div className="mt-4"><ErrorBox error={list.error} onRetry={() => list.refetch()} /></div>}
-      {list.data && list.data.length === 0 && (
+      {list.data && visible.length === 0 && !filtersOn && (
         <Card className="mt-5">
           <EmptyState title={t('upcoming.empty')} text={canAdd ? t('upcoming.empty_sub') : undefined} />
         </Card>
       )}
-      {list.data && renderGroups(list.data)}
+      {list.data && visible.length === 0 && filtersOn && (
+        <Card className="mt-5">
+          <EmptyState title={t('upcoming.no_match')}>
+            <div className="flex flex-wrap justify-center gap-2">
+              {subject !== 'all' && (
+                <Button variant="secondary" size="sm" onClick={() => setSubject('all')}>{t('upcoming.clear_subject')}</Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={resetFilters}>{t('upcoming.reset_filters')}</Button>
+            </div>
+          </EmptyState>
+        </Card>
+      )}
+      {list.data && visible.length > 0 && renderGroups(visible)}
 
       <button onClick={() => setShowPast((s) => !s)} className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink" aria-expanded={showPast}>
         <ChevronDown className={`size-4 transition ${showPast ? 'rotate-180' : ''}`} />
         {showPast ? t('upcoming.hide_past') : t('upcoming.show_past')}
       </button>
-      {showPast && (past.isLoading ? <Spinner /> : <div className="opacity-80">{renderGroups(past.data ?? [])}</div>)}
+      {showPast && (past.isLoading ? <Spinner /> : <div className="opacity-80">{renderGroups(pastVisible)}</div>)}
 
       {canAdd && (
         <button
