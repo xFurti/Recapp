@@ -14,10 +14,14 @@ export default function Privacy() {
   ]
   return (
     <div className="min-h-dvh">
-      <header className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
-        <Link to="/" className="flex items-center gap-3"><Wordmark /><Logo className="h-8" /></Link>
-        <ThemeToggle />
+      <header className="sticky top-0 z-30 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-4 py-3">
+          <Link to="/" className="flex min-w-0 items-center gap-2"><Wordmark /><Logo className="h-7 sm:h-8" /></Link>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
             <LangToggle />
+          </div>
+        </div>
       </header>
       <main className="mx-auto max-w-2xl px-5 pb-16">
         <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">

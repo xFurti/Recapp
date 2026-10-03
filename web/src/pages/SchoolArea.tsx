@@ -16,11 +16,13 @@ export default function SchoolArea() {
   const me = useMe()
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-5 py-3">
-          <Link to="/" className="flex items-center gap-3"><Wordmark /><Logo className="h-8" /></Link>
-          <ThemeToggle />
+      <header className="sticky top-0 z-30 border-b border-line bg-surface pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
+          <Link to="/" className="flex min-w-0 items-center gap-2"><Wordmark /><Logo className="h-7 sm:h-8" /></Link>
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
             <LangToggle />
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-5 py-8">

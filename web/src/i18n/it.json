@@ -17,7 +17,10 @@
     "you": "tu",
     "optional": "opzionale",
     "read_only": "Sola lettura",
-    "language": "Lingua"
+    "language": "Lingua",
+    "language_switch": "Passa a {{lang}}",
+    "lang_it": "italiano",
+    "lang_en": "inglese"
   },
   "nav": {
     "today": "Oggi",

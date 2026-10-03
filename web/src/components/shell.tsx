@@ -16,10 +16,12 @@ import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
-import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
+import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
+import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
 import { markTourSeen, tourSeen } from '../lib/tour'
-import { NAV_ICON_MS, NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { ConfettiBurst } from './Confetti'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
@@ -29,7 +31,7 @@ export function Logo({ className = 'h-9' }: { className?: string }) {
 }
 
 /** One full flip of all pages; the keyframes in index.css are written as fractions of it. */
-const RECAPP_MARK_MS = 560
+export const RECAPP_MARK_MS = 560
 
 /**
  * The Recapp icon as one layer per page (cut by scripts/split_recapp_icon.py), front page first.
@@ -65,8 +67,8 @@ export function ThemeToggle() {
   const Icon = choice === 'dark' ? Moon : SunMedium
   const next = () => {
     const value: ThemeChoice = choice === 'dark' ? 'light' : 'dark'
-    setTheme(value)
     setChoice(value)
+    animateTheme(value)
   }
   const label = t('theme.label', { mode: t(`theme.${choice}`) })
   return (
@@ -76,29 +78,22 @@ export function ThemeToggle() {
   )
 }
 
+/** One round button: it shows the current language and flips to the other. */
 export function LangToggle() {
   const { i18n, t } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'it'
-  return (
-    <div className="inline-flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold" role="group" aria-label={t('common.language')}>
-      {(['it', 'en'] as const).map((l) => (
-        <LangButton key={l} code={l} active={lang === l} />
-      ))}
-    </div>
-  )
-}
-
-function LangButton({ code, active }: { code: 'it' | 'en'; active: boolean }) {
-  const motion = useNavIconMotion()
+  const next = lang === 'it' ? 'en' : 'it'
+  const label = t('common.language_switch', { lang: t(`common.lang_${next}`) })
   return (
     <button
-      onClick={() => setLanguage(code)}
-      {...motion.triggers}
-      aria-pressed={active}
-      className={`rounded-full px-2.5 py-1 uppercase transition ${active ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
+      type="button"
+      onClick={() => setLanguage(next)}
+      className="lang-btn flex size-8 items-center justify-center rounded-full border border-line bg-surface text-[11px] font-bold uppercase tracking-wide text-ink"
+      title={label}
+      aria-label={label}
     >
-      <span className="nav-icon" data-motion="lang" data-playing={motion.playing || undefined} style={{ '--nav-icon-ms': `${NAV_ICON_MS}ms` } as CSSProperties}>
-        {code}
+      <span key={lang} className="lang-swap">
+        {lang}
       </span>
     </button>
   )
@@ -286,7 +281,13 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const location = useLocation()
   const fetching = useIsFetching()
   const [tourOpen, setTourOpen] = useState(false)
+  const [party, setParty] = useState(false)
+  const stopParty = useCallback(() => setParty(false), [])
   const autoTried = useRef(false)
+
+  useEffect(() => {
+    if (takeCelebrate()) setParty(true)
+  }, [location.key])
 
   // First visit: wait until the page has its data, and never interrupt someone who opened the editor directly.
   useEffect(() => {
@@ -343,7 +344,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur">
+        <header className="sticky top-0 z-30 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
           {info.viewer.kind === 'owner' && (
             <div className="flex items-center justify-between bg-ink px-4 py-1.5 text-xs font-semibold text-paper">
               <span>{t('shell.school_view')}</span>
@@ -385,6 +386,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         </div>
       </nav>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}
+      {party && <ConfettiBurst onDone={stopParty} />}
     </div>
   )
 }

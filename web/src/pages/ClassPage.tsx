@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
-import { useCallback, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
-import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner, useDismiss } from '../components/ui'
+import { AnchoredMenu, Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
 import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass } from '../queries'
@@ -47,10 +47,8 @@ function Members() {
   const list = useQuery({ queryKey: ['members', info.code], queryFn: () => api.get<{ members: MemberRow[]; can_manage: boolean }>(classPath(info.code, '/members')) })
   const [adding, setAdding] = useState(false)
   const [invite, setInvite] = useState<Invite | null>(null)
-  const [menu, setMenu] = useState<number | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [menu, setMenu] = useState<{ id: number; el: HTMLButtonElement } | null>(null)
   const closeMenu = useCallback(() => setMenu(null), [])
-  useDismiss(menuRef, menu !== null, closeMenu)
   const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public'].includes(String(q.queryKey[0])) })
   const act = useMutation({
     mutationFn: async ({ kind, m }: { kind: 'reset' | 'admin' | 'member' | 'remove'; m: MemberRow }) => {
@@ -59,7 +57,7 @@ function Members() {
       return api.patch(classPath(info.code, `/members/${m.id}`), { role: kind })
     },
     onSuccess: (data, { kind }) => {
-      setMenu(null)
+      closeMenu()
       if (kind === 'reset') setInvite(data as Invite)
       refresh()
     },
@@ -68,6 +66,7 @@ function Members() {
   if (list.isLoading) return <Spinner />
   if (list.error) return <ErrorBox error={list.error} onRetry={() => list.refetch()} />
   const { members, can_manage } = list.data!
+  const openMember = menu ? members.find((m) => m.id === menu.id) : undefined
 
   const confirmAct = (kind: 'reset' | 'admin' | 'member' | 'remove', m: MemberRow) => {
     if (kind === 'reset' && !window.confirm(t('class.reset_confirm', { nick: m.nick }))) return
@@ -103,28 +102,36 @@ function Members() {
               </p>
             </div>
             {can_manage && (
-              <div className="relative" ref={menu === m.id ? menuRef : undefined}>
-                <button onClick={() => setMenu(menu === m.id ? null : m.id)} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('class.manage')} aria-expanded={menu === m.id}>
-                  <MoreVertical className="size-5" />
-                </button>
-                {menu === m.id && (
-                  <div className="absolute right-0 z-20 mt-1 w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-lg" role="menu">
-                    <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', m)} />
-                    {info.is_demo ? (
-                      <p className="px-3 py-2 text-xs text-muted">{t('class.demo_locked')}</p>
-                    ) : m.role === 'member' ? (
-                      <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', m)} />
-                    ) : (
-                      <MenuItem icon={Crown} label={t('class.make_member')} onClick={() => confirmAct('member', m)} />
-                    )}
-                    {!m.is_me && !info.is_demo && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', m)} />}
-                  </div>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  const el = e.currentTarget
+                  setMenu((cur) => (cur?.id === m.id ? null : { id: m.id, el }))
+                }}
+                className="rounded-full p-2 hover:bg-ink/5"
+                aria-label={t('class.manage')}
+                aria-haspopup="menu"
+                aria-expanded={menu?.id === m.id}
+              >
+                <MoreVertical className="size-5" />
+              </button>
             )}
           </li>
         ))}
       </ul>
+      {openMember && menu && (
+        <AnchoredMenu open anchorEl={menu.el} onClose={closeMenu}>
+          <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', openMember)} />
+          {info.is_demo ? (
+            <p className="px-3 py-2 text-xs text-muted">{t('class.demo_locked')}</p>
+          ) : openMember.role === 'member' ? (
+            <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', openMember)} />
+          ) : (
+            <MenuItem icon={Crown} label={t('class.make_member')} onClick={() => confirmAct('member', openMember)} />
+          )}
+          {!openMember.is_me && !info.is_demo && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', openMember)} />}
+        </AnchoredMenu>
+      )}
       <AddMemberModal open={adding} onClose={() => setAdding(false)} onCreated={(inv) => { setAdding(false); setInvite(inv); refresh() }} />
       {invite && (
         <InviteModal open onClose={() => setInvite(null)} nick={invite.nick} invite={invite.invite} joinUrl={invite.join_url} classCode={info.code} />

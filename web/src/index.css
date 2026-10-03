@@ -358,4 +358,173 @@
   .confirmation-dialog[data-closing] { transform: none; animation-duration: 0.01ms; }
   @keyframes confirmation-in { from { opacity: 0; } to { opacity: 1; } }
   @keyframes confirmation-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Buttons: a small lift, then a press. The trailing arrow nudges forward. */
+.btn-spring {
+  transition-property: transform, background-color, border-color, box-shadow, color, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-spring:hover:enabled {
+  transform: translateY(-1px);
+}
+.btn-spring:active:enabled {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 80ms;
+}
+.btn-spring .lucide-arrow-right {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-spring:hover:enabled .lucide-arrow-right {
+  transform: translateX(3px);
+}
+
+/* Language button: the letters flip in when the language changes. */
+.lang-btn {
+  transition: transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.lang-btn:hover {
+  transform: scale(1.06);
+}
+.lang-btn:active {
+  transform: scale(0.92);
+}
+.lang-swap {
+  display: inline-block;
+  animation: lang-swap 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes lang-swap {
+  0% { opacity: 0; transform: translateY(7px) rotate(-14deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Done check: the tick draws itself, the circle pops, a ring expands. */
+.done-check {
+  position: relative;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+.done-check-mark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.done-check.is-drawing {
+  animation: done-check-pop 460ms cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+.done-check.is-drawing .done-check-mark {
+  animation: done-check-draw 340ms cubic-bezier(0.22, 1, 0.36, 1) 60ms both;
+}
+.done-check.is-drawing::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  border: 2px solid var(--color-verde);
+  pointer-events: none;
+  animation: done-check-ring 520ms ease-out forwards;
+}
+@keyframes done-check-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes done-check-pop {
+  0% { transform: scale(0.84); }
+  50% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+@keyframes done-check-ring {
+  from { transform: scale(0.9); opacity: 0.85; }
+  to { transform: scale(1.65); opacity: 0; }
+}
+
+/* Confetti after a published card. Each piece shoots sideways, pops up, then falls. */
+.confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: 0;
+  height: 0;
+  animation: confetti-x 1200ms cubic-bezier(0.12, 0.7, 0.2, 1) both;
+}
+.confetti-bit {
+  position: absolute;
+  display: block;
+  animation:
+    confetti-y 1200ms cubic-bezier(0.22, 0.8, 0.36, 1) both,
+    confetti-spin 1200ms linear both;
+}
+@keyframes confetti-x {
+  to { transform: translateX(var(--dx)); }
+}
+@keyframes confetti-y {
+  0% { opacity: 1; transform: translateY(0); }
+  22% { opacity: 1; transform: translateY(var(--lift)); }
+  100% { opacity: 0; transform: translateY(var(--dy)); }
+}
+@keyframes confetti-spin {
+  0% { rotate: 0deg; scale: 0.5; }
+  18% { scale: 1; }
+  100% { rotate: var(--rot); scale: 0.85; }
+}
+
+/* Light/dark: the color tokens themselves blend, so every surface follows. */
+@property --color-surface { syntax: "<color>"; inherits: true; initial-value: #ffffff; }
+@property --color-paper { syntax: "<color>"; inherits: true; initial-value: #f6f4f1; }
+@property --color-ink { syntax: "<color>"; inherits: true; initial-value: #1d1b1e; }
+@property --color-muted { syntax: "<color>"; inherits: true; initial-value: #6b6570; }
+@property --color-line { syntax: "<color>"; inherits: true; initial-value: #e7e2de; }
+@property --color-bordeaux { syntax: "<color>"; inherits: true; initial-value: #a02848; }
+@property --color-bordeaux-dark { syntax: "<color>"; inherits: true; initial-value: #7e1d37; }
+@property --color-bordeaux-soft { syntax: "<color>"; inherits: true; initial-value: #f7e6eb; }
+@property --color-giallo { syntax: "<color>"; inherits: true; initial-value: #f8b828; }
+@property --color-giallo-soft { syntax: "<color>"; inherits: true; initial-value: #fff4d6; }
+@property --color-azzurro { syntax: "<color>"; inherits: true; initial-value: #1898c8; }
+@property --color-azzurro-ink { syntax: "<color>"; inherits: true; initial-value: #0b6a92; }
+@property --color-azzurro-soft { syntax: "<color>"; inherits: true; initial-value: #e3f3fa; }
+@property --color-verde { syntax: "<color>"; inherits: true; initial-value: #80b830; }
+@property --color-verde-ink { syntax: "<color>"; inherits: true; initial-value: #4a7512; }
+@property --color-verde-soft { syntax: "<color>"; inherits: true; initial-value: #eef6e1; }
+@property --color-rosa { syntax: "<color>"; inherits: true; initial-value: #e01058; }
+@property --color-rosa-ink { syntax: "<color>"; inherits: true; initial-value: #b00c45; }
+@property --color-rosa-soft { syntax: "<color>"; inherits: true; initial-value: #fde6ee; }
+@property --color-viola { syntax: "<color>"; inherits: true; initial-value: #8038b8; }
+@property --color-viola-ink { syntax: "<color>"; inherits: true; initial-value: #6a2a9c; }
+@property --color-viola-soft { syntax: "<color>"; inherits: true; initial-value: #f2e9f9; }
+
+html.theme-anim {
+  transition-property: --color-surface, --color-paper, --color-ink, --color-muted, --color-line, --color-bordeaux, --color-bordeaux-dark, --color-bordeaux-soft, --color-giallo, --color-giallo-soft, --color-azzurro, --color-azzurro-ink, --color-azzurro-soft, --color-verde, --color-verde-ink, --color-verde-soft, --color-rosa, --color-rosa-ink, --color-rosa-soft, --color-viola, --color-viola-ink, --color-viola-soft;
+  transition-duration: 480ms;
+  transition-timing-function: ease;
+}
+
+/* Member menu: a short pop from the button, once it has been placed. */
+.menu-pop {
+  animation: menu-pop 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes menu-pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-spring:hover:enabled,
+  .btn-spring:active:enabled,
+  .btn-spring:hover:enabled .lucide-arrow-right,
+  .lang-btn:hover,
+  .lang-btn:active {
+    transform: none;
+  }
+  .lang-swap,
+  .done-check,
+  .done-check.is-drawing .done-check-mark,
+  .done-check.is-drawing::after,
+  .confetti-piece,
+  .confetti-bit,
+  .menu-pop {
+    animation: none !important;
+  }
+  .confetti-piece { display: none; }
 }

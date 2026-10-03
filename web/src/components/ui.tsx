@@ -1,5 +1,5 @@
 import { LoaderCircle, X } from 'lucide-react'
-import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode, type RefObject } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -26,7 +26,7 @@ export function Button({
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`btn-spring inline-flex items-center justify-center gap-2 rounded-xl font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {loading && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
       {children}
@@ -211,6 +211,80 @@ export function Modal({
 }
 
 /** Closes a popover on tap/click outside `ref` and on Escape (touch screens have no mouseleave). */
+/**
+ * Menu anchored to a button, portaled to the body so a clipping parent cannot cut it off.
+ * Opens downward, and flips above the button when there is no room.
+ */
+export function AnchoredMenu({
+  open,
+  anchorEl,
+  onClose,
+  children,
+}: {
+  open: boolean
+  anchorEl: HTMLElement | null
+  onClose: () => void
+  children: ReactNode
+}) {
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [style, setStyle] = useState<CSSProperties>({ top: -9999, left: 0, visibility: 'hidden' })
+
+  useEffect(() => {
+    if (!open) return
+    const onPointer = (e: PointerEvent) => {
+      const target = e.target as Node
+      if (menuRef.current?.contains(target) || anchorEl?.contains(target)) return
+      onClose()
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose, anchorEl])
+
+  useLayoutEffect(() => {
+    if (!open || !anchorEl) return
+    const place = () => {
+      const menu = menuRef.current
+      if (!menu) return
+      const anchor = anchorEl.getBoundingClientRect()
+      if (anchor.bottom < 0 || anchor.top > window.innerHeight) {
+        onClose()
+        return
+      }
+      const gap = 6
+      const width = menu.offsetWidth
+      const height = menu.offsetHeight
+      // The class pages keep a bottom tab bar on small screens; don't tuck the menu under it.
+      const bottomInset = window.innerWidth < 768 ? 80 : 8
+      const below = anchor.bottom + gap
+      const above = anchor.top - gap - height
+      const openAbove = below + height > window.innerHeight - bottomInset && above >= 8
+      const top = Math.max(8, openAbove ? above : below)
+      const left = Math.min(Math.max(8, anchor.right - width), window.innerWidth - width - 8)
+      setStyle({ top, left, visibility: 'visible', transformOrigin: openAbove ? 'bottom right' : 'top right' })
+    }
+    place()
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', place, true)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [open, anchorEl, onClose])
+
+  if (!open) return null
+  return createPortal(
+    <div ref={menuRef} role="menu" style={style} className={`fixed z-50 w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-lg ${style.visibility === 'visible' ? 'menu-pop' : ''}`}>
+      {children}
+    </div>,
+    document.body,
+  )
+}
+
 export function useDismiss(ref: RefObject<HTMLElement | null>, open: boolean, onClose: () => void) {
   useEffect(() => {
     if (!open) return

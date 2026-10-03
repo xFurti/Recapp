@@ -1,10 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRight, CalendarClock, History, School, Users } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
-import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
+import { LangToggle, Logo, RECAPP_MARK_MS, ThemeToggle, Wordmark } from '../components/shell'
+import { useNavIconMotion } from '../components/NavIcon'
 import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
 import { getRecent, rememberClass } from '../lib/recent'
@@ -17,6 +18,11 @@ export default function Landing() {
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<'enter' | 'demo' | null>(null)
+  const hero = useNavIconMotion(RECAPP_MARK_MS)
+  useEffect(() => {
+    const id = window.setTimeout(() => hero.play(), 350)
+    return () => window.clearTimeout(id)
+  }, [hero.play])
 
   const enter = async (e: FormEvent) => {
     e.preventDefault()
@@ -58,23 +64,29 @@ export default function Landing() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-4">
-        <Logo className="h-10" />
-        <div className="flex items-center gap-2">
-          <Link to="/scuola" className="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-muted hover:text-ink">
-            <School className="size-4" /> {t('landing.school')}
-          </Link>
-          <ThemeToggle />
+      <header className="sticky top-0 z-30 border-b border-line/80 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-2.5 sm:py-3.5">
+          <Logo className="h-8 sm:h-10" />
+          <div className="flex items-center gap-1.5">
+            <Link to="/scuola" aria-label={t('landing.school')} className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-muted hover:text-ink">
+              <School className="size-4" />
+              <span className="hidden sm:inline">{t('landing.school')}</span>
+            </Link>
+            <ThemeToggle />
             <LangToggle />
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-5xl flex-1 items-center gap-10 px-5 pb-10 pt-4 md:grid-cols-[1.1fr_1fr]">
-        <section>
-          <div className="mb-6"><Wordmark size="lg" /></div>
-          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">{t('landing.title')}</h1>
-          <p className="mt-4 max-w-lg text-lg text-muted">{t('landing.subtitle')}</p>
-          <ul className="mt-8 space-y-4">
+      <main className="mx-auto grid w-full max-w-5xl flex-1 items-start gap-8 px-5 pb-10 pt-6 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-10">
+        {/* `contents` on the phone so the join card can sit between the title and the feature list. */}
+        <div className="contents md:block">
+          <section>
+            <div className="mb-5" {...hero.triggers}><Wordmark size="lg" playing={hero.playing} /></div>
+            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">{t('landing.title')}</h1>
+            <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg">{t('landing.subtitle')}</p>
+          </section>
+          <ul className="order-2 space-y-4 md:order-none md:mt-8">
             {features.map((f) => (
               <li key={f.title} className="flex gap-3">
                 <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${f.color}`}>
@@ -87,9 +99,9 @@ export default function Landing() {
               </li>
             ))}
           </ul>
-        </section>
+        </div>
 
-        <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
+        <section className="order-1 rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-8 md:order-none">
           {current && (
             <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${current.code}`)}>
               {t('landing.continue', { name: current.label })} <ArrowRight className="size-4" />
@@ -132,7 +144,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-surface/60">
+      <footer className="border-t border-line bg-surface/60 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
           <span>{t('landing.footer')}</span>
           <Link to="/privacy" className="font-semibold underline">

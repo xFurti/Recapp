@@ -8,6 +8,7 @@ import { DayCardView, EntryPhotos } from '../components/day'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
+import { queueCelebrate } from '../lib/celebrate'
 import { todayIso } from '../lib/clock'
 import { usePendingWork } from '../lib/pendingWork'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
@@ -224,6 +225,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
     try {
       await saveNow(true)
       await api.post(classPath(info.code, `/cards/${day}/publish`))
+      queueCelebrate()
       setPublished(true)
       qc.removeQueries({ queryKey: ['card', info.code, day] })
       await qc.invalidateQueries()
