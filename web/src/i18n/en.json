@@ -73,7 +73,8 @@
     "role_member": "member",
     "change_pin": "Change PIN",
     "old_pin": "Current PIN",
-    "pin_changed": "PIN updated"
+    "pin_changed": "PIN updated",
+    "profile_menu": "Profile menu"
   },
   "time": {
     "badge": "Simulated time: {{time}}",
@@ -458,5 +459,31 @@
     "now": "Update now",
     "later": "Later",
     "save_failed": "Your changes couldn't be saved, so the page stays open. Try again in a moment."
+  },
+  "tour": {
+    "label": "Tutorial",
+    "progress": "Step {{n}} of {{total}}",
+    "start": "Start the tutorial",
+    "skip": "Skip for now",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Done",
+    "close": "Close the tutorial",
+    "replay": "Replay the tutorial",
+    "welcome_title": "Welcome to Recapp!",
+    "welcome_body": "In a minute I'll show you where to find what's on today, what you missed and what's coming up.",
+    "welcome_demo": "You're in the demo class, with sample data.",
+    "today_title": "Today",
+    "today_body": "Today at a glance: lessons, upcoming deadlines and whose turn it is to write the recap.",
+    "yesterday_title": "Yesterday",
+    "yesterday_body": "The latest published recap: what was done in each subject and in the lab, and what to bring. Handy if you were absent.",
+    "upcoming_title": "Upcoming",
+    "upcoming_body": "Homework, tests and events for the coming weeks, sorted by due date.",
+    "class_title": "Class",
+    "class_body": "Your classmates, the recap rota and the class timetable.",
+    "write_title": "Write the recap",
+    "write_body": "This opens the editor for the day. Changes save on their own and you publish when you're ready.",
+    "done_title": "You're all set!",
+    "done_body": "Go ahead and explore Recapp. You can replay the tutorial anytime from your profile menu, up here."
   }
 }

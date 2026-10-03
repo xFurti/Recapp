@@ -1,5 +1,5 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
+import { useIsFetching, useQueryClient } from '@tanstack/react-query'
+import { CalendarClock, Clock, Delete, GraduationCap, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
@@ -12,7 +12,10 @@ import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/cloc
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
+import { flushPendingWork } from '../lib/pendingWork'
+import { markTourSeen, tourSeen } from '../lib/tour'
 import { NAV_ICON_MS, NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
 
@@ -147,7 +150,7 @@ function SimBar() {
   return <p className="bg-giallo px-4 py-1 text-center text-xs font-bold text-[#1d1b1e] sm:hidden">{t('time.badge', { time: label })}</p>
 }
 
-function ProfileMenu({ info }: { info: ClassInfo }) {
+function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) {
   const { t } = useTranslation()
   const qc = useQueryClient()
   const navigate = useNavigate()
@@ -166,7 +169,7 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
   }
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-0.5 hover:bg-ink/5" aria-haspopup="menu" aria-expanded={open}>
+      <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-0.5 hover:bg-ink/5" aria-haspopup="menu" aria-expanded={open} aria-label={t('shell.profile_menu')} data-tour="profile">
         {member ? <Avatar nick={member.nick} color={member.color} size="sm" /> : <School className="size-6 text-bordeaux" />}
       </button>
       {open && (
@@ -182,6 +185,9 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
               <KeyRound className="size-4" /> {t('shell.change_pin')}
             </button>
           )}
+          <button role="menuitem" onClick={() => { setOpen(false); onTour() }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm hover:bg-ink/5">
+            <GraduationCap className="size-4" /> {t('tour.replay')}
+          </button>
           <div className="flex items-center justify-between gap-2 px-2 py-2 sm:hidden">
             <ThemeToggle />
             <LangToggle />
@@ -246,7 +252,7 @@ function NavItem({ entry, base, className, iconClass }: { entry: NavEntry; base:
   const { t } = useTranslation()
   const { playing, triggers } = useNavIconMotion()
   return (
-    <NavLink to={entry.to ? `${base}/${entry.to}` : base} end={entry.end} className={({ isActive }) => className(isActive)} {...triggers}>
+    <NavLink to={entry.to ? `${base}/${entry.to}` : base} end={entry.end} className={({ isActive }) => className(isActive)} data-tour={`nav-${entry.motion}`} {...triggers}>
       <NavIcon icon={entry.icon} motion={entry.motion} playing={playing} className={iconClass} />
       {t(entry.key)}
     </NavLink>
@@ -259,6 +265,44 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const showClock = import.meta.env.DEV || info.is_demo
   const sideMark = useNavIconMotion()
   const topMark = useNavIconMotion()
+  const qc = useQueryClient()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const fetching = useIsFetching()
+  const [tourOpen, setTourOpen] = useState(false)
+  const autoTried = useRef(false)
+
+  // First visit: wait until the page has its data, and never interrupt someone who opened the editor directly.
+  useEffect(() => {
+    if (autoTried.current || fetching > 0) return
+    if (tourSeen(info) || location.pathname.includes('/scrivi/')) {
+      autoTried.current = true
+      return
+    }
+    const id = setTimeout(() => {
+      autoTried.current = true
+      setTourOpen(true)
+    }, 400)
+    return () => clearTimeout(id)
+  }, [fetching, info, location.pathname])
+
+  const startTour = async () => {
+    if (location.pathname !== base) {
+      // The tour walks through the Today page; unsaved editor changes are saved first, or we stay put.
+      try {
+        await flushPendingWork()
+        navigate(base)
+      } catch {
+        // Keep the page and its changes; the tour still works on the navigation.
+      }
+    }
+    setTourOpen(true)
+  }
+  const closeTour = useCallback(() => {
+    setTourOpen(false)
+    markTourSeen(info, qc)
+  }, [info, qc])
+
   return (
     <div className="min-h-dvh md:flex">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
@@ -303,7 +347,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
               <ThemeToggle />
               <LangToggle />
             </div>
-            <ProfileMenu info={info} />
+            <ProfileMenu info={info} onTour={startTour} />
           </div>
           {showClock && <SimBar />}
           <UpdateNotice />
@@ -324,6 +368,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           ))}
         </div>
       </nav>
+      {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}
     </div>
   )
 }

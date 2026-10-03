@@ -37,6 +37,7 @@ export interface ClassInfo extends Classroom {
     member: (MemberBrief & { role: 'admin' | 'member' }) | null
     can_manage: boolean
     read_only: boolean
+    tour_seen: boolean
   }
 }
 

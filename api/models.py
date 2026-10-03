@@ -39,6 +39,7 @@ class Member(SQLModel, table=True):
     failed_attempts: int = 0
     locked_until: Optional[datetime] = None
     session_version: int = 1
+    tour_seen_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=utcnow)
 
 

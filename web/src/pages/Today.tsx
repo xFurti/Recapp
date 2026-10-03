@@ -38,7 +38,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
     </Button>
   )
   const adminWrite = data.can_write && !data.is_me_scribe && data.status !== 'published' && (
-    <Button variant="secondary" size="sm" onClick={write}>
+    <Button variant="secondary" size="sm" onClick={write} data-tour="write">
       <Pencil className="size-4" /> {t('banner.write_admin')}
     </Button>
   )
@@ -63,7 +63,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       tone = 'bg-verde-soft border-verde/30'
       title = <Trans i18nKey="banner.published" values={{ nick: data.card?.author?.nick ?? nick, time: timeOf(data.card?.published_at, lang) }} components={bold} />
       actions = data.can_write && (
-        <Button variant="secondary" size="sm" onClick={write}>
+        <Button variant="secondary" size="sm" onClick={write} data-tour="write">
           <Pencil className="size-4" /> {t('banner.edit')}
         </Button>
       )
@@ -75,7 +75,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       if (data.is_me_scribe) sub = <>{sub} · {t('banner.takeover_hint', { time: data.takeover_at })}</>
       actions = (
         <>
-          {data.can_write && <Button onClick={write}>{data.is_me_scribe || data.has_draft ? t('banner.continue') : t('banner.write')} <ArrowRight className="size-4" /></Button>}
+          {data.can_write && <Button onClick={write} data-tour="write">{data.is_me_scribe || data.has_draft ? t('banner.continue') : t('banner.write')} <ArrowRight className="size-4" /></Button>}
           {passBtn}
         </>
       )
@@ -84,7 +84,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       tone = 'bg-rosa-soft border-rosa/25'
       if (data.is_me_scribe) {
         title = t('banner.me_open')
-        actions = <Button onClick={write}>{data.has_draft ? t('banner.continue') : t('banner.write')} <ArrowRight className="size-4" /></Button>
+        actions = <Button onClick={write} data-tour="write">{data.has_draft ? t('banner.continue') : t('banner.write')} <ArrowRight className="size-4" /></Button>
       } else {
         title = data.scribe
           ? <Trans i18nKey="banner.open_missing" values={{ nick }} components={bold} />
@@ -112,7 +112,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
         sub = <>{t('banner.me_sub')} {t('banner.takeover_hint', { time: data.takeover_at })}</>
         actions = (
           <>
-            <Button size="lg" onClick={write}>{t('banner.write')} <ArrowRight className="size-4" /></Button>
+            <Button size="lg" onClick={write} data-tour="write">{t('banner.write')} <ArrowRight className="size-4" /></Button>
             {passBtn}
           </>
         )

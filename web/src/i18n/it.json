@@ -73,7 +73,8 @@
     "role_member": "partecipante",
     "change_pin": "Cambia PIN",
     "old_pin": "PIN attuale",
-    "pin_changed": "PIN aggiornato"
+    "pin_changed": "PIN aggiornato",
+    "profile_menu": "Menu del profilo"
   },
   "time": {
     "badge": "Ora simulata: {{time}}",
@@ -458,5 +459,31 @@
     "now": "Aggiorna ora",
     "later": "Più tardi",
     "save_failed": "Non sono riuscito a salvare le modifiche, quindi la pagina resta aperta. Riprova tra poco."
+  },
+  "tour": {
+    "label": "Tutorial",
+    "progress": "Passo {{n}} di {{total}}",
+    "start": "Inizia il tutorial",
+    "skip": "Salta per ora",
+    "next": "Avanti",
+    "back": "Indietro",
+    "finish": "Fine",
+    "close": "Chiudi il tutorial",
+    "replay": "Rivedi il tutorial",
+    "welcome_title": "Benvenuto in Recapp!",
+    "welcome_body": "In un minuto ti mostro dove trovare cosa si fa oggi, cosa ti sei perso e cosa c'è in arrivo.",
+    "welcome_demo": "Sei nella classe demo, con dati di esempio.",
+    "today_title": "Oggi",
+    "today_body": "La giornata di oggi: lezioni, scadenze vicine e chi è il verbalista di turno che scrive il riepilogo.",
+    "yesterday_title": "Ieri",
+    "yesterday_body": "L'ultimo riepilogo pubblicato: cosa si è fatto in ogni materia e in lab, e cosa portare. Utile se eri assente.",
+    "upcoming_title": "In arrivo",
+    "upcoming_body": "Compiti, verifiche ed eventi delle prossime settimane, in ordine di scadenza.",
+    "class_title": "Classe",
+    "class_body": "I compagni, i turni del verbalista e l'orario della classe.",
+    "write_title": "Scrivi il riepilogo",
+    "write_body": "Da qui apri l'editor della giornata. Le modifiche si salvano da sole e pubblichi quando sei pronto.",
+    "done_title": "Tutto pronto!",
+    "done_body": "Esplora pure Recapp. Puoi rivedere il tutorial quando vuoi dal menu del tuo profilo, qui in alto."
   }
 }

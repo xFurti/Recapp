@@ -19,6 +19,7 @@ COLUMNS: list[tuple[str, str, str]] = [
     ("classroom", "hours", "JSON"),
     ("classroom", "demo_token", "VARCHAR"),
     ("classroom", "demo_seen_on", "DATE"),
+    ("member", "tour_seen_at", "TIMESTAMP"),
 ]
 
 

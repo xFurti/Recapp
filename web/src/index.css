@@ -266,3 +266,40 @@
 @media (prefers-reduced-motion: reduce) {
   .t-like-icon, .t-like-particles i { animation: none !important; }
 }
+
+/* Guided tour (see Tour.tsx). The spotlight's shadow dims everything except the target. */
+.tour-spot {
+  position: fixed;
+  pointer-events: none;
+  box-shadow: 0 0 0 200vmax rgb(0 0 0 / 0.55);
+  transition: top 300ms cubic-bezier(0.33, 1, 0.68, 1), left 300ms cubic-bezier(0.33, 1, 0.68, 1),
+    width 300ms cubic-bezier(0.33, 1, 0.68, 1), height 300ms cubic-bezier(0.33, 1, 0.68, 1), border-radius 300ms;
+}
+.tour-spot[data-target] {
+  outline: 2px solid rgb(255 255 255 / 0.85);
+  outline-offset: 0;
+  animation: tour-ring 700ms ease-out;
+}
+.tour-card {
+  transition: top 300ms cubic-bezier(0.33, 1, 0.68, 1), left 300ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+.tour-content {
+  animation: tour-in 240ms ease-out;
+}
+.tour-icon svg {
+  animation: tour-pop 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tour-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+@keyframes tour-pop {
+  0% { transform: scale(0.6) rotate(-14deg); }
+  60% { transform: scale(1.12) rotate(4deg); }
+}
+@keyframes tour-ring {
+  from { outline-offset: 8px; outline-color: rgb(255 255 255 / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tour-spot, .tour-card { transition: none !important; }
+  .tour-spot, .tour-content, .tour-icon svg { animation: none !important; }
+}

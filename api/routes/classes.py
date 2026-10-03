@@ -8,7 +8,7 @@ from sqlmodel import Session, col, delete, func, select
 from ..auth import ClassAccess, class_access, hash_secret, new_invite_code, request_now
 from ..config import settings
 from ..db import get_session
-from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem
+from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem, utcnow
 from ..schedule import ClassCalendar
 from ..school_data import bell_hours, is_lab_room
 from ..seed import DEMO_NICKS
@@ -42,8 +42,23 @@ def class_info(access: ClassAccess = Depends(class_access), session: Session = D
             "member": {"id": me.id, "nick": me.nick, "role": me.role, "color": avatar_color(me)} if me else None,
             "can_manage": access.can_manage,
             "read_only": me is None,
+            "tour_seen": me is not None and me.tour_seen_at is not None,
         },
     }
+
+
+@router.post("/tour")
+def tour_seen(access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
+    """Remembers that this account finished or skipped the guided tour.
+    Demo nicks are shared by every visitor, so the demo keeps this in the browser instead."""
+    me = access.member
+    if me is None or access.classroom.is_demo:
+        return {"ok": True, "stored": False}
+    if me.tour_seen_at is None:
+        me.tour_seen_at = utcnow()
+        session.add(me)
+        session.commit()
+    return {"ok": True, "stored": True}
 
 
 # ---- today ---------------------------------------------------------------------
