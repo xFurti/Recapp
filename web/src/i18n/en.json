@@ -450,7 +450,12 @@
     "delete_confirm": "Delete this message?",
     "empty": "No replies yet.",
     "open_corrections_one": "{{count}} correction to check",
-    "open_corrections_other": "{{count}} corrections to check"
+    "open_corrections_other": "{{count}} corrections to check",
+    "delete_description": "The message will be removed from the conversation.",
+    "delete_action": "Delete message",
+    "deleting": "Deleting…",
+    "deleted": "Message deleted",
+    "delete_error": "The message could not be deleted. Try again or close this dialog."
   },
   "update": {
     "preparing": "We're preparing an update. You can keep using Recapp.",

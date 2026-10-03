@@ -28,3 +28,7 @@ web/node_modules/.tmp/
 
 # local test crops
 test-*
+
+# browser test output
+web/test-results/
+web/playwright-report/

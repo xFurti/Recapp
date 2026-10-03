@@ -6,7 +6,8 @@ import { api } from '../api'
 import { timeOf } from '../lib/format'
 import { classPath } from '../queries'
 import type { MemberBrief } from '../types'
-import { Avatar, Badge, Button, Chip, inputClass } from './ui'
+import { Avatar, Badge, Button, Chip, Toast, inputClass } from './ui'
+import { ConfirmationDialog } from './ConfirmationDialog'
 
 export interface Comment {
   id: number
@@ -39,6 +40,9 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   const qc = useQueryClient()
   const fb = useFeedback(code, day, true)
   const [body, setBody] = useState('')
+  const [selected, setSelected] = useState<Comment | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  const heading = useRef<HTMLHeadingElement>(null)
   const [kind, setKind] = useState<'comment' | 'correction'>('comment')
   const refresh = () => qc.invalidateQueries({ queryKey: ['feedback', code, day] })
 
@@ -56,7 +60,14 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   })
   const del = useMutation({
     mutationFn: (c: Comment) => api.del(classPath(code, `/comments/${c.id}`)),
-    onSuccess: refresh,
+    onSuccess: (_, deleted) => {
+      qc.setQueryData<FeedbackData>(['feedback', code, day], (current) => current && ({
+        ...current,
+        comments: current.comments.filter((c) => c.id !== deleted.id),
+        open_corrections: current.open_corrections - (deleted.kind === 'correction' && !deleted.resolved ? 1 : 0),
+      }))
+      void refresh()
+    },
   })
 
   const submit = (e: FormEvent) => {
@@ -87,7 +98,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   return (
     <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 font-bold">
+        <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 font-bold">
           <MessageCircle className="size-5 text-bordeaux" /> {t('feedback.replies')}
         </h3>
         <button
@@ -138,7 +149,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
                     </button>
                   )}
                   {c.mine && (
-                    <button onClick={() => window.confirm(t('feedback.delete_confirm')) && del.mutate(c)} className="inline-flex items-center gap-1 hover:text-rosa-ink">
+                    <button onClick={() => setSelected(c)} className="inline-flex items-center gap-1 hover:text-rosa-ink">
                       <Trash2 className="size-3.5" /> {t('common.delete')}
                     </button>
                   )}
@@ -167,6 +178,26 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
           {send.error && <p className="text-sm font-medium text-rosa-ink">{(send.error as Error).message}</p>}
         </form>
       )}
+      {selected && (
+        <ConfirmationDialog
+          title={t('feedback.delete_confirm')}
+          description={t('feedback.delete_description')}
+          confirmLabel={t('feedback.delete_action')}
+          pendingLabel={t('feedback.deleting')}
+          errorLabel={t('feedback.delete_error')}
+          onConfirm={() => del.mutateAsync(selected)}
+          onClose={(deleted) => {
+            setSelected(null)
+            if (deleted) {
+              setToast(t('feedback.deleted'))
+              heading.current?.focus()
+            }
+          }}
+        >
+          <p className="line-clamp-4 whitespace-pre-wrap [overflow-wrap:anywhere]">{selected.body}</p>
+        </ConfirmationDialog>
+      )}
+      <Toast message={toast} onDone={() => setToast(null)} />
     </section>
   )
 }

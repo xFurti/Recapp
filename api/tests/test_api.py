@@ -215,6 +215,10 @@ def test_feedback_comments_and_thanks(client):
     assert client.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 403
     assert leo.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 200
     assert client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()["open_corrections"] == 0
+    other = make_client()
+    demo_member(other, "sara")
+    assert other.delete(f"/api/classes/DEMO/comments/{correction['id']}").status_code == 403
+    assert len(client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()["comments"]) == 2
     assert client.delete(f"/api/classes/DEMO/comments/{correction['id']}").status_code == 200
     assert client.post(f"/api/classes/DEMO/cards/{day}/thanks").status_code == 200
     fb = client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()
