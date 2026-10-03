@@ -38,7 +38,7 @@ export default function Landing() {
     setBusy('demo')
     try {
       const res = await api.post<{ code: string; label: string; member_id: number; nick: string }>('/auth/demo/mine')
-      rememberClass({ code: res.code, label: res.label, memberId: res.member_id, nick: res.nick })
+      rememberClass({ code: res.code, label: res.label, memberId: res.member_id, nick: res.nick, demo: true })
       await qc.invalidateQueries()
       navigate(`/c/${res.code}`)
     } catch (err) {
@@ -96,7 +96,7 @@ export default function Landing() {
             </Button>
           )}
           {!current && recent && (
-            <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${recent.code}/entra?m=${recent.memberId}`)}>
+            <Button className="mb-6 w-full" size="lg" onClick={() => (recent.demo ? demo() : navigate(`/c/${recent.code}/entra?m=${recent.memberId}`))} loading={recent.demo && busy === 'demo'}>
               {t('landing.rejoin', { name: recent.label })} <ArrowRight className="size-4" />
             </Button>
           )}

@@ -34,11 +34,25 @@ export default function Join() {
 
   const done = async () => {
     if (member && cls.data) {
-      rememberClass({ code: cls.data.code, label: cls.data.label, memberId: member.id, nick: member.nick })
+      rememberClass({ code: cls.data.code, label: cls.data.label, memberId: member.id, nick: member.nick, demo: cls.data.is_demo })
     }
     await qc.invalidateQueries()
     navigate(`/c/${cls.data?.code ?? code}`, { replace: true })
   }
+
+  useEffect(() => {
+    if (!cls.data?.is_demo || !member || member.needs_setup) return
+    let cancel = false
+    setBusy(true)
+    setError(null)
+    api.post(`/classes/${encodeURIComponent(code)}/demo-enter`, { member_id: member.id })
+      .then(() => { if (!cancel) return done() })
+      .catch((e) => { if (!cancel) setError((e as Error).message) })
+      .finally(() => { if (!cancel) setBusy(false) })
+    return () => { cancel = true }
+    // Enter the demo nick without a PIN. `done` closes over the member selected above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cls.data?.is_demo, member?.id, code])
 
   const login = async (value: string) => {
     if (!member) return
@@ -153,6 +167,11 @@ export default function Join() {
                   {t('join.enter')}
                 </Button>
               </form>
+            ) : cls.data?.is_demo ? (
+              <>
+                <Spinner />
+                {error && <p className="mt-4 text-center text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
+              </>
             ) : (
               <>
                 <PinPad value={pin} onChange={setPin} onSubmit={login} disabled={busy} />

@@ -5,6 +5,7 @@ export interface RecentClass {
   label: string
   memberId: number
   nick: string
+  demo?: boolean
 }
 
 export function getRecent(): RecentClass | null {

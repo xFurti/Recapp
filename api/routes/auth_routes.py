@@ -21,7 +21,7 @@ from ..auth import (
 from ..db import get_session
 from ..limits import allow, client_ip
 from ..models import Member, Owner
-from ..schemas import ActivateIn, ChangePinIn, LoginIn, OwnerLoginIn
+from ..schemas import ActivateIn, ChangePinIn, DemoEnterIn, LoginIn, OwnerLoginIn
 from ..config import settings
 from ..seed import DEMO_CODE, ensure_demo, open_private_demo
 from ..services import avatar_color, classroom_out
@@ -129,6 +129,17 @@ def private_demo_login(request: Request, response: Response, session: Session = 
     )
     set_session_cookie(response, "m", leo.id, leo.session_version)
     return {"ok": True, "code": classroom.code, "label": classroom.label, "member_id": leo.id, "nick": leo.nick}
+
+
+@router.post("/classes/{code}/demo-enter")
+def demo_enter(code: str, data: DemoEnterIn, response: Response, session: Session = Depends(get_session)):
+    """The demo has no secret PIN: any visitor can open it as one of the sample nicks."""
+    classroom = get_classroom(session, code)
+    if not classroom.is_demo:
+        raise HTTPException(403, "Solo nella demo")
+    member = _member_in_class(session, code, data.member_id)
+    set_session_cookie(response, "m", member.id, member.session_version)
+    return {"ok": True}
 
 
 @router.post("/auth/logout")

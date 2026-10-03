@@ -47,6 +47,15 @@ def test_private_demos_stay_apart(client):
     assert shared.json()["code"] == "DEMO"
 
 
+def test_demo_enter_does_not_ask_for_a_pin(client):
+    client.post("/api/auth/demo")
+    client.cookies.clear()
+    public = client.get("/api/classes/DEMO/public").json()
+    leo = next(m for m in public["members"] if m["nick"] == "leo")
+    assert client.post("/api/classes/DEMO/demo-enter", json={"member_id": leo["id"]}).status_code == 200
+    assert client.get("/api/me").json()["member"]["nick"] == "leo"
+
+
 def test_html_is_not_cached(client):
     from api.app import cache_control_for
 

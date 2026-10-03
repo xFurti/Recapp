@@ -30,6 +30,10 @@ class LoginIn(BaseModel):
     pin: str
 
 
+class DemoEnterIn(BaseModel):
+    member_id: int
+
+
 class ChangePinIn(BaseModel):
     old_pin: str
     new_pin: str
