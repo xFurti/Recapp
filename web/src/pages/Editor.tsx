@@ -266,7 +266,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       attachments: state.attachment_ids.map((id) => ({ id, width: 0, height: 0 })),
     }
     return (
-      <div className="space-y-4 pb-24">
+      <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
         <h1 className="text-xl font-extrabold">{t('editor.preview_title')}</h1>
         <DayCardView card={card} subjects={info.subjects} classLabel={info.label} />
         <ActionBar save={save} published={published} onPreview={() => setPreview(false)} previewLabel={t('editor.back_edit')} onPublish={publish} publishing={publishing} error={publishError} />
@@ -275,7 +275,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   }
 
   return (
-    <div className="space-y-6 pb-28">
+    <div className="space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
       <div>
         <Link to={`/c/${info.code}`} className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
           <ArrowLeft className="size-4" /> {t('nav.today')}
@@ -805,15 +805,17 @@ function ActionBar({
         : save.kind === 'error' ? t('editor.save_error', { msg: save.msg })
           : ''
   return (
-    <div className="fixed inset-x-0 bottom-[4.4rem] z-20 border-t border-line bg-surface/95 backdrop-blur md:bottom-0 md:left-60">
-      <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 px-4 py-3">
-        <p className={`min-w-0 flex-1 truncate text-xs ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
-        <Button variant="secondary" size="sm" onClick={onPreview}>
-          <Eye className="size-4" /> {previewLabel}
-        </Button>
-        <Button size="sm" onClick={onPublish} loading={publishing}>
-          {published ? t('editor.republish') : t('editor.publish')}
-        </Button>
+    <div className="editor-actions fixed inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:left-60">
+      <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center">
+        <p className={`text-xs leading-snug sm:min-w-0 sm:flex-1 sm:truncate ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
+        <div className="grid grid-cols-2 gap-2 sm:flex">
+          <Button variant="secondary" size="sm" onClick={onPreview} className="w-full sm:w-auto">
+            <Eye className="size-4" /> {previewLabel}
+          </Button>
+          <Button size="sm" onClick={onPublish} loading={publishing} className="w-full sm:w-auto">
+            {published ? t('editor.republish') : t('editor.publish')}
+          </Button>
+        </div>
       </div>
     </div>
   )

@@ -79,6 +79,14 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+/* Editor actions sit above the phone tab bar, including the home indicator. */
+.editor-actions {
+  bottom: calc(4.25rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 768px) {
+  .editor-actions { bottom: 0; }
+}
+
 /* Nav icon and Recapp mark micro-animations (see NavIcon.tsx). Only transforms, only on the icon.
    Child selectors follow the lucide-react geometry of Sun, History, CalendarClock and Users. */
 .nav-icon {
@@ -510,13 +518,50 @@ html.theme-anim {
   from { opacity: 0; transform: translateY(-4px) scale(0.96); }
 }
 
+/* Profile menu grows out of the avatar and folds back into it. */
+.profile-panel[data-phase='open'] {
+  transform-origin: top right;
+  animation: profile-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.profile-panel[data-phase='closing'] {
+  transform-origin: top right;
+  animation: profile-out 140ms ease-in both;
+}
+.profile-panel[data-phase='open'] .profile-row {
+  animation: profile-row 180ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+.profile-action {
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+.profile-action:active {
+  transform: scale(0.98);
+}
+@keyframes profile-in {
+  from { opacity: 0; transform: scale(0.65); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes profile-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: scale(0.72); }
+}
+@keyframes profile-row {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .btn-spring:hover:enabled,
   .btn-spring:active:enabled,
   .btn-spring:hover:enabled .lucide-arrow-right,
   .lang-btn:hover,
-  .lang-btn:active {
+  .lang-btn:active,
+  .profile-action:active {
     transform: none;
+  }
+  .profile-panel,
+  .profile-panel .profile-row {
+    animation: none !important;
   }
   .lang-swap,
   .done-check,
