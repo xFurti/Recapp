@@ -12,7 +12,7 @@ const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)'
  * Plays one cycle per interaction: hover (mouse/pen), keyboard focus, or a tap.
  * Triggers that arrive while a cycle is running are ignored, so hover + focus + click never restart it.
  */
-export function useNavIconMotion() {
+export function useNavIconMotion(ms = NAV_ICON_MS) {
   const [playing, setPlaying] = useState(false)
   const timer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(timer.current), [])
@@ -23,8 +23,8 @@ export function useNavIconMotion() {
     timer.current = window.setTimeout(() => {
       timer.current = undefined
       setPlaying(false)
-    }, NAV_ICON_MS)
-  }, [])
+    }, ms)
+  }, [ms])
 
   const triggers = {
     onPointerEnter: (e: PointerEvent) => {

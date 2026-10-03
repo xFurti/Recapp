@@ -132,10 +132,27 @@
   animation-delay: calc(var(--nav-icon-ms) * 0.3);
 }
 
-/* Recapp mark: the stack of pages riffles, tipping back from its bottom corner and settling. */
+/* Recapp mark: one layer per page, stacked back to front. The pages flip one after another, back first:
+   each lifts towards the viewer around its left edge and drops back, like thumbing through a notebook.
+   The front page (the "R" cover, last in the DOM) turns less than the others, so it never goes edge-on and vanishes. */
+.recapp-mark {
+  position: relative;
+  aspect-ratio: 584 / 430;
+  perspective: 6em;
+}
+.recapp-mark img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: var(--spine) 50%;
+}
 .nav-icon[data-motion='logo'][data-playing] img {
-  transform-origin: 15% 90%;
-  animation: nav-riffle var(--nav-icon-ms) cubic-bezier(0.33, 1, 0.68, 1);
+  animation: nav-page-flip calc(var(--nav-icon-ms) * 0.5) cubic-bezier(0.37, 0, 0.63, 1);
+  animation-delay: calc(var(--turn) * var(--nav-icon-ms) * 0.1);
+}
+.nav-icon[data-motion='logo'][data-playing] img:last-child {
+  animation-name: nav-cover-flip;
 }
 
 @keyframes nav-pulse {
@@ -161,9 +178,11 @@
 @keyframes nav-hop {
   45% { transform: translateY(-2px); }
 }
-@keyframes nav-riffle {
-  40% { transform: rotate(-8deg) scale(1.08); }
-  75% { transform: rotate(2deg); }
+@keyframes nav-page-flip {
+  45% { transform: rotateY(-80deg); filter: brightness(0.8); }
+}
+@keyframes nav-cover-flip {
+  45% { transform: rotateY(-55deg); filter: brightness(0.88); }
 }
 
 @media (prefers-reduced-motion: reduce) {
