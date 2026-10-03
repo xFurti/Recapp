@@ -9,6 +9,7 @@ import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
+import { usePendingWork } from '../lib/pendingWork'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { Card, CardPage, Draft, Entry, ItemType, LabData, LessonStatus } from '../types'
@@ -208,6 +209,11 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   }, [version, saveNow])
 
   useEffect(() => () => void saveNow().catch(() => undefined), [saveNow])
+
+  usePendingWork({
+    dirty: () => !discardRef.current && versionRef.current !== 0 && versionRef.current !== savedVersionRef.current,
+    flush: () => saveNow(),
+  })
 
   const setEntry = (key: string, patch: Partial<EntryDraft>) =>
     update((s) => ({ ...s, entries: s.entries.map((e) => (e.key === key ? { ...e, ...patch } : e)) }))

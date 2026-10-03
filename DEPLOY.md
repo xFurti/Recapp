@@ -47,6 +47,11 @@ Checklist per mettere online Ieri su `https://bassaleo.xyz`. Le chiavi vanno **s
    | `RENDER_API_KEY` | Account Settings → API Keys |
    | `RENDER_WORKFLOW_TASK` | slug del task: da noi `recap-ai/extract_items` (vedi punto 5) |
    `SECRET_KEY` viene generata da Render.
+   La stessa `RENDER_API_KEY` serve anche all'avviso "aggiornamento in corso / nuova versione": il
+   server legge lo stato dei deploy del servizio (`RENDER_SERVICE_ID` e `RENDER_GIT_COMMIT` li imposta
+   Render da solo) e al browser manda solo la versione e un id anonimo del deploy in preparazione,
+   tramite `/api/version`. Senza chiave l'avviso "nuova versione" funziona lo stesso, manca solo
+   quello di preparazione.
 3. Al primo avvio, nei **Logs** del servizio compaiono i codici classe di 4AI e 4BI e un invito
    admin per ciascuna (mostrati una sola volta). Salvali in un posto sicuro e dalli ai rappresentanti.
    Se si perdono: Area scuola → rigenera l'invito.

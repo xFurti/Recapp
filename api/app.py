@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.staticfiles import StaticFiles
 
 from .config import settings
+from . import updates
 from .routes import auth_routes, cards, classes, media, owner
 from .seed import run_startup_seed
 
@@ -78,7 +79,7 @@ def healthz():
     return {"ok": True, "env": settings.app_env, "ocr": settings.ocr_provider, "runner": settings.task_runner}
 
 
-for module in (auth_routes, classes, cards, media, owner):
+for module in (auth_routes, classes, cards, media, owner, updates):
     app.include_router(module.router)
 
 

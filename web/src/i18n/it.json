@@ -450,5 +450,13 @@
     "empty": "Nessuna risposta per ora.",
     "open_corrections_one": "{{count}} correzione da vedere",
     "open_corrections_other": "{{count}} correzioni da vedere"
+  },
+  "update": {
+    "preparing": "Stiamo preparando un aggiornamento. Puoi continuare a usare Recapp.",
+    "dismiss": "Chiudi avviso",
+    "ready": "È disponibile una nuova versione di Recapp.",
+    "now": "Aggiorna ora",
+    "later": "Più tardi",
+    "save_failed": "Non sono riuscito a salvare le modifiche, quindi la pagina resta aperta. Riprova tra poco."
   }
 }
