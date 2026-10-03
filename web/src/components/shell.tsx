@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
@@ -12,7 +12,7 @@ import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/cloc
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
-import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { NAV_ICON_MS, NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
 
@@ -20,11 +20,20 @@ export function Logo({ className = 'h-9' }: { className?: string }) {
   return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
 }
 
-export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+/** The Recapp mark; `playing` runs the same micro-animation cycle as the nav icons (see useNavIconMotion). */
+function RecappMark({ playing = false, className }: { playing?: boolean; className: string }) {
+  return (
+    <span className="nav-icon h-full" data-motion="logo" data-playing={playing || undefined} style={{ '--nav-icon-ms': `${NAV_ICON_MS}ms` } as CSSProperties}>
+      <img src={recappIcon} alt="" className={className} />
+    </span>
+  )
+}
+
+export function Wordmark({ size = 'md', playing }: { size?: 'sm' | 'md' | 'lg'; playing?: boolean }) {
   const heights = { sm: 'h-7', md: 'h-8', lg: 'h-11' }
   return (
     <span className={`inline-flex items-center gap-2 ${heights[size]}`}>
-      <img src={recappIcon} alt="" className="h-full w-auto" />
+      <RecappMark playing={playing} className="h-full w-auto" />
       <img src={recappWord} alt="Recapp" className="h-[70%] w-auto dark:invert" />
     </span>
   )
@@ -236,11 +245,13 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const { t } = useTranslation()
   const base = `/c/${info.code}`
   const showClock = import.meta.env.DEV || info.is_demo
+  const sideMark = useNavIconMotion()
+  const topMark = useNavIconMotion()
   return (
     <div className="min-h-dvh md:flex">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
-        <Link to={base} className="mb-6 flex items-center gap-2">
-          <Wordmark size="md" />
+        <Link to={base} className="mb-6 flex items-center gap-2" {...sideMark.triggers}>
+          <Wordmark size="md" playing={sideMark.playing} />
           <Logo className="h-6" />
         </Link>
         <nav className="flex flex-col gap-1">
@@ -268,8 +279,8 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
             </div>
           )}
           <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
-            <Link to={base} className="shrink-0 md:hidden" aria-label="Recapp">
-              <img src={recappIcon} alt="" className="h-7 w-auto" />
+            <Link to={base} className="flex h-7 shrink-0 md:hidden" aria-label="Recapp" {...topMark.triggers}>
+              <RecappMark playing={topMark.playing} className="h-7 w-auto" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
