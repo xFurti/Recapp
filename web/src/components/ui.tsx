@@ -7,9 +7,9 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft'
 
 const variants: Record<Variant, string> = {
   primary: 'bg-bordeaux text-white hover:bg-bordeaux-dark shadow-sm',
-  secondary: 'bg-white text-ink border border-line hover:border-ink/30',
+  secondary: 'bg-surface text-ink border border-line hover:border-ink/30',
   ghost: 'text-ink hover:bg-ink/5',
-  danger: 'bg-white text-rosa-ink border border-rosa/30 hover:bg-rosa-soft',
+  danger: 'bg-surface text-rosa-ink border border-rosa/30 hover:bg-rosa-soft',
   soft: 'bg-bordeaux-soft text-bordeaux hover:bg-bordeaux/15',
 }
 
@@ -35,7 +35,7 @@ export function Button({
 }
 
 export function Card({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <section className={`rounded-2xl border border-line bg-white p-4 sm:p-5 ${className}`}>{children}</section>
+  return <section className={`rounded-2xl border border-line bg-surface p-4 sm:p-5 ${className}`}>{children}</section>
 }
 
 export function Spinner({ label }: { label?: string }) {
@@ -128,7 +128,7 @@ export function Segmented<T extends string>({
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
-            value === o.value ? 'bg-white text-ink shadow-sm' : 'text-muted hover:text-ink'
+            value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
           }`}
         >
           {o.label}
@@ -155,7 +155,7 @@ export function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition ${
-        active ? 'border-ink bg-ink text-white' : 'border-line bg-white text-ink hover:border-ink/40'
+        active ? 'border-ink bg-ink text-paper' : 'border-line bg-surface text-ink hover:border-ink/40'
       } ${className}`}
     >
       {children}
@@ -188,14 +188,14 @@ export function Modal({
   if (!open) return null
   // Portal: an ancestor with backdrop-filter (the sticky header) would trap `fixed` children.
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-label={title}
         onClick={(e) => e.stopPropagation()}
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-surface p-5 shadow-xl sm:rounded-3xl ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
       >
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 className="text-lg font-bold">{title}</h2>
@@ -238,7 +238,7 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 }
 
 export const inputClass =
-  'w-full rounded-xl border border-line bg-white px-3 py-2.5 text-[15px] text-ink placeholder:text-muted/70 focus:border-azzurro focus:outline-none focus:ring-2 focus:ring-azzurro/20'
+  'w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-[15px] text-ink placeholder:text-muted/70 focus:border-azzurro focus:outline-none focus:ring-2 focus:ring-azzurro/20'
 
 export function Toast({ message, onDone }: { message: string | null; onDone: () => void }) {
   useEffect(() => {
@@ -249,7 +249,7 @@ export function Toast({ message, onDone }: { message: string | null; onDone: () 
   if (!message) return null
   return (
     <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 md:bottom-8" role="status">
-      <div className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-lg">{message}</div>
+      <div className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper shadow-lg">{message}</div>
     </div>
   )
 }

@@ -4,12 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { api } from '../api'
 import { DayCardView } from '../components/day'
+import { Feedback } from '../components/Feedback'
 import { SubjectTag } from '../components/items'
 import { Avatar, Badge, Card, EmptyState, ErrorBox, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
 import { capitalize, longDay, relativeDay, shortDay } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { CardPage, CardSummary } from '../types'
+import { SubjectChips } from './SubjectPage'
 
 function DayView({ day }: { day: string }) {
   const info = useClass()
@@ -34,8 +36,15 @@ function DayView({ day }: { day: string }) {
           <List className="size-4" /> {t('day.all_days')}
         </Link>
       </div>
+      <div>
+        <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted">{t('subject.by_subject')}</p>
+        <SubjectChips />
+      </div>
       {data.card && data.card.status === 'published' ? (
-        <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} />
+        <>
+          <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} classInfo={info} canShare={info.viewer.can_manage || info.viewer.member?.id === data.card.author?.id} />
+          <Feedback code={info.code} day={day} readOnly={info.viewer.read_only} />
+        </>
       ) : (
         <Card>
           <EmptyState title={t('day.no_card')} />
@@ -47,7 +56,7 @@ function DayView({ day }: { day: string }) {
 
 function DayArrow({ to, label, dir }: { to: string | null; label: string; dir: 'prev' | 'next' }) {
   const Icon = dir === 'prev' ? ChevronLeft : ChevronRight
-  const cls = 'flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-white'
+  const cls = 'flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface'
   if (!to) return <span className={`${cls} opacity-30`} aria-hidden><Icon className="size-5" /></span>
   return (
     <Link to={to} className={`${cls} hover:border-ink/30`} aria-label={label} title={label}>
@@ -87,6 +96,7 @@ export function DaysList() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold tracking-tight">{t('day.days_title')}</h1>
+      <SubjectChips />
       {list.isLoading && <Spinner />}
       {list.error && <ErrorBox error={list.error} />}
       {list.data?.length === 0 && (
@@ -97,7 +107,7 @@ export function DaysList() {
       <ul className="space-y-2">
         {list.data?.map((c) => (
           <li key={c.day}>
-            <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3 transition hover:border-ink/30">
+            <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-ink/30">
               <div className="w-16 shrink-0 text-center">
                 <p className="text-xs font-semibold uppercase text-muted">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
                 <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>

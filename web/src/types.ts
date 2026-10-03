@@ -131,6 +131,7 @@ export interface TodayInfo extends DayStateInfo {
   next_school_day: { day: string; scribe: MemberBrief | null } | null
   upcoming_soon: Item[]
   next_lessons: Record<string, string>
+  open_corrections: number
 }
 
 export interface CardPage {
@@ -140,6 +141,19 @@ export interface CardPage {
   next_lessons: Record<string, string>
   prev_published: string | null
   next_published: string | null
+}
+
+export interface SubjectEntryRow {
+  day: string
+  author: MemberBrief | null
+  hours: string
+  room: string
+  is_lab: boolean
+  lesson_status: LessonStatus
+  bullets: string[]
+  lab: LabData | null
+  attachment_ids: number[]
+  items: Item[]
 }
 
 export interface CardSummary {

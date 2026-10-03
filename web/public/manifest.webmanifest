@@ -1,0 +1,11 @@
+{
+  "name": "Recapp",
+  "short_name": "Recapp",
+  "description": "Il riassunto della classe: cosa abbiamo fatto e cosa c'è in arrivo.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f4f1",
+  "theme_color": "#A02848",
+  "lang": "it",
+  "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+}

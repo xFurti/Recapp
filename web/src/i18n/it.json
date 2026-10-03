@@ -1,6 +1,6 @@
 {
   "common": {
-    "app_name": "Ieri",
+    "app_name": "Recapp",
     "tagline": "Il riassunto della classe",
     "loading": "Caricamento…",
     "error": "Qualcosa è andato storto",
@@ -28,7 +28,7 @@
   },
   "landing": {
     "title": "Ti sei perso un giorno?",
-    "subtitle": "Apri Ieri: cosa abbiamo fatto in classe e in lab, e cosa c'è in arrivo. Scritto da chi c'era.",
+    "subtitle": "Apri Recapp: cosa abbiamo fatto in classe e in lab, e cosa c'è in arrivo. Scritto da chi c'era.",
     "code_label": "Codice classe",
     "code_placeholder": "es. 4BI-K7Q2",
     "enter": "Entra",
@@ -151,7 +151,11 @@
     "hour": "ora {{h}}",
     "n_items_one": "{{count}} in arrivo",
     "n_items_other": "{{count}} in arrivo",
-    "nothing_written": "Nessun appunto"
+    "nothing_written": "Nessun appunto",
+    "photos": "Foto appunti",
+    "photo_open": "Apri foto",
+    "add_photo": "Aggiungi foto appunti",
+    "photo_limit": "Massimo 3 foto per materia"
   },
   "listen": {
     "play": "Ascolta",
@@ -386,7 +390,7 @@
   },
   "privacy": {
     "title": "Privacy",
-    "intro": "Ieri è un progetto pilota di studenti della 4ª Informatica dell'ITI G. Marconi di Verona, concordato con la dirigenza. È il riassunto della classe, non sostituisce ClasseViva, Classroom o Campus.",
+    "intro": "Recapp è un progetto pilota di studenti della 4ª Informatica dell'ITI G. Marconi di Verona, concordato con la dirigenza. È il riassunto della classe, non sostituisce ClasseViva, Classroom o Campus.",
     "save_title": "Cosa salviamo",
     "save_1": "Il nick che scegli (niente cognomi) e il ruolo in classe.",
     "save_2": "Il PIN, solo in forma cifrata (non lo può leggere nessuno, neanche noi).",
@@ -401,5 +405,46 @@
     "end_title": "Fine dell'anno",
     "end_1": "A fine anno scolastico i contenuti della classe vengono cancellati.",
     "contact": "Per domande o per chiedere la cancellazione, parla con il rappresentante di classe."
+  },
+  "theme": {
+    "label": "Tema: {{mode}}",
+    "system": "come il sistema",
+    "light": "chiaro",
+    "dark": "scuro"
+  },
+  "subject": {
+    "by_subject": "Per materia",
+    "week": "Questa settimana",
+    "two_weeks": "Ultime 2 settimane",
+    "all": "Tutto",
+    "empty": "Nessuna giornata pubblicata per questa materia",
+    "open_day": "Apri la giornata"
+  },
+  "share": {
+    "button": "Condividi",
+    "did": "Abbiamo fatto",
+    "upcoming": "In arrivo",
+    "none": "Niente in scadenza",
+    "cta_today": "Vai su Recapp per vedere cosa è stato fatto oggi",
+    "cta_day": "Vai su Recapp per vedere cosa è stato fatto il {{day}}",
+    "message": "Recap {{cls}} · {{day}}",
+    "downloaded": "Immagine scaricata: mandala su WhatsApp"
+  },
+  "feedback": {
+    "thanks": "Grazie",
+    "thanks_count": "{{count}} grazie",
+    "thanks_aria": "Ringrazia chi ha scritto",
+    "replies": "Risposte",
+    "placeholder": "Scrivi un messaggio…",
+    "send": "Invia",
+    "kind_comment": "Commento",
+    "kind_correction": "Correzione",
+    "resolved": "Risolta",
+    "resolve": "Segna come vista",
+    "reopen": "Riapri",
+    "delete_confirm": "Eliminare questo messaggio?",
+    "empty": "Nessuna risposta per ora.",
+    "open_corrections_one": "{{count}} correzione da vedere",
+    "open_corrections_other": "{{count}} correzioni da vedere"
   }
 }

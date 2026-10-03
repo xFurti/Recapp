@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
-import { LangToggle, Logo } from '../components/shell'
+import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
 import { Button, inputClass, Stairs } from '../components/ui'
 import { useMe } from '../queries'
 
@@ -56,12 +56,13 @@ export default function Landing() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-4">
-        <Logo className="h-11" />
+        <span className="flex items-center gap-3"><Wordmark size="lg" /><Logo className="h-9" /></span>
         <div className="flex items-center gap-2">
           <Link to="/scuola" className="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-muted hover:text-ink">
             <School className="size-4" /> {t('landing.school')}
           </Link>
-          <LangToggle />
+          <ThemeToggle />
+            <LangToggle />
         </div>
       </header>
 
@@ -85,7 +86,7 @@ export default function Landing() {
           </ul>
         </section>
 
-        <section className="rounded-3xl border border-line bg-white p-6 shadow-sm sm:p-8">
+        <section className="rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8">
           {current && (
             <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${current.code}`)}>
               {t('landing.continue', { name: current.label })} <ArrowRight className="size-4" />
@@ -123,7 +124,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-white/60">
+      <footer className="border-t border-line bg-surface/60">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
           <span>{t('landing.footer')}</span>
           <Link to="/privacy" className="font-semibold underline">

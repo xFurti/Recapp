@@ -29,7 +29,10 @@
   `www.bassaleo.xyz` o `ieri.onrender.com` ricevono 403. Insieme a `SameSite=Lax` blocca le
   richieste fatte "a nome tuo" da altri siti.
 - **Permessi lato server**: ogni endpoint controlla ruolo e turno; nascondere un bottone nella
-  UI non basta e non è usato come protezione.
+  UI non basta e non è usato come protezione. I ritagli sono leggibili da tutta la classe solo
+  dopo la pubblicazione della giornata o dell'elemento a cui sono legati.
+- **Quote**: la demo pubblica ha un tetto di letture AI e di upload al giorno (vedi
+  [ai-e-ocr.md](ai-e-ocr.md)); nelle classi reali il limite è per partecipante.
 - **Validazione input**: Pydantic limita lunghezze (titoli 200, punti 300, note 1500), formati
   (PIN, ora, link) e quantità (5 punti per materia, 30 elementi per giornata).
 - **Header**: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`.

@@ -86,7 +86,7 @@ function Members() {
         )}
       </div>
       {act.error && <div className="mb-3"><ErrorBox error={act.error} /></div>}
-      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
         {members.map((m) => (
           <li key={m.id} className="relative flex items-center gap-3 px-4 py-3">
             <Avatar nick={m.nick} color={m.color} />
@@ -95,7 +95,7 @@ function Members() {
                 {m.nick}
                 {m.is_me && <span className="text-xs font-medium text-muted">({t('common.you')})</span>}
                 {m.role === 'admin' && <Badge className="bg-bordeaux-soft text-bordeaux"><Crown className="size-3" /> {t('class.admin')}</Badge>}
-                {m.is_today_scribe && <Badge className="bg-giallo text-ink"><Pencil className="size-3" /> {t('class.scribe_today')}</Badge>}
+                {m.is_today_scribe && <Badge className="bg-giallo text-[#1d1b1e]"><Pencil className="size-3" /> {t('class.scribe_today')}</Badge>}
                 {!m.activated && <Badge className="bg-ink/5 text-muted">{t('class.not_activated')}</Badge>}
               </p>
               <p className="text-xs text-muted">
@@ -108,7 +108,7 @@ function Members() {
                   <MoreVertical className="size-5" />
                 </button>
                 {menu === m.id && (
-                  <div className="absolute right-0 z-20 mt-1 w-60 rounded-2xl border border-line bg-white p-1.5 shadow-lg" role="menu">
+                  <div className="absolute right-0 z-20 mt-1 w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-lg" role="menu">
                     <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', m)} />
                     {info.is_demo ? (
                       <p className="px-3 py-2 text-xs text-muted">{t('class.demo_locked')}</p>
@@ -263,7 +263,7 @@ function Turns() {
                   disabled={!swapMode}
                   className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition ${
                     picked === d.day ? 'border-bordeaux ring-2 ring-bordeaux/30' : 'border-line'
-                  } ${swapMode ? 'hover:border-ink/40' : ''} ${d.day === today ? 'bg-giallo-soft' : 'bg-white'}`}
+                  } ${swapMode ? 'hover:border-ink/40' : ''} ${d.day === today ? 'bg-giallo-soft' : 'bg-surface'}`}
                 >
                   <span className="w-24 shrink-0 text-sm font-semibold">{capitalize(shortDay(d.day, i18n.language))}</span>
                   {d.scribe ? (
@@ -295,7 +295,7 @@ function Turns() {
       <section>
         <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-muted">{t('class.turns_order')}</h2>
         <p className="mb-2 text-sm text-muted">{t('class.turns_order_help')}</p>
-        <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+        <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
           {data.order.map((m, i) => (
             <li key={m.id} className="flex items-center gap-3 px-3 py-2">
               <span className="w-6 text-center text-sm font-bold text-muted">{i + 1}</span>
@@ -393,7 +393,7 @@ function Timetable() {
               <tr>
                 <th className="w-20" />
                 {[0, 1, 2, 3, 4].map((w) => (
-                  <th key={w} className="rounded-lg bg-ink py-2 text-xs font-bold text-white">{weekdayName(w, lang)}</th>
+                  <th key={w} className="rounded-lg bg-ink py-2 text-xs font-bold text-paper">{weekdayName(w, lang)}</th>
                 ))}
               </tr>
             </thead>
@@ -414,7 +414,7 @@ function Timetable() {
                     ) : (
                       <span className="text-xs text-muted/50">—</span>
                     )
-                    const cls = `h-14 w-full rounded-lg border px-2 py-1 text-left ${s?.is_lab ? 'border-verde/40 bg-verde-soft' : 'border-line bg-white'}`
+                    const cls = `h-14 w-full rounded-lg border px-2 py-1 text-left ${s?.is_lab ? 'border-verde/40 bg-verde-soft' : 'border-line bg-surface'}`
                     return (
                       <td key={w}>
                         {editing ? (

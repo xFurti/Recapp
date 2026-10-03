@@ -63,7 +63,7 @@ export function ItemRow({
   const diff = daysBetween(todayIso(), item.due_date)
   const urgent = item.type === 'verifica' && diff >= 0 && diff <= 3
   return (
-    <div className={`relative flex gap-3 rounded-xl border border-line bg-white p-3 ${done ? 'opacity-60' : ''}`}>
+    <div className={`relative flex gap-3 rounded-xl border border-line bg-surface p-3 ${done ? 'opacity-60' : ''}`}>
       <span className={`w-1 shrink-0 rounded-full ${s.bar}`} aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

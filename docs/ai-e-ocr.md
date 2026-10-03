@@ -66,6 +66,14 @@ Il prompt è stato migliorato due volte dopo prove reali: elementi separati sull
 titoli descrittivi, abbreviazioni, calendario con i giorni della settimana. Lezione imparata: il
 modello sbaglia soprattutto i giorni della settimana se non gli si dà un calendario esplicito.
 
+## Budget
+
+- Classe DEMO: 30 letture AI al giorno in totale (contate nel database, quindi valide anche dopo
+  un nuovo login) e 3 al minuto per indirizzo IP. Oltre il limite il parser a regole risponde con
+  un avviso, senza chiamare Featherless né Workflows. Upload: 40 al giorno e 5 ogni 10 minuti per IP.
+- Classi reali: 30 letture e 40 upload all'ora per partecipante.
+- Commenti: 20 all'ora per partecipante (8 nella demo).
+
 ## Senza AI
 
 Con `OCR_PROVIDER=mock` (sviluppo) o se Featherless non risponde, le righe incollate passano da un

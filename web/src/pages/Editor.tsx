@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 're
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { api, ApiError, attachmentUrl } from '../api'
-import { DayCardView } from '../components/day'
+import { DayCardView, EntryPhotos } from '../components/day'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
@@ -338,7 +338,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
                 <img src={attachmentUrl(id)} alt="" className="h-24 rounded-lg border border-line object-cover" />
                 <button
                   onClick={() => update((s) => ({ ...s, attachment_ids: s.attachment_ids.filter((a) => a !== id) }))}
-                  className="absolute -right-2 -top-2 rounded-full bg-ink p-1 text-white"
+                  className="absolute -right-2 -top-2 rounded-full bg-ink p-1 text-paper"
                   aria-label={t('editor.remove_item')}
                 >
                   <X className="size-3.5" />
@@ -424,7 +424,7 @@ function EntryEditor({
   const setLab = (patch: Partial<LabData>) => onChange({ lab: { ...lab, ...patch } })
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-line bg-white" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
+    <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
         <h3 className="font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
         {entry.hours && <span className="text-xs text-muted">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span>}
@@ -433,7 +433,7 @@ function EntryEditor({
         <select
           value={entry.lesson_status}
           onChange={(e) => onChange({ lesson_status: e.target.value as LessonStatus })}
-          className="ml-auto rounded-lg border border-line bg-white px-2 py-1 text-xs font-semibold"
+          className="ml-auto rounded-lg border border-line bg-surface px-2 py-1 text-xs font-semibold"
           aria-label={t('editor.lessons')}
         >
           {STATUSES.map((s) => (
@@ -486,6 +486,14 @@ function EntryEditor({
               <input type="checkbox" className="size-4 accent-verde" checked={entry.is_lab} onChange={(e) => onChange({ is_lab: e.target.checked, lab: e.target.checked ? lab : entry.lab })} />
               <FlaskConical className="size-4 text-verde-ink" /> {t('editor.lab_toggle')}
             </label>
+            <EntryPhotos ids={entry.attachment_ids} />
+            {!skipped && (
+              <PhotoUpload
+                ids={entry.attachment_ids}
+                onAdd={(id) => onChange({ attachment_ids: [...entry.attachment_ids, id] })}
+                onRemove={(id) => onChange({ attachment_ids: entry.attachment_ids.filter((a) => a !== id) })}
+              />
+            )}
             {entry.is_lab && (
               <div className="grid gap-2 rounded-xl border border-verde/30 bg-verde-soft p-3 sm:grid-cols-2">
                 <LabInput label={t('day.lab_goal')} value={lab.goal} placeholder={t('editor.lab_goal_ph')} onChange={(v) => setLab({ goal: v })} />
@@ -550,6 +558,56 @@ function ItemChip({ item, onEdit, onRemove }: { item: ItemInput; onEdit: () => v
   )
 }
 
+function PhotoUpload({ ids, onAdd, onRemove }: { ids: number[]; onAdd: (id: number) => void; onRemove: (id: number) => void }) {
+  const info = useClass()
+  const { t } = useTranslation()
+  const [privacy, setPrivacy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const ref = useRef<HTMLInputElement>(null)
+  const upload = async (file: File) => {
+    if (!privacy) {
+      setError(t('editor.privacy_needed'))
+      return
+    }
+    setBusy(true)
+    setError(null)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('privacy_ok', 'true')
+      const att = await api.post<{ id: number }>(classPath(info.code, '/attachments'), fd)
+      onAdd(att.id)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
+        <input type="checkbox" className="size-4 accent-bordeaux" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} />
+        {t('editor.privacy_check')}
+      </label>
+      <input ref={ref} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = '' }} />
+      {ids.length < 3 ? (
+        <Button size="sm" variant="secondary" loading={busy} onClick={() => (privacy ? ref.current?.click() : setError(t('editor.privacy_needed')))}>
+          <ImagePlus className="size-4" /> {t('day.add_photo')}
+        </Button>
+      ) : (
+        <span className="text-xs text-muted">{t('day.photo_limit')}</span>
+      )}
+      {ids.map((id) => (
+        <button key={id} onClick={() => onRemove(id)} className="text-xs font-semibold text-muted hover:text-rosa-ink" aria-label={t('editor.remove_item')}>
+          <X className="size-3.5" />
+        </button>
+      ))}
+      {error && <span className="text-xs font-medium text-rosa-ink">{error}</span>}
+    </div>
+  )
+}
+
 function AddSubject({ onAdd }: { onAdd: (code: string) => void }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
@@ -562,7 +620,7 @@ function AddSubject({ onAdd }: { onAdd: (code: string) => void }) {
     )
   }
   return (
-    <div className="flex flex-wrap gap-2 rounded-2xl border border-line bg-white p-3">
+    <div className="flex flex-wrap gap-2 rounded-2xl border border-line bg-surface p-3">
       {info.subjects.map((s) => (
         <button
           key={s.code}
@@ -652,7 +710,7 @@ function AiSources({
   const drop = (key: string) => setDrafts((ds) => ds.filter((d) => d.key !== key))
 
   return (
-    <section className="rounded-2xl border border-line bg-white p-4">
+    <section className="rounded-2xl border border-line bg-surface p-4">
       <h2 className="flex items-center gap-2 font-bold">
         <Sparkles className="size-5 text-viola" /> {t('editor.sources_title')}
       </h2>
@@ -699,7 +757,7 @@ function AiSources({
                   <SubjectTag subjects={info.subjects} code={d.subject_code} />
                   <SourceBadge source={d.source} />
                   <span className="text-xs font-semibold">{capitalize(relativeDay(d.due_date, t, i18n.language))}{d.due_time ? ` · ${d.due_time}` : ''}</span>
-                  {d.needs_check && <Badge className="bg-giallo text-ink">{t('editor.check_date')}</Badge>}
+                  {d.needs_check && <Badge className="bg-giallo text-[#1d1b1e]">{t('editor.check_date')}</Badge>}
                 </div>
                 <p className="mt-1 font-semibold">{d.title}</p>
                 <div className="mt-2 flex gap-2">
@@ -734,7 +792,7 @@ function ActionBar({
         : save.kind === 'error' ? t('editor.save_error', { msg: save.msg })
           : ''
   return (
-    <div className="fixed inset-x-0 bottom-[4.4rem] z-20 border-t border-line bg-white/95 backdrop-blur md:bottom-0 md:left-60">
+    <div className="fixed inset-x-0 bottom-[4.4rem] z-20 border-t border-line bg-surface/95 backdrop-blur md:bottom-0 md:left-60">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 px-4 py-3">
         <p className={`min-w-0 flex-1 truncate text-xs ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
         <Button variant="secondary" size="sm" onClick={onPreview}>

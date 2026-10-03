@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { api } from '../api'
-import { LangToggle, Logo, PinPad } from '../components/shell'
+import { LangToggle, Logo, ThemeToggle, Wordmark, PinPad } from '../components/shell'
 import { Avatar, Badge, Button, EmptyState, ErrorBox, Field, inputClass, Spinner } from '../components/ui'
 import { useMe } from '../queries'
 import type { PublicClass } from '../types'
@@ -80,9 +80,10 @@ export default function Join() {
     <div className="min-h-dvh">
       <header className="mx-auto flex max-w-xl items-center justify-between px-5 py-4">
         <Link to="/" aria-label="Home">
-          <Logo className="h-9" />
+          <span className="flex items-center gap-2"><Wordmark /><Logo className="h-7" /></span>
         </Link>
-        <LangToggle />
+        <ThemeToggle />
+            <LangToggle />
       </header>
       <main className="mx-auto max-w-xl px-5 pb-16">
         {cls.isLoading && <Spinner />}
@@ -107,7 +108,7 @@ export default function Join() {
                   <li key={m.id}>
                     <button
                       onClick={() => setSelected(m.id)}
-                      className="flex w-full flex-col items-center gap-2 rounded-2xl border border-line bg-white p-4 transition hover:border-bordeaux/40 hover:shadow-sm"
+                      className="flex w-full flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-4 transition hover:border-bordeaux/40 hover:shadow-sm"
                     >
                       <Avatar nick={m.nick} color={m.color} size="lg" />
                       <span className="font-semibold">{m.nick}</span>

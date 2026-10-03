@@ -19,7 +19,7 @@ scuola `preside` / `demo`.
 .venv/bin/python -m pytest api/tests -q
 ```
 
-16 test coprono: login e blocco dopo 5 errori, inviti, permessi, rotazione con festività,
+25 test coprono: login e blocco dopo 5 errori, inviti, permessi, rotazione con festività,
 stati della giornata e presa del turno alle 18:00, pubblicazione e regola anti-vuoto, parser a
 regole e validazione delle bozze, prompt dell'AI, OCR inline e via Render Workflows (simulato),
 pulizia EXIF delle immagini, controllo `Origin`.

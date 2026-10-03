@@ -201,6 +201,23 @@ class OwnerClassIn(BaseModel):
         return MemberIn(nick=v).nick
 
 
+class CommentIn(BaseModel):
+    kind: Literal["comment", "correction"] = "comment"
+    body: str = Field(min_length=1, max_length=500)
+
+    @field_validator("body")
+    @classmethod
+    def _body(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Scrivi un messaggio")
+        return v
+
+
+class CommentPatch(BaseModel):
+    resolved: bool
+
+
 class HolidayIn(BaseModel):
     day: date
     label: str = Field(min_length=1, max_length=80)

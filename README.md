@@ -33,6 +33,9 @@ A class hub written by the students who were there, one short card per day:
   absent classmates. A **Listen** button reads it aloud (Web Speech API).
 - **Upcoming**: one flat list of homework, tests, events and labs grouped by date, with a
   countdown on tests and a personal "done" tick stored only on your device.
+- **By subject**: every recap of one subject in one view, for catching up after a week off.
+- **Replies**: thank the note-taker or flag a correction under the published day.
+- **Share**: a card image for WhatsApp with the day's subjects and deadlines (never nicknames).
 - **Class**: members, the note-taker rotation (it skips weekends, holidays and school breaks
   from the official Marconi calendar) and the weekly timetable.
 - **School area**: the headteacher and staff can see every class, read only.
@@ -103,7 +106,7 @@ More: [landing](docs/screenshots/01-landing.png), [members](docs/screenshots/06-
 | Background jobs | **Render Workflows**: the extraction runs as the `extract_items` task, with an in-process fallback |
 | Hosting | One Render web service (Docker) serving the app and the API on the same domain, `bassaleo.xyz` from gen.xyz |
 | Voice | Browser Web Speech API |
-| Quality | 16 pytest tests (also run against Postgres), TypeScript strict build, oxlint |
+| Quality | 25 pytest tests (also run against Postgres), TypeScript strict build, oxlint |
 
 ```mermaid
 flowchart LR

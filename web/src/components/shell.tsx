@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, School, Sun, Users } from 'lucide-react'
+import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Monitor, Moon, School, Sun, SunMedium, Users } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
@@ -9,23 +9,54 @@ import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
-import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
+import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
+import { Avatar, Button, Field, inputClass, Modal, Stairs, useDismiss } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
-  return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto ${className}`} />
+  return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
+}
+
+/** Text mark until the final Recapp logo arrives. */
+export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+  const sizes = { sm: 'text-lg', md: 'text-xl', lg: 'text-3xl' }
+  return (
+    <span className={`inline-flex items-center gap-1.5 font-extrabold tracking-tight text-bordeaux ${sizes[size]}`}>
+      <Stairs className="h-[0.9em]" />
+      Recapp
+    </span>
+  )
+}
+
+const THEME_ORDER: ThemeChoice[] = ['system', 'light', 'dark']
+
+export function ThemeToggle() {
+  const { t } = useTranslation()
+  const [choice, setChoice] = useState<ThemeChoice>(getTheme)
+  const Icon = choice === 'dark' ? Moon : choice === 'light' ? SunMedium : Monitor
+  const next = () => {
+    const value = THEME_ORDER[(THEME_ORDER.indexOf(choice) + 1) % THEME_ORDER.length]
+    setTheme(value)
+    setChoice(value)
+  }
+  const label = t('theme.label', { mode: t(`theme.${choice}`) })
+  return (
+    <button onClick={next} className="flex size-8 items-center justify-center rounded-full border border-line bg-surface text-muted hover:text-ink" title={label} aria-label={label}>
+      <Icon className="size-4" />
+    </button>
+  )
 }
 
 export function LangToggle() {
   const { i18n, t } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'it'
   return (
-    <div className="inline-flex rounded-full border border-line bg-white p-0.5 text-xs font-bold" role="group" aria-label={t('common.language')}>
+    <div className="inline-flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold" role="group" aria-label={t('common.language')}>
       {(['it', 'en'] as const).map((l) => (
         <button
           key={l}
           onClick={() => setLanguage(l)}
           aria-pressed={lang === l}
-          className={`rounded-full px-2.5 py-1 uppercase transition ${lang === l ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`}
+          className={`rounded-full px-2.5 py-1 uppercase transition ${lang === l ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
         >
           {l}
         </button>
@@ -53,7 +84,7 @@ export function TimeTravel() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold ${sim ? 'bg-giallo text-ink' : 'border border-line bg-white text-muted hover:text-ink'}`}
+        className={`inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold ${sim ? 'bg-giallo text-[#1d1b1e]' : 'border border-line bg-surface text-muted hover:text-ink'}`}
         title={t('time.title')}
       >
         <Clock className="size-3.5" />
@@ -104,7 +135,7 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
         {member ? <Avatar nick={member.nick} color={member.color} size="sm" /> : <School className="size-6 text-bordeaux" />}
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-line bg-white p-2 shadow-lg" role="menu">
+        <div className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-line bg-surface p-2 shadow-lg" role="menu">
           {member && (
             <div className="px-3 py-2">
               <p className="font-semibold">{member.nick}</p>
@@ -176,9 +207,10 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const showClock = import.meta.env.DEV || info.is_demo
   return (
     <div className="min-h-dvh md:flex">
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-white px-4 py-5 md:flex">
-        <Link to={base} className="mb-6 block">
-          <Logo className="h-12" />
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
+        <Link to={base} className="mb-6 flex flex-col items-start gap-2">
+          <Wordmark size="lg" />
+          <Logo className="h-9" />
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map((n) => (
@@ -201,20 +233,21 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur">
           {info.viewer.kind === 'owner' && (
-            <div className="flex items-center justify-between bg-ink px-4 py-1.5 text-xs font-semibold text-white">
+            <div className="flex items-center justify-between bg-ink px-4 py-1.5 text-xs font-semibold text-paper">
               <span>{t('shell.school_view')}</span>
               <Link to="/scuola" className="underline">{t('shell.back_school')}</Link>
             </div>
           )}
           <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
             <Link to={base} className="md:hidden">
-              <Logo className="h-8" />
+              <Wordmark size="sm" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
               <p className="truncate text-xs text-muted">{t('common.app_name')} · {t('common.tagline')}</p>
             </div>
             {showClock && <TimeTravel />}
+            <ThemeToggle />
             <LangToggle />
             <ProfileMenu info={info} />
           </div>
@@ -222,7 +255,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
       </div>
 
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white md:hidden">
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4">
           {NAV.map((n) => (
             <NavLink
@@ -264,12 +297,12 @@ export function PinPad({ value, onChange, onSubmit, disabled }: { value: string;
       </div>
       <div className="grid grid-cols-3 gap-2">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => (
-          <button key={d} type="button" onClick={() => press(d)} disabled={disabled} className="h-14 rounded-2xl bg-white text-xl font-semibold shadow-sm ring-1 ring-line hover:bg-paper active:scale-95">
+          <button key={d} type="button" onClick={() => press(d)} disabled={disabled} className="h-14 rounded-2xl bg-surface text-xl font-semibold shadow-sm ring-1 ring-line hover:bg-paper active:scale-95">
             {d}
           </button>
         ))}
         <span />
-        <button type="button" onClick={() => press('0')} disabled={disabled} className="h-14 rounded-2xl bg-white text-xl font-semibold shadow-sm ring-1 ring-line hover:bg-paper active:scale-95">
+        <button type="button" onClick={() => press('0')} disabled={disabled} className="h-14 rounded-2xl bg-surface text-xl font-semibold shadow-sm ring-1 ring-line hover:bg-paper active:scale-95">
           0
         </button>
         <button type="button" onClick={() => onChange(value.slice(0, -1))} disabled={disabled} className="flex h-14 items-center justify-center rounded-2xl text-muted hover:bg-ink/5" aria-label="Cancella">

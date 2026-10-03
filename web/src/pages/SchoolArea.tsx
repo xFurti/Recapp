@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
-import { LangToggle, Logo } from '../components/shell'
+import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
 import { Badge, Button, Card, ErrorBox, Field, inputClass, Modal, Spinner } from '../components/ui'
 import { capitalize, shortDay } from '../lib/format'
 import { useMe } from '../queries'
@@ -16,10 +16,11 @@ export default function SchoolArea() {
   const me = useMe()
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line bg-white">
+      <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-5 py-3">
-          <Link to="/"><Logo className="h-10" /></Link>
-          <LangToggle />
+          <Link to="/" className="flex items-center gap-3"><Wordmark /><Logo className="h-8" /></Link>
+          <ThemeToggle />
+            <LangToggle />
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-5 py-8">
@@ -47,7 +48,7 @@ function OwnerLogin() {
     <div className="mx-auto max-w-sm">
       <h1 className="text-3xl font-extrabold tracking-tight">{t('school.title')}</h1>
       <p className="mt-1 text-muted">{t('school.sub')}</p>
-      <form onSubmit={submit} className="mt-6 space-y-4 rounded-3xl border border-line bg-white p-6">
+      <form onSubmit={submit} className="mt-6 space-y-4 rounded-3xl border border-line bg-surface p-6">
         <Field label={t('school.username')}>
           <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
         </Field>
@@ -193,7 +194,7 @@ function Holidays() {
   const del = useMutation({ mutationFn: (d: string) => api.del(`/owner/holidays/${d}`), onSuccess: refresh })
   return (
     <section>
-      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between rounded-2xl border border-line bg-white px-4 py-3 text-left" aria-expanded={open}>
+      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-left" aria-expanded={open}>
         <span>
           <span className="flex items-center gap-2 font-bold"><CalendarOff className="size-5 text-azzurro-ink" /> {t('school.calendar')}</span>
           <span className="text-sm text-muted">{t('school.calendar_sub')}</span>
@@ -201,7 +202,7 @@ function Holidays() {
         <span className="text-sm font-semibold text-muted">{list.data?.length ?? ''}</span>
       </button>
       {open && (
-        <div className="mt-2 rounded-2xl border border-line bg-white p-4">
+        <div className="mt-2 rounded-2xl border border-line bg-surface p-4">
           <form onSubmit={(e) => { e.preventDefault(); add.mutate() }} className="mb-4 grid gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
             <input type="date" className={inputClass} value={day} onChange={(e) => setDay(e.target.value)} required aria-label="Data" />
             <input className={inputClass} value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('school.holiday_label')} required />

@@ -7,7 +7,7 @@ from sqlmodel import Session, col, delete, func, select
 from ..auth import ClassAccess, class_access, hash_secret, new_invite_code, request_now
 from ..config import settings
 from ..db import get_session
-from ..models import DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem
+from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem
 from ..schedule import ClassCalendar
 from ..school_data import HOURS, is_lab_room
 from ..seed import DEMO_NICKS
@@ -76,6 +76,16 @@ def today(
         out["next_school_day"] = None
     soon = session.exec(upcoming_query(access.classroom.id, target, target + timedelta(days=3))).all()
     out["upcoming_soon"] = items_out(session, list(soon))
+    out["open_corrections"] = 0
+    if state.published and state.can_write:
+        out["open_corrections"] = session.exec(
+            select(func.count()).select_from(CardComment).where(
+                CardComment.card_id == state.card.id,
+                CardComment.kind == "correction",
+                CardComment.resolved == False,  # noqa: E712
+                CardComment.deleted == False,  # noqa: E712
+            )
+        ).one()
     return out
 
 

@@ -156,6 +156,43 @@ def test_takeover_revokes_previous_author(client):
     assert client.post(f"{url}/publish", headers=at(18, 33)).status_code == 200
 
 
+def test_feedback_comments_and_thanks(client):
+    reset_demo(client)
+    day = (TODAY - timedelta(days=1)).isoformat()
+    leo = make_client()
+    leo.post("/api/auth/demo")
+    demo_member(client, "gianni")
+    assert client.post(f"/api/classes/DEMO/cards/{TODAY.isoformat()}/comments", json={"body": "bozza"}, headers=at(15)).status_code == 404
+    assert client.post(f"/api/classes/DEMO/cards/{day}/comments", json={"kind": "correction", "body": "manca il repo"}).status_code == 200
+    assert client.post(f"/api/classes/DEMO/cards/{day}/comments", json={"body": "grazie per i punti"}).status_code == 200
+    assert client.post(f"/api/classes/DEMO/cards/{day}/thanks").status_code == 200
+    fb = client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()
+    assert fb["thanks"] == 1 and fb["thanked"] and fb["open_corrections"] == 1
+    assert [c["kind"] for c in fb["comments"]] == ["correction", "comment"]
+    assert client.get("/api/classes/DEMO/today", headers=at(15)).json()["open_corrections"] == 0, "gianni is not the scribe"
+    assert leo.get("/api/classes/DEMO/today", headers=at(15, day=TODAY - timedelta(days=1))).json()["open_corrections"] == 1
+    correction = next(c for c in fb["comments"] if c["kind"] == "correction")
+    assert client.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 403
+    assert leo.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 200
+    assert client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()["open_corrections"] == 0
+    assert client.delete(f"/api/classes/DEMO/comments/{correction['id']}").status_code == 200
+    assert client.post(f"/api/classes/DEMO/cards/{day}/thanks").status_code == 200
+    fb = client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()
+    assert fb["thanks"] == 0 and len(fb["comments"]) == 1
+
+
+def test_subject_entries_across_days(client):
+    reset_demo(client)
+    client.post("/api/auth/demo")
+    rows = client.get("/api/classes/DEMO/subjects/INI/entries?range=all").json()
+    assert rows, "demo has published Informatica blocks"
+    days = [r["day"] for r in rows]
+    assert days == sorted(days, reverse=True)
+    assert all("bullets" in r and "items" in r for r in rows)
+    assert any(r["lab"] for r in rows), "yesterday's demo card has an INI lab"
+    assert client.get("/api/classes/DEMO/subjects/XXX/entries").json() == []
+
+
 def test_pass_turn_opens_takeover(client):
     reset_demo(client)
     client.post("/api/auth/demo")

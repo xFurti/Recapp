@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  --color-surface: #ffffff;
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --color-bordeaux: #a02848;
@@ -25,6 +28,29 @@
   --color-ink: #1d1b1e;
   --color-muted: #6b6570;
   --color-line: #e7e2de;
+}
+
+/* Dark theme: the same tokens, re-pointed. Components only use tokens. */
+.dark {
+  color-scheme: dark;
+  --color-surface: #1e1b21;
+  --color-paper: #141216;
+  --color-ink: #f2eef1;
+  --color-muted: #a8a1ab;
+  --color-line: #36313b;
+
+  --color-bordeaux: #c83b62;
+  --color-bordeaux-dark: #a52d4f;
+  --color-bordeaux-soft: #3b1824;
+  --color-giallo-soft: #3a2f10;
+  --color-azzurro-ink: #74c7ec;
+  --color-azzurro-soft: #0f2b38;
+  --color-verde-ink: #a9d873;
+  --color-verde-soft: #1e2b12;
+  --color-rosa-ink: #ff7fa9;
+  --color-rosa-soft: #3d1121;
+  --color-viola-ink: #c99cf0;
+  --color-viola-soft: #2b1a3b;
 }
 
 @layer base {

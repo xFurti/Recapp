@@ -40,7 +40,7 @@ export function InviteModal({
     <Modal open={open} onClose={onClose} title={t('class.invite_title', { nick })}>
       <p className="mb-4 rounded-xl bg-giallo-soft px-3 py-2 text-sm font-semibold">{t('class.invite_once')}</p>
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div className="rounded-2xl border border-line bg-white p-3">
+        <div className="rounded-2xl border border-line bg-surface p-3">
           <QRCodeSVG value={joinUrl} size={148} fgColor="#1d1b1e" />
         </div>
         <div className="w-full space-y-3">

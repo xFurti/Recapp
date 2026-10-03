@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Hand, Info, Pencil, PartyPopper } from 'lucide-react'
+import { ArrowRight, Hand, Info, Pencil, PartyPopper, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { api } from '../api'
 import { DayCardView, LessonsStrip } from '../components/day'
+import { Feedback } from '../components/Feedback'
 import { ItemRow } from '../components/items'
 import { Avatar, Button, Card, ErrorBox, Spinner } from '../components/ui'
 import { parseDay } from '../lib/clock'
@@ -26,7 +27,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   const takeover = useMutation({ mutationFn: () => api.post(classPath(info.code, '/today/takeover'), { day: data.day }), onSuccess: refresh })
   const pass = useMutation({ mutationFn: () => api.post(classPath(info.code, '/today/pass'), { day: data.day }), onSuccess: refresh })
 
-  let tone = 'bg-white border-line'
+  let tone = 'bg-surface border-line'
   let title: ReactNode = null
   let sub: ReactNode = null
   let actions: ReactNode = null
@@ -138,6 +139,11 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
           {sub && <p className="mt-1 text-sm text-ink/70">{sub}</p>}
         </div>
       </div>
+      {data.open_corrections > 0 && data.can_write && (
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-giallo px-3 py-1 text-sm font-bold text-[#1d1b1e]">
+          <TriangleAlert className="size-4" /> {t('feedback.open_corrections', { count: data.open_corrections })}
+        </p>
+      )}
       {actions && <div className="mt-4 flex flex-wrap items-center gap-2">{actions}</div>}
       {error && <p className="mt-2 text-sm font-medium text-rosa-ink">{(error as Error).message}</p>}
     </section>
@@ -183,7 +189,12 @@ export default function Today() {
         </section>
       )}
 
-      {data.card && data.status === 'published' && <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} />}
+      {data.card && data.status === 'published' && (
+        <>
+          <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} classInfo={info} canShare={info.viewer.can_manage || info.viewer.member?.id === data.card.author?.id} />
+          <Feedback code={info.code} day={data.day} readOnly={info.viewer.read_only} />
+        </>
+      )}
 
       <section>
         <div className="mb-2 flex items-center justify-between">

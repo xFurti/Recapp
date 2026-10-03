@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56" role="img" aria-label="Recapp">
+  <g>
+    <path d="M0 48 v-14 h6 v-6 h6 v20 z" fill="#A02848"/>
+    <path d="M14 48 v-20 h6 v-6 h6 v26 z" fill="#F8B828"/>
+    <path d="M28 48 v-26 h6 v-6 h6 v32 z" fill="#1898C8"/>
+  </g>
+  <text x="50" y="44" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="800" letter-spacing="-1" fill="#A02848">Recapp</text>
+</svg>

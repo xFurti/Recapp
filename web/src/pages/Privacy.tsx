@@ -1,7 +1,7 @@
 import { ArrowLeft, Ban, CalendarX, Database, Eye } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
-import { LangToggle, Logo } from '../components/shell'
+import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
 
 export default function Privacy() {
   const { t } = useTranslation()
@@ -15,8 +15,9 @@ export default function Privacy() {
   return (
     <div className="min-h-dvh">
       <header className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
-        <Link to="/"><Logo className="h-10" /></Link>
-        <LangToggle />
+        <Link to="/" className="flex items-center gap-3"><Wordmark /><Logo className="h-8" /></Link>
+        <ThemeToggle />
+            <LangToggle />
       </header>
       <main className="mx-auto max-w-2xl px-5 pb-16">
         <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
@@ -26,7 +27,7 @@ export default function Privacy() {
         <p className="mt-3 text-lg text-muted">{t('privacy.intro')}</p>
         <div className="mt-8 space-y-4">
           {sections.map((s) => (
-            <section key={s.title} className="rounded-2xl border border-line bg-white p-5">
+            <section key={s.title} className="rounded-2xl border border-line bg-surface p-5">
               <h2 className="flex items-center gap-2 text-lg font-bold">
                 <span className={`flex size-9 items-center justify-center rounded-xl ${s.tone}`}><s.icon className="size-5" /></span>
                 {s.title}

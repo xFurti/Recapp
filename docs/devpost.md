@@ -42,7 +42,9 @@ Yesterday Pack is a class hub written by the students who were there:
   automatically and "next lesson" dates are computed for each subject.
 - **AI drafts, human decisions**: paste a line or a cropped screenshot from ClasseViva/Classroom/
   Campus and AI turns it into draft items; the note-taker accepts or edits each one.
-- **Listen** button, Italian/English interface, read-only school area for the headteacher.
+- **Listen** button, Italian/English interface, light/dark theme, read-only school area for the headteacher.
+- **By subject** view to catch up after a week of absence, replies and corrections under each day,
+  and a share image for the class chat (subjects and deadlines only, no nicknames).
 
 ## How we built it
 
@@ -51,7 +53,7 @@ Yesterday Pack is a class hub written by the students who were there:
 - Postgres on Neon.
 - **Render Workflows** runs the AI extraction as a separate task (`extract_items`), calling
   **Featherless** models (Qwen3-VL-8B for screenshots, Qwen3-30B for pasted text).
-- 16 automated tests (pytest), also run against Postgres.
+- 25 automated tests (pytest), also run against Postgres.
 
 ## Challenges
 

@@ -1,6 +1,7 @@
 import '@fontsource-variable/inter'
 import './index.css'
 import './i18n'
+import './lib/theme'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { lazy, StrictMode, Suspense, type ReactNode } from 'react'
@@ -12,6 +13,7 @@ import ClassLayout from './pages/ClassLayout'
 import { DayByDate, DaysList, Yesterday } from './pages/DayPage'
 import Join from './pages/Join'
 import Landing from './pages/Landing'
+import SubjectPage from './pages/SubjectPage'
 import Today from './pages/Today'
 import Upcoming from './pages/Upcoming'
 
@@ -44,6 +46,7 @@ const router = createBrowserRouter([
       { path: 'ieri', element: <Yesterday /> },
       { path: 'giorno/:day', element: <DayByDate /> },
       { path: 'giorni', element: <DaysList /> },
+      { path: 'materia/:subject', element: <SubjectPage /> },
       { path: 'in-arrivo', element: <Upcoming /> },
       { path: 'classe', element: later(<ClassPage />) },
       { path: 'scrivi/:day', element: later(<Editor />) },

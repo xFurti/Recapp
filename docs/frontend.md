@@ -10,7 +10,8 @@ icone lucide-react. Mobile-first: su telefono barra in basso con 4 tab, da PC ba
 | `/` | `pages/Landing.tsx` | Codice classe, "Prova la demo", link Area scuola e Privacy |
 | `/c/:code/entra` | `pages/Join.tsx` | Scelta del nick, PIN pad o primo accesso con invito |
 | `/c/:code` | `pages/Today.tsx` | Banner del verbalista, lezioni di oggi, scadenze a 3 giorni |
-| `/c/:code/ieri` | `pages/DayPage.tsx` (`Yesterday`) | Ultima giornata pubblicata, frecce, Ascolta |
+| `/c/:code/ieri` | `pages/DayPage.tsx` (`Yesterday`) | Ultima giornata pubblicata, frecce, Ascolta, riga "Per materia" |
+| `/c/:code/materia/:subject` | `pages/SubjectPage.tsx` | Tutti i recap di una materia (settimana, 2 settimane, tutto) |
 | `/c/:code/giorno/:day` · `/giorni` | `pages/DayPage.tsx` | Un giorno preciso, elenco di tutti i giorni |
 | `/c/:code/scrivi/:day` | `pages/Editor.tsx` | Editor della giornata |
 | `/c/:code/in-arrivo` | `pages/Upcoming.tsx` | Compiti, verifiche, eventi, lab con filtri |
@@ -48,7 +49,23 @@ La parte più delicata del frontend.
   successivo non li duplica.
 - **Bozze AI** (`AiSources`): incolla o carica un ritaglio → `POST /ocr` → controllo ogni secondo
   → schede con Aggiungi / Modifica / Scarta. Date dubbie evidenziate in giallo.
+- **Foto appunti**: in ogni blocco materia, massimo 3, con la stessa casella privacy dei ritagli.
+- **Conflitti**: ogni salvataggio manda `revision`. Su 409 compare un banner con "Tieni le mie
+  modifiche" o "Carica la versione salvata". L'editor si apre sempre da una copia fresca del server.
 - **Pubblica**: forza un ultimo salvataggio, poi `POST /publish`, invalida le cache e torna a Oggi.
+
+## Risposte e condivisione
+
+- `components/Feedback.tsx`: sotto ogni giornata pubblicata, "Grazie" con contatore, commenti e
+  correzioni (evidenziate finché non sono segnate come viste). Si aggiorna ogni 30 secondi.
+- `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 (materie e scadenze, mai
+  nick o note) condivisa col foglio di sistema, oppure scaricata con link WhatsApp.
+
+## Tema
+
+`lib/theme.ts`: chiaro, scuro o come il sistema, salvato sul dispositivo (`ieri.theme`). Uno script
+in `index.html` applica il tema prima del primo disegno per evitare il lampo bianco. I componenti
+usano i token `surface`, `paper`, `ink` e le varianti soft, ridefiniti in `.dark` in `index.css`.
 
 ## Lingua
 

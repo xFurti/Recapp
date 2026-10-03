@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { attachmentUrl } from '../api'
 import { capitalize, longDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { useSpeech } from '../lib/speech'
-import type { Card, Entry, Lesson, Subject } from '../types'
+import type { Card, ClassInfo, Entry, Lesson, Subject } from '../types'
+import { ShareButton } from './ShareButton'
 import { ItemRow } from './items'
 import { Avatar, Badge, Modal } from './ui'
 
@@ -17,7 +18,7 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
       {lessons.map((l) => (
         <li
           key={`${l.subject_code}-${l.hours_label}`}
-          className="flex min-w-[8.5rem] shrink-0 flex-col rounded-xl border border-line bg-white px-3 py-2"
+          className="flex min-w-[8.5rem] shrink-0 flex-col rounded-xl border border-line bg-surface px-3 py-2"
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
           <span className="text-xs font-medium text-muted">
@@ -34,7 +35,25 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
   )
 }
 
-function LabBox({ entry }: { entry: Entry }) {
+export function EntryPhotos({ ids }: { ids: number[] }) {
+  const { t } = useTranslation()
+  const [zoom, setZoom] = useState<number | null>(null)
+  if (!ids.length) return null
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {ids.map((id) => (
+        <button key={id} onClick={() => setZoom(id)} className="overflow-hidden rounded-lg border border-line" aria-label={t('day.photo_open')}>
+          <img src={attachmentUrl(id)} alt="" className="h-20 w-auto object-cover" loading="lazy" />
+        </button>
+      ))}
+      <Modal open={zoom !== null} onClose={() => setZoom(null)} title={t('day.photos')} wide>
+        {zoom !== null && <img src={attachmentUrl(zoom)} alt="" className="w-full rounded-lg" />}
+      </Modal>
+    </div>
+  )
+}
+
+export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   const { t } = useTranslation()
   const lab = entry.lab
   if (!lab) return null
@@ -72,12 +91,12 @@ function LabBox({ entry }: { entry: Entry }) {
   )
 }
 
-export function DayCardView({ card, subjects, classLabel }: { card: Card; subjects: Subject[]; classLabel?: string }) {
+export function DayCardView({ card, subjects, classLabel, classInfo, canShare }: { card: Card; subjects: Subject[]; classLabel?: string; classInfo?: ClassInfo; canShare?: boolean }) {
   const { t, i18n } = useTranslation()
   const [zoom, setZoom] = useState<number | null>(null)
-  const entries = card.entries.filter((e) => e.bullets.length || e.lab || e.lesson_status !== 'svolta')
+  const entries = card.entries.filter((e) => e.bullets.length || e.lab || e.attachment_ids?.length || e.lesson_status !== 'svolta')
   return (
-    <article className="overflow-hidden rounded-2xl border border-line bg-white">
+    <article className="overflow-hidden rounded-2xl border border-line bg-surface">
       <header className="flex items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
         {card.author && <Avatar nick={card.author.nick} color={card.author.color} />}
         <div className="min-w-0 flex-1">
@@ -88,7 +107,10 @@ export function DayCardView({ card, subjects, classLabel }: { card: Card; subjec
               .join(' · ')}
           </p>
         </div>
-        <ListenButton card={card} subjects={subjects} />
+        <div className="flex items-center gap-2">
+          {classInfo && canShare && <ShareButton card={card} info={classInfo} />}
+          <ListenButton card={card} subjects={subjects} />
+        </div>
       </header>
 
       <div className="divide-y divide-line">
@@ -110,6 +132,7 @@ export function DayCardView({ card, subjects, classLabel }: { card: Card; subjec
                   ))}
                 </ul>
               )}
+              <EntryPhotos ids={e.attachment_ids ?? []} />
               <LabBox entry={e} />
             </div>
           </section>

@@ -30,11 +30,13 @@ erDiagram
 | `TimetableSlot` | `weekday` 0-4, `hour` 1-7, `subject_code`, `room`, `is_lab` | `is_lab` dedotto dall'aula che inizia con `L` |
 | `Holiday` | `day`, `label`, `kind` festività/sospensione | Globale per la scuola |
 | `ScribeOverride` | `day`, `member_id`, `reason` swap/takeover/pass | Eccezioni alla rotazione |
-| `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `notes` | Una per classe e giorno |
-| `SubjectEntry` | `subject_code`, `hours`, `room`, `is_lab`, `lesson_status`, `bullets` (JSON, max 5) | Un blocco per materia |
+| `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `notes`, `revision` | Una per classe e giorno. `revision` cresce a ogni salvataggio e a ogni cambio di verbalista |
+| `SubjectEntry` | `subject_code`, `hours`, `room`, `is_lab`, `lesson_status`, `bullets` (JSON, max 5), `attachment_ids` (JSON, max 3) | Un blocco per materia. `attachment_ids` sono le foto degli appunti |
 | `LabBlock` | `goal`, `repo_url`, `pitfall`, `bring` | Legato a un `SubjectEntry` |
 | `UpcomingItem` | `type`, `subject_code`, `title`, `due_date`, `due_time`, `source`, `link`, `status`, `card_id` | `draft` finché la card non è pubblicata |
-| `Attachment` | `data` (WebP), `width`, `height`, `card_id` | Immagine nel database, mai su disco |
+| `Attachment` | `data` (WebP), `width`, `height`, `card_id`, `created_by` | Immagine nel database, mai su disco. Visibile a tutti solo se la card o l'elemento è pubblicato |
+| `CardComment` | `card_id`, `member_id`, `kind` comment/correction, `body`, `resolved`, `deleted` | Risposte sotto la giornata pubblicata |
+| `CardThanks` | `card_id`, `member_id` (unico per coppia) | Il "Grazie" al verbalista |
 | `OcrJob` | `status`, `input_kind`, `result` (JSON), `render_run_id` | Una lettura AI |
 
 ## Rotazione dei verbalisti (`schedule.py`)
@@ -76,11 +78,21 @@ stateDiagram-v2
 | `draft` | esiste una bozza |
 | `not_started` | nessuna bozza |
 
-Chi può scrivere (`can_write`): un membro, solo in giorni di scuola già arrivati, se è admin, se
-è il verbalista di quel giorno o se è l'autore della card. Chi può prendere il turno
-(`can_takeover`): un membro diverso dal verbalista quando lo stato è `open`.
+Chi può scrivere (`can_write`): un membro, solo in giorni di scuola già arrivati, se è admin o se è
+il verbalista **attuale** di quel giorno. L'autore della card può modificarla solo dopo la
+pubblicazione. Dopo un takeover, un pass o uno swap, il vecchio verbalista perde la scrittura e la
+revisione della bozza cresce di uno: la sua scheda aperta riceve un conflitto o un 403.
 
-Regola anti-vuoto alla pubblicazione: serve almeno un punto, un blocco lab o un elemento in arrivo.
+Regola anti-vuoto alla pubblicazione: serve almeno un punto, una foto, un blocco lab **con almeno
+un campo compilato** o un elemento in arrivo. Un lab vuoto non basta.
+
+## Conflitti di salvataggio
+
+`PUT /cards/{day}` richiede `revision`, la revisione su cui si basa il client. Il server fa un
+aggiornamento condizionale atomico (`WHERE revision = :expected`) e risponde **409** con la card
+attuale se qualcuno ha salvato nel frattempo. Il frontend mostra un banner con due scelte: tenere
+le proprie modifiche o caricare la versione salvata. L'editor parte sempre da una copia fresca del
+server, non dalla cache.
 
 ## API
 
@@ -105,7 +117,11 @@ Tutte sotto `/api`. Le route `classes/{code}/...` richiedono un membro della cla
 | `GET /classes/{code}/cards` · `GET /cards/{day}` · `GET /latest` | membro/owner | Elenco giornate, una giornata, ultima pubblicata |
 | `PUT /classes/{code}/cards/{day}` · `POST /cards/{day}/publish` | chi può scrivere | Salva bozza (sostituisce tutto) e pubblica |
 | `GET` · `POST /classes/{code}/upcoming` · `PATCH` · `DELETE /upcoming/{id}` | lettura tutti, modifica autore/admin | In arrivo |
-| `POST /classes/{code}/attachments` · `GET /attachments/{id}` | membro | Carica e mostra un ritaglio |
+| `POST /classes/{code}/attachments` · `GET /attachments/{id}` | membro | Carica e mostra un ritaglio. Prima della pubblicazione solo chi l'ha caricato, chi può scrivere la giornata e gli admin |
+| `GET /classes/{code}/subjects/{subject}/entries` | membro/owner | Blocchi pubblicati di una materia (settimana, 2 settimane, tutto) |
+| `GET /classes/{code}/cards/{day}/feedback` | membro/owner | Commenti, correzioni aperte e conteggio dei "grazie" |
+| `POST /classes/{code}/cards/{day}/comments` · `PATCH` · `DELETE /comments/{id}` | membro | Commento o correzione; "risolta" solo autore della giornata o admin; elimina chi l'ha scritta o un admin |
+| `POST /classes/{code}/cards/{day}/thanks` | membro | Aggiunge o toglie il proprio "grazie" |
 | `POST /classes/{code}/ocr` · `GET /ocr/{job_id}` | membro | Avvia e controlla una lettura AI |
 | `GET` · `POST /owner/classes` · `GET` · `POST` · `DELETE /owner/holidays` | owner | Area scuola |
 | `GET /healthz` | tutti | Stato, provider OCR, runner |
@@ -129,3 +145,8 @@ All'avvio, in modo idempotente:
 4. Classe DEMO: rigenerata ogni giorno con date relative a oggi (5 giornate passate, 8 elementi).
 
 `python -m api.seed --reset-demo` la rigenera subito.
+
+Nella DEMO le modifiche strutturali sono bloccate lato API (orario, rimozione partecipanti, ruoli,
+ordine di rotazione, inviti dei nick di base): la demo è condivisa da tutti i visitatori. Si possono
+aggiungere partecipanti (massimo 12) e scambiare i turni. L'OCR della demo ha un budget di 30
+letture AI al giorno in totale e 3 al minuto per IP: oltre, risponde il parser a regole.

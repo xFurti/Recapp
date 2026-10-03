@@ -1,6 +1,6 @@
 {
   "common": {
-    "app_name": "Yesterday",
+    "app_name": "Recapp",
     "tagline": "Your class, summarized",
     "loading": "Loading…",
     "error": "Something went wrong",
@@ -28,7 +28,7 @@
   },
   "landing": {
     "title": "Missed a day?",
-    "subtitle": "Open Yesterday: what we did in class and in the lab, and what's due next. Written by classmates who were there.",
+    "subtitle": "Open Recapp: what we did in class and in the lab, and what's due next. Written by classmates who were there.",
     "code_label": "Class code",
     "code_placeholder": "e.g. 4BI-K7Q2",
     "enter": "Enter",
@@ -151,7 +151,11 @@
     "hour": "hour {{h}}",
     "n_items_one": "{{count}} upcoming",
     "n_items_other": "{{count}} upcoming",
-    "nothing_written": "No notes"
+    "nothing_written": "No notes",
+    "photos": "Notes photos",
+    "photo_open": "Open photo",
+    "add_photo": "Add notes photo",
+    "photo_limit": "Up to 3 photos per subject"
   },
   "listen": {
     "play": "Listen",
@@ -386,7 +390,7 @@
   },
   "privacy": {
     "title": "Privacy",
-    "intro": "Yesterday is a pilot project by 4th-year Computer Science students at ITI G. Marconi, Verona, agreed with the school leadership. It is the class summary: it does not replace ClasseViva, Classroom or Campus.",
+    "intro": "Recapp is a pilot project by 4th-year Computer Science students at ITI G. Marconi, Verona, agreed with the school leadership. It is the class summary: it does not replace ClasseViva, Classroom or Campus.",
     "save_title": "What we store",
     "save_1": "The nickname you choose (no surnames) and your role in the class.",
     "save_2": "Your PIN, only as a hash (nobody can read it, not even us).",
@@ -401,5 +405,46 @@
     "end_title": "End of the year",
     "end_1": "At the end of the school year the class content is deleted.",
     "contact": "For questions or deletion requests, talk to your class rep."
+  },
+  "theme": {
+    "label": "Theme: {{mode}}",
+    "system": "system",
+    "light": "light",
+    "dark": "dark"
+  },
+  "subject": {
+    "by_subject": "By subject",
+    "week": "This week",
+    "two_weeks": "Last 2 weeks",
+    "all": "All",
+    "empty": "No published day for this subject",
+    "open_day": "Open the day"
+  },
+  "share": {
+    "button": "Share",
+    "did": "We covered",
+    "upcoming": "Coming up",
+    "none": "Nothing due",
+    "cta_today": "Open Recapp to see what we did today",
+    "cta_day": "Open Recapp to see what we did on {{day}}",
+    "message": "Recap {{cls}} · {{day}}",
+    "downloaded": "Image downloaded: send it on WhatsApp"
+  },
+  "feedback": {
+    "thanks": "Thanks",
+    "thanks_count": "{{count}} thanks",
+    "thanks_aria": "Thank the author",
+    "replies": "Replies",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "kind_comment": "Comment",
+    "kind_correction": "Correction",
+    "resolved": "Resolved",
+    "resolve": "Mark as seen",
+    "reopen": "Reopen",
+    "delete_confirm": "Delete this message?",
+    "empty": "No replies yet.",
+    "open_corrections_one": "{{count}} correction to check",
+    "open_corrections_other": "{{count}} corrections to check"
   }
 }
