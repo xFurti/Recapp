@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Monitor, Moon, School, Sun, SunMedium, Users } from 'lucide-react'
+import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Monitor, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
@@ -10,6 +10,7 @@ import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/cloc
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
+import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
 import { Avatar, Button, Field, inputClass, Modal, Stairs, useDismiss } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
@@ -211,12 +212,25 @@ function ChangePinModal({ open, onClose }: { open: boolean; onClose: () => void 
   )
 }
 
-const NAV = [
-  { to: '', icon: Sun, key: 'nav.today', end: true },
-  { to: 'ieri', icon: History, key: 'nav.yesterday' },
-  { to: 'in-arrivo', icon: CalendarClock, key: 'nav.upcoming' },
-  { to: 'classe', icon: Users, key: 'nav.class' },
+type NavEntry = { to: string; icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
+
+const NAV: NavEntry[] = [
+  { to: '', icon: Sun, motion: 'today', key: 'nav.today', end: true },
+  { to: 'ieri', icon: History, motion: 'yesterday', key: 'nav.yesterday' },
+  { to: 'in-arrivo', icon: CalendarClock, motion: 'upcoming', key: 'nav.upcoming' },
+  { to: 'classe', icon: Users, motion: 'class', key: 'nav.class' },
 ]
+
+function NavItem({ entry, base, className, iconClass }: { entry: NavEntry; base: string; className: (isActive: boolean) => string; iconClass: string }) {
+  const { t } = useTranslation()
+  const { playing, triggers } = useNavIconMotion()
+  return (
+    <NavLink to={entry.to ? `${base}/${entry.to}` : base} end={entry.end} className={({ isActive }) => className(isActive)} {...triggers}>
+      <NavIcon icon={entry.icon} motion={entry.motion} playing={playing} className={iconClass} />
+      {t(entry.key)}
+    </NavLink>
+  )
+}
 
 export function AppShell({ info, children }: { info: ClassInfo; children: ReactNode }) {
   const { t } = useTranslation()
@@ -231,17 +245,15 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map((n) => (
-            <NavLink
+            <NavItem
               key={n.key}
-              to={n.to ? `${base}/${n.to}` : base}
-              end={n.end}
-              className={({ isActive }) =>
+              entry={n}
+              base={base}
+              iconClass="size-5"
+              className={(isActive) =>
                 `flex items-center gap-3 rounded-xl px-3 py-2.5 font-semibold transition ${isActive ? 'bg-bordeaux-soft text-bordeaux' : 'text-muted hover:bg-ink/5 hover:text-ink'}`
               }
-            >
-              <n.icon className="size-5" />
-              {t(n.key)}
-            </NavLink>
+            />
           ))}
         </nav>
         <p className="mt-auto text-xs text-muted">{t('landing.footer')}</p>
@@ -278,15 +290,13 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4">
           {NAV.map((n) => (
-            <NavLink
+            <NavItem
               key={n.key}
-              to={n.to ? `${base}/${n.to}` : base}
-              end={n.end}
-              className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold ${isActive ? 'text-bordeaux' : 'text-muted'}`}
-            >
-              <n.icon className="size-6" />
-              {t(n.key)}
-            </NavLink>
+              entry={n}
+              base={base}
+              iconClass="size-6"
+              className={(isActive) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold ${isActive ? 'text-bordeaux' : 'text-muted'}`}
+            />
           ))}
         </div>
       </nav>

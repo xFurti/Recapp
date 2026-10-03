@@ -78,3 +78,87 @@
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/* Nav icon micro-animations (see NavIcon.tsx). Only transforms, only on the icon.
+   Child selectors follow the lucide-react geometry of Sun, History, CalendarClock and Users. */
+.nav-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.nav-icon svg > * {
+  transform-box: view-box;
+}
+.nav-icon[data-playing] svg,
+.nav-icon[data-playing] svg > * {
+  animation-duration: var(--nav-icon-ms);
+  animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Oggi: rays turn one step (45°, symmetric) while the sun pulses. */
+.nav-icon[data-motion='today'][data-playing] svg {
+  animation-name: nav-pulse;
+}
+.nav-icon[data-motion='today'][data-playing] svg > path {
+  transform-origin: 12px 12px;
+  animation-name: nav-rays;
+}
+
+/* Ieri: the hands wind back and return, the arrow tilts with them. */
+.nav-icon[data-motion='yesterday'][data-playing] svg {
+  animation-name: nav-tilt-back;
+}
+.nav-icon[data-motion='yesterday'][data-playing] svg > path:nth-child(3) {
+  transform-origin: 12px 12px;
+  animation-name: nav-wind-back;
+}
+
+/* In arrivo: the calendar wobbles and the clock hands sweep a full turn. */
+.nav-icon[data-motion='upcoming'][data-playing] svg {
+  animation-name: nav-wobble;
+}
+.nav-icon[data-motion='upcoming'][data-playing] svg > path:nth-child(1) {
+  transform-origin: 16px 16px;
+  animation-name: nav-sweep;
+}
+
+/* Classe: the two figures hop one after the other, like a small wave. */
+.nav-icon[data-motion='class'][data-playing] svg > :is(path:nth-child(1), circle) {
+  animation-name: nav-hop;
+  animation-duration: calc(var(--nav-icon-ms) * 0.7);
+}
+.nav-icon[data-motion='class'][data-playing] svg > :is(path:nth-child(2), path:nth-child(3)) {
+  animation-name: nav-hop;
+  animation-duration: calc(var(--nav-icon-ms) * 0.7);
+  animation-delay: calc(var(--nav-icon-ms) * 0.3);
+}
+
+@keyframes nav-pulse {
+  50% { transform: scale(1.12); }
+}
+@keyframes nav-rays {
+  to { transform: rotate(45deg); }
+}
+@keyframes nav-tilt-back {
+  45% { transform: rotate(-14deg); }
+}
+@keyframes nav-wind-back {
+  45% { transform: rotate(-75deg); }
+}
+@keyframes nav-wobble {
+  25% { transform: rotate(-8deg); }
+  60% { transform: rotate(5deg); }
+  85% { transform: rotate(-2deg); }
+}
+@keyframes nav-sweep {
+  to { transform: rotate(360deg); }
+}
+@keyframes nav-hop {
+  45% { transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-icon svg,
+  .nav-icon svg > * {
+    animation: none !important;
+  }
+}
