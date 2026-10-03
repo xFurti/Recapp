@@ -88,7 +88,7 @@ export function TimeTravel() {
         title={t('time.title')}
       >
         <Clock className="size-3.5" />
-        {label ? t('time.badge', { time: label }) : <span className="sr-only">{t('time.title')}</span>}
+        {label ? <span className="hidden sm:inline">{t('time.badge', { time: label })}</span> : <span className="sr-only">{t('time.title')}</span>}
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={t('time.title')}>
         <p className="mb-4 text-sm text-muted">{t('time.help')}</p>
@@ -110,6 +110,19 @@ export function TimeTravel() {
       </Modal>
     </>
   )
+}
+
+function SimBar() {
+  const { t, i18n } = useTranslation()
+  const [sim, setSim] = useState(getSimulatedNow)
+  useEffect(() => {
+    const sync = () => setSim(getSimulatedNow())
+    window.addEventListener('ieri-time', sync)
+    return () => window.removeEventListener('ieri-time', sync)
+  }, [])
+  if (!sim) return null
+  const label = new Intl.DateTimeFormat(locale(i18n.language), { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(sim))
+  return <p className="bg-giallo px-4 py-1 text-center text-xs font-bold text-[#1d1b1e] sm:hidden">{t('time.badge', { time: label })}</p>
 }
 
 function ProfileMenu({ info }: { info: ClassInfo }) {
@@ -147,6 +160,10 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
               <KeyRound className="size-4" /> {t('shell.change_pin')}
             </button>
           )}
+          <div className="flex items-center justify-between gap-2 px-2 py-2 sm:hidden">
+            <ThemeToggle />
+            <LangToggle />
+          </div>
           <button role="menuitem" onClick={logout} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-rosa-ink hover:bg-rosa-soft">
             <LogOut className="size-4" /> {t('common.logout')}
           </button>
@@ -238,19 +255,22 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
               <Link to="/scuola" className="underline">{t('shell.back_school')}</Link>
             </div>
           )}
-          <div className="mx-auto flex h-14 max-w-3xl items-center gap-3 px-4">
-            <Link to={base} className="md:hidden">
-              <Wordmark size="sm" />
+          <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
+            <Link to={base} className="shrink-0 md:hidden" aria-label="Recapp">
+              <Stairs className="h-6" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
-              <p className="truncate text-xs text-muted">{t('common.app_name')} · {t('common.tagline')}</p>
+              <p className="hidden truncate text-xs text-muted sm:block">{t('common.app_name')} · {t('common.tagline')}</p>
             </div>
             {showClock && <TimeTravel />}
-            <ThemeToggle />
-            <LangToggle />
+            <div className="hidden items-center gap-2 sm:flex">
+              <ThemeToggle />
+              <LangToggle />
+            </div>
             <ProfileMenu info={info} />
           </div>
+          {showClock && <SimBar />}
         </header>
         <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
       </div>

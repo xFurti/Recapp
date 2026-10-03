@@ -9,6 +9,7 @@ export function getSimulatedNow(): string | null {
 export function setSimulatedNow(value: string | null) {
   if (value) localStorage.setItem(KEY, value)
   else localStorage.removeItem(KEY)
+  window.dispatchEvent(new Event('ieri-time'))
 }
 
 export function now(): Date {

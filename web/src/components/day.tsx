@@ -14,11 +14,11 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
   const { t, i18n } = useTranslation()
   if (!lessons.length) return <p className="text-sm text-muted">{t('today.no_lessons')}</p>
   return (
-    <ol className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+    <ol className="flex flex-wrap gap-2">
       {lessons.map((l) => (
         <li
           key={`${l.subject_code}-${l.hours_label}`}
-          className="flex min-w-[8.5rem] shrink-0 flex-col rounded-xl border border-line bg-surface px-3 py-2"
+          className="flex min-w-[8.5rem] flex-1 flex-col rounded-xl border border-line bg-surface px-3 py-2"
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
           <span className="text-xs font-medium text-muted">
@@ -97,9 +97,9 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
   const entries = card.entries.filter((e) => e.bullets.length || e.lab || e.attachment_ids?.length || e.lesson_status !== 'svolta')
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface">
-      <header className="flex items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
+      <header className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
         {card.author && <Avatar nick={card.author.nick} color={card.author.color} />}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-[12rem] flex-1">
           <h2 className="font-bold leading-tight">{capitalize(longDay(card.day, i18n.language))}</h2>
           <p className="text-sm text-muted">
             {[classLabel, card.author && t('day.by', { nick: card.author.nick }), card.published_at && t('day.published_at', { time: timeOf(card.published_at, i18n.language) })]
@@ -107,7 +107,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
               .join(' · ')}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
           {classInfo && canShare && <ShareButton card={card} info={classInfo} />}
           <ListenButton card={card} subjects={subjects} />
         </div>
