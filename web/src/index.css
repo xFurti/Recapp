@@ -94,6 +94,7 @@
   animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
+/* Oggi: rays turn one step (45°, symmetric) while the sun pulses. */
 .nav-icon[data-motion='today'][data-playing] svg {
   animation-name: nav-pulse;
 }
@@ -102,6 +103,7 @@
   animation-name: nav-rays;
 }
 
+/* Ieri: the hands wind back and return, the arrow tilts with them. */
 .nav-icon[data-motion='yesterday'][data-playing] svg {
   animation-name: nav-tilt-back;
 }
@@ -110,6 +112,7 @@
   animation-name: nav-wind-back;
 }
 
+/* In arrivo: the calendar wobbles and the clock hands sweep a full turn. */
 .nav-icon[data-motion='upcoming'][data-playing] svg {
   animation-name: nav-wobble;
 }
@@ -118,6 +121,7 @@
   animation-name: nav-sweep;
 }
 
+/* Classe: the two figures hop one after the other, like a small wave. */
 .nav-icon[data-motion='class'][data-playing] svg > :is(path:nth-child(1), circle) {
   animation-name: nav-hop;
   animation-duration: calc(var(--nav-icon-ms) * 0.7);
