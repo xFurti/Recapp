@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { ApiError } from './api'
 import { Spinner } from './components/ui'
+import { WithUpdateNotice } from './components/UpdateNotice'
 import ClassLayout from './pages/ClassLayout'
 import { DayByDate, DaysList, Yesterday } from './pages/DayPage'
 import Join from './pages/Join'
@@ -34,10 +35,16 @@ const queryClient = new QueryClient({
 })
 
 const router = createBrowserRouter([
-  { path: '/', element: <Landing /> },
-  { path: '/privacy', element: later(<Privacy />) },
-  { path: '/scuola', element: later(<SchoolArea />) },
-  { path: '/c/:code/entra', element: <Join /> },
+  {
+    element: <WithUpdateNotice />,
+    children: [
+      { path: '/', element: <Landing /> },
+      { path: '/privacy', element: later(<Privacy />) },
+      { path: '/scuola', element: later(<SchoolArea />) },
+      { path: '/c/:code/entra', element: <Join /> },
+      { path: '*', element: <Landing /> },
+    ],
+  },
   {
     path: '/c/:code',
     element: <ClassLayout />,
@@ -52,7 +59,6 @@ const router = createBrowserRouter([
       { path: 'scrivi/:day', element: later(<Editor />) },
     ],
   },
-  { path: '*', element: <Landing /> },
 ])
 
 createRoot(document.getElementById('root')!).render(

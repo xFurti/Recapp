@@ -33,6 +33,8 @@ class Settings:
     task_runner: str
     render_api_key: str
     render_workflow_task: str
+    render_service_id: str
+    app_version: str
     web_dist: Path
     extra_hosts: tuple[str, ...]
 
@@ -71,6 +73,9 @@ def load_settings() -> Settings:
         task_runner=_env("TASK_RUNNER", "inline"),
         render_api_key=_env("RENDER_API_KEY"),
         render_workflow_task=_env("RENDER_WORKFLOW_TASK"),
+        # Render sets RENDER_SERVICE_ID and RENDER_GIT_COMMIT on every web service.
+        render_service_id=_env("RENDER_SERVICE_ID"),
+        app_version=_env("RENDER_GIT_COMMIT", _env("APP_VERSION", "dev")),
         web_dist=Path(_env("WEB_DIST", str(ROOT / "web" / "dist"))),
         # Render sets RENDER_EXTERNAL_HOSTNAME (e.g. ieri.onrender.com); EXTRA_HOSTS is comma-separated.
         extra_hosts=tuple(

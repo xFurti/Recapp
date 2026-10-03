@@ -13,6 +13,7 @@ import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
 import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
@@ -282,6 +283,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
             <ProfileMenu info={info} />
           </div>
           {showClock && <SimBar />}
+          <UpdateNotice />
         </header>
         <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
       </div>
