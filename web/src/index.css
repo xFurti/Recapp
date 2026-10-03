@@ -88,6 +88,7 @@
 .nav-icon svg > * {
   transform-box: view-box;
 }
+.nav-icon[data-playing],
 .nav-icon[data-playing] svg,
 .nav-icon[data-playing] svg > * {
   animation-duration: var(--nav-icon-ms);
@@ -138,6 +139,30 @@
   animation: nav-riffle var(--nav-icon-ms) cubic-bezier(0.33, 1, 0.68, 1);
 }
 
+/* Header clock: the hands sweep forward and settle. */
+.nav-icon[data-motion='clock'][data-playing] svg > path {
+  transform-origin: 12px 12px;
+  animation-name: nav-clock-hands;
+}
+
+/* Header theme: the sun's rays turn; the moon rocks. */
+.nav-icon[data-motion='theme'][data-playing] svg {
+  animation-name: nav-pulse;
+}
+.nav-icon[data-motion='theme'][data-playing] svg > path {
+  transform-origin: 12px 12px;
+  animation-name: nav-rays;
+}
+.nav-icon[data-motion='moon'][data-playing] svg > path {
+  transform-origin: 12px 12px;
+  animation-name: nav-moon;
+}
+
+/* Language letters lift once. */
+.nav-icon[data-motion='lang'][data-playing] {
+  animation-name: nav-lang;
+}
+
 @keyframes nav-pulse {
   50% { transform: scale(1.12); }
 }
@@ -165,8 +190,19 @@
   40% { transform: rotate(-8deg) scale(1.08); }
   75% { transform: rotate(2deg); }
 }
+@keyframes nav-clock-hands {
+  45% { transform: rotate(70deg); }
+}
+@keyframes nav-moon {
+  40% { transform: rotate(-18deg); }
+  75% { transform: rotate(6deg); }
+}
+@keyframes nav-lang {
+  40% { transform: translateY(-1px) scale(1.12); }
+}
 
 @media (prefers-reduced-motion: reduce) {
+  .nav-icon,
   .nav-icon svg,
   .nav-icon svg > *,
   .nav-icon img {

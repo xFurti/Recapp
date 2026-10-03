@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type FocusEvent, type PointerEvent } from 'react'
 
-export type NavMotion = 'today' | 'yesterday' | 'upcoming' | 'class'
+export type NavMotion = 'today' | 'yesterday' | 'upcoming' | 'class' | 'clock' | 'theme' | 'moon' | 'lang'
 
 /** One full cycle; the keyframes in index.css are written as fractions of it. */
 export const NAV_ICON_MS = 360

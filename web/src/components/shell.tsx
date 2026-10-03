@@ -42,6 +42,7 @@ export function Wordmark({ size = 'md', playing }: { size?: 'sm' | 'md' | 'lg'; 
 export function ThemeToggle() {
   const { t } = useTranslation()
   const [choice, setChoice] = useState<ThemeChoice>(getTheme)
+  const motion = useNavIconMotion()
   const Icon = choice === 'dark' ? Moon : SunMedium
   const next = () => {
     const value: ThemeChoice = choice === 'dark' ? 'light' : 'dark'
@@ -50,8 +51,8 @@ export function ThemeToggle() {
   }
   const label = t('theme.label', { mode: t(`theme.${choice}`) })
   return (
-    <button onClick={next} className="flex size-8 items-center justify-center rounded-full border border-line bg-surface text-muted hover:text-ink" title={label} aria-label={label}>
-      <Icon className="size-4" />
+    <button onClick={next} {...motion.triggers} className="flex size-8 items-center justify-center rounded-full border border-line bg-surface text-muted hover:text-ink" title={label} aria-label={label}>
+      <NavIcon icon={Icon} motion={choice === 'dark' ? 'moon' : 'theme'} playing={motion.playing} className="size-4" />
     </button>
   )
 }
@@ -62,22 +63,32 @@ export function LangToggle() {
   return (
     <div className="inline-flex rounded-full border border-line bg-surface p-0.5 text-xs font-bold" role="group" aria-label={t('common.language')}>
       {(['it', 'en'] as const).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLanguage(l)}
-          aria-pressed={lang === l}
-          className={`rounded-full px-2.5 py-1 uppercase transition ${lang === l ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
-        >
-          {l}
-        </button>
+        <LangButton key={l} code={l} active={lang === l} />
       ))}
     </div>
+  )
+}
+
+function LangButton({ code, active }: { code: 'it' | 'en'; active: boolean }) {
+  const motion = useNavIconMotion()
+  return (
+    <button
+      onClick={() => setLanguage(code)}
+      {...motion.triggers}
+      aria-pressed={active}
+      className={`rounded-full px-2.5 py-1 uppercase transition ${active ? 'bg-ink text-paper' : 'text-muted hover:text-ink'}`}
+    >
+      <span className="nav-icon" data-motion="lang" data-playing={motion.playing || undefined} style={{ '--nav-icon-ms': `${NAV_ICON_MS}ms` } as CSSProperties}>
+        {code}
+      </span>
+    </button>
   )
 }
 
 export function TimeTravel() {
   const { t, i18n } = useTranslation()
   const qc = useQueryClient()
+  const motion = useNavIconMotion()
   const [open, setOpen] = useState(false)
   const sim = getSimulatedNow()
   const [custom, setCustom] = useState(sim ?? `${todayIso()}T18:30`)
@@ -94,10 +105,11 @@ export function TimeTravel() {
     <>
       <button
         onClick={() => setOpen(true)}
+        {...motion.triggers}
         className={`inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-bold ${sim ? 'bg-giallo text-[#1d1b1e]' : 'border border-line bg-surface text-muted hover:text-ink'}`}
         title={t('time.title')}
       >
-        <Clock className="size-3.5" />
+        <NavIcon icon={Clock} motion="clock" playing={motion.playing} className="size-3.5" />
         {label ? <span className="hidden sm:inline">{t('time.badge', { time: label })}</span> : <span className="sr-only">{t('time.title')}</span>}
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={t('time.title')}>
