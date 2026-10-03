@@ -5,7 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
-import recappIcon from '../assets/recapp-icon.png'
+import page1 from '../assets/recapp-page-1.png'
+import page2 from '../assets/recapp-page-2.png'
+import page3 from '../assets/recapp-page-3.png'
+import page4 from '../assets/recapp-page-4.png'
+import page5 from '../assets/recapp-page-5.png'
+import page6 from '../assets/recapp-page-6.png'
 import recappWord from '../assets/recapp-wordmark.png'
 import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
@@ -23,11 +28,22 @@ export function Logo({ className = 'h-9' }: { className?: string }) {
   return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
 }
 
-/** The Recapp mark; `playing` runs the same micro-animation cycle as the nav icons (see useNavIconMotion). */
+/** One full flip of all pages; the keyframes in index.css are written as fractions of it. */
+const RECAPP_MARK_MS = 560
+
+/**
+ * The Recapp icon as one layer per page (cut by scripts/split_recapp_icon.py), front page first.
+ * `spine` is each page's left edge as a share of the icon width: the page turns around it.
+ */
+const PAGES = [page1, page2, page3, page4, page5, page6].map((src, i) => ({ src, spine: [0, 14, 27.6, 41.3, 56.2, 72.8][i] }))
+
+/** The Recapp mark; `playing` flips its pages from the last to the first, like thumbing through a notebook. */
 function RecappMark({ playing = false, className }: { playing?: boolean; className: string }) {
   return (
-    <span className="nav-icon h-full" data-motion="logo" data-playing={playing || undefined} style={{ '--nav-icon-ms': `${NAV_ICON_MS}ms` } as CSSProperties}>
-      <img src={recappIcon} alt="" className={className} />
+    <span className={`nav-icon recapp-mark ${className}`} data-motion="logo" data-playing={playing || undefined} style={{ '--nav-icon-ms': `${RECAPP_MARK_MS}ms` } as CSSProperties}>
+      {[...PAGES].reverse().map(({ src, spine }, turn) => (
+        <img key={src} src={src} alt="" style={{ '--turn': turn, '--spine': `${spine}%` } as CSSProperties} />
+      ))}
     </span>
   )
 }
@@ -36,7 +52,7 @@ export function Wordmark({ size = 'md', playing }: { size?: 'sm' | 'md' | 'lg'; 
   const heights = { sm: 'h-7', md: 'h-8', lg: 'h-11' }
   return (
     <span className={`inline-flex items-center gap-2 ${heights[size]}`}>
-      <RecappMark playing={playing} className="h-full w-auto" />
+      <RecappMark playing={playing} className="h-full" />
       <img src={recappWord} alt="Recapp" className="h-[70%] w-auto dark:invert" />
     </span>
   )
@@ -263,8 +279,8 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const { t } = useTranslation()
   const base = `/c/${info.code}`
   const showClock = import.meta.env.DEV || info.is_demo
-  const sideMark = useNavIconMotion()
-  const topMark = useNavIconMotion()
+  const sideMark = useNavIconMotion(RECAPP_MARK_MS)
+  const topMark = useNavIconMotion(RECAPP_MARK_MS)
   const qc = useQueryClient()
   const navigate = useNavigate()
   const location = useLocation()
@@ -336,7 +352,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           )}
           <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
             <Link to={base} className="flex h-7 shrink-0 md:hidden" aria-label="Recapp" {...topMark.triggers}>
-              <RecappMark playing={topMark.playing} className="h-7 w-auto" />
+              <RecappMark playing={topMark.playing} className="h-7" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
