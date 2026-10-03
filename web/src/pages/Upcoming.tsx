@@ -1,15 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { ItemRow, TYPE_STYLE } from '../components/items'
-import { Button, Card, Chip, EmptyState, ErrorBox, Segmented, Spinner, inputClass } from '../components/ui'
+import { Button, Card, Chip, EmptyState, ErrorBox, Segmented, Spinner, useDismiss } from '../components/ui'
 import { useDone } from '../lib/done'
 import { capitalize, relativeDay, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass, useToday } from '../queries'
-import type { Item, ItemType } from '../types'
+import type { Item, ItemType, Subject } from '../types'
 
 type Range = 'week' | 'next' | 'all'
 type SubjectFilter = 'all' | 'none' | string
@@ -23,6 +23,69 @@ function groupByDay(items: Item[]): [string, Item[]][] {
     map.set(it.due_date, list)
   }
   return [...map.entries()]
+}
+
+function SubjectFilterMenu({
+  value, label, dot, subjects, onChange,
+}: {
+  value: SubjectFilter
+  label: string
+  dot: string
+  subjects: Subject[]
+  onChange: (value: SubjectFilter) => void
+}) {
+  const info = useClass()
+  const { t, i18n } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const close = useCallback(() => setOpen(false), [])
+  useDismiss(ref, open, close)
+  const pick = (next: SubjectFilter) => {
+    onChange(next)
+    close()
+  }
+  const option = 'flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold'
+  const chosen = (on: boolean) => `${option} ${on ? 'bg-ink text-paper' : 'hover:bg-ink/5'}`
+  return (
+    <div className="relative mt-3" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-label={t('upcoming.subject')}
+        className="inline-flex h-10 max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
+      >
+        <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: dot }} aria-hidden />
+        <span className="truncate">{label}</span>
+        <ChevronDown className={`size-4 shrink-0 text-muted transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <ul role="listbox" aria-label={t('upcoming.subject')} className="absolute z-20 mt-2 max-h-80 w-64 max-w-[calc(100vw-2rem)] overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
+          <li>
+            <button type="button" role="option" aria-selected={value === 'all'} onClick={() => pick('all')} className={chosen(value === 'all')}>
+              <span className="size-2 rounded-full border border-current" aria-hidden />
+              {t('subject.all_subjects')}
+            </button>
+          </li>
+          <li>
+            <button type="button" role="option" aria-selected={value === 'none'} onClick={() => pick('none')} className={chosen(value === 'none')}>
+              <span className="size-2 rounded-full border border-dashed border-current" aria-hidden />
+              {t('upcoming.no_subject')}
+            </button>
+          </li>
+          {subjects.map((s) => (
+            <li key={s.code}>
+              <button type="button" role="option" aria-selected={value === s.code} onClick={() => pick(s.code)} className={chosen(value === s.code)}>
+                <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                {subjectName(info.subjects, s.code, i18n.language)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }
 
 export default function Upcoming() {
@@ -82,7 +145,12 @@ export default function Upcoming() {
     setRange('all')
     setSubject('all')
   }
-  const subjectColorDot = subject === 'all' || subject === 'none' ? 'var(--color-line)' : subjectColor(info.subjects, subject)
+  const subjectLabel = subject === 'all'
+    ? t('subject.by_subject')
+    : subject === 'none'
+      ? t('upcoming.no_subject')
+      : subjectName(info.subjects, subject, i18n.language)
+  const subjectDot = subject === 'all' || subject === 'none' ? 'var(--color-line)' : subjectColor(info.subjects, subject)
 
   const renderGroups = (items: Item[]) =>
     groupByDay(items).map(([day, group]) => {
@@ -144,24 +212,13 @@ export default function Upcoming() {
           { value: 'all', label: t('upcoming.everything') },
         ]}
       />
-      <label className="mt-3 block">
-        <span className="mb-1.5 block text-sm font-semibold">{t('upcoming.subject')}</span>
-        <span className="flex items-center gap-2">
-          <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: subjectColorDot }} aria-hidden />
-          <select
-            className={inputClass}
-            value={subject}
-            aria-label={t('upcoming.subject')}
-            onChange={(e) => setSubject(e.target.value)}
-          >
-            <option value="all">{t('subject.all_subjects')}</option>
-            <option value="none">{t('upcoming.no_subject')}</option>
-            {info.subjects.map((s) => (
-              <option key={s.code} value={s.code}>{subjectName(info.subjects, s.code, i18n.language)}</option>
-            ))}
-          </select>
-        </span>
-      </label>
+      <SubjectFilterMenu
+        value={subject}
+        label={subjectLabel}
+        dot={subjectDot}
+        subjects={info.subjects}
+        onChange={setSubject}
+      />
 
       {list.isLoading && <Spinner />}
       {list.error && <div className="mt-4"><ErrorBox error={list.error} onRetry={() => list.refetch()} /></div>}
