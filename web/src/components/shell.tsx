@@ -238,9 +238,9 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   return (
     <div className="min-h-dvh md:flex">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
-        <Link to={base} className="mb-6 flex flex-col items-start gap-2">
-          <Wordmark size="lg" />
-          <Logo className="h-9" />
+        <Link to={base} className="mb-6 flex items-center gap-2">
+          <Wordmark size="md" />
+          <Logo className="h-6" />
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map((n) => (
