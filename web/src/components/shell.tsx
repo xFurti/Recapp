@@ -1,6 +1,7 @@
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, GraduationCap, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { CalendarClock, Clock, Delete, GraduationCap, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, X, type LucideIcon } from 'lucide-react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
@@ -24,7 +25,7 @@ import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
-import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
+import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
   return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
@@ -165,48 +166,142 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
   const { t } = useTranslation()
   const qc = useQueryClient()
   const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
+  const [phase, setPhase] = useState<'closed' | 'open' | 'closing'>('closed')
   const [pinOpen, setPinOpen] = useState(false)
+  const [box, setBox] = useState<{ top: number; right: number } | null>(null)
   const ref = useRef<HTMLDivElement>(null)
-  const close = useCallback(() => setOpen(false), [])
-  useDismiss(ref, open, close)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const handoff = useRef(false)
+  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const finishClose = useCallback(() => {
+    setPhase('closed')
+    if (!handoff.current) btnRef.current?.focus()
+    handoff.current = false
+  }, [])
+  const close = useCallback(() => {
+    setPhase((current) => (current === 'open' ? 'closing' : current))
+  }, [])
+  const phaseRef = useRef(phase)
+  phaseRef.current = phase
   const location = useLocation()
-  useEffect(() => close(), [location.pathname, close])
+  useEffect(() => {
+    if (phaseRef.current !== 'closed') finishClose()
+  }, [location.pathname, finishClose])
+  useEffect(() => {
+    if (phase === 'closed') return
+    const onPointer = (e: PointerEvent) => {
+      const target = e.target as Node
+      if (ref.current?.contains(target) || panelRef.current?.contains(target)) return
+      close()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [phase, close])
+  useLayoutEffect(() => {
+    if (phase === 'closed') return
+    const place = () => {
+      const anchor = btnRef.current?.getBoundingClientRect()
+      if (!anchor) return
+      setBox({ top: anchor.bottom + 8, right: Math.max(8, window.innerWidth - anchor.right) })
+    }
+    place()
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', place, true)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [phase])
+  useEffect(() => {
+    if (phase === 'open') panelRef.current?.querySelector<HTMLElement>('button')?.focus()
+    if (phase === 'closing' && reduced()) finishClose()
+  }, [phase, finishClose])
   const member = info.viewer.member
   const logout = async () => {
+    handoff.current = true
+    setPhase('closed')
     await api.post('/auth/logout')
     qc.clear()
     navigate(info.viewer.kind === 'owner' ? '/scuola' : '/')
   }
+  const openPin = () => {
+    handoff.current = true
+    setPhase('closed')
+    setPinOpen(true)
+  }
+  const replay = () => {
+    handoff.current = true
+    setPhase('closed')
+    onTour()
+  }
+  const toggle = () => setPhase((current) => (current === 'open' ? 'closing' : 'open'))
+  const row = 'profile-row profile-action flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm'
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-0.5 hover:bg-ink/5" aria-haspopup="menu" aria-expanded={open} aria-label={t('shell.profile_menu')} data-tour="profile">
+      <button
+        ref={btnRef}
+        onClick={toggle}
+        className="flex items-center gap-2 rounded-full p-0.5 hover:bg-ink/5 active:scale-95"
+        aria-haspopup="menu"
+        aria-expanded={phase !== 'closed'}
+        aria-label={t('shell.profile_menu')}
+        data-tour="profile"
+      >
         {member ? <Avatar nick={member.nick} color={member.color} size="sm" /> : <School className="size-6 text-bordeaux" />}
       </button>
-      {open && (
-        <div className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-line bg-surface p-2 shadow-lg" role="menu">
-          {member && (
-            <div className="px-3 py-2">
-              <p className="font-semibold">{member.nick}</p>
-              <p className="text-xs text-muted">{t(`shell.role_${member.role}`)} · {info.label}</p>
+      {phase !== 'closed' && box && createPortal(
+        <div
+          ref={panelRef}
+          role="menu"
+          aria-label={t('shell.profile_menu')}
+          inert={phase === 'closing'}
+          data-phase={phase}
+          style={{ top: box.top, right: box.right }}
+          onAnimationEnd={(e) => {
+            if (e.target === e.currentTarget && e.animationName === 'profile-out') finishClose()
+          }}
+          className="profile-panel fixed z-40 w-[min(18rem,calc(100vw-1rem))] rounded-2xl border border-line bg-surface p-2 shadow-lg"
+        >
+          <div className="profile-row flex items-start gap-3 px-2 py-2" style={{ '--i': 0 } as CSSProperties}>
+            {member ? <Avatar nick={member.nick} color={member.color} /> : <School className="size-10 text-bordeaux" />}
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-bold">{member ? member.nick : t('shell.school_view')}</p>
+              <p className="truncate text-xs text-muted">
+                {member ? `${t(`shell.role_${member.role}`)} · ${info.label}` : info.label}
+                {info.is_demo ? ` · ${t('shell.demo')}` : ''}
+              </p>
             </div>
-          )}
+            <button type="button" role="menuitem" onClick={close} aria-label={t('common.close')} className="profile-action flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-ink/5">
+              <X className="size-5" />
+            </button>
+          </div>
           {member && (
-            <button role="menuitem" onClick={() => { setOpen(false); setPinOpen(true) }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm hover:bg-ink/5">
+            <button role="menuitem" onClick={openPin} className={row} style={{ '--i': 1 } as CSSProperties}>
               <KeyRound className="size-4" /> {t('shell.change_pin')}
             </button>
           )}
-          <button role="menuitem" onClick={() => { setOpen(false); onTour() }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm hover:bg-ink/5">
+          <button role="menuitem" onClick={replay} className={row} style={{ '--i': 2 } as CSSProperties}>
             <GraduationCap className="size-4" /> {t('tour.replay')}
           </button>
-          <div className="flex items-center justify-between gap-2 px-2 py-2 sm:hidden">
+          <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 3 } as CSSProperties}>
             <ThemeToggle />
             <LangToggle />
           </div>
-          <button role="menuitem" onClick={logout} className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-rosa-ink hover:bg-rosa-soft">
-            <LogOut className="size-4" /> {t('common.logout')}
-          </button>
-        </div>
+          <div className="mt-1 border-t border-line pt-1">
+            <button role="menuitem" onClick={logout} className={`${row} text-rosa-ink hover:bg-rosa-soft`} style={{ '--i': 4 } as CSSProperties}>
+              <LogOut className="size-4" /> {t('common.logout')}
+            </button>
+          </div>
+        </div>,
+        document.body,
       )}
       <ChangePinModal open={pinOpen} onClose={() => setPinOpen(false)} />
     </div>
