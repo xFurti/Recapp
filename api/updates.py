@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 RENDER_API = "https://api.render.com/v1"
 IN_PROGRESS = {"created", "queued", "build_in_progress", "update_in_progress", "pre_deploy_in_progress"}
 # Every open tab polls; one Render call per window keeps us far from Render's rate limits.
-CACHE_SECONDS = 20
+CACHE_SECONDS = 10
 ERROR_CACHE_SECONDS = 60
 
 _lock = threading.Lock()
