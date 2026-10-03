@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Hand, Pencil, PartyPopper } from 'lucide-react'
+import { ArrowRight, Hand, Info, Pencil, PartyPopper } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
@@ -7,6 +7,7 @@ import { api } from '../api'
 import { DayCardView, LessonsStrip } from '../components/day'
 import { ItemRow } from '../components/items'
 import { Avatar, Button, Card, ErrorBox, Spinner } from '../components/ui'
+import { parseDay } from '../lib/clock'
 import { capitalize, longDay, shortDay, timeOf } from '../lib/format'
 import { classPath, useClass, useToday } from '../queries'
 import type { TodayInfo } from '../types'
@@ -143,6 +144,20 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   )
 }
 
+export function isWeekend(iso: string): boolean {
+  const wd = parseDay(iso).getDay()
+  return wd === 0 || wd === 6
+}
+
+export function DemoWeekendNote() {
+  const { t } = useTranslation()
+  return (
+    <p className="flex gap-2 rounded-xl border border-azzurro/20 bg-azzurro-soft px-3 py-2 text-sm text-azzurro-ink">
+      <Info className="mt-0.5 size-4 shrink-0" aria-hidden /> {t('banner.demo_weekend')}
+    </p>
+  )
+}
+
 export default function Today() {
   const info = useClass()
   const { t, i18n } = useTranslation()
@@ -156,6 +171,8 @@ export default function Today() {
         <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux">{t('nav.today')}</p>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{capitalize(longDay(data.day, i18n.language))}</h1>
       </div>
+
+      {info.is_demo && isWeekend(data.day) && <DemoWeekendNote />}
 
       <ScribeBanner data={data} />
 

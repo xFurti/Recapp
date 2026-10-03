@@ -53,9 +53,14 @@ def test_card_publish_flow(client):
     r = client.post(f"/api/classes/DEMO/cards/{day}/publish", headers=at(15))
     assert r.status_code == 400
     empty = {"entries": [{"subject_code": "INI", "bullets": [""]}], "notes": "", "items": []}
-    client.put(f"/api/classes/DEMO/cards/{day}", json=empty, headers=at(15))
+    rev = client.put(f"/api/classes/DEMO/cards/{day}", json=empty, headers=at(15)).json()["revision"]
     r = client.post(f"/api/classes/DEMO/cards/{day}/publish", headers=at(15))
     assert r.status_code == 422, "anti-empty rule"
+
+    empty_lab = {"revision": rev, "notes": "", "items": [], "entries": [
+        {"subject_code": "INI", "is_lab": True, "bullets": [], "lab": {"goal": "  ", "repo_url": "", "pitfall": "", "bring": " "}}]}
+    rev = client.put(f"/api/classes/DEMO/cards/{day}", json=empty_lab, headers=at(15)).json()["revision"]
+    assert client.post(f"/api/classes/DEMO/cards/{day}/publish", headers=at(15)).status_code == 422, "empty lab is not content"
 
     due = (TODAY + timedelta(days=2)).isoformat()
     body = {
@@ -65,6 +70,7 @@ def test_card_publish_flow(client):
         ],
         "notes": "portare la calcolatrice",
         "items": [{"type": "verifica", "subject_code": "MAT", "title": "Verifica derivate", "due_date": due}],
+        "revision": rev,
     }
     r = client.put(f"/api/classes/DEMO/cards/{day}", json=body, headers=at(15))
     assert r.status_code == 200, r.text
@@ -99,6 +105,55 @@ def test_non_scribe_cannot_write_before_takeover(client):
     t = client.get("/api/classes/DEMO/today", headers=at(18, 31)).json()
     assert t["scribe"]["nick"] == "gianni" and t["status"] == "not_started" and t["can_write"]
     assert client.put(f"/api/classes/DEMO/cards/{day}", json=body, headers=at(18, 32)).status_code == 200
+
+
+def test_stale_save_gets_conflict(client):
+    reset_demo(client)
+    client.post("/api/auth/demo")
+    day = TODAY.isoformat()
+    url = f"/api/classes/DEMO/cards/{day}"
+    first = client.put(url, json={"entries": [{"subject_code": "INI", "bullets": ["original"]}], "notes": "", "items": []}, headers=at(15)).json()
+    base = first["revision"]
+    b = client.put(url, json={"revision": base, "entries": [{"subject_code": "INI", "bullets": ["important newer edit"]}], "notes": "", "items": []}, headers=at(15))
+    assert b.status_code == 200
+    a = client.put(url, json={"revision": base, "entries": [{"subject_code": "INI", "bullets": ["original"]}], "notes": "only notes", "items": []}, headers=at(15))
+    assert a.status_code == 409
+    assert a.json()["detail"]["card"]["entries"][0]["bullets"] == ["important newer edit"]
+    saved = client.get(url, headers=at(15)).json()["card"]
+    assert saved["entries"][0]["bullets"] == ["important newer edit"] and saved["notes"] == ""
+    assert client.put(url, json={"entries": [], "notes": "", "items": []}, headers=at(15)).status_code == 409, "revision required"
+    ok = client.put(url, json={"revision": saved["revision"], "entries": [{"subject_code": "INI", "bullets": ["merged"]}], "notes": "n", "items": []}, headers=at(15))
+    assert ok.status_code == 200 and ok.json()["revision"] == saved["revision"] + 1
+
+
+def test_takeover_revokes_previous_author(client):
+    reset_demo(client)
+    leo = make_client()
+    leo.post("/api/auth/demo")
+    day = TODAY.isoformat()
+    url = f"/api/classes/DEMO/cards/{day}"
+    from sqlmodel import Session, select
+
+    from api import db
+    from api.models import Classroom, Member
+
+    with Session(db.engine) as s:
+        demo = s.exec(select(Classroom).where(Classroom.code == "DEMO")).first()
+        m = s.exec(select(Member).where(Member.class_id == demo.id, Member.nick == "leo")).first()
+        m.role = "member"
+        s.add(m)
+        s.commit()
+    draft = leo.put(url, json={"entries": [{"subject_code": "INI", "bullets": ["leo draft"]}], "notes": "", "items": []}, headers=at(15)).json()
+    demo_member(client, "gianni")
+    assert client.post("/api/classes/DEMO/today/takeover", json={}, headers=at(18, 30)).status_code == 200
+    stale = leo.put(url, json={"revision": draft["revision"], "entries": [], "notes": "", "items": []}, headers=at(18, 31))
+    assert stale.status_code == 403
+    assert leo.post(f"{url}/publish", headers=at(18, 31)).status_code == 403
+    page = client.get(url, headers=at(18, 31)).json()
+    assert page["card"]["entries"][0]["bullets"] == ["leo draft"], "work is kept"
+    ok = client.put(url, json={"revision": page["card"]["revision"], "entries": [{"subject_code": "INI", "bullets": ["gianni"]}], "notes": "", "items": []}, headers=at(18, 32))
+    assert ok.status_code == 200
+    assert client.post(f"{url}/publish", headers=at(18, 33)).status_code == 200
 
 
 def test_pass_turn_opens_takeover(client):
@@ -249,7 +304,7 @@ def test_ocr_via_render_workflows(client, monkeypatch):
             return SimpleNamespace(status="TaskRunStatus.SUCCEEDED", results=[runs[run_id]])
 
     monkeypatch.setattr(render, "Render", lambda token=None: SimpleNamespace(workflows=FakeWorkflows()))
-    monkeypatch.setattr(jobs, "settings", dataclasses.replace(jobs.settings, task_runner="render", render_api_key="k", render_workflow_task="ieri-ocr/extract_items"))
+    monkeypatch.setattr(jobs, "settings", dataclasses.replace(jobs.settings, ocr_provider="featherless", task_runner="render", render_api_key="k", render_workflow_task="ieri-ocr/extract_items"))
 
     reset_demo(client)
     client.post("/api/auth/demo")

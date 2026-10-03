@@ -120,7 +120,8 @@
     "weekend": "It's the weekend.",
     "next_day": "Next school day: {{day}}",
     "next_scribe": "note-taker {{nick}}",
-    "future": "This day hasn't come yet."
+    "future": "This day hasn't come yet.",
+    "demo_weekend": "In the demo Saturday and Sunday are school days too, so you can always try it. Real classes skip weekends and holidays."
   },
   "day": {
     "by": "by {{nick}}",
@@ -290,7 +291,12 @@
     "not_allowed": "You can't write this day.",
     "not_allowed_sub": "Today's note-taker writes it. From 18:00, if it isn't published, you can take the turn from the Today tab.",
     "remove_item": "Remove",
-    "preview_title": "This is how the class will see it"
+    "preview_title": "This is how the class will see it",
+    "conflict_title": "Someone changed this day while you were writing",
+    "conflict_text": "Your changes are still here and have not been saved. Choose what to keep.",
+    "conflict_keep": "Keep my changes",
+    "conflict_reload": "Load the saved version",
+    "conflict_reload_confirm": "Load the saved version? The changes you made here will be lost."
   },
   "class": {
     "tab_members": "Members",
@@ -345,7 +351,8 @@
     "tt_subject": "Subject",
     "tt_room": "Room",
     "tt_free": "Free",
-    "tt_cell": "{{day}}, hour {{hour}}"
+    "tt_cell": "{{day}}, hour {{hour}}",
+    "demo_locked": "Not available in the demo"
   },
   "school": {
     "title": "School area",

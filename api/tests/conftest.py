@@ -30,5 +30,13 @@ def client(app_client):
     return app_client
 
 
+@pytest.fixture(autouse=True)
+def _fresh_rate_limits():
+    from api import limits
+
+    limits.reset()
+    yield
+
+
 def make_client():
     return TestClient(app)

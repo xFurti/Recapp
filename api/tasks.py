@@ -378,7 +378,14 @@ def featherless_extract(payload: dict) -> list[dict]:
 
 
 def extract_items(payload: dict) -> dict:
-    """payload: {kind: text|image, text?, image_b64?, mime?, context, provider}"""
+    """payload: {kind: text|image, text?, image_b64?, mime?, context, provider, notice?}"""
+    result = _extract(payload)
+    if payload.get("notice"):
+        result["warning"] = payload["notice"]
+    return result
+
+
+def _extract(payload: dict) -> dict:
     provider = payload.get("provider", "mock")
     ctx = payload["context"]
     if provider == "featherless":

@@ -2,6 +2,8 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException
+from sqlalchemy import update
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, delete, func, select
 
 from .auth import ClassAccess
@@ -96,9 +98,14 @@ def card_out(session: Session, card: DayCard) -> dict:
         .where(UpcomingItem.card_id == card.id)
         .order_by(UpcomingItem.due_date, UpcomingItem.id)
     ).all()
-    attachments = session.exec(
-        select(Attachment.id, Attachment.width, Attachment.height).where(Attachment.card_id == card.id)
-    ).all()
+    entry_attachments = {a for e in entries for a in (e.attachment_ids or [])}
+    attachments = [
+        a
+        for a in session.exec(
+            select(Attachment.id, Attachment.width, Attachment.height).where(Attachment.card_id == card.id)
+        ).all()
+        if a[0] not in entry_attachments
+    ]
     members = member_names(session, {card.author_member_id, card.scribe_member_id})
     return {
         "id": card.id,
@@ -107,6 +114,7 @@ def card_out(session: Session, card: DayCard) -> dict:
         "author": member_brief(members.get(card.author_member_id)),
         "scribe": member_brief(members.get(card.scribe_member_id)),
         "notes": card.notes,
+        "revision": card.revision,
         "published_at": iso_utc(card.published_at),
         "updated_at": iso_utc(card.updated_at),
         "entries": [
@@ -127,6 +135,7 @@ def card_out(session: Session, card: DayCard) -> dict:
                     if e.id in labs
                     else None
                 ),
+                "attachment_ids": e.attachment_ids or [],
             }
             for e in entries
         ],
@@ -199,7 +208,9 @@ class DayState:
             return False
         if self.access.is_admin or self.is_me_scribe:
             return True
-        return self.card is not None and self.card.author_member_id == me.id
+        # A draft belongs to the current scribe: after a takeover, pass or swap the
+        # previous author loses it. Published days stay editable by their author.
+        return self.published and self.card.author_member_id == me.id
 
     @property
     def can_takeover(self) -> bool:
@@ -254,29 +265,74 @@ def check_attachment_ids(session: Session, class_id: int, ids: list[int]) -> Non
         raise HTTPException(400, "Allegato non valido")
 
 
+def conflict(session: Session, card: DayCard) -> HTTPException:
+    session.rollback()
+    session.refresh(card)
+    return HTTPException(
+        409,
+        {
+            "message": "Qualcuno ha modificato questa giornata mentre scrivevi",
+            "card": card_out(session, card),
+        },
+    )
+
+
+def all_attachment_ids(data: CardIn) -> list[int]:
+    ids = list(data.attachment_ids)
+    ids += [a for e in data.entries for a in e.attachment_ids]
+    ids += [i.attachment_id for i in data.items if i.attachment_id]
+    return ids
+
+
 def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
     if not state.can_write:
         raise HTTPException(403, "Oggi non sei il verbalista di questa giornata")
     me = state.me
     assert me is not None
     classroom_id = state.cal.classroom.id
-    item_attachments = [i.attachment_id for i in data.items if i.attachment_id]
-    check_attachment_ids(session, classroom_id, data.attachment_ids + item_attachments)
+    check_attachment_ids(session, classroom_id, all_attachment_ids(data))
 
     card = state.card
     now = datetime.now(timezone.utc)
     if card is None:
+        if data.revision not in (None, 0):
+            raise HTTPException(409, {"message": "Questa giornata non esiste più: ricarica la pagina", "card": None})
         card = DayCard(
             class_id=classroom_id,
             day=state.day,
             status="draft",
             scribe_member_id=state.scribe.id if state.scribe else me.id,
+            author_member_id=me.id,
+            notes=data.notes.strip(),
+            revision=1,
+            updated_at=now,
         )
-    card.author_member_id = me.id
-    card.notes = data.notes.strip()
-    card.updated_at = now
-    session.add(card)
-    session.flush()
+        session.add(card)
+        try:
+            session.flush()
+        except IntegrityError:
+            session.rollback()
+            existing = get_card(session, classroom_id, state.day)
+            if existing is None:
+                raise
+            raise conflict(session, existing)
+    else:
+        if data.revision is None:
+            raise conflict(session, card)
+        # Atomic compare-and-set: two saves based on the same revision cannot both win.
+        result = session.execute(
+            update(DayCard)
+            .where(DayCard.id == card.id, DayCard.revision == data.revision)
+            .values(
+                revision=DayCard.revision + 1,
+                author_member_id=me.id,
+                notes=data.notes.strip(),
+                updated_at=now,
+            )
+        )
+        if result.rowcount != 1:
+            raise conflict(session, card)
+        session.expire(card)
 
     old_entries = session.exec(select(SubjectEntry.id).where(SubjectEntry.card_id == card.id)).all()
     if old_entries:
@@ -292,10 +348,11 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             is_lab=e.is_lab,
             lesson_status=e.lesson_status,
             bullets=[b for b in e.bullets if b],
+            attachment_ids=list(dict.fromkeys(e.attachment_ids)),
         )
         session.add(entry)
         session.flush()
-        if e.lab is not None and (e.is_lab or not e.lab.is_empty()):
+        if e.lab is not None and not e.lab.is_empty():
             session.add(LabBlock(entry_id=entry.id, **e.lab.model_dump()))
 
     existing = {
@@ -323,11 +380,12 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
         if item_id not in keep:
             session.delete(item)
 
+    linked = set(data.attachment_ids) | {a for e in data.entries for a in e.attachment_ids}
     for att in session.exec(select(Attachment).where(Attachment.card_id == card.id)).all():
-        if att.id not in data.attachment_ids:
+        if att.id not in linked:
             att.card_id = None
             session.add(att)
-    for att_id in data.attachment_ids:
+    for att_id in linked:
         att = session.get(Attachment, att_id)
         if att:
             att.card_id = card.id
@@ -338,26 +396,35 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
     return card
 
 
+def has_content(session: Session, card: DayCard) -> bool:
+    entries = session.exec(select(SubjectEntry).where(SubjectEntry.card_id == card.id)).all()
+    if any(b.strip() for e in entries for b in (e.bullets or [])):
+        return True
+    if any(e.attachment_ids for e in entries):
+        return True
+    if entries:
+        labs = session.exec(select(LabBlock).where(col(LabBlock.entry_id).in_([e.id for e in entries]))).all()
+        if any(any(v.strip() for v in (l.goal, l.repo_url, l.pitfall, l.bring)) for l in labs):
+            return True
+    item = session.exec(select(UpcomingItem.id).where(UpcomingItem.card_id == card.id)).first()
+    return item is not None
+
+
 def publish_card(session: Session, state: DayState) -> DayCard:
     if not state.can_write:
         raise HTTPException(403, "Oggi non sei il verbalista di questa giornata")
     card = state.card
     if card is None:
         raise HTTPException(400, "Salva prima la giornata")
-    entries = session.exec(select(SubjectEntry).where(SubjectEntry.card_id == card.id)).all()
-    has_bullet = any(b.strip() for e in entries for b in (e.bullets or []))
-    has_lab = bool(entries) and session.exec(
-        select(func.count()).select_from(LabBlock).where(col(LabBlock.entry_id).in_([e.id for e in entries]))
-    ).one() > 0
-    items = session.exec(select(UpcomingItem).where(UpcomingItem.card_id == card.id)).all()
-    if not (has_bullet or has_lab or items):
+    if not has_content(session, card):
         raise HTTPException(422, "Scrivi almeno un punto, un blocco lab o un compito prima di pubblicare")
     now = datetime.now(timezone.utc)
     card.status = "published"
     card.published_at = card.published_at or now
     card.updated_at = now
+    card.revision += 1
     session.add(card)
-    for item in items:
+    for item in session.exec(select(UpcomingItem).where(UpcomingItem.card_id == card.id)).all():
         item.status = "published"
         session.add(item)
     session.commit()

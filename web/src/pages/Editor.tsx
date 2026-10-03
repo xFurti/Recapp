@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, FlaskConical, ImagePlus, Plus, Sparkles, Trash2, X } fr
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
-import { api, attachmentUrl } from '../api'
+import { api, ApiError, attachmentUrl } from '../api'
 import { DayCardView } from '../components/day'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
@@ -35,7 +35,9 @@ const QUICK_TYPES: ItemType[] = ['compito', 'verifica', 'evento']
 function initialState(page: CardPage): EditorState {
   if (page.card) {
     return {
-      entries: page.card.entries.map((e) => ({ ...e, bullets: e.bullets.length ? e.bullets : [''], key: newKey() })),
+      entries: page.card.entries.map((e) => ({
+        ...e, bullets: e.bullets.length ? e.bullets : [''], attachment_ids: e.attachment_ids ?? [], key: newKey(),
+      })),
       notes: page.card.notes,
       items: page.card.items.map((i) => ({
         id: i.id, key: newKey(), type: i.type, subject_code: i.subject_code, title: i.title, due_date: i.due_date,
@@ -47,7 +49,7 @@ function initialState(page: CardPage): EditorState {
   return {
     entries: page.lessons.map((l) => ({
       key: newKey(), subject_code: l.subject_code, hours: l.hours_label, room: l.room, is_lab: l.is_lab,
-      lesson_status: 'svolta', bullets: [''], lab: l.is_lab ? emptyLab() : null,
+      lesson_status: 'svolta', bullets: [''], lab: l.is_lab ? emptyLab() : null, attachment_ids: [],
     })),
     notes: '',
     items: [],
@@ -55,12 +57,14 @@ function initialState(page: CardPage): EditorState {
   }
 }
 
-function toPayload(s: EditorState) {
+function toPayload(s: EditorState, revision?: number) {
   return {
+    revision,
     entries: s.entries.map((e) => ({
       subject_code: e.subject_code, hours: e.hours, room: e.room, is_lab: e.is_lab, lesson_status: e.lesson_status,
       bullets: e.bullets.map((b) => b.trim()).filter(Boolean),
       lab: e.is_lab && e.lab ? e.lab : null,
+      attachment_ids: e.attachment_ids,
     })),
     notes: s.notes,
     items: s.items.map((i) => ({
@@ -89,14 +93,18 @@ function assignIds(state: EditorState, card: Card): EditorState {
 export default function Editor() {
   const info = useClass()
   const { day = '' } = useParams()
+  const qc = useQueryClient()
+  const [formKey, setFormKey] = useState(0)
+  // Always start from the server copy: a cached page could be older than the last autosave.
   const page = useQuery({
     queryKey: ['card', info.code, day],
     queryFn: () => api.get<CardPage>(classPath(info.code, `/cards/${day}`)),
-    staleTime: Infinity,
+    staleTime: 0,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
   })
   const { t } = useTranslation()
-  if (page.isLoading) return <Spinner />
+  if (page.isLoading || (!page.isFetchedAfterMount && page.isFetching)) return <Spinner />
   if (page.error) return <ErrorBox error={page.error} onRetry={() => page.refetch()} />
   const data = page.data!
   if (!data.state.can_write) {
@@ -110,10 +118,14 @@ export default function Editor() {
       </Box>
     )
   }
-  return <EditorForm key={day} day={day} page={data} />
+  const reload = (card: Card | null) => {
+    qc.setQueryData<CardPage>(['card', info.code, day], (old) => (old ? { ...old, card } : old))
+    setFormKey((k) => k + 1)
+  }
+  return <EditorForm key={`${day}-${formKey}`} day={day} page={data} onReload={reload} />
 }
 
-function EditorForm({ day, page }: { day: string; page: CardPage }) {
+function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onReload: (card: Card | null) => void }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
   const lang = i18n.language
@@ -132,6 +144,10 @@ function EditorForm({ day, page }: { day: string; page: CardPage }) {
   const [publishing, setPublishing] = useState(false)
   const [form, setForm] = useState<ItemInput | null>(null)
   const [draftKey, setDraftKey] = useState<string | null>(null)
+  const revisionRef = useRef(page.card?.revision ?? 0)
+  const conflictRef = useRef(false)
+  const discardRef = useRef(false)
+  const [conflict, setConflict] = useState<Card | null>(null)
 
   const update = useCallback((fn: (s: EditorState) => EditorState) => {
     const next = fn(stateRef.current)
@@ -147,22 +163,43 @@ function EditorForm({ day, page }: { day: string; page: CardPage }) {
       if (v === savedVersionRef.current) return
       // Opening the editor must not create a draft: others would see "is writing".
       if (v === 0 && !force) return
+      if (discardRef.current || (conflictRef.current && !force)) return
       setSave({ kind: 'saving' })
       try {
-        const card = await api.put<Card>(classPath(info.code, `/cards/${day}`), toPayload(stateRef.current))
+        const card = await api.put<Card>(classPath(info.code, `/cards/${day}`), toPayload(stateRef.current, revisionRef.current))
         savedVersionRef.current = v
+        revisionRef.current = card.revision
         const withIds = assignIds(stateRef.current, card)
         stateRef.current = withIds
         setState(withIds)
         setSave({ kind: 'saved', at: card.updated_at })
+        qc.setQueryData<CardPage>(['card', info.code, day], (old) => (old ? { ...old, card } : old))
       } catch (e) {
+        if (e instanceof ApiError && e.status === 409) {
+          const server = (e.detail as { card?: Card | null } | undefined)?.card ?? null
+          conflictRef.current = true
+          setConflict(server ?? ({ revision: 0 } as Card))
+        }
         setSave({ kind: 'error', msg: (e as Error).message })
         throw e
       }
     }
     chain.current = chain.current.catch(() => undefined).then(run)
     return chain.current
-  }, [info.code, day])
+  }, [info.code, day, qc])
+
+  const keepMine = () => {
+    revisionRef.current = conflict?.revision ?? 0
+    conflictRef.current = false
+    setConflict(null)
+    saveNow(true).catch(() => undefined)
+  }
+
+  const loadSaved = () => {
+    if (!window.confirm(t('editor.conflict_reload_confirm'))) return
+    discardRef.current = true
+    onReload(conflict && conflict.id ? conflict : null)
+  }
 
   useEffect(() => {
     if (version === 0) return
@@ -213,7 +250,7 @@ function EditorForm({ day, page }: { day: string; page: CardPage }) {
     const me = info.viewer.member
     const payload = toPayload(state)
     const card: Card = {
-      id: 0, day, status: 'draft', author: me, scribe: null, notes: state.notes, published_at: null, updated_at: null,
+      id: 0, day, status: 'draft', author: me, scribe: null, notes: state.notes, revision: 0, published_at: null, updated_at: null,
       entries: payload.entries,
       items: state.items.map((i, idx) => ({
         ...i, id: i.id ?? -idx - 1, author: me, status: 'draft', card_day: day, attachment_id: i.attachment_id ?? null,
@@ -239,6 +276,17 @@ function EditorForm({ day, page }: { day: string; page: CardPage }) {
         <p className="mt-1 text-sm text-muted">{t('editor.subtitle')}</p>
       </div>
 
+      {conflict && (
+        <div className="rounded-2xl border border-rosa/30 bg-rosa-soft p-4" role="alert">
+          <p className="font-bold text-rosa-ink">{t('editor.conflict_title')}</p>
+          <p className="mt-1 text-sm">{t('editor.conflict_text')}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button size="sm" onClick={keepMine}>{t('editor.conflict_keep')}</Button>
+            <Button size="sm" variant="secondary" onClick={loadSaved}>{t('editor.conflict_reload')}</Button>
+          </div>
+        </div>
+      )}
+
       <section className="space-y-3">
         <h2 className="text-sm font-bold uppercase tracking-wide text-muted">{t('editor.lessons')}</h2>
         {state.entries.length === 0 && <p className="text-sm text-muted">{t('editor.no_lessons')}</p>}
@@ -256,7 +304,7 @@ function EditorForm({ day, page }: { day: string; page: CardPage }) {
         ))}
         <AddSubject
           onAdd={(code) =>
-            update((s) => ({ ...s, entries: [...s.entries, { key: newKey(), subject_code: code, hours: '', room: '', is_lab: false, lesson_status: 'svolta', bullets: [''], lab: null }] }))
+            update((s) => ({ ...s, entries: [...s.entries, { key: newKey(), subject_code: code, hours: '', room: '', is_lab: false, lesson_status: 'svolta', bullets: [''], lab: null, attachment_ids: [] }] }))
           }
         />
       </section>

@@ -46,6 +46,11 @@ class LabIn(BaseModel):
     pitfall: str = Field("", max_length=300)
     bring: str = Field("", max_length=300)
 
+    @field_validator("goal", "pitfall", "bring")
+    @classmethod
+    def _trim(cls, v: str) -> str:
+        return v.strip()
+
     @field_validator("repo_url")
     @classmethod
     def _repo(cls, v: str) -> str:
@@ -63,6 +68,7 @@ class EntryIn(BaseModel):
     lesson_status: LessonStatus = "svolta"
     bullets: list[str] = Field(default_factory=list, max_length=5)
     lab: Optional[LabIn] = None
+    attachment_ids: list[int] = Field(default_factory=list, max_length=3)
 
     @field_validator("bullets")
     @classmethod
@@ -105,6 +111,7 @@ class ItemIn(BaseModel):
 
 
 class CardIn(BaseModel):
+    revision: Optional[int] = None
     entries: list[EntryIn] = Field(default_factory=list, max_length=14)
     notes: str = Field("", max_length=1500)
     items: list[ItemIn] = Field(default_factory=list, max_length=30)

@@ -23,8 +23,13 @@ def ocr_context(cal: ClassCalendar, today: date) -> dict:
     }
 
 
-def build_payload(session: Session, job: OcrJob, context: dict) -> dict:
-    payload: dict = {"kind": job.input_kind, "context": context, "provider": settings.ocr_provider}
+def build_payload(session: Session, job: OcrJob, context: dict, provider: str | None = None, notice: str = "") -> dict:
+    payload: dict = {
+        "kind": job.input_kind,
+        "context": context,
+        "provider": provider or settings.ocr_provider,
+        "notice": notice,
+    }
     if job.input_kind == "image":
         att = session.get(Attachment, job.attachment_id)
         payload["image_b64"] = base64.b64encode(att.data).decode() if att else ""
@@ -60,7 +65,8 @@ def run_inline(job_id: str, payload: dict) -> None:
 
 
 def start_job(session: Session, job: OcrJob, payload: dict, background) -> None:
-    if settings.task_runner == "render" and settings.render_api_key and settings.render_workflow_task:
+    uses_ai = payload.get("provider") != "mock"
+    if uses_ai and settings.task_runner == "render" and settings.render_api_key and settings.render_workflow_task:
         try:
             from render import Render  # Render Workflows SDK, `pip install render`
 

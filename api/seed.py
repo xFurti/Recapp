@@ -18,6 +18,8 @@ from .auth import check_secret, hash_secret, new_class_code, new_invite_code
 from .config import TZ, settings
 from .models import (
     Attachment,
+    CardComment,
+    CardThanks,
     Classroom,
     DayCard,
     Holiday,
@@ -166,6 +168,8 @@ def _wipe_demo(session: Session, classroom: Classroom) -> None:
     cid = classroom.id
     card_ids = session.exec(select(DayCard.id).where(DayCard.class_id == cid)).all()
     if card_ids:
+        session.exec(delete(CardComment).where(col(CardComment.card_id).in_(card_ids)))
+        session.exec(delete(CardThanks).where(col(CardThanks.card_id).in_(card_ids)))
         entry_ids = session.exec(select(SubjectEntry.id).where(col(SubjectEntry.card_id).in_(card_ids))).all()
         if entry_ids:
             session.exec(delete(LabBlock).where(col(LabBlock.entry_id).in_(entry_ids)))
@@ -175,10 +179,33 @@ def _wipe_demo(session: Session, classroom: Classroom) -> None:
     session.exec(delete(Attachment).where(Attachment.class_id == cid))
     session.exec(delete(DayCard).where(DayCard.class_id == cid))
     session.exec(delete(ScribeOverride).where(ScribeOverride.class_id == cid))
+    session.exec(delete(TimetableSlot).where(TimetableSlot.class_id == cid))
+    session.exec(delete(Subject).where(Subject.class_id == cid))
+    session.exec(delete(Member).where(Member.class_id == cid, col(Member.nick).not_in(DEMO_NICKS)))
     session.flush()
 
 
+def _restore_demo_members(session: Session, classroom: Classroom) -> list[Member]:
+    pin_hash = hash_secret(DEMO_PIN)
+    existing = {m.nick: m for m in session.exec(select(Member).where(Member.class_id == classroom.id)).all()}
+    members = []
+    for i, nick in enumerate(DEMO_NICKS):
+        m = existing.get(nick) or Member(class_id=classroom.id, nick=nick)
+        m.role = "admin" if nick == "leo" else "member"
+        m.pin_hash = pin_hash
+        m.invite_hash = None
+        m.activated_at = m.activated_at or datetime.now(timezone.utc)
+        m.rotation_order = i
+        m.active = True
+        m.failed_attempts = 0
+        m.locked_until = None
+        session.add(m)
+        members.append(m)
+    return members
+
+
 def ensure_demo(session: Session, today: Optional[date] = None, force: bool = False) -> Classroom:
+    """Rebuilds the shared demo class from scratch once a day (or when forced)."""
     today = today or datetime.now(TZ).date()
     classroom = session.exec(select(Classroom).where(Classroom.code == DEMO_CODE)).first()
     if classroom is None:
@@ -187,35 +214,21 @@ def ensure_demo(session: Session, today: Optional[date] = None, force: bool = Fa
         )
         session.add(classroom)
         session.flush()
-        add_subjects(session, classroom.id)
-        add_timetable(session, classroom.id, "4BI")
-        pin_hash = hash_secret(DEMO_PIN)
-        for i, nick in enumerate(DEMO_NICKS):
-            session.add(
-                Member(
-                    class_id=classroom.id, nick=nick, role="admin" if nick == "leo" else "member",
-                    pin_hash=pin_hash, activated_at=datetime.now(timezone.utc), rotation_order=i,
-                )
-            )
-        session.commit()
         force = True
     if not force and classroom.demo_seeded_on == today:
         return classroom
 
     _wipe_demo(session, classroom)
-    members = session.exec(
-        select(Member).where(Member.class_id == classroom.id).order_by(Member.rotation_order)
-    ).all()
-    for m in members:
-        m.active = True
-        m.activated_at = m.activated_at or datetime.now(timezone.utc)
-        if m.pin_hash is None:
-            m.pin_hash = hash_secret(DEMO_PIN)
-        session.add(m)
+    add_subjects(session, classroom.id)
+    add_timetable(session, classroom.id, "4BI")
+    members = _restore_demo_members(session, classroom)
+    classroom.label = "Demo class · 4ª BI"
     classroom.rotation_anchor = today
     classroom.demo_seeded_on = today
     session.add(classroom)
     session.commit()
+    for m in members:
+        session.refresh(m)
 
     cal = ClassCalendar(session, classroom)
     by_nick = {m.nick: m for m in members}
@@ -277,12 +290,15 @@ def ensure_demo(session: Session, today: Optional[date] = None, force: bool = Fa
 
 
 def run_startup_seed() -> None:
+    from .routes.media import cleanup_orphans
+
     db.init_db()
     with Session(db.engine) as session:
         ensure_holidays(session)
         ensure_owner(session)
         ensure_real_classes(session)
         ensure_demo(session)
+        cleanup_orphans(session)
 
 
 def main() -> None:

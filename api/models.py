@@ -100,6 +100,7 @@ class DayCard(SQLModel, table=True):
     scribe_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     author_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     notes: str = ""
+    revision: int = 0
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
     published_at: Optional[datetime] = None
@@ -115,6 +116,7 @@ class SubjectEntry(SQLModel, table=True):
     is_lab: bool = False
     lesson_status: str = "svolta"  # svolta | non_svolta | supplenza | verifica
     bullets: list[str] = Field(default_factory=list, sa_column=Column(JSON))
+    attachment_ids: Optional[list[int]] = Field(default_factory=list, sa_column=Column(JSON))
 
 
 class LabBlock(SQLModel, table=True):
@@ -154,6 +156,27 @@ class UpcomingItem(SQLModel, table=True):
     status: str = "published"  # draft | published
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
+
+
+class CardComment(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    card_id: int = Field(foreign_key="daycard.id", index=True)
+    class_id: int = Field(foreign_key="classroom.id", index=True)
+    member_id: int = Field(foreign_key="member.id")
+    kind: str = "comment"  # comment | correction
+    body: str
+    resolved: bool = False
+    deleted: bool = False
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class CardThanks(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("card_id", "member_id"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    card_id: int = Field(foreign_key="daycard.id", index=True)
+    member_id: int = Field(foreign_key="member.id")
+    created_at: datetime = Field(default_factory=utcnow)
 
 
 class OcrJob(SQLModel, table=True):

@@ -10,6 +10,7 @@ from ..db import get_session
 from ..models import DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem
 from ..schedule import ClassCalendar
 from ..school_data import HOURS, is_lab_room
+from ..seed import DEMO_NICKS
 from ..schemas import DayIn, MemberIn, MemberPatch, RotationOrderIn, SwapIn, TimetableIn
 from ..services import (
     DayState,
@@ -24,6 +25,7 @@ from ..services import (
 )
 
 router = APIRouter(prefix="/api/classes/{code}")
+DEMO_MAX_MEMBERS = 12
 
 
 @router.get("")
@@ -83,7 +85,19 @@ def _load_state(request: Request, access: ClassAccess, session: Session, day: Op
     return DayState(access, cal, day or now.date(), now)
 
 
+def _reassign_draft(session: Session, class_id: int, day: date, member_id: Optional[int]) -> None:
+    """A change of scribe invalidates editors opened by the previous one (revision bump)."""
+    card = session.exec(select(DayCard).where(DayCard.class_id == class_id, DayCard.day == day)).first()
+    if card is None or card.status == "published":
+        return
+    if member_id is not None:
+        card.scribe_member_id = member_id
+    card.revision += 1
+    session.add(card)
+
+
 def _set_override(session: Session, class_id: int, day: date, member_id: Optional[int], reason: str, by: Optional[int]) -> None:
+    _reassign_draft(session, class_id, day, member_id)
     ov = session.exec(
         select(ScribeOverride).where(ScribeOverride.class_id == class_id, ScribeOverride.day == day)
     ).first()
@@ -160,6 +174,7 @@ def rotation(
 @router.patch("/rotation/order")
 def rotation_order(data: RotationOrderIn, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
+    access.forbid_in_demo()
     members = {
         m.id: m for m in session.exec(select(Member).where(Member.class_id == access.classroom.id)).all()
     }
@@ -210,6 +225,7 @@ def timetable(access: ClassAccess = Depends(class_access), session: Session = De
 @router.put("/timetable")
 def put_timetable(data: TimetableIn, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
+    access.forbid_in_demo()
     cid = access.classroom.id
     if data.subjects is not None:
         existing = {s.code: s for s in session.exec(select(Subject).where(Subject.class_id == cid)).all()}
@@ -288,6 +304,12 @@ def members(request: Request, access: ClassAccess = Depends(class_access), sessi
 def add_member(data: MemberIn, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
     cid = access.classroom.id
+    if access.classroom.is_demo:
+        active = session.exec(
+            select(func.count()).select_from(Member).where(Member.class_id == cid, Member.active == True)  # noqa: E712
+        ).one()
+        if active >= DEMO_MAX_MEMBERS:
+            raise HTTPException(403, "Nella demo si possono avere al massimo 12 partecipanti")
     existing = session.exec(select(Member).where(Member.class_id == cid, Member.nick == data.nick)).first()
     if existing and existing.active:
         raise HTTPException(409, "Nick già presente in classe")
@@ -329,6 +351,8 @@ def _admins_left(session: Session, class_id: int, excluding: int) -> int:
 def reset_invite(member_id: int, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
     member = _get_member(session, access, member_id)
+    if member.nick in DEMO_NICKS:
+        access.forbid_in_demo()
     invite = new_invite_code()
     member.invite_hash = hash_secret(invite)
     member.pin_hash = None
@@ -343,6 +367,7 @@ def reset_invite(member_id: int, access: ClassAccess = Depends(class_access), se
 @router.patch("/members/{member_id}")
 def patch_member(member_id: int, data: MemberPatch, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
+    access.forbid_in_demo()
     member = _get_member(session, access, member_id)
     if data.role and data.role != member.role:
         if member.role == "admin" and _admins_left(session, access.classroom.id, member.id) == 0:
@@ -356,6 +381,7 @@ def patch_member(member_id: int, data: MemberPatch, access: ClassAccess = Depend
 @router.delete("/members/{member_id}")
 def remove_member(member_id: int, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     access.require_manage()
+    access.forbid_in_demo()
     member = _get_member(session, access, member_id)
     if member.role == "admin" and _admins_left(session, access.classroom.id, member.id) == 0:
         raise HTTPException(409, "Serve almeno un admin nella classe")

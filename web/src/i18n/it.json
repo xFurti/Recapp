@@ -120,7 +120,8 @@
     "weekend": "È weekend.",
     "next_day": "Prossimo giorno di scuola: {{day}}",
     "next_scribe": "verbalista {{nick}}",
-    "future": "Questo giorno deve ancora arrivare."
+    "future": "Questo giorno deve ancora arrivare.",
+    "demo_weekend": "Nella demo anche sabato e domenica sono giorni di scuola, per poterla provare sempre. Nelle classi vere weekend e festività vengono saltati."
   },
   "day": {
     "by": "di {{nick}}",
@@ -290,7 +291,12 @@
     "not_allowed": "Non puoi scrivere questa giornata.",
     "not_allowed_sub": "La scrive il verbalista del giorno. Dalle 18:00, se non l'ha pubblicata, puoi prendere il turno dalla tab Oggi.",
     "remove_item": "Rimuovi",
-    "preview_title": "Così la vedrà la classe"
+    "preview_title": "Così la vedrà la classe",
+    "conflict_title": "Qualcuno ha modificato questa giornata mentre scrivevi",
+    "conflict_text": "Le tue modifiche sono ancora qui e non sono state salvate. Scegli cosa tenere.",
+    "conflict_keep": "Tieni le mie modifiche",
+    "conflict_reload": "Carica la versione salvata",
+    "conflict_reload_confirm": "Caricare la versione salvata? Le modifiche che hai fatto qui andranno perse."
   },
   "class": {
     "tab_members": "Partecipanti",
@@ -345,7 +351,8 @@
     "tt_subject": "Materia",
     "tt_room": "Aula",
     "tt_free": "Libera",
-    "tt_cell": "{{day}}, {{hour}}ª ora"
+    "tt_cell": "{{day}}, {{hour}}ª ora",
+    "demo_locked": "Non disponibile nella demo"
   },
   "school": {
     "title": "Area scuola",

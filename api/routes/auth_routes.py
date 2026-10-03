@@ -1,5 +1,3 @@
-import time
-from collections import defaultdict, deque
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
@@ -20,6 +18,7 @@ from ..auth import (
     validate_pin,
 )
 from ..db import get_session
+from ..limits import allow, client_ip
 from ..models import Member, Owner
 from ..schemas import ActivateIn, ChangePinIn, LoginIn, OwnerLoginIn
 from ..seed import DEMO_CODE, ensure_demo
@@ -27,22 +26,13 @@ from ..services import avatar_color, classroom_out
 
 router = APIRouter(prefix="/api")
 
-_hits: dict[str, deque] = defaultdict(deque)
 IP_LIMIT = 40
 IP_WINDOW = 600
 
 
 def rate_limit(request: Request) -> None:
-    ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (
-        request.client.host if request.client else "?"
-    )
-    now = time.monotonic()
-    q = _hits[ip]
-    while q and now - q[0] > IP_WINDOW:
-        q.popleft()
-    if len(q) >= IP_LIMIT:
+    if not allow(f"auth:{client_ip(request)}", IP_LIMIT, IP_WINDOW):
         raise HTTPException(429, "Troppi tentativi da questa rete. Riprova tra qualche minuto.")
-    q.append(now)
 
 
 def _member_in_class(session: Session, code: str, member_id: int) -> Member:

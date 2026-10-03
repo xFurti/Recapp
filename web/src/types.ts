@@ -74,6 +74,7 @@ export interface Entry {
   lesson_status: LessonStatus
   bullets: string[]
   lab: LabData | null
+  attachment_ids: number[]
 }
 
 export interface Item {
@@ -99,6 +100,7 @@ export interface Card {
   author: MemberBrief | null
   scribe: MemberBrief | null
   notes: string
+  revision: number
   published_at: string | null
   updated_at: string | null
   entries: Entry[]

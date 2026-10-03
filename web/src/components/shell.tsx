@@ -1,15 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, School, Sun, Users } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, NavLink, useNavigate } from 'react-router'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
 import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
-import { Avatar, Button, Field, inputClass, Modal } from './ui'
+import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
   return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto ${className}`} />
@@ -87,6 +87,11 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [pinOpen, setPinOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const close = useCallback(() => setOpen(false), [])
+  useDismiss(ref, open, close)
+  const location = useLocation()
+  useEffect(() => close(), [location.pathname, close])
   const member = info.viewer.member
   const logout = async () => {
     await api.post('/auth/logout')
@@ -94,12 +99,12 @@ function ProfileMenu({ info }: { info: ClassInfo }) {
     navigate(info.viewer.kind === 'owner' ? '/scuola' : '/')
   }
   return (
-    <div className="relative">
+    <div className="relative" ref={ref}>
       <button onClick={() => setOpen((o) => !o)} className="flex items-center gap-2 rounded-full p-0.5 hover:bg-ink/5" aria-haspopup="menu" aria-expanded={open}>
         {member ? <Avatar nick={member.nick} color={member.color} size="sm" /> : <School className="size-6 text-bordeaux" />}
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-line bg-white p-2 shadow-lg" role="menu" onMouseLeave={() => setOpen(false)}>
+        <div className="absolute right-0 z-40 mt-2 w-56 rounded-2xl border border-line bg-white p-2 shadow-lg" role="menu">
           {member && (
             <div className="px-3 py-2">
               <p className="font-semibold">{member.nick}</p>

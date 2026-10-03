@@ -27,8 +27,11 @@ engine = make_engine(settings.database_url)
 
 def init_db(bind=None) -> None:
     from . import models  # noqa: F401
+    from .migrations import run_migrations
 
-    SQLModel.metadata.create_all(bind or engine)
+    target = bind or engine
+    SQLModel.metadata.create_all(target)
+    run_migrations(target)
 
 
 def get_session() -> Iterator[Session]:

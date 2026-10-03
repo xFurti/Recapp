@@ -1,15 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { useCallback, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
-import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
+import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner, useDismiss } from '../components/ui'
 import { todayIso } from '../lib/clock'
 import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
+import { DemoWeekendNote, isWeekend } from './Today'
 
 type Tab = 'members' | 'turns' | 'timetable'
 
@@ -47,6 +48,9 @@ function Members() {
   const [adding, setAdding] = useState(false)
   const [invite, setInvite] = useState<Invite | null>(null)
   const [menu, setMenu] = useState<number | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const closeMenu = useCallback(() => setMenu(null), [])
+  useDismiss(menuRef, menu !== null, closeMenu)
   const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public'].includes(String(q.queryKey[0])) })
   const act = useMutation({
     mutationFn: async ({ kind, m }: { kind: 'reset' | 'admin' | 'member' | 'remove'; m: MemberRow }) => {
@@ -99,19 +103,21 @@ function Members() {
               </p>
             </div>
             {can_manage && (
-              <div className="relative">
+              <div className="relative" ref={menu === m.id ? menuRef : undefined}>
                 <button onClick={() => setMenu(menu === m.id ? null : m.id)} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('class.manage')} aria-expanded={menu === m.id}>
                   <MoreVertical className="size-5" />
                 </button>
                 {menu === m.id && (
                   <div className="absolute right-0 z-20 mt-1 w-60 rounded-2xl border border-line bg-white p-1.5 shadow-lg" role="menu">
                     <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', m)} />
-                    {m.role === 'member' ? (
+                    {info.is_demo ? (
+                      <p className="px-3 py-2 text-xs text-muted">{t('class.demo_locked')}</p>
+                    ) : m.role === 'member' ? (
                       <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', m)} />
                     ) : (
                       <MenuItem icon={Crown} label={t('class.make_member')} onClick={() => confirmAct('member', m)} />
                     )}
-                    {!m.is_me && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', m)} />}
+                    {!m.is_me && !info.is_demo && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', m)} />}
                   </div>
                 )}
               </div>
@@ -208,6 +214,7 @@ function Turns() {
   const today = todayIso()
   const todayRow = data.days.find((d) => d.day === today && d.school)
   const manage = info.viewer.can_manage
+  const canReorder = manage && !info.is_demo
 
   const pick = (day: string) => {
     if (!swapMode) return
@@ -226,6 +233,7 @@ function Turns() {
 
   return (
     <div className="space-y-6">
+      {info.is_demo && data.days.some((d) => isWeekend(d.day)) && <DemoWeekendNote />}
       <Card className="flex items-center gap-3">
         {todayRow?.scribe ? <Avatar nick={todayRow.scribe.nick} color={todayRow.scribe.color} size="lg" /> : null}
         <div>
@@ -293,7 +301,7 @@ function Turns() {
               <span className="w-6 text-center text-sm font-bold text-muted">{i + 1}</span>
               <Avatar nick={m.nick} color={m.color} size="sm" />
               <span className="flex-1 font-semibold">{m.nick}</span>
-              {manage && (
+              {canReorder && (
                 <>
                   <button onClick={() => move(i, -1)} disabled={i === 0 || order.isPending} className="rounded-full p-1.5 hover:bg-ink/5 disabled:opacity-30" aria-label={t('class.move_up')}>
                     <ArrowUp className="size-4" />
@@ -362,7 +370,8 @@ function Timetable() {
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted">{t('class.tt_lab_hint')}</p>
-        {data.can_edit && !editing && (
+        {data.can_edit && info.is_demo && <p className="text-xs text-muted">{t('class.demo_locked')}</p>}
+        {data.can_edit && !info.is_demo && !editing && (
           <Button size="sm" variant="secondary" onClick={() => { setEditing(data.slots); setSaved(false) }}>
             <Pencil className="size-4" /> {t('class.tt_edit')}
           </Button>

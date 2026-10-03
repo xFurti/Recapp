@@ -1,5 +1,6 @@
 import { LoaderCircle, X } from 'lucide-react'
-import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { useEffect, useRef, type ButtonHTMLAttributes, type ReactNode, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft'
@@ -185,7 +186,8 @@ export function Modal({
     return () => document.removeEventListener('keydown', onKey)
   }, [open, onClose])
   if (!open) return null
-  return (
+  // Portal: an ancestor with backdrop-filter (the sticky header) would trap `fixed` children.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center" onClick={onClose}>
       <div
         ref={ref}
@@ -203,8 +205,26 @@ export function Modal({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
+}
+
+/** Closes a popover on tap/click outside `ref` and on Escape (touch screens have no mouseleave). */
+export function useDismiss(ref: RefObject<HTMLElement | null>, open: boolean, onClose: () => void) {
+  useEffect(() => {
+    if (!open) return
+    const onPointer = (e: PointerEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [ref, open, onClose])
 }
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
