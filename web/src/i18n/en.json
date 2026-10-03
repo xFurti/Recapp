@@ -77,7 +77,8 @@
     "change_pin": "Change PIN",
     "old_pin": "Current PIN",
     "pin_changed": "PIN updated",
-    "profile_menu": "Profile menu"
+    "profile_menu": "Profile menu",
+    "demo": "Demo"
   },
   "time": {
     "badge": "Simulated time: {{time}}",
@@ -219,6 +220,11 @@
     "hide_past": "Hide past",
     "empty": "Nothing upcoming with these filters.",
     "empty_sub": "Add homework, a test or an event with the + button.",
+    "subject": "Subject",
+    "no_subject": "No subject",
+    "no_match": "Nothing matches the selected filters.",
+    "clear_subject": "Remove subject filter",
+    "reset_filters": "Reset filters",
     "add": "Add",
     "done": "Done",
     "mark_done": "Mark as done (this device only)",
@@ -422,6 +428,8 @@
   },
   "subject": {
     "by_subject": "By subject",
+    "all_subjects": "All subjects",
+    "back_general": "Back to the full view",
     "week": "This week",
     "two_weeks": "Last 2 weeks",
     "all": "All",

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, ChevronDown } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { api } from '../api'
 import { EntryPhotos, LabBox } from '../components/day'
 import { ItemRow } from '../components/items'
@@ -13,15 +13,61 @@ import type { SubjectEntryRow } from '../types'
 
 type Range = 'week' | '2weeks' | 'all'
 
+const RETURN_SCROLL = 'recapp.return-scroll'
+
+type ReturnState = { from?: string }
+
+/** Where "all subjects" sends you: the page you came from, or Ieri for a direct link. */
+export function subjectReturnPath(code: string, from?: string) {
+  const base = `/c/${code}`
+  if (from?.startsWith(base) && !from.includes('/materia/')) return from
+  return `${base}/ieri`
+}
+
+function originPath(pathname: string, state: unknown) {
+  if (pathname.includes('/materia/')) return (state as ReturnState | null)?.from
+  return pathname
+}
+
+function rememberScroll(pathname: string) {
+  if (pathname.includes('/materia/')) return
+  try {
+    sessionStorage.setItem(RETURN_SCROLL, JSON.stringify({ path: pathname, y: window.scrollY }))
+  } catch {
+    /* private mode */
+  }
+}
+
+/** Puts the originating page back where it was after leaving a subject. */
+export function useRestoreReturnScroll() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    let saved: { path?: string; y?: number } | null = null
+    try {
+      saved = JSON.parse(sessionStorage.getItem(RETURN_SCROLL) ?? 'null')
+    } catch {
+      saved = null
+    }
+    if (!saved || saved.path !== pathname || typeof saved.y !== 'number') return
+    sessionStorage.removeItem(RETURN_SCROLL)
+    const y = saved.y
+    requestAnimationFrame(() => window.scrollTo(0, y))
+  }, [pathname])
+}
+
 export function SubjectMenu({ active }: { active?: string }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
+  const location = useLocation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const close = useCallback(() => setOpen(false), [])
   useDismiss(ref, open, close)
+  const from = originPath(location.pathname, location.state)
+  const backTo = subjectReturnPath(info.code, from)
   const current = info.subjects.find((s) => s.code === active)
   const label = current ? subjectName(info.subjects, current.code, i18n.language) : t('subject.by_subject')
+  const option = `flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold`
   return (
     <div className="relative" ref={ref}>
       <button
@@ -31,20 +77,37 @@ export function SubjectMenu({ active }: { active?: string }) {
         aria-haspopup="listbox"
         className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
       >
-        <span className="size-2 rounded-full" style={{ backgroundColor: current?.color ?? 'transparent' }} aria-hidden />
+        <span className="size-2 rounded-full" style={{ backgroundColor: current?.color ?? 'var(--color-line)' }} aria-hidden />
         {label}
         <ChevronDown className={`size-4 text-muted transition ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <ul role="listbox" className="absolute z-20 mt-2 max-h-80 w-64 overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
+        <ul role="listbox" aria-label={t('subject.by_subject')} className="absolute z-20 mt-2 max-h-80 w-64 overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
+          <li>
+            {active ? (
+              <Link to={backTo} role="option" aria-selected={false} onClick={close} className={`${option} hover:bg-ink/5`}>
+                <span className="size-2 rounded-full border border-current" aria-hidden />
+                {t('subject.all_subjects')}
+              </Link>
+            ) : (
+              <button type="button" role="option" aria-selected onClick={close} className={`${option} bg-ink text-paper`}>
+                <span className="size-2 rounded-full border border-current" aria-hidden />
+                {t('subject.all_subjects')}
+              </button>
+            )}
+          </li>
           {info.subjects.map((s) => (
             <li key={s.code}>
               <Link
                 to={`/c/${info.code}/materia/${s.code}`}
+                state={{ from } satisfies ReturnState}
                 role="option"
                 aria-selected={active === s.code}
-                onClick={close}
-                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${active === s.code ? 'bg-ink text-paper' : 'hover:bg-ink/5'}`}
+                onClick={() => {
+                  rememberScroll(location.pathname)
+                  close()
+                }}
+                className={`${option} ${active === s.code ? 'bg-ink text-paper' : 'hover:bg-ink/5'}`}
               >
                 <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
                 {subjectName(info.subjects, s.code, i18n.language)}
@@ -67,6 +130,8 @@ export default function SubjectPage() {
     queryKey: ['subject', info.code, subject, range],
     queryFn: () => api.get<SubjectEntryRow[]>(classPath(info.code, `/subjects/${subject}/entries?range=${range}`)),
   })
+  const location = useLocation()
+  const backTo = subjectReturnPath(info.code, originPath(location.pathname, location.state))
   const color = subjectColor(info.subjects, subject)
   return (
     <div className="space-y-4">
@@ -77,7 +142,12 @@ export default function SubjectPage() {
           {subjectName(info.subjects, subject, lang)}
         </h1>
       </div>
-      <SubjectMenu active={subject} />
+      <div className="flex flex-wrap items-center gap-3">
+        <Link to={backTo} className="inline-flex h-10 items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
+          <ArrowLeft className="size-4" /> {t('subject.back_general')}
+        </Link>
+        <SubjectMenu active={subject} />
+      </div>
       <Segmented
         value={range}
         onChange={setRange}

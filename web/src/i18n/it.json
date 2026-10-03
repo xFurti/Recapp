@@ -77,7 +77,8 @@
     "change_pin": "Cambia PIN",
     "old_pin": "PIN attuale",
     "pin_changed": "PIN aggiornato",
-    "profile_menu": "Menu del profilo"
+    "profile_menu": "Menu del profilo",
+    "demo": "Demo"
   },
   "time": {
     "badge": "Ora simulata: {{time}}",
@@ -219,6 +220,11 @@
     "hide_past": "Nascondi passati",
     "empty": "Niente in arrivo con questi filtri.",
     "empty_sub": "Aggiungi un compito, una verifica o un evento con il +.",
+    "subject": "Materia",
+    "no_subject": "Senza materia",
+    "no_match": "Nessun elemento corrisponde ai filtri selezionati.",
+    "clear_subject": "Rimuovi filtro materia",
+    "reset_filters": "Reimposta filtri",
     "add": "Aggiungi",
     "done": "Fatto",
     "mark_done": "Segna come fatto (solo su questo dispositivo)",
@@ -422,6 +428,8 @@
   },
   "subject": {
     "by_subject": "Per materia",
+    "all_subjects": "Tutte le materie",
+    "back_general": "Torna alla vista generale",
     "week": "Questa settimana",
     "two_weeks": "Ultime 2 settimane",
     "all": "Tutto",

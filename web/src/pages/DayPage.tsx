@@ -11,12 +11,13 @@ import { todayIso } from '../lib/clock'
 import { capitalize, longDay, relativeDay, shortDay } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { CardPage, CardSummary } from '../types'
-import { SubjectMenu } from './SubjectPage'
+import { SubjectMenu, useRestoreReturnScroll } from './SubjectPage'
 
 function DayView({ day }: { day: string }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
   const page = useQuery({ queryKey: ['card', info.code, day], queryFn: () => api.get<CardPage>(classPath(info.code, `/cards/${day}`)) })
+  useRestoreReturnScroll()
   const base = `/c/${info.code}`
   if (page.isLoading) return <Spinner />
   if (page.error) return <ErrorBox error={page.error} onRetry={() => page.refetch()} />
@@ -90,6 +91,7 @@ export function DaysList() {
   const info = useClass()
   const { t, i18n } = useTranslation()
   const list = useQuery({ queryKey: ['cards', info.code], queryFn: () => api.get<CardSummary[]>(classPath(info.code, '/cards')) })
+  useRestoreReturnScroll()
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold tracking-tight">{t('day.days_title')}</h1>
