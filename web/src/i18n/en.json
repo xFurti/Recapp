@@ -45,7 +45,8 @@
     "f3_title": "One note-taker a day",
     "f3_text": "Taking turns, after the bell. No school passwords, no grades.",
     "footer": "Student pilot project at ITI G. Marconi, Verona (Italy). Not an official school portal.",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "info_links": "About Recapp"
   },
   "join": {
     "pick_title": "Who are you?",
@@ -485,5 +486,54 @@
     "write_body": "This opens the editor for the day. Changes save on their own and you publish when you're ready.",
     "done_title": "You're all set!",
     "done_body": "Go ahead and explore Recapp. You can replay the tutorial anytime from your profile menu, up here."
+  },
+  "about": {
+    "title": "FAQ and creators",
+    "intro": "How Recapp works, how to join your class, and the people behind the project.",
+    "home": "Back to home",
+    "faq_title": "Frequently asked questions",
+    "creators_title": "Who created Recapp",
+    "carousel": "creator slideshow",
+    "previous": "Previous creator",
+    "next": "Next creator",
+    "select_creator": "Choose a creator",
+    "profile_position": "Profile {{current}} of {{total}}",
+    "profile_status": "{{name}} · {{current}} of {{total}}",
+    "team_summary": "Recapp is a project by three fourth-year Computer Science students at ITI G. Marconi in Verona.",
+    "profiles_pending": "The team will add the creators’ personal introductions.",
+    "faq": {
+      "purpose": {
+        "question": "What is Recapp and what is it for?",
+        "answer": "Recapp collects summaries of school days written by classmates who were there. Catch up on lessons and lab activities, see upcoming homework, tests and events, and browse summaries by subject."
+      },
+      "school": {
+        "question": "Is Recapp an official school service?",
+        "answer": "No. It is a student pilot project at ITI G. Marconi in Verona, agreed with the headteacher. It is not an official school portal."
+      },
+      "demo": {
+        "question": "What is the difference between the demo and a real class?",
+        "answer": "The demo contains example data and you can try it without school credentials. “Try the demo” opens a copy for your browser, separate from real classes. Real classes contain their members’ summaries and require sign-in; authorized school staff can view them with read-only access."
+      },
+      "access": {
+        "question": "How do I access my class?",
+        "answer": "Enter the class code provided by your class representative on the home page and select your nickname. On your first visit, use your invite code and set a personal six-digit PIN. Use that PIN on later visits. If you forget it, ask your representative for a new invite."
+      },
+      "rotation": {
+        "question": "Who writes the summaries and how do turns work?",
+        "answer": "Each school day a member writes the summary according to the class rotation, which skips days without lessons. After the bell, they prepare and publish the day. They can pass the turn if absent; if the day is still unpublished at 18:00, a classmate can take the turn."
+      },
+      "sources": {
+        "question": "Does Recapp replace the gradebook or Classroom?",
+        "answer": "No. ClasseViva, Classroom and Campus remain the reference sources. Recapp brings together what classmates report and does not sign in with school credentials. The note-taker can import text or cropped screenshots as drafts, which they must check before publishing."
+      },
+      "data": {
+        "question": "How is data used and where can I find the privacy notice?",
+        "answer": "Recapp uses nicknames, roles and class-submitted content to provide summaries and deadlines. PINs are stored as hashes, never as plain text. Uploaded crops have their metadata removed and must not contain grades, classmates’ names or faces. When AI extraction is configured, text or crops and subject context are used to prepare drafts for review. Read the privacy notice for details."
+      },
+      "team": {
+        "question": "Who created the project?",
+        "answer": "Recapp was built by three fourth-year Computer Science students at ITI G. Marconi in Verona for the CSC Back-to-School Hackathon. The creators section contains introductions provided by the team."
+      }
+    }
   }
 }

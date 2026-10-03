@@ -135,9 +135,10 @@ export default function Landing() {
       <footer className="border-t border-line bg-surface/60">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
           <span>{t('landing.footer')}</span>
-          <Link to="/privacy" className="font-semibold underline">
-            {t('landing.privacy')}
-          </Link>
+          <nav aria-label={t('landing.info_links')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/privacy" className="inline-flex min-h-11 items-center font-semibold underline">{t('landing.privacy')}</Link>
+            <Link to="/faq" className="inline-flex min-h-11 items-center font-semibold underline">{t('about.title')}</Link>
+          </nav>
         </div>
       </footer>
     </div>
