@@ -79,7 +79,7 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Nav icon micro-animations (see NavIcon.tsx). Only transforms, only on the icon.
+/* Nav icon and Recapp mark micro-animations (see NavIcon.tsx). Only transforms, only on the icon.
    Child selectors follow the lucide-react geometry of Sun, History, CalendarClock and Users. */
 .nav-icon {
   display: inline-flex;
@@ -132,6 +132,12 @@
   animation-delay: calc(var(--nav-icon-ms) * 0.3);
 }
 
+/* Recapp mark: the stack of pages riffles, tipping back from its bottom corner and settling. */
+.nav-icon[data-motion='logo'][data-playing] img {
+  transform-origin: 15% 90%;
+  animation: nav-riffle var(--nav-icon-ms) cubic-bezier(0.33, 1, 0.68, 1);
+}
+
 @keyframes nav-pulse {
   50% { transform: scale(1.12); }
 }
@@ -155,10 +161,15 @@
 @keyframes nav-hop {
   45% { transform: translateY(-2px); }
 }
+@keyframes nav-riffle {
+  40% { transform: rotate(-8deg) scale(1.08); }
+  75% { transform: rotate(2deg); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .nav-icon svg,
-  .nav-icon svg > * {
+  .nav-icon svg > *,
+  .nav-icon img {
     animation: none !important;
   }
 }
