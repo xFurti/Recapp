@@ -204,11 +204,11 @@ Non in ora (telefono spento). Sì **dopo le 16:30**.
 
 Ordine di costo:
 
-1. **Telegram** — un bot, un gruppo classe, un messaggio: “Ieri è online” / “verifica Mate tra 2 giorni”  
+1. **Telegram** — un bot, un gruppo classe, un messaggio: “Recapp è online” / “verifica Mate tra 2 giorni”  
 2. Email — più attrito (spam, scuola)  
 3. Push native — no, non c’è tempo
 
-Il bot non legge il registro. Legge **solo** ciò che è già in Ieri.
+Il bot non legge il registro. Legge **solo** ciò che è già in Recapp.
 
 n8n: usatelo solo se lo riscattate. Altrimenti un cron FastAPI / un Render Workflow.
 
@@ -287,7 +287,7 @@ Screenshot-OCR e Telegram: **dopo** il video, se avanzano ore. Non prima del for
 ## 11. Demo 60 secondi (EN)
 
 > At our school homework lives in ClasseViva, files in Classroom, notes on Campus.  
-> I missed lab on Tuesday. I open Yesterday: the repo, the command that broke, math test Friday.  
+> I missed lab on Tuesday. I open Recapp: the repo, the command that broke, math test Friday.  
 > We don’t log into those three apps. The class writes one card.
 
 Criteri CSC: Impact (tre canali + lab), Learning (perché l’aggregatore ufficiale è un vicolo cieco), Functionality (due tab che si aprono).

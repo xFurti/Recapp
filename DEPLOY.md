@@ -1,6 +1,6 @@
 # Deploy (fase F5)
 
-Checklist per mettere online Ieri su `https://bassaleo.xyz`. Le chiavi vanno **solo** nel file
+Checklist per mettere online Recapp su `https://bassaleo.xyz`. Le chiavi vanno **solo** nel file
 `.env` (in locale) e nelle Environment Variables di Render: mai nel repository e mai in chat.
 
 ## 0. Prima di tutto

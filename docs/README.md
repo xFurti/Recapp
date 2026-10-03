@@ -1,6 +1,6 @@
 # Documentazione tecnica
 
-Documenti per il team: come è fatto Ieri, perché è fatto così e cosa tenere d'occhio. Il
+Documenti per il team: come è fatto Recapp, perché è fatto così e cosa tenere d'occhio. Il
 [README principale](../README.md) è la presentazione pubblica in inglese per i giudici.
 
 | Documento | Cosa trovi |
