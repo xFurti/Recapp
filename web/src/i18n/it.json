@@ -450,7 +450,12 @@
     "delete_confirm": "Eliminare questo messaggio?",
     "empty": "Nessuna risposta per ora.",
     "open_corrections_one": "{{count}} correzione da vedere",
-    "open_corrections_other": "{{count}} correzioni da vedere"
+    "open_corrections_other": "{{count}} correzioni da vedere",
+    "delete_description": "Il messaggio verrà rimosso dalla conversazione.",
+    "delete_action": "Elimina messaggio",
+    "deleting": "Eliminazione…",
+    "deleted": "Messaggio eliminato",
+    "delete_error": "Non è stato possibile eliminare il messaggio. Riprova o chiudi questa finestra."
   },
   "update": {
     "preparing": "Stiamo preparando un aggiornamento. Puoi continuare a usare Recapp.",
