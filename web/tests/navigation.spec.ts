@@ -62,7 +62,7 @@ for (const mobile of [false, true]) {
     await expect(nav.getByRole('link', { name: 'In arrivo' })).toHaveAttribute('aria-current', 'page')
     expect(await nav.locator('.section-nav-indicator').evaluate(el => el.getAnimations().length)).toBe(0)
     await aligned(nav)
-    for (const name of ['Editor', 'Materia', 'Archivio']) {
+    for (const name of ['Editor', 'Materia', 'Archivio', 'URL con slash finale']) {
       await page.getByRole('link', { name, exact: true }).click()
       await expect(nav.locator('[aria-current="page"]')).toHaveCount(0)
       await expect(nav.locator('.section-nav-indicator')).toBeHidden()

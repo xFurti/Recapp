@@ -1,7 +1,7 @@
 import { CalendarClock, History, Sun, Users, type LucideIcon } from 'lucide-react'
 import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
-import { matchPath, NavLink, useLocation } from 'react-router'
+import { NavLink, useLocation } from 'react-router'
 import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
 
 type NavEntry = { to: string; icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
@@ -38,7 +38,12 @@ export function ClassNavigation({ code, mobile = false }: { code: string; mobile
   const { pathname } = useLocation()
   const base = `/c/${code}`
   const paths = NAV.map((entry) => entry.to ? `${base}/${entry.to}` : base)
-  const selected = NAV.findIndex((entry, index) => matchPath({ path: paths[index], end: entry.end ?? false }, pathname))
+  // Match NavLink's exact/end and segment-boundary rules, including trailing slashes.
+  const current = pathname.toLowerCase()
+  const selected = NAV.findIndex((entry, index) => {
+    const target = paths[index].toLowerCase()
+    return current === target || (!entry.end && current.startsWith(`${target}/`))
+  })
   return (
     <nav
       aria-label={t('nav.sections')}

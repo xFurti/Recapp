@@ -20,7 +20,8 @@ function Preview() {
     <h1>{pathname}</h1>
     <Link to="/c/TEST/scrivi/2026-10-03">Editor</Link>{' '}
     <Link to="/c/TEST/materia/MAT">Materia</Link>{' '}
-    <Link to="/c/TEST/giorni">Archivio</Link>
+    <Link to="/c/TEST/giorni">Archivio</Link>{' '}
+    <Link to="/c/TEST/">URL con slash finale</Link>
   </AppShell>
 }
 createRoot(document.getElementById('root')!).render(<StrictMode><QueryClientProvider client={new QueryClient()}><BrowserRouter><Preview /></BrowserRouter></QueryClientProvider></StrictMode>)
