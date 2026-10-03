@@ -1,40 +1,40 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Monitor, Moon, School, Sun, SunMedium, Users } from 'lucide-react'
+import { CalendarClock, Clock, Delete, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, type LucideIcon } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
+import recappIcon from '../assets/recapp-icon.png'
+import recappWord from '../assets/recapp-wordmark.png'
 import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { getTheme, setTheme, type ThemeChoice } from '../lib/theme'
-import { Avatar, Button, Field, inputClass, Modal, Stairs, useDismiss } from './ui'
+import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { Avatar, Button, Field, inputClass, Modal, useDismiss } from './ui'
 
 export function Logo({ className = 'h-9' }: { className?: string }) {
   return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
 }
 
-/** Text mark until the final Recapp logo arrives. */
 export function Wordmark({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
-  const sizes = { sm: 'text-lg', md: 'text-xl', lg: 'text-3xl' }
+  const heights = { sm: 'h-7', md: 'h-8', lg: 'h-11' }
   return (
-    <span className={`inline-flex items-center gap-1.5 font-extrabold tracking-tight text-bordeaux ${sizes[size]}`}>
-      <Stairs className="h-[0.9em]" />
-      Recapp
+    <span className={`inline-flex items-center gap-2 ${heights[size]}`}>
+      <img src={recappIcon} alt="" className="h-full w-auto" />
+      <img src={recappWord} alt="Recapp" className="h-[70%] w-auto dark:invert" />
     </span>
   )
 }
 
-const THEME_ORDER: ThemeChoice[] = ['system', 'light', 'dark']
-
 export function ThemeToggle() {
   const { t } = useTranslation()
   const [choice, setChoice] = useState<ThemeChoice>(getTheme)
-  const Icon = choice === 'dark' ? Moon : choice === 'light' ? SunMedium : Monitor
+  const Icon = choice === 'dark' ? Moon : SunMedium
   const next = () => {
-    const value = THEME_ORDER[(THEME_ORDER.indexOf(choice) + 1) % THEME_ORDER.length]
+    const value: ThemeChoice = choice === 'dark' ? 'light' : 'dark'
     setTheme(value)
     setChoice(value)
   }
@@ -211,12 +211,25 @@ function ChangePinModal({ open, onClose }: { open: boolean; onClose: () => void 
   )
 }
 
-const NAV = [
-  { to: '', icon: Sun, key: 'nav.today', end: true },
-  { to: 'ieri', icon: History, key: 'nav.yesterday' },
-  { to: 'in-arrivo', icon: CalendarClock, key: 'nav.upcoming' },
-  { to: 'classe', icon: Users, key: 'nav.class' },
+type NavEntry = { to: string; icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
+
+const NAV: NavEntry[] = [
+  { to: '', icon: Sun, motion: 'today', key: 'nav.today', end: true },
+  { to: 'ieri', icon: History, motion: 'yesterday', key: 'nav.yesterday' },
+  { to: 'in-arrivo', icon: CalendarClock, motion: 'upcoming', key: 'nav.upcoming' },
+  { to: 'classe', icon: Users, motion: 'class', key: 'nav.class' },
 ]
+
+function NavItem({ entry, base, className, iconClass }: { entry: NavEntry; base: string; className: (isActive: boolean) => string; iconClass: string }) {
+  const { t } = useTranslation()
+  const { playing, triggers } = useNavIconMotion()
+  return (
+    <NavLink to={entry.to ? `${base}/${entry.to}` : base} end={entry.end} className={({ isActive }) => className(isActive)} {...triggers}>
+      <NavIcon icon={entry.icon} motion={entry.motion} playing={playing} className={iconClass} />
+      {t(entry.key)}
+    </NavLink>
+  )
+}
 
 export function AppShell({ info, children }: { info: ClassInfo; children: ReactNode }) {
   const { t } = useTranslation()
@@ -231,17 +244,15 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         </Link>
         <nav className="flex flex-col gap-1">
           {NAV.map((n) => (
-            <NavLink
+            <NavItem
               key={n.key}
-              to={n.to ? `${base}/${n.to}` : base}
-              end={n.end}
-              className={({ isActive }) =>
+              entry={n}
+              base={base}
+              iconClass="size-5"
+              className={(isActive) =>
                 `flex items-center gap-3 rounded-xl px-3 py-2.5 font-semibold transition ${isActive ? 'bg-bordeaux-soft text-bordeaux' : 'text-muted hover:bg-ink/5 hover:text-ink'}`
               }
-            >
-              <n.icon className="size-5" />
-              {t(n.key)}
-            </NavLink>
+            />
           ))}
         </nav>
         <p className="mt-auto text-xs text-muted">{t('landing.footer')}</p>
@@ -257,7 +268,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           )}
           <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
             <Link to={base} className="shrink-0 md:hidden" aria-label="Recapp">
-              <Stairs className="h-6" />
+              <img src={recappIcon} alt="" className="h-7 w-auto" />
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
@@ -278,15 +289,13 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-4">
           {NAV.map((n) => (
-            <NavLink
+            <NavItem
               key={n.key}
-              to={n.to ? `${base}/${n.to}` : base}
-              end={n.end}
-              className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold ${isActive ? 'text-bordeaux' : 'text-muted'}`}
-            >
-              <n.icon className="size-6" />
-              {t(n.key)}
-            </NavLink>
+              entry={n}
+              base={base}
+              iconClass="size-6"
+              className={(isActive) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold ${isActive ? 'text-bordeaux' : 'text-muted'}`}
+            />
           ))}
         </div>
       </nav>

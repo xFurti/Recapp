@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, Eye, FlaskConical, ImagePlus, Plus, Sparkles, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Eye, FlaskConical, ImagePlus, LoaderCircle, Plus, Sparkles, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -731,7 +731,12 @@ function AiSources({
           <ImagePlus className="size-4" /> {t('editor.upload')}
         </Button>
       </div>
-      {busy && <p className="mt-3 text-sm font-medium text-viola-ink">{t('editor.reading')}</p>}
+      {busy && (
+        <p className="mt-3 flex items-center gap-2 text-sm font-medium text-viola-ink" role="status">
+          <LoaderCircle className="size-4 animate-spin" aria-hidden />
+          {t('editor.reading')}
+        </p>
+      )}
       {error && <p className="mt-3 text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
       {message && <p className="mt-3 rounded-lg bg-giallo-soft px-3 py-2 text-xs">{message}</p>}
       {done && !busy && <p className="mt-3 text-sm text-muted">{t('editor.no_drafts')}</p>}

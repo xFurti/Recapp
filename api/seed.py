@@ -14,7 +14,7 @@ from typing import Optional
 from sqlmodel import Session, col, delete, select
 
 from . import db
-from .auth import check_secret, hash_secret, new_class_code, new_invite_code
+from .auth import check_secret, hash_secret, new_class_code, new_invite_code, random_code
 from .config import TZ, settings
 from .models import (
     Attachment,
@@ -204,20 +204,7 @@ def _restore_demo_members(session: Session, classroom: Classroom) -> list[Member
     return members
 
 
-def ensure_demo(session: Session, today: Optional[date] = None, force: bool = False) -> Classroom:
-    """Rebuilds the shared demo class from scratch once a day (or when forced)."""
-    today = today or datetime.now(TZ).date()
-    classroom = session.exec(select(Classroom).where(Classroom.code == DEMO_CODE)).first()
-    if classroom is None:
-        classroom = Classroom(
-            code=DEMO_CODE, name="DEMO", label="Demo class · 4ª BI", is_demo=True, rotation_anchor=today,
-        )
-        session.add(classroom)
-        session.flush()
-        force = True
-    if not force and classroom.demo_seeded_on == today:
-        return classroom
-
+def _rebuild_demo(session: Session, classroom: Classroom, today: date) -> Classroom:
     _wipe_demo(session, classroom)
     add_subjects(session, classroom.id)
     add_timetable(session, classroom.id, "4BI")
@@ -225,6 +212,7 @@ def ensure_demo(session: Session, today: Optional[date] = None, force: bool = Fa
     classroom.label = "Demo class · 4ª BI"
     classroom.rotation_anchor = today
     classroom.demo_seeded_on = today
+    classroom.demo_seen_on = today
     session.add(classroom)
     session.commit()
     for m in members:
@@ -289,6 +277,60 @@ def ensure_demo(session: Session, today: Optional[date] = None, force: bool = Fa
     return classroom
 
 
+def ensure_demo(session: Session, today: Optional[date] = None, force: bool = False) -> Classroom:
+    """Rebuilds the shared demo class from scratch once a day (or when forced)."""
+    today = today or datetime.now(TZ).date()
+    classroom = session.exec(select(Classroom).where(Classroom.code == DEMO_CODE)).first()
+    if classroom is None:
+        classroom = Classroom(
+            code=DEMO_CODE, name="DEMO", label="Demo class · 4ª BI", is_demo=True, rotation_anchor=today,
+        )
+        session.add(classroom)
+        session.flush()
+        force = True
+    if not force and classroom.demo_seeded_on == today:
+        return classroom
+    return _rebuild_demo(session, classroom, today)
+
+
+def open_private_demo(session: Session, token: str) -> Classroom:
+    """One demo classroom per browser. A second device gets its own copy."""
+    today = datetime.now(TZ).date()
+    classroom = session.exec(select(Classroom).where(Classroom.demo_token == token)).first()
+    if classroom is None:
+        code = f"D-{random_code(4)}"
+        while session.exec(select(Classroom).where(Classroom.code == code)).first():
+            code = f"D-{random_code(4)}"
+        classroom = Classroom(
+            code=code, name="DEMO", label="Demo class · 4ª BI", is_demo=True,
+            rotation_anchor=today, demo_token=token,
+        )
+        session.add(classroom)
+        session.flush()
+        return _rebuild_demo(session, classroom, today)
+    if classroom.demo_seeded_on != today:
+        return _rebuild_demo(session, classroom, today)
+    classroom.demo_seen_on = today
+    session.add(classroom)
+    session.commit()
+    return classroom
+
+
+def purge_private_demos(session: Session, days: int = 7) -> None:
+    cutoff = datetime.now(TZ).date() - timedelta(days=days)
+    rows = session.exec(
+        select(Classroom).where(Classroom.is_demo == True, Classroom.code != DEMO_CODE)  # noqa: E712
+    ).all()
+    for classroom in rows:
+        seen = classroom.demo_seen_on or (classroom.created_at.date() if classroom.created_at else cutoff)
+        if seen >= cutoff:
+            continue
+        _wipe_demo(session, classroom)
+        session.exec(delete(Member).where(Member.class_id == classroom.id))
+        session.delete(classroom)
+    session.commit()
+
+
 def run_startup_seed() -> None:
     from .routes.media import cleanup_orphans
 
@@ -298,6 +340,7 @@ def run_startup_seed() -> None:
         ensure_owner(session)
         ensure_real_classes(session)
         ensure_demo(session)
+        purge_private_demos(session)
         cleanup_orphans(session)
 
 

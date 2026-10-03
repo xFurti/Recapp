@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlmodel import Session, select
 
 from ..auth import (
-    Viewer,
     check_secret,
     clear_session_cookie,
     ensure_not_locked,
@@ -12,16 +11,19 @@ from ..auth import (
     get_viewer,
     hash_secret,
     normalize_invite,
+    random_code,
     register_failure,
     register_success,
     set_session_cookie,
     validate_pin,
+    Viewer,
 )
 from ..db import get_session
 from ..limits import allow, client_ip
 from ..models import Member, Owner
 from ..schemas import ActivateIn, ChangePinIn, LoginIn, OwnerLoginIn
-from ..seed import DEMO_CODE, ensure_demo
+from ..config import settings
+from ..seed import DEMO_CODE, ensure_demo, open_private_demo
 from ..services import avatar_color, classroom_out
 
 router = APIRouter(prefix="/api")
@@ -105,6 +107,28 @@ def demo_login(response: Response, session: Session = Depends(get_session)):
         raise HTTPException(500, "Demo non disponibile")
     set_session_cookie(response, "m", leo.id, leo.session_version)
     return {"ok": True, "code": DEMO_CODE}
+
+
+@router.post("/auth/demo/mine")
+def private_demo_login(request: Request, response: Response, session: Session = Depends(get_session)):
+    token = request.cookies.get("ieri_demo") or random_code(16)
+    classroom = open_private_demo(session, token)
+    leo = session.exec(
+        select(Member).where(Member.class_id == classroom.id, Member.nick == "leo")
+    ).first()
+    if leo is None:
+        raise HTTPException(500, "Demo non disponibile")
+    response.set_cookie(
+        "ieri_demo",
+        token,
+        max_age=60 * 60 * 24 * 30,
+        httponly=True,
+        samesite="lax",
+        secure=settings.secure_cookies,
+        path="/",
+    )
+    set_session_cookie(response, "m", leo.id, leo.session_version)
+    return {"ok": True, "code": classroom.code, "label": classroom.label, "member_id": leo.id, "nick": leo.nick}
 
 
 @router.post("/auth/logout")

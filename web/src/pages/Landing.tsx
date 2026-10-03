@@ -5,8 +5,9 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
 import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
-import { Button, inputClass, Stairs } from '../components/ui'
+import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
+import { getRecent, rememberClass } from '../lib/recent'
 
 export default function Landing() {
   const { t } = useTranslation()
@@ -36,9 +37,10 @@ export default function Landing() {
   const demo = async () => {
     setBusy('demo')
     try {
-      await api.post('/auth/demo')
+      const res = await api.post<{ code: string; label: string; member_id: number; nick: string }>('/auth/demo/mine')
+      rememberClass({ code: res.code, label: res.label, memberId: res.member_id, nick: res.nick })
       await qc.invalidateQueries()
-      navigate('/c/DEMO')
+      navigate(`/c/${res.code}`)
     } catch (err) {
       setError((err as Error).message)
       setBusy(null)
@@ -46,6 +48,7 @@ export default function Landing() {
   }
 
   const current = me.data?.kind === 'member' ? me.data.classroom : null
+  const recent = current ? null : getRecent()
 
   const features = [
     { icon: History, title: t('landing.f1_title'), text: t('landing.f1_text'), color: 'text-bordeaux bg-bordeaux-soft' },
@@ -56,7 +59,7 @@ export default function Landing() {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-4">
-        <span className="flex items-center gap-3"><Wordmark size="lg" /><Logo className="h-9" /></span>
+        <Logo className="h-10" />
         <div className="flex items-center gap-2">
           <Link to="/scuola" className="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-muted hover:text-ink">
             <School className="size-4" /> {t('landing.school')}
@@ -68,7 +71,7 @@ export default function Landing() {
 
       <main className="mx-auto grid w-full max-w-5xl flex-1 items-center gap-10 px-5 pb-10 pt-4 md:grid-cols-[1.1fr_1fr]">
         <section>
-          <Stairs className="mb-6 h-10" />
+          <div className="mb-6"><Wordmark size="lg" /></div>
           <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">{t('landing.title')}</h1>
           <p className="mt-4 max-w-lg text-lg text-muted">{t('landing.subtitle')}</p>
           <ul className="mt-8 space-y-4">
@@ -90,6 +93,11 @@ export default function Landing() {
           {current && (
             <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${current.code}`)}>
               {t('landing.continue', { name: current.label })} <ArrowRight className="size-4" />
+            </Button>
+          )}
+          {!current && recent && (
+            <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${recent.code}/entra?m=${recent.memberId}`)}>
+              {t('landing.rejoin', { name: recent.label })} <ArrowRight className="size-4" />
             </Button>
           )}
           <form onSubmit={enter}>

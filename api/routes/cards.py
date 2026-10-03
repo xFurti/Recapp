@@ -185,7 +185,7 @@ def get_card_page(day: date, request: Request, access: ClassAccess = Depends(cla
     return {
         "state": state.as_dict(),
         "card": card_out(session, card) if visible else None,
-        "lessons": [b.as_dict() for b in cal.lessons(day)],
+        "lessons": [b.as_dict(cal.hour_times()) for b in cal.lessons(day)],
         "next_lessons": cal.next_lessons(day),
         "prev_published": prev_pub.isoformat() if prev_pub else None,
         "next_published": next_pub.isoformat() if next_pub else None,

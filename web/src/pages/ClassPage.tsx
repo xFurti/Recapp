@@ -9,7 +9,7 @@ import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, M
 import { todayIso } from '../lib/clock'
 import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass } from '../queries'
-import type { Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
+import type { HourSlot, Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
 import { DemoWeekendNote, isWeekend } from './Today'
 
 type Tab = 'members' | 'turns' | 'timetable'
@@ -335,6 +335,8 @@ function weekdayName(i: number, lang: string, style: 'short' | 'long' = 'long') 
 
 type Slot = TimetableData['slots'][number]
 
+const ZONES = ['Europe/Rome', 'Europe/Berlin', 'Europe/Paris', 'Europe/Madrid', 'Europe/London', 'UTC']
+
 function Timetable() {
   const info = useClass()
   const { t, i18n } = useTranslation()
@@ -342,12 +344,20 @@ function Timetable() {
   const qc = useQueryClient()
   const tt = useQuery({ queryKey: ['timetable', info.code], queryFn: () => api.get<TimetableData>(classPath(info.code, '/timetable')) })
   const [editing, setEditing] = useState<Slot[] | null>(null)
+  const [hours, setHours] = useState<HourSlot[] | null>(null)
+  const [timezone, setTimezone] = useState('Europe/Rome')
   const [cell, setCell] = useState<{ weekday: number; hour: number } | null>(null)
   const [saved, setSaved] = useState(false)
   const save = useMutation({
-    mutationFn: (slots: Slot[]) => api.put(classPath(info.code, '/timetable'), { slots: slots.map(({ weekday, hour, subject_code, room }) => ({ weekday, hour, subject_code, room })) }),
+    mutationFn: (body: { slots: Slot[]; hours: HourSlot[]; timezone: string }) =>
+      api.put(classPath(info.code, '/timetable'), {
+        slots: body.slots.map(({ weekday, hour, subject_code, room }) => ({ weekday, hour, subject_code, room })),
+        hours: body.hours,
+        timezone: body.timezone,
+      }),
     onSuccess: () => {
       setEditing(null)
+      setHours(null)
       setSaved(true)
       qc.invalidateQueries({ predicate: (q) => ['timetable', 'today', 'card'].includes(String(q.queryKey[0])) })
     },
@@ -356,8 +366,19 @@ function Timetable() {
   if (tt.error) return <ErrorBox error={tt.error} />
   const data = tt.data!
   const slots = editing ?? data.slots
+  const rows = hours ?? data.hours
   const at = (w: number, h: number) => slots.find((s) => s.weekday === w && s.hour === h)
   const hasAny = slots.length > 0
+
+  const startEdit = () => {
+    setEditing(data.slots)
+    setHours(data.hours.map((h) => ({ ...h })))
+    setTimezone(data.timezone || 'Europe/Rome')
+    setSaved(false)
+  }
+  const setHour = (hour: number, field: 'start' | 'end', value: string) => {
+    setHours((prev) => (prev ?? data.hours).map((h) => (h.hour === hour ? { ...h, [field]: value } : h)))
+  }
 
   const setSlot = (w: number, h: number, subject: string | null, room: string) => {
     setEditing((prev) => {
@@ -372,17 +393,37 @@ function Timetable() {
         <p className="text-sm text-muted">{t('class.tt_lab_hint')}</p>
         {data.can_edit && info.is_demo && <p className="text-xs text-muted">{t('class.demo_locked')}</p>}
         {data.can_edit && !info.is_demo && !editing && (
-          <Button size="sm" variant="secondary" onClick={() => { setEditing(data.slots); setSaved(false) }}>
+          <Button size="sm" variant="secondary" onClick={startEdit}>
             <Pencil className="size-4" /> {t('class.tt_edit')}
           </Button>
         )}
         {editing && (
           <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>{t('common.cancel')}</Button>
-            <Button size="sm" onClick={() => save.mutate(editing)} loading={save.isPending}>{t('class.tt_save')}</Button>
+            <Button size="sm" variant="ghost" onClick={() => { setEditing(null); setHours(null) }}>{t('common.cancel')}</Button>
+            <Button size="sm" onClick={() => editing && save.mutate({ slots: editing, hours: hours ?? data.hours, timezone })} loading={save.isPending}>{t('class.tt_save')}</Button>
           </div>
         )}
       </div>
+      {editing && hours && (
+        <div className="mb-4 space-y-3 rounded-2xl border border-line bg-surface p-3">
+          <label className="block max-w-xs">
+            <span className="mb-1 block text-sm font-semibold">{t('class.tt_timezone')}</span>
+            <select className={inputClass} value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+              {ZONES.map((z) => <option key={z} value={z}>{z === 'Europe/Rome' ? `Roma (${z})` : z}</option>)}
+            </select>
+          </label>
+          <p className="text-sm font-semibold">{t('class.tt_bell')}</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {hours.map((h) => (
+              <div key={h.hour} className="flex items-center gap-2">
+                <span className="w-8 text-sm font-bold">{h.hour}ª</span>
+                <input type="time" className={inputClass} value={h.start} onChange={(e) => setHour(h.hour, 'start', e.target.value)} />
+                <input type="time" className={inputClass} value={h.end} onChange={(e) => setHour(h.hour, 'end', e.target.value)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {saved && <p className="mb-2 text-sm font-semibold text-verde-ink">{t('class.tt_saved')}</p>}
       {save.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
       {!hasAny && !editing && <Card><EmptyState title={t('today.no_lessons')} /></Card>}
@@ -398,7 +439,7 @@ function Timetable() {
               </tr>
             </thead>
             <tbody>
-              {data.hours.map((h) => (
+              {rows.map((h) => (
                 <tr key={h.hour}>
                   <td className="pr-1 text-right align-middle text-xs text-muted">
                     <span className="block font-bold text-ink">{h.hour}ª</span>

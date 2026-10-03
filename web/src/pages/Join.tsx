@@ -7,6 +7,7 @@ import { api } from '../api'
 import { LangToggle, Logo, ThemeToggle, Wordmark, PinPad } from '../components/shell'
 import { Avatar, Badge, Button, EmptyState, ErrorBox, Field, inputClass, Spinner } from '../components/ui'
 import { useMe } from '../queries'
+import { rememberClass } from '../lib/recent'
 import type { PublicClass } from '../types'
 
 export default function Join() {
@@ -32,6 +33,9 @@ export default function Join() {
   const member = cls.data?.members.find((m) => m.id === selected)
 
   const done = async () => {
+    if (member && cls.data) {
+      rememberClass({ code: cls.data.code, label: cls.data.label, memberId: member.id, nick: member.nick })
+    }
     await qc.invalidateQueries()
     navigate(`/c/${cls.data?.code ?? code}`, { replace: true })
   }

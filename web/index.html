@@ -11,8 +11,7 @@
     <title>Recapp</title>
     <script>
       try {
-        var t = localStorage.getItem('ieri.theme')
-        if (t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (localStorage.getItem('ieri.theme') === 'dark') {
           document.documentElement.classList.add('dark')
         }
       } catch (e) {}

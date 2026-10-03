@@ -11,7 +11,7 @@ import { todayIso } from '../lib/clock'
 import { capitalize, longDay, relativeDay, shortDay } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { CardPage, CardSummary } from '../types'
-import { SubjectChips } from './SubjectPage'
+import { SubjectMenu } from './SubjectPage'
 
 function DayView({ day }: { day: string }) {
   const info = useClass()
@@ -36,10 +36,7 @@ function DayView({ day }: { day: string }) {
           <List className="size-4" /> {t('day.all_days')}
         </Link>
       </div>
-      <div>
-        <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-muted">{t('subject.by_subject')}</p>
-        <SubjectChips />
-      </div>
+      <SubjectMenu />
       {data.card && data.card.status === 'published' ? (
         <>
           <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} classInfo={info} canShare={info.viewer.can_manage || info.viewer.member?.id === data.card.author?.id} />
@@ -96,7 +93,7 @@ export function DaysList() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold tracking-tight">{t('day.days_title')}</h1>
-      <SubjectChips />
+      <SubjectMenu />
       {list.isLoading && <Spinner />}
       {list.error && <ErrorBox error={list.error} />}
       {list.data?.length === 0 && (

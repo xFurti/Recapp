@@ -1,4 +1,4 @@
-# Yesterday Pack (`Ieri`)
+# Recapp
 
 Team: 3 · ITI Marconi Verona, 4ª Informatica  
 Hackathon: [CSC Back-to-School](https://csc-back-to-school.devpost.com/) · submit **domenica 4 ottobre 2026, sera Italia**  
@@ -54,7 +54,7 @@ WhatsApp non li unisce. Il registro non spiega il lab. Classroom non sa la verif
 | Screenshot come *aiuto* al redattore | Login con le password Spaggiari |
 | Pilota di una classe | Portale ufficiale dell’istituto |
 
-Nome di lavoro: **Ieri**. EN: **Yesterday Pack**.
+Nome: **Recapp**.
 
 ---
 
@@ -249,7 +249,7 @@ Render  (live entro 1 ott)  +  .xyz
 ```
 
 ```
-yesterday-pack/
+Recapp/
   README.md          inglese
   web/
   api/

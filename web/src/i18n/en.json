@@ -36,6 +36,7 @@
     "demo_hint": "You join as leo, today's note-taker in the demo class.",
     "school": "School area",
     "continue": "Continue in {{name}}",
+    "rejoin": "Back to {{name}}",
     "not_found": "Class not found. Check the code.",
     "f1_title": "Yesterday",
     "f1_text": "One card per day: subjects, lab work, the trap to avoid and what to bring.",
@@ -356,6 +357,8 @@
     "tt_room": "Room",
     "tt_free": "Free",
     "tt_cell": "{{day}}, hour {{hour}}",
+    "tt_timezone": "Time zone",
+    "tt_bell": "Lesson times",
     "demo_locked": "Not available in the demo"
   },
   "school": {
@@ -363,6 +366,8 @@
     "sub": "For the headteacher and staff: see every class and what they publish.",
     "username": "Username",
     "password": "Password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
     "login": "Sign in",
     "classes": "Classes",
     "demo_badge": "demo",
@@ -408,7 +413,6 @@
   },
   "theme": {
     "label": "Theme: {{mode}}",
-    "system": "system",
     "light": "light",
     "dark": "dark"
   },

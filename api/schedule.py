@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from .config import TZ
 from .models import Classroom, Holiday, Member, ScribeOverride, Subject, TimetableSlot
-from .school_data import HOURS, SCHOOL_YEAR_END, SCHOOL_YEAR_START
+from .school_data import HOURS, SCHOOL_YEAR_END, SCHOOL_YEAR_START, bell_hours
 
 TAKEOVER_AT = time(18, 0)
 HOUR_TIMES = {h["hour"]: (h["start"], h["end"]) for h in HOURS}
@@ -25,13 +25,14 @@ class LessonBlock:
             return str(self.hours[0])
         return f"{self.hours[0]}-{self.hours[-1]}"
 
-    def as_dict(self) -> dict:
+    def as_dict(self, times: Optional[dict] = None) -> dict:
+        table = times if times is not None else HOUR_TIMES
         return {
             "subject_code": self.subject_code,
             "hours": self.hours,
             "hours_label": self.hours_label,
-            "start": HOUR_TIMES.get(self.hours[0], ("", ""))[0],
-            "end": HOUR_TIMES.get(self.hours[-1], ("", ""))[1],
+            "start": table.get(self.hours[0], ("", ""))[0],
+            "end": table.get(self.hours[-1], ("", ""))[1],
             "room": self.room,
             "is_lab": self.is_lab,
         }
@@ -126,6 +127,9 @@ class ClassCalendar:
                 by_day.setdefault(r.weekday, []).append(r)
             self._slots = by_day
         return self._slots
+
+    def hour_times(self) -> dict[int, tuple[str, str]]:
+        return {int(h["hour"]): (h["start"], h["end"]) for h in bell_hours(self.classroom.hours)}
 
     def timetable_weekday(self, d: date) -> int:
         wd = d.weekday()

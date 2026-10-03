@@ -34,6 +34,19 @@ def test_health(client):
     assert client.get("/api/healthz").json()["ok"] is True
 
 
+def test_private_demos_stay_apart(client):
+    second = make_client()
+    a = client.post("/api/auth/demo/mine")
+    b = second.post("/api/auth/demo/mine")
+    assert a.status_code == 200 and b.status_code == 200
+    assert a.json()["code"] != b.json()["code"]
+    assert a.json()["code"] != "DEMO"
+    again = client.post("/api/auth/demo/mine")
+    assert again.json()["code"] == a.json()["code"]
+    shared = make_client().post("/api/auth/demo")
+    assert shared.json()["code"] == "DEMO"
+
+
 def test_html_is_not_cached(client):
     from api.app import cache_control_for
 

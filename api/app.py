@@ -21,7 +21,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="Yesterday Pack (Ieri) API",
+    title="Recapp API",
     version="0.1.0",
     lifespan=lifespan,
     docs_url="/docs" if settings.is_dev else None,

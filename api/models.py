@@ -17,6 +17,10 @@ class Classroom(SQLModel, table=True):
     is_demo: bool = False
     rotation_anchor: date
     demo_seeded_on: Optional[date] = None
+    demo_token: Optional[str] = Field(default=None, index=True)
+    demo_seen_on: Optional[date] = None
+    timezone: str = "Europe/Rome"
+    hours: Optional[list] = Field(default=None, sa_column=Column(JSON))
     created_at: datetime = Field(default_factory=utcnow)
 
 

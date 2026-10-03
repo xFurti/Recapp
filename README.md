@@ -1,4 +1,4 @@
-# Yesterday Pack (Ieri)
+# Recapp
 
 **Three school apps. One card. Missed a day? Open yesterday, and see what's due next.**
 

@@ -148,9 +148,25 @@ class SubjectIn(BaseModel):
     color: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")
 
 
+class HourIn(BaseModel):
+    hour: int = Field(ge=1, le=12)
+    start: str
+    end: str
+
+    @field_validator("start", "end")
+    @classmethod
+    def _clock(cls, v: str) -> str:
+        v = (v or "").strip()[:5]
+        if not TIME_RE.match(v):
+            raise ValueError("Ora non valida")
+        return v
+
+
 class TimetableIn(BaseModel):
     slots: list[SlotIn] = Field(max_length=35)
     subjects: Optional[list[SubjectIn]] = Field(None, max_length=20)
+    hours: Optional[list[HourIn]] = Field(None, max_length=12)
+    timezone: Optional[str] = None
 
 
 class MemberIn(BaseModel):

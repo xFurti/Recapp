@@ -3,6 +3,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 import bcrypt
 from fastapi import Depends, HTTPException, Request, Response
@@ -207,14 +208,23 @@ def class_access(
     return ClassAccess(classroom, viewer)
 
 
+def class_zone(classroom: Optional[Classroom]):
+    name = classroom.timezone if classroom is not None and classroom.timezone else "Europe/Rome"
+    try:
+        return ZoneInfo(name)
+    except Exception:
+        return TZ
+
+
 def request_now(request: Request, classroom: Optional[Classroom] = None) -> datetime:
-    """Current time in Europe/Rome. The X-Ieri-Now header can simulate another
-    time in development and in the demo class, to show every state of the day."""
+    """Current time in the class timezone (Rome by default). The X-Ieri-Now header
+    can simulate another time in development and in the demo class."""
+    zone = class_zone(classroom)
     raw = request.headers.get("x-ieri-now")
     if raw and (settings.is_dev or (classroom is not None and classroom.is_demo)):
         try:
             dt = datetime.fromisoformat(raw)
-            return dt if dt.tzinfo else dt.replace(tzinfo=TZ)
+            return dt if dt.tzinfo else dt.replace(tzinfo=zone)
         except ValueError:
             pass
-    return datetime.now(TZ)
+    return datetime.now(zone)

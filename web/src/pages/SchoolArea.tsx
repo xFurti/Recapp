@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, CalendarOff, LogOut, Plus, Trash2 } from 'lucide-react'
+import { ArrowRight, CalendarOff, Eye, EyeOff, LogOut, Plus, Trash2 } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -36,6 +36,7 @@ function OwnerLogin() {
   const qc = useQueryClient()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const login = useMutation({
     mutationFn: () => api.post('/owner/login', { username, password }),
     onSuccess: () => qc.invalidateQueries(),
@@ -53,7 +54,17 @@ function OwnerLogin() {
           <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
         </Field>
         <Field label={t('school.password')}>
-          <input className={inputClass} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+          <div className="relative">
+            <input className={`${inputClass} pr-11`} type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted hover:text-ink"
+              aria-label={t(showPassword ? 'school.hide_password' : 'school.show_password')}
+            >
+              {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
+          </div>
         </Field>
         {login.error && <p className="text-sm font-medium text-rosa-ink" role="alert">{(login.error as Error).message}</p>}
         <Button type="submit" className="w-full" loading={login.isPending}>{t('school.login')}</Button>

@@ -15,6 +15,10 @@ log = logging.getLogger("ieri.migrations")
 COLUMNS: list[tuple[str, str, str]] = [
     ("daycard", "revision", "INTEGER NOT NULL DEFAULT 0"),
     ("subjectentry", "attachment_ids", "JSON"),
+    ("classroom", "timezone", "VARCHAR NOT NULL DEFAULT 'Europe/Rome'"),
+    ("classroom", "hours", "JSON"),
+    ("classroom", "demo_token", "VARCHAR"),
+    ("classroom", "demo_seen_on", "DATE"),
 ]
 
 

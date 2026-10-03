@@ -10,12 +10,12 @@ Checklist per mettere online Ieri su `https://bassaleo.xyz`. Le chiavi vanno **s
 
 ## 1. Repository GitHub
 
-1. Crea il repo pubblico, es. `yesterday-pack`, **senza** README (c'è già).
+1. Crea il repo pubblico, es. `Recapp`, **senza** README (c'è già).
 2. In locale:
    ```bash
    git add -A
-   git commit -m "Yesterday Pack MVP"
-   git remote add origin git@github.com:<utente>/yesterday-pack.git
+   git commit -m "Recapp MVP"
+   git remote add origin git@github.com:<utente>/Recapp.git
    git push -u origin main
    ```
 3. Controlla su GitHub che non ci siano `.env`, `.dev_secret` o file `*.db`.

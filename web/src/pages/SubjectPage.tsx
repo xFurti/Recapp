@@ -1,37 +1,59 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowRight, ChevronDown } from 'lucide-react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { api } from '../api'
 import { EntryPhotos, LabBox } from '../components/day'
 import { ItemRow } from '../components/items'
-import { Avatar, Badge, Card, EmptyState, ErrorBox, Segmented, Spinner } from '../components/ui'
+import { Avatar, Badge, Card, EmptyState, ErrorBox, Segmented, Spinner, useDismiss } from '../components/ui'
 import { capitalize, relativeDay, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { SubjectEntryRow } from '../types'
 
 type Range = 'week' | '2weeks' | 'all'
 
-export function SubjectChips({ active }: { active?: string }) {
+export function SubjectMenu({ active }: { active?: string }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const close = useCallback(() => setOpen(false), [])
+  useDismiss(ref, open, close)
+  const current = info.subjects.find((s) => s.code === active)
+  const label = current ? subjectName(info.subjects, current.code, i18n.language) : t('subject.by_subject')
   return (
-    <nav aria-label={t('subject.by_subject')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-      {info.subjects.map((s) => (
-        <Link
-          key={s.code}
-          to={`/c/${info.code}/materia/${s.code}`}
-          aria-current={active === s.code ? 'page' : undefined}
-          className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition ${
-            active === s.code ? 'border-ink bg-ink text-paper' : 'border-line bg-surface hover:border-ink/40'
-          }`}
-        >
-          <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
-          {subjectName(info.subjects, s.code, i18n.language)}
-        </Link>
-      ))}
-    </nav>
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
+      >
+        <span className="size-2 rounded-full" style={{ backgroundColor: current?.color ?? 'transparent' }} aria-hidden />
+        {label}
+        <ChevronDown className={`size-4 text-muted transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <ul role="listbox" className="absolute z-20 mt-2 max-h-80 w-64 overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
+          {info.subjects.map((s) => (
+            <li key={s.code}>
+              <Link
+                to={`/c/${info.code}/materia/${s.code}`}
+                role="option"
+                aria-selected={active === s.code}
+                onClick={close}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${active === s.code ? 'bg-ink text-paper' : 'hover:bg-ink/5'}`}
+              >
+                <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                {subjectName(info.subjects, s.code, i18n.language)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -55,7 +77,7 @@ export default function SubjectPage() {
           {subjectName(info.subjects, subject, lang)}
         </h1>
       </div>
-      <SubjectChips active={subject} />
+      <SubjectMenu active={subject} />
       <Segmented
         value={range}
         onChange={setRange}

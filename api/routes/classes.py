@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session, col, delete, func, select
@@ -9,7 +10,7 @@ from ..config import settings
 from ..db import get_session
 from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem
 from ..schedule import ClassCalendar
-from ..school_data import HOURS, is_lab_room
+from ..school_data import bell_hours, is_lab_room
 from ..seed import DEMO_NICKS
 from ..schemas import DayIn, MemberIn, MemberPatch, RotationOrderIn, SwapIn, TimetableIn
 from ..services import (
@@ -35,7 +36,7 @@ def class_info(access: ClassAccess = Depends(class_access), session: Session = D
     return {
         **classroom_out(access.classroom),
         "subjects": [subject_out(s) for s in subjects],
-        "hours": HOURS,
+        "hours": bell_hours(access.classroom.hours),
         "viewer": {
             "kind": "owner" if access.viewer.is_owner else "member",
             "member": {"id": me.id, "nick": me.nick, "role": me.role, "color": avatar_color(me)} if me else None,
@@ -59,7 +60,7 @@ def today(
     state = DayState(access, cal, target, now)
     out = state.as_dict()
     out["now"] = now.isoformat()
-    out["lessons"] = [b.as_dict() for b in cal.lessons(target)]
+    out["lessons"] = [b.as_dict(cal.hour_times()) for b in cal.lessons(target)]
     out["next_lessons"] = cal.next_lessons(target)
     card = state.card
     if card is not None and (card.status == "published" or state.can_write):
@@ -222,7 +223,8 @@ def timetable(access: ClassAccess = Depends(class_access), session: Session = De
     ).all()
     subjects = session.exec(select(Subject).where(Subject.class_id == access.classroom.id)).all()
     return {
-        "hours": HOURS,
+        "hours": bell_hours(access.classroom.hours),
+        "timezone": access.classroom.timezone or "Europe/Rome",
         "subjects": [subject_out(s) for s in subjects],
         "slots": [
             {"weekday": s.weekday, "hour": s.hour, "subject_code": s.subject_code, "room": s.room, "is_lab": s.is_lab}
@@ -260,6 +262,15 @@ def put_timetable(data: TimetableIn, access: ClassAccess = Depends(class_access)
                 room=s.room.strip(), is_lab=is_lab_room(s.room) if s.is_lab is None else s.is_lab,
             )
         )
+    if data.timezone:
+        try:
+            ZoneInfo(data.timezone)
+        except Exception:
+            raise HTTPException(400, "Fuso orario non valido")
+        access.classroom.timezone = data.timezone
+    if data.hours is not None:
+        access.classroom.hours = [h.model_dump() for h in data.hours]
+    session.add(access.classroom)
     session.commit()
     return {"ok": True}
 

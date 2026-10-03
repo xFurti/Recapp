@@ -19,6 +19,12 @@ HOURS = [
     {"hour": 7, "start": "13:40", "end": "14:30"},
 ]
 
+
+def bell_hours(stored: object) -> list[dict]:
+    if isinstance(stored, list) and stored:
+        return stored
+    return HOURS
+
 SUBJECTS = [
     ("INI", "Informatica", "Computer Science", "#1898C8"),
     ("SRI", "Sistemi e reti", "Networks", "#8038B8"),

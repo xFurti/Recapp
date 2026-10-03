@@ -11,7 +11,7 @@ Fill the `[ ]` placeholders before submitting.
 
 ## Project name
 
-Yesterday Pack (Ieri)
+Recapp
 
 ## Tagline
 
@@ -30,7 +30,7 @@ every night.
 
 ## What it does
 
-Yesterday Pack is a class hub written by the students who were there:
+Recapp is a class hub written by the students who were there:
 
 - **One card per school day**, written by a rotating note-taker after the bell: what each subject
   covered, a lab block (goal, repo, the trap to avoid, what to bring) and what was assigned.
@@ -83,7 +83,7 @@ Qwen3-30B-A3B-Instruct-2507), Web Speech API, gen.xyz domain, Cursor (AI coding 
 ## Links
 
 - Website: https://bassaleo.xyz (press "Try the demo")
-- Source code: https://github.com/xFurti/yesterday-pack
+- Source code: https://github.com/xFurti/Recapp
 - Video: [ link ]
 
 ## AI-use disclosure

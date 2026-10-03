@@ -208,6 +208,7 @@ export interface Draft {
 
 export interface TimetableData {
   hours: HourSlot[]
+  timezone: string
   subjects: Subject[]
   slots: { weekday: number; hour: number; subject_code: string; room: string; is_lab: boolean }[]
   can_edit: boolean
