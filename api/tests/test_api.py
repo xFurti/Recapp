@@ -34,6 +34,18 @@ def test_health(client):
     assert client.get("/api/healthz").json()["ok"] is True
 
 
+def test_html_is_not_cached(client):
+    from api.app import cache_control_for
+
+    assert cache_control_for("/") == "no-cache"
+    assert cache_control_for("/c/DEMO") == "no-cache"
+    assert cache_control_for("/assets/index-abc.js") == "public, max-age=31536000, immutable"
+    assert cache_control_for("/api/healthz") is None
+    page = client.get("/")
+    if page.status_code == 200 and "text/html" in page.headers.get("content-type", ""):
+        assert page.headers["cache-control"] == "no-cache"
+
+
 def test_demo_login_and_today(client):
     reset_demo(client)
     assert client.post("/api/auth/demo").status_code == 200

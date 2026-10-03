@@ -32,6 +32,19 @@ app = FastAPI(
 SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
 
+def cache_control_for(path: str) -> str | None:
+    """Hashed build files can stay cached. HTML must revalidate, or the browser
+    keeps yesterday's page on bassaleo.xyz after a deploy."""
+    if path.startswith("/api/"):
+        return None
+    if path.startswith("/assets/"):
+        return "public, max-age=31536000, immutable"
+    leaf = path.rsplit("/", 1)[-1]
+    if path == "/" or leaf.endswith(".html") or "." not in leaf:
+        return "no-cache"
+    return None
+
+
 def _origin_allowed(origin: str) -> bool:
     if not origin:
         return True
@@ -54,6 +67,9 @@ async def guard(request: Request, call_next):
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("X-Frame-Options", "DENY")
+    caching = cache_control_for(request.url.path)
+    if caching:
+        response.headers["Cache-Control"] = caching
     return response
 
 
