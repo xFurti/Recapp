@@ -27,7 +27,8 @@
     "yesterday": "Yesterday",
     "upcoming": "Upcoming",
     "class": "Class",
-    "days": "All days"
+    "days": "All days",
+    "sections": "Class sections"
   },
   "landing": {
     "title": "Missed a day?",
