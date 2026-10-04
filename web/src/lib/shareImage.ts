@@ -35,6 +35,57 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): st
   return lines
 }
 
+const FOOTER_TOP = 1110
+const SAFE_BOTTOM = FOOTER_TOP - 16
+const ITEM_STEP = 78
+const ITEM_BLEED = 12
+const MORE_STEP = 56
+const MORE_BLEED = 12
+const SECTION_GAP = 100
+const SECTION_GAP_MIN = 72
+
+interface UpcomingLayout {
+  upcomingY: number
+  itemYs: number[]
+  moreY: number | null
+  hidden: number
+  noneY: number | null
+}
+
+/** How many deadline rows fit above the pinned footer, leaving a line for "+N" when some are left out. */
+function layoutUpcoming(yAfterSubjects: number, count: number, gap: number): UpcomingLayout {
+  const upcomingY = yAfterSubjects + gap
+  let y = upcomingY + 20
+  const itemYs: number[] = []
+  for (let i = 0; i < count; i++) {
+    const next = y + ITEM_STEP
+    if (next + ITEM_BLEED > SAFE_BOTTOM) break
+    if (count - i - 1 > 0 && next + MORE_STEP + MORE_BLEED > SAFE_BOTTOM) break
+    y = next
+    itemYs.push(y)
+  }
+  const hidden = count - itemYs.length
+  const moreY = hidden > 0 && y + MORE_STEP + MORE_BLEED <= SAFE_BOTTOM ? y + MORE_STEP : null
+  return { upcomingY, itemYs, moreY, hidden, noneY: count === 0 ? y + 60 : null }
+}
+
+/** Shrink the gap before "In arrivo" only when that fits another full row. Short lists keep the usual gap. */
+function chooseSectionGap(yAfterSubjects: number, count: number): number {
+  if (count === 0) return SECTION_GAP
+  const normal = layoutUpcoming(yAfterSubjects, count, SECTION_GAP)
+  if (normal.hidden === 0) return SECTION_GAP
+  const tight = layoutUpcoming(yAfterSubjects, count, SECTION_GAP_MIN)
+  if (tight.itemYs.length <= normal.itemYs.length) return SECTION_GAP
+  let lo = SECTION_GAP_MIN
+  let hi = SECTION_GAP - 1
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2)
+    if (layoutUpcoming(yAfterSubjects, count, mid).itemYs.length >= tight.itemYs.length) lo = mid
+    else hi = mid - 1
+  }
+  return lo
+}
+
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -106,40 +157,44 @@ export async function renderShareImage(d: ShareImageData): Promise<Blob> {
     ctx.fillText(`+${d.subjects.length - 6}`, 130, y)
   }
 
-  y += 100
+  const laid = layoutUpcoming(y, d.items.length, chooseSectionGap(y, d.items.length))
   ctx.fillStyle = '#1d1b1e'
   ctx.font = `800 44px ${FONT}`
-  ctx.fillText(d.texts.upcoming, 80, y)
-  y += 20
-  if (d.items.length === 0) {
-    y += 60
+  ctx.fillText(d.texts.upcoming, 80, laid.upcomingY)
+  if (laid.noneY !== null && laid.noneY + MORE_BLEED <= SAFE_BOTTOM) {
     ctx.fillStyle = '#6b6570'
     ctx.font = `500 36px ${FONT}`
-    ctx.fillText(d.texts.none, 80, y)
+    ctx.fillText(d.texts.none, 80, laid.noneY)
   }
-  for (const it of d.items.slice(0, 4)) {
-    y += 78
+  for (let i = 0; i < laid.itemYs.length; i++) {
+    const it = d.items[i]
+    const rowY = laid.itemYs[i]
     ctx.font = `700 30px ${FONT}`
     const pill = ctx.measureText(it.typeLabel).width + 36
     ctx.fillStyle = it.color
     ctx.beginPath()
-    ctx.roundRect(80, y - 40, pill, 52, 26)
+    ctx.roundRect(80, rowY - 40, pill, 52, 26)
     ctx.fill()
     ctx.fillStyle = '#ffffff'
-    ctx.fillText(it.typeLabel, 98, y - 3)
+    ctx.fillText(it.typeLabel, 98, rowY - 3)
     ctx.fillStyle = '#1d1b1e'
     ctx.font = `600 36px ${FONT}`
-    ctx.fillText(fit(ctx, it.title, 900 - pill - 220), 100 + pill, y - 2)
+    ctx.fillText(fit(ctx, it.title, 900 - pill - 220), 100 + pill, rowY - 2)
     ctx.fillStyle = '#6b6570'
     ctx.font = `600 32px ${FONT}`
     const whenW = ctx.measureText(it.when).width
-    ctx.fillText(it.when, W - 80 - whenW, y - 2)
+    ctx.fillText(it.when, W - 80 - whenW, rowY - 2)
+  }
+  if (laid.moreY !== null) {
+    ctx.fillStyle = '#6b6570'
+    ctx.font = `600 40px ${FONT}`
+    ctx.fillText(`+${laid.hidden}`, 130, laid.moreY)
   }
 
   ctx.fillStyle = '#ffffff'
-  ctx.fillRect(0, 1110, W, 240)
+  ctx.fillRect(0, FOOTER_TOP, W, H - FOOTER_TOP)
   ctx.fillStyle = '#A02848'
-  ctx.fillRect(0, 1110, W, 8)
+  ctx.fillRect(0, FOOTER_TOP, W, 8)
   ctx.font = `800 42px ${FONT}`
   let cy = 1185
   for (const line of wrap(ctx, d.texts.cta, W - 160).slice(0, 2)) {
