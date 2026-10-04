@@ -677,3 +677,45 @@ html[data-language-transition='out'] textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   .language-text, input::placeholder, textarea::placeholder { transition: none; }
 }
+
+/* Page change clip wipe (see page-curtain.ts). Only the page area: header, sidebar and tab bar stay above
+   or beside it. The frozen old page sits on paper; the panels are still and only their clip-path moves. */
+.page-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+.page-curtain-old,
+.page-curtain-panel,
+.page-curtain-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+@media (min-width: 768px) {
+  .page-curtain-old,
+  .page-curtain-panel,
+  .page-curtain-edge { left: 15rem; }
+}
+.page-curtain-old {
+  top: 0;
+  bottom: 0;
+  background: var(--color-paper);
+}
+.page-curtain-panel {
+  background: var(--color-bordeaux-soft);
+  clip-path: inset(100%);
+}
+.page-curtain-edge {
+  background: var(--color-bordeaux);
+  clip-path: inset(100%);
+}
+.page-curtain-frozen,
+.page-curtain-frozen * {
+  animation: none !important;
+  transition: none !important;
+}
+[data-page-focus]:focus {
+  outline: none;
+}
