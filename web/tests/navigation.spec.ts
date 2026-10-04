@@ -3,7 +3,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 async function setup(page: Page, mobile = false, route = '/c/TEST', dark = false) {
   await page.setViewportSize(mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 })
   await page.route('**/api/**', r => r.fulfill({ json: { version: 'dev', status: 'idle' } }))
-  await page.addInitScript(value => localStorage.setItem('ieri.theme', value), dark ? 'dark' : 'light')
+  await page.addInitScript(value => { localStorage.setItem('ieri.theme', value); localStorage.setItem('ieri.lang', 'it') }, dark ? 'dark' : 'light')
   await page.goto(`/tests/navigation.html?route=${encodeURIComponent(route)}`)
   const nav = page.locator(mobile ? '.section-nav-mobile' : '.section-nav-desktop')
   await expect(nav).toBeVisible()

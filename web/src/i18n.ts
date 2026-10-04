@@ -7,12 +7,12 @@ import it from './i18n/it.json'
 
 const KEY = 'ieri.lang'
 const saved = localStorage.getItem(KEY)
-const initial = saved === 'en' ? 'en' : 'it'
+const initial = saved === 'it' ? 'it' : 'en'
 
 i18n.use(initReactI18next).init({
   resources: { it: { translation: it }, en: { translation: en } },
   lng: initial,
-  fallbackLng: 'it',
+  fallbackLng: 'en',
   interpolation: { escapeValue: false },
 })
 

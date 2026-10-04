@@ -4,6 +4,7 @@ const stage = (page: Page) => page.getByRole('application', { name: 'La fuga di 
 const score = (page: Page) => page.locator('.mg-stage .font-mono > span.text-ink')
 
 async function open(page: Page, query = '') {
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
   await page.goto(`/tests/magilla.html${query}`)
   await expect(stage(page)).toBeVisible()
   await expect(page.getByText('Premi Spazio per aiutare Magilla a scappare')).toBeVisible()
@@ -63,6 +64,7 @@ test.describe('phone', () => {
   test.use({ viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true })
 
   test('tap to start, hold the pad to duck', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
     await page.goto('/tests/magilla.html')
     await expect(page.getByText('Tocca per aiutare Magilla a scappare')).toBeVisible()
     await stage(page).tap()

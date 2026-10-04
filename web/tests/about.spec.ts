@@ -1,6 +1,11 @@
 import { expect, test, type Page } from '@playwright/test'
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
+})
+
 async function anonymous(page: Page) {
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
   await page.route('**/api/**', route => route.fulfill({ json: route.request().url().endsWith('/me') ? { kind: 'anonymous' } : { version: 'dev', status: 'idle' } }))
   page.on('pageerror', error => { throw error })
 }

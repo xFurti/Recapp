@@ -25,6 +25,7 @@ async function setup(page: Page, query = '', mode = 'ready') {
     engine.ready = () => { engine.voices = voices; engine.dispatchEvent(new Event('voiceschanged')) }
     Object.defineProperty(window, 'speechSynthesis', { value: engine })
     Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: class { text: string; constructor(text: string) { this.text = text } } })
+    localStorage.setItem('ieri.lang', 'it')
   }, { mode })
   await page.goto(`/tests/speech.html${query}`)
 }
@@ -35,7 +36,10 @@ for (const lang of ['it', 'en']) {
   for (const long of [false, true]) {
     test(`${lang} ${long ? 'long' : 'short'} completes, rerenders and unrelated unmounts do not cancel`, async ({ page }) => {
       await setup(page, long ? '?long' : '')
-      if (lang === 'en') { await page.evaluate(() => localStorage.setItem('ieri.lang', 'en')); await page.reload() }
+      if (lang === 'en') {
+        await page.addInitScript(() => localStorage.setItem('ieri.lang', 'en'))
+        await page.reload()
+      }
       await first(page).getByRole('button').click()
       await expect(first(page).getByRole('button').first()).toBeDisabled()
       await engine(page, 'start')

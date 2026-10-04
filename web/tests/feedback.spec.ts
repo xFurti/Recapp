@@ -24,6 +24,7 @@ async function setup(page: Page, query = '') {
     return route.fulfill({ json: { thanks: 2, thanked: false, open_corrections: comments.filter(c => c.kind === 'correction').length, comments } })
   })
   page.on('dialog', () => { throw new Error('Unexpected browser confirmation') })
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
   await page.goto(`/tests/feedback.html${query}`)
   await expect(page.getByRole('button', { name: 'Elimina', exact: true })).toHaveCount(2)
   return { deletes: () => deletes, fail: (value: boolean) => { fail = value }, hold: () => { hold = true }, release: () => release?.() }
@@ -135,7 +136,7 @@ for (const dark of [false, true]) {
 test('English and reduced motion retain accessible labels and dismissal', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await setup(page)
-  await page.evaluate(() => localStorage.setItem('ieri.lang', 'en'))
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'en'))
   await page.reload()
   await page.getByRole('button', { name: 'Delete', exact: true }).first().click()
   const dialog = page.getByRole('dialog', { name: 'Delete this message?' })
