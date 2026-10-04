@@ -164,6 +164,10 @@
     "photo_limit": "Massimo 3 foto per materia"
   },
   "listen": {
+    "loading": "Avvio…",
+    "unavailable": "Nessuna voce disponibile. Controlla le voci del browser o del sistema e riprova.",
+    "failed": "Non è stato possibile leggere il riepilogo. Riprova o controlla le impostazioni audio.",
+
     "play": "Ascolta",
     "pause": "Pausa",
     "resume": "Riprendi",

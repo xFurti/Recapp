@@ -164,6 +164,10 @@
     "photo_limit": "Up to 3 photos per subject"
   },
   "listen": {
+    "loading": "Starting…",
+    "unavailable": "No voices available. Check your browser or system voices and try again.",
+    "failed": "Could not read the summary. Try again or check your audio settings.",
+
     "play": "Listen",
     "pause": "Pause",
     "resume": "Resume",
