@@ -1,3 +1,4 @@
+import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowRight, CalendarClock, History, School, Users } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -70,7 +71,7 @@ export default function Landing() {
           <div className="flex items-center gap-1.5">
             <Link to="/scuola" aria-label={t('landing.school')} className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-muted hover:text-ink">
               <School className="size-4" />
-              <span className="hidden sm:inline">{t('landing.school')}</span>
+              <span className="hidden sm:inline"><span className="language-text">{t('landing.school')}</span></span>
             </Link>
             <ThemeToggle />
             <LangToggle />
@@ -83,18 +84,18 @@ export default function Landing() {
         <div className="contents md:block">
           <section>
             <div className="mb-5" {...hero.triggers}><Wordmark size="lg" playing={hero.playing} /></div>
-            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl">{t('landing.title')}</h1>
-            <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg">{t('landing.subtitle')}</p>
+            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl"><span className="language-text">{t('landing.title')}</span></h1>
+            <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg"><span className="language-text">{t('landing.subtitle')}</span></p>
           </section>
           <ul className="order-2 space-y-4 md:order-none md:mt-8">
-            {features.map((f) => (
-              <li key={f.title} className="flex gap-3">
+            {features.map((f, index) => (
+              <li key={index} className="flex gap-3">
                 <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${f.color}`}>
                   <f.icon className="size-5" />
                 </span>
                 <div>
-                  <p className="font-bold">{f.title}</p>
-                  <p className="text-sm text-muted">{f.text}</p>
+                  <p className="language-text font-bold">{f.title}</p>
+                  <p className="text-sm text-muted"><span className="language-text">{f.text}</span></p>
                 </div>
               </li>
             ))}
@@ -104,17 +105,17 @@ export default function Landing() {
         <section className="order-1 rounded-3xl border border-line bg-surface p-5 shadow-sm sm:p-8 md:order-none">
           {current && (
             <Button className="mb-6 w-full" size="lg" onClick={() => navigate(`/c/${current.code}`)}>
-              {t('landing.continue', { name: current.label })} <ArrowRight className="size-4" />
+              <TranslatedMessage message={'landing.continue'} values={{ name: current.label }} /> <ArrowRight className="size-4" />
             </Button>
           )}
           {!current && recent && (
             <Button className="mb-6 w-full" size="lg" onClick={() => (recent.demo ? demo() : navigate(`/c/${recent.code}/entra?m=${recent.memberId}`))} loading={recent.demo && busy === 'demo'}>
-              {t('landing.rejoin', { name: recent.label })} <ArrowRight className="size-4" />
+              <TranslatedMessage message={'landing.rejoin'} values={{ name: recent.label }} /> <ArrowRight className="size-4" />
             </Button>
           )}
           <form onSubmit={enter}>
             <label htmlFor="class-code" className="mb-1.5 block text-sm font-semibold">
-              {t('landing.code_label')}
+              <span className="language-text">{t('landing.code_label')}</span>
             </label>
             <div className="flex gap-2">
               <input
@@ -127,7 +128,7 @@ export default function Landing() {
                 autoCapitalize="characters"
               />
               <Button type="submit" loading={busy === 'enter'}>
-                {t('landing.enter')}
+                <span className="language-text">{t('landing.enter')}</span>
               </Button>
             </div>
             {error && <p className="mt-2 text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
@@ -138,17 +139,17 @@ export default function Landing() {
           </div>
 
           <Button variant="soft" size="lg" className="w-full" onClick={demo} loading={busy === 'demo'}>
-            {t('landing.demo')}
+            <span className="language-text">{t('landing.demo')}</span>
           </Button>
-          <p className="mt-2 text-center text-sm text-muted">{t('landing.demo_hint')}</p>
+          <p className="mt-2 text-center text-sm text-muted"><span className="language-text">{t('landing.demo_hint')}</span></p>
         </section>
       </main>
 
       <footer className="border-t border-line bg-surface/60 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
-          <span>{t('landing.footer')}</span>
+          <span><span className="language-text">{t('landing.footer')}</span></span>
           <Link to="/privacy" className="font-semibold underline">
-            {t('landing.privacy')}
+            <span className="language-text">{t('landing.privacy')}</span>
           </Link>
         </div>
       </footer>

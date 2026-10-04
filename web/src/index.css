@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+.lesson-status { container-type: inline-size; }
+@container (min-width: 36rem) {
+  .lesson-status-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.lesson-status-option {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
+  overflow-wrap: anywhere;
+}
+.lesson-status label:hover .lesson-status-option { border-color: var(--color-bordeaux); }
+.lesson-status label:active .lesson-status-option { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-status-option { transition: none; }
+  .lesson-status label:active .lesson-status-option { transform: none; }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -388,6 +403,20 @@
   transform: translateX(3px);
 }
 
+/* School logo: the image only, the same size in light and dark. */
+.school-logo {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.school-logo .logo-dark { display: none; }
+.dark .school-logo .logo-light { display: none; }
+.dark .school-logo .logo-dark { display: block; }
+.school-logo:hover {
+  transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .school-logo:hover { transform: none; }
+}
+
 /* Language button: a round flag. The mark flips in when the language changes. */
 .lang-btn {
   transition: transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -404,11 +433,36 @@
 }
 .lang-swap {
   display: inline-block;
-  animation: lang-swap 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: lang-swap 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 @keyframes lang-swap {
   0% { opacity: 0; transform: translateY(7px) rotate(-14deg); }
   100% { opacity: 1; transform: none; }
+}
+
+/* Unknown address: a short rise, skipped when motion is reduced. */
+.not-found-in {
+  animation: not-found-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes not-found-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .not-found-in { animation: none; }
+}
+
+.publish-flash {
+  animation: publish-flash 1.2s ease;
+  scroll-margin-block: 6rem;
+}
+@keyframes publish-flash {
+  0% { box-shadow: 0 0 0 0 var(--color-azzurro); }
+  35% { box-shadow: 0 0 0 4px var(--color-azzurro); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .publish-flash { animation: none; }
 }
 
 /* Done check: the tick draws itself, the circle pops, a ring expands. */
@@ -577,4 +631,91 @@ html.theme-anim {
     animation: none !important;
   }
   .confetti-piece { display: none; }
+}
+
+/* Shared selection background: only the decorative layer moves, never the links. */
+.section-nav-indicator {
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.section-nav-desktop .section-nav-indicator {
+  inset: 0 0 auto;
+  height: calc((100% - 0.75rem) / 4);
+  transform: translateY(calc(var(--section-index) * (100% + 0.25rem)));
+}
+.section-nav-mobile .section-nav-indicator {
+  inset: 0 auto 0 0;
+  width: 25%;
+  transform: translateX(calc(var(--section-index) * 100%));
+}
+.section-nav-link {
+  transition: color 240ms ease, background-color 150ms ease;
+}
+.section-nav-link:focus-visible {
+  outline-offset: -3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-nav-indicator, .section-nav-link { transition: none; }
+}
+
+/* Only translated text fades: icons, surfaces and authored content stay put.
+   Inline spans retain normal wrapping; no duplicated text or focus targets. */
+.language-text {
+  transition: opacity 110ms ease-out;
+}
+html[data-language-transition='out'] .language-text {
+  opacity: 0;
+  transition-duration: 90ms;
+}
+input::placeholder, textarea::placeholder {
+  transition: opacity 110ms ease-out;
+}
+html[data-language-transition='out'] input::placeholder,
+html[data-language-transition='out'] textarea::placeholder {
+  opacity: 0;
+  transition-duration: 90ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .language-text, input::placeholder, textarea::placeholder { transition: none; }
+}
+
+/* Page change clip wipe (see page-curtain.ts). Only the page area: header, sidebar and tab bar stay above
+   or beside it. The frozen old page sits on paper; the panels are still and only their clip-path moves. */
+.page-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+.page-curtain-old,
+.page-curtain-panel,
+.page-curtain-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+@media (min-width: 768px) {
+  .page-curtain-old,
+  .page-curtain-panel,
+  .page-curtain-edge { left: 15rem; }
+}
+.page-curtain-old {
+  top: 0;
+  bottom: 0;
+  background: var(--color-paper);
+}
+.page-curtain-panel {
+  background: var(--color-bordeaux-soft);
+  clip-path: inset(100%);
+}
+.page-curtain-edge {
+  background: var(--color-bordeaux);
+  clip-path: inset(100%);
+}
+.page-curtain-frozen,
+.page-curtain-frozen * {
+  animation: none !important;
+  transition: none !important;
+}
+[data-page-focus]:focus {
+  outline: none;
 }

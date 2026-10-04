@@ -1,14 +1,17 @@
+import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
+import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, Lock, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
 import { useCallback, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
+import { DayView, WeekGrid } from '../components/timetable'
 import { AnchoredMenu, Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
-import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
-import { classPath, useClass } from '../queries'
+import { capitalize, shortDay, subjectName } from '../lib/format'
+import { timetableModel, useSchoolClock, weekdayName, type Slot } from '../lib/timetable'
+import { classPath, useClass, useToday } from '../queries'
 import type { HourSlot, Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
 import { DemoWeekendNote, isWeekend } from './Today'
 
@@ -20,7 +23,7 @@ export default function ClassPage() {
   const tab = (params.get('tab') as Tab) || 'members'
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-extrabold tracking-tight">{t('nav.class')}</h1>
+      <h1 className="mb-4 text-2xl font-extrabold tracking-tight"><span className="language-text">{t('nav.class')}</span></h1>
       <Segmented
         value={tab}
         onChange={(v) => setParams({ tab: v }, { replace: true })}
@@ -77,10 +80,10 @@ function Members() {
   return (
     <div>
       <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-muted">{t('class.members_count', { count: members.length })}</p>
+        <p className="text-sm font-semibold text-muted"><span className="language-text">{t('class.members_count', { count: members.length })}</span></p>
         {can_manage && (
           <Button size="sm" onClick={() => setAdding(true)}>
-            <UserPlus className="size-4" /> {t('class.add')}
+            <UserPlus className="size-4" /> <span className="language-text">{t('class.add')}</span>
           </Button>
         )}
       </div>
@@ -92,13 +95,13 @@ function Members() {
             <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-center gap-1.5 font-semibold">
                 {m.nick}
-                {m.is_me && <span className="text-xs font-medium text-muted">({t('common.you')})</span>}
-                {m.role === 'admin' && <Badge className="bg-bordeaux-soft text-bordeaux"><Crown className="size-3" /> {t('class.admin')}</Badge>}
-                {m.is_today_scribe && <Badge className="bg-giallo text-[#1d1b1e]"><Pencil className="size-3" /> {t('class.scribe_today')}</Badge>}
-                {!m.activated && <Badge className="bg-ink/5 text-muted">{t('class.not_activated')}</Badge>}
+                {m.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
+                {m.role === 'admin' && <Badge className="bg-bordeaux-soft text-bordeaux"><Crown className="size-3" /> <span className="language-text">{t('class.admin')}</span></Badge>}
+                {m.is_today_scribe && <Badge className="bg-giallo text-[#1d1b1e]"><Pencil className="size-3" /> <span className="language-text">{t('class.scribe_today')}</span></Badge>}
+                {!m.activated && <Badge className="bg-ink/5 text-muted"><span className="language-text">{t('class.not_activated')}</span></Badge>}
               </p>
               <p className="text-xs text-muted">
-                {t('class.days_written', { count: m.days_written })} · {t('class.items_added', { count: m.items_added })}
+                <span className="language-text">{t('class.days_written', { count: m.days_written })}</span> · <span className="language-text">{t('class.items_added', { count: m.items_added })}</span>
               </p>
             </div>
             {can_manage && (
@@ -123,7 +126,7 @@ function Members() {
         <AnchoredMenu open anchorEl={menu.el} onClose={closeMenu}>
           <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', openMember)} />
           {info.is_demo ? (
-            <p className="px-3 py-2 text-xs text-muted">{t('class.demo_locked')}</p>
+            <p className="px-3 py-2 text-xs text-muted"><span className="language-text">{t('class.demo_locked')}</span></p>
           ) : openMember.role === 'member' ? (
             <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', openMember)} />
           ) : (
@@ -145,7 +148,7 @@ function MenuItem({ icon: Icon, label, hint, onClick, danger }: { icon: typeof C
     <button role="menuitem" onClick={onClick} className={`flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left text-sm ${danger ? 'text-rosa-ink hover:bg-rosa-soft' : 'hover:bg-ink/5'}`}>
       <Icon className="mt-0.5 size-4 shrink-0" />
       <span>
-        <span className="block font-semibold">{label}</span>
+        <span className="language-text block font-semibold">{label}</span>
         {hint && <span className="block text-xs text-muted">{hint}</span>}
       </span>
     </button>
@@ -177,11 +180,11 @@ function AddMemberModal({ open, onClose, onCreated }: { open: boolean; onClose: 
         </Field>
         <label className="flex items-center gap-2 text-sm font-semibold">
           <input type="checkbox" className="size-4 accent-bordeaux" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
-          {t('class.as_admin')}
+          <span className="language-text">{t('class.as_admin')}</span>
         </label>
         {add.error && <p className="text-sm font-medium text-rosa-ink">{(add.error as Error).message}</p>}
         <Button type="submit" className="w-full" loading={add.isPending} disabled={nick.trim().length < 2}>
-          {t('class.add_btn')}
+          <span className="language-text">{t('class.add_btn')}</span>
         </Button>
       </form>
     </Modal>
@@ -244,21 +247,21 @@ function Turns() {
       <Card className="flex items-center gap-3">
         {todayRow?.scribe ? <Avatar nick={todayRow.scribe.nick} color={todayRow.scribe.color} size="lg" /> : null}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-muted">{t('class.turns_today')}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_today')}</span></p>
           <p className="text-xl font-extrabold">{todayRow?.scribe?.nick ?? t('class.turns_nobody')}</p>
         </div>
       </Card>
 
       <section>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-muted">{t('class.turns_next')}</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_next')}</span></h2>
           {manage && (
             <Button size="sm" variant={swapMode ? 'primary' : 'secondary'} onClick={() => { setSwapMode((s) => !s); setPicked(null); setMsg(null) }}>
-              <ArrowLeftRight className="size-4" /> {t('class.swap')}
+              <ArrowLeftRight className="size-4" /> <span className="language-text">{t('class.swap')}</span>
             </Button>
           )}
         </div>
-        {swapMode && <p className="mb-2 text-sm text-muted">{t('class.swap_help')}</p>}
+        {swapMode && <p className="mb-2 text-sm text-muted"><span className="language-text">{t('class.swap_help')}</span></p>}
         {msg && <p className="mb-2 text-sm font-semibold text-verde-ink">{msg}</p>}
         {swap.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(swap.error as Error).message}</p>}
         <ol className="space-y-1.5">
@@ -279,12 +282,12 @@ function Turns() {
                       <span className="truncate font-semibold">{d.scribe.nick}</span>
                     </span>
                   ) : (
-                    <span className="flex-1 text-sm text-muted">{t('class.turns_nobody')}</span>
+                    <span className="flex-1 text-sm text-muted"><span className="language-text">{t('class.turns_nobody')}</span></span>
                   )}
-                  {d.override_reason && <Badge className="bg-ink/5 text-muted">{t(`class.ov_${d.override_reason}`)}</Badge>}
+                  {d.override_reason && <Badge className="bg-ink/5 text-muted"><span className="language-text">{t(`class.ov_${d.override_reason}`)}</span></Badge>}
                   {d.card_status && (
                     <Badge className={d.card_status === 'published' ? 'bg-verde-soft text-verde-ink' : 'bg-giallo-soft text-ink'}>
-                      {t(`class.st_${d.card_status}`)}
+                      <span className="language-text">{t(`class.st_${d.card_status}`)}</span>
                     </Badge>
                   )}
                 </button>
@@ -292,7 +295,7 @@ function Turns() {
             ) : (
               <li key={d.day} className="flex items-center gap-3 rounded-xl px-3 py-1.5 text-sm text-muted">
                 <span className="w-24 shrink-0">{capitalize(shortDay(d.day, i18n.language))}</span>
-                <span className="italic">{t('class.turns_skipped', { reason: d.reason })}</span>
+                <span className="italic"><TranslatedMessage message={'class.turns_skipped'} values={{ reason: d.reason }} /></span>
               </li>
             ),
           )}
@@ -300,8 +303,8 @@ function Turns() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-muted">{t('class.turns_order')}</h2>
-        <p className="mb-2 text-sm text-muted">{t('class.turns_order_help')}</p>
+        <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_order')}</span></h2>
+        <p className="mb-2 text-sm text-muted"><span className="language-text">{t('class.turns_order_help')}</span></p>
         <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
           {data.order.map((m, i) => (
             <li key={m.id} className="flex items-center gap-3 px-3 py-2">
@@ -323,7 +326,7 @@ function Turns() {
         </ol>
         {data.not_activated.length > 0 && (
           <p className="mt-3 text-sm text-muted">
-            {t('class.turns_pending')}: {data.not_activated.map((m) => m.nick).join(', ')}
+            <span className="language-text">{t('class.turns_pending')}</span>: {data.not_activated.map((m) => m.nick).join(', ')}
           </p>
         )}
       </section>
@@ -332,16 +335,6 @@ function Turns() {
 }
 
 // ---- timetable ---------------------------------------------------------------------
-const MONDAY = new Date(2026, 8, 28)
-
-function weekdayName(i: number, lang: string, style: 'short' | 'long' = 'long') {
-  const d = new Date(MONDAY)
-  d.setDate(d.getDate() + i)
-  return capitalize(new Intl.DateTimeFormat(locale(lang), { weekday: style }).format(d))
-}
-
-type Slot = TimetableData['slots'][number]
-
 const ZONES = ['Europe/Rome', 'Europe/Berlin', 'Europe/Paris', 'Europe/Madrid', 'Europe/London', 'UTC']
 
 function Timetable() {
@@ -355,6 +348,10 @@ function Timetable() {
   const [timezone, setTimezone] = useState('Europe/Rome')
   const [cell, setCell] = useState<{ weekday: number; hour: number } | null>(null)
   const [saved, setSaved] = useState(false)
+  // A phone shows one day at a time; wider screens get the whole week.
+  const [view, setView] = useState<'day' | 'week'>(() => (window.matchMedia('(min-width: 768px)').matches ? 'week' : 'day'))
+  const today = useToday(info.code)
+  const clock = useSchoolClock(today.data, today.dataUpdatedAt, tt.data?.timezone ?? 'Europe/Rome')
   const save = useMutation({
     mutationFn: (body: { slots: Slot[]; hours: HourSlot[]; timezone: string }) =>
       api.put(classPath(info.code, '/timetable'), {
@@ -370,12 +367,14 @@ function Timetable() {
     },
   })
   if (tt.isLoading) return <Spinner />
-  if (tt.error) return <ErrorBox error={tt.error} />
+  if (tt.error) return <ErrorBox error={tt.error} onRetry={() => tt.refetch()} />
   const data = tt.data!
   const slots = editing ?? data.slots
   const rows = hours ?? data.hours
   const at = (w: number, h: number) => slots.find((s) => s.weekday === w && s.hour === h)
   const hasAny = slots.length > 0
+  const model = timetableModel(data, clock, info.is_demo)
+  const canEdit = data.can_edit && !info.is_demo
 
   const startEdit = () => {
     setEditing(data.slots)
@@ -396,30 +395,39 @@ function Timetable() {
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted">{t('class.tt_lab_hint')}</p>
-        {data.can_edit && info.is_demo && <p className="text-xs text-muted">{t('class.demo_locked')}</p>}
-        {data.can_edit && !info.is_demo && !editing && (
-          <Button size="sm" variant="secondary" onClick={startEdit}>
-            <Pencil className="size-4" /> {t('class.tt_edit')}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        {!editing && hasAny && (
+          <Segmented
+            value={view}
+            onChange={setView}
+            options={[
+              { value: 'day', label: t('class.tt_view_day') },
+              { value: 'week', label: t('class.tt_view_week') },
+            ]}
+          />
+        )}
+        {editing && <p className="text-sm text-muted"><span className="language-text">{t('class.tt_lab_hint')}</span></p>}
+        {canEdit && !editing && (
+          <Button size="sm" variant="secondary" className="min-h-11" onClick={startEdit}>
+            <Pencil className="size-4" /> <span className="language-text">{t('class.tt_edit')}</span>
           </Button>
         )}
         {editing && (
           <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => { setEditing(null); setHours(null) }}>{t('common.cancel')}</Button>
-            <Button size="sm" onClick={() => editing && save.mutate({ slots: editing, hours: hours ?? data.hours, timezone })} loading={save.isPending}>{t('class.tt_save')}</Button>
+            <Button size="sm" variant="ghost" onClick={() => { setEditing(null); setHours(null) }}><span className="language-text">{t('common.cancel')}</span></Button>
+            <Button size="sm" onClick={() => editing && save.mutate({ slots: editing, hours: hours ?? data.hours, timezone })} loading={save.isPending}><span className="language-text">{t('class.tt_save')}</span></Button>
           </div>
         )}
       </div>
       {editing && hours && (
         <div className="mb-4 space-y-3 rounded-2xl border border-line bg-surface p-3">
           <label className="block max-w-xs">
-            <span className="mb-1 block text-sm font-semibold">{t('class.tt_timezone')}</span>
+            <span className="mb-1 block text-sm font-semibold"><span className="language-text">{t('class.tt_timezone')}</span></span>
             <select className={inputClass} value={timezone} onChange={(e) => setTimezone(e.target.value)}>
               {ZONES.map((z) => <option key={z} value={z}>{z === 'Europe/Rome' ? `Roma (${z})` : z}</option>)}
             </select>
           </label>
-          <p className="text-sm font-semibold">{t('class.tt_bell')}</p>
+          <p className="text-sm font-semibold"><span className="language-text">{t('class.tt_bell')}</span></p>
           <div className="grid gap-2 sm:grid-cols-2">
             {hours.map((h) => (
               <div key={h.hour} className="flex items-center gap-2">
@@ -431,55 +439,19 @@ function Timetable() {
           </div>
         </div>
       )}
-      {saved && <p className="mb-2 text-sm font-semibold text-verde-ink">{t('class.tt_saved')}</p>}
+      {saved && <p className="mb-2 text-sm font-semibold text-verde-ink"><span className="language-text">{t('class.tt_saved')}</span></p>}
       {save.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
-      {!hasAny && !editing && <Card><EmptyState title={t('today.no_lessons')} /></Card>}
-      {(hasAny || editing) && (
-        <div className="-mx-4 overflow-x-auto px-4">
-          <table className="w-full min-w-[40rem] table-fixed border-separate border-spacing-1 text-sm">
-            <thead>
-              <tr>
-                <th className="w-20" />
-                {[0, 1, 2, 3, 4].map((w) => (
-                  <th key={w} className="rounded-lg bg-ink py-2 text-xs font-bold text-paper">{weekdayName(w, lang)}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((h) => (
-                <tr key={h.hour}>
-                  <td className="pr-1 text-right align-middle text-xs text-muted">
-                    <span className="block font-bold text-ink">{h.hour}ª</span>
-                    {h.start}
-                  </td>
-                  {[0, 1, 2, 3, 4].map((w) => {
-                    const s = at(w, h.hour)
-                    const content = s ? (
-                      <>
-                        <span className="block truncate font-bold" style={{ color: subjectColor(data.subjects, s.subject_code) }}>{s.subject_code}</span>
-                        <span className="block truncate text-[11px] text-muted">{s.room}</span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-muted/50">—</span>
-                    )
-                    const cls = `h-14 w-full rounded-lg border px-2 py-1 text-left ${s?.is_lab ? 'border-verde/40 bg-verde-soft' : 'border-line bg-surface'}`
-                    return (
-                      <td key={w}>
-                        {editing ? (
-                          <button className={`${cls} hover:border-ink/40`} onClick={() => setCell({ weekday: w, hour: h.hour })} aria-label={t('class.tt_cell', { day: weekdayName(w, lang), hour: h.hour })} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>
-                            {content}
-                          </button>
-                        ) : (
-                          <div className={cls} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>{content}</div>
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {!hasAny && !editing && (
+        <Card>
+          <EmptyState title={t('class.tt_not_set')} text={t(canEdit ? 'class.tt_not_set_admin' : 'class.tt_not_set_member')} />
+        </Card>
+      )}
+      {editing && <WeekGrid data={data} slots={slots} hours={rows} model={null} editing onEdit={(weekday, hour) => setCell({ weekday, hour })} />}
+      {!editing && hasAny && (view === 'day' ? <DayView data={data} model={model} demo={info.is_demo} /> : <WeekGrid data={data} slots={slots} hours={rows} model={model} />)}
+      {data.can_edit && info.is_demo && (
+        <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
+          <Lock className="size-3.5 shrink-0" aria-hidden /> <span className="language-text">{t('class.tt_demo_locked')}</span>
+        </p>
       )}
       {cell && (
         <CellModal
@@ -516,7 +488,7 @@ function CellModal({ title, slot, subjects, onClose, onSave }: { title: string; 
         <Field label={t('class.tt_room')} hint={t('class.tt_lab_hint')}>
           <input className={inputClass} value={room} onChange={(e) => setRoom(e.target.value.toUpperCase())} placeholder="A215 / L143" maxLength={20} disabled={!subject} />
         </Field>
-        <Button className="w-full" onClick={() => onSave(subject || null, room)}>{t('common.save')}</Button>
+        <Button className="w-full" onClick={() => onSave(subject || null, room)}><span className="language-text">{t('common.save')}</span></Button>
       </div>
     </Modal>
   )

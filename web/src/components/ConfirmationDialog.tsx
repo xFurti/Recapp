@@ -5,15 +5,18 @@ import { useTranslation } from 'react-i18next'
 import { Button } from './ui'
 
 /** Mount for each confirmation. Native modality supplies focus containment and an inert background. */
-export function ConfirmationDialog({ title, description, children, confirmLabel, pendingLabel, errorLabel, onConfirm, onClose }: {
+export function ConfirmationDialog({ title, description, children, confirmLabel, pendingLabel, errorLabel, onConfirm, onClose, icon, iconClassName = 'bg-rosa-soft text-rosa-ink', confirmVariant = 'danger' }: {
   title: string
   description: string
-  children: ReactNode
+  children?: ReactNode
   confirmLabel: string
   pendingLabel: string
   errorLabel: string
   onConfirm: () => Promise<unknown>
   onClose: (confirmed: boolean) => void
+  icon?: ReactNode
+  iconClassName?: string
+  confirmVariant?: 'danger' | 'primary'
 }) {
   const { t } = useTranslation()
   const id = useId()
@@ -24,6 +27,7 @@ export function ConfirmationDialog({ title, description, children, confirmLabel,
   const [pending, setPending] = useState(false)
   const [closing, setClosing] = useState(false)
   const [error, setError] = useState(false)
+  const [unavailable, setUnavailable] = useState<string | null>(null)
 
   useEffect(() => {
     const element = dialog.current!
@@ -59,9 +63,14 @@ export function ConfirmationDialog({ title, description, children, confirmLabel,
       await onConfirm()
       confirmed.current = true
       setClosing(true)
-    } catch {
+    } catch (caught) {
       locked.current = false
       setPending(false)
+      if (caught instanceof Error && caught.name === 'ActionUnavailable') {
+        setUnavailable(caught.message)
+        cancel.current?.focus()
+        return
+      }
       setError(true)
     }
   }
@@ -71,7 +80,7 @@ export function ConfirmationDialog({ title, description, children, confirmLabel,
       ref={dialog}
       tabIndex={-1}
       aria-labelledby={`${id}-title`}
-      aria-describedby={`${id}-description ${id}-preview`}
+      aria-describedby={children != null ? `${id}-description ${id}-preview` : `${id}-description`}
       aria-modal="true"
       className="confirmation-dialog rounded-3xl border border-line bg-surface p-5 text-ink shadow-2xl sm:p-6"
       data-closing={closing || undefined}
@@ -105,27 +114,32 @@ export function ConfirmationDialog({ title, description, children, confirmLabel,
       }}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-rosa-soft text-rosa-ink">
-          <Trash2 className="size-6" aria-hidden />
+        <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${iconClassName}`}>
+          {icon ?? <Trash2 className="size-6" aria-hidden />}
         </span>
         <button type="button" disabled={pending || closing} onClick={dismiss} aria-label={t('common.close')} className="confirmation-action flex size-11 items-center justify-center rounded-full text-muted hover:bg-ink/5 disabled:opacity-40">
           <X className="size-5" aria-hidden />
         </button>
       </div>
-      <h2 id={`${id}-title`} className="mt-4 text-xl font-bold">{title}</h2>
-      <p id={`${id}-description`} className="mt-2 text-sm text-muted">{description}</p>
-      <div id={`${id}-preview`} className="mt-4 rounded-xl border border-line bg-paper p-3 text-[15px]">
-        {children}
-      </div>
-      <p role="status" className="mt-3 text-sm text-muted">{pending && pendingLabel}</p>
-      {error && <p role="alert" className="mt-3 text-sm font-medium text-rosa-ink">{errorLabel}</p>}
+      <h2 id={`${id}-title`} className="language-text mt-4 text-xl font-bold">{title}</h2>
+      <p id={`${id}-description`} className="language-text mt-2 text-sm text-muted">{description}</p>
+      {children != null && (
+        <div id={`${id}-preview`} className="mt-4 rounded-xl border border-line bg-paper p-3 text-[15px]">
+          {children}
+        </div>
+      )}
+      <p role="status" className="mt-3 text-sm text-muted">{pending && <span className="language-text">{pendingLabel}</span>}</p>
+      {unavailable && <p role="alert" className="mt-3 text-sm font-medium text-rosa-ink">{unavailable}</p>}
+      {error && <p role="alert" className="mt-3 text-sm font-medium text-rosa-ink"><span className="language-text">{errorLabel}</span></p>}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button ref={cancel} type="button" disabled={pending || closing} onClick={dismiss} className="confirmation-action h-11 rounded-xl border border-line px-4 font-semibold hover:bg-ink/5 disabled:opacity-40">
-          {t('common.cancel')}
+          <span className="language-text">{unavailable ? t('common.close') : t('common.cancel')}</span>
         </button>
-        <Button type="button" variant="danger" loading={pending} disabled={closing} onClick={confirm} className="confirmation-action">
-          {pending ? pendingLabel : confirmLabel}
-        </Button>
+        {!unavailable && (
+          <Button type="button" variant={confirmVariant} loading={pending} disabled={closing} onClick={confirm} className="confirmation-action">
+            <span className="language-text">{pending ? pendingLabel : confirmLabel}</span>
+          </Button>
+        )}
       </div>
     </dialog>,
     document.body,

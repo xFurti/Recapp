@@ -1,11 +1,13 @@
+import { selectedLanguage, subscribeLanguage } from '../lib/language-transition'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { CalendarClock, Clock, Delete, GraduationCap, History, KeyRound, LogOut, Moon, School, Sun, SunMedium, Users, X, type LucideIcon } from 'lucide-react'
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium } from 'lucide-react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
+import logoDark from '../assets/marconi-logo-dark.png'
 import page1 from '../assets/recapp-page-1.png'
 import page2 from '../assets/recapp-page-2.png'
 import page3 from '../assets/recapp-page-3.png'
@@ -20,15 +22,29 @@ import type { ClassInfo } from '../types'
 import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
 import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
+import { sectionIndex } from '../lib/sections'
 import { markTourSeen, tourSeen } from '../lib/tour'
-import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
+import { NavIcon, useNavIconMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
+import { ClassNavigation } from './ClassNavigation'
+import { PageFrame } from './PageTransition'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
+const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
+
+/** School mark. Dark mode uses the same artwork with the black lettering turned white, at the same size. */
 export function Logo({ className = 'h-9' }: { className?: string }) {
-  return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
+  const { t } = useTranslation()
+  const label = t('shell.school_site')
+  const img = `w-auto ${className}`
+  return (
+    <a href={SCHOOL_SITE} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className="school-logo inline-flex shrink-0 items-center justify-center">
+      <img src={logo} alt="" className={`${img} logo-light`} />
+      <img src={logoDark} alt="" className={`${img} logo-dark`} />
+    </a>
+  )
 }
 
 /** One full flip of all pages; the keyframes in index.css are written as fractions of it. */
@@ -132,10 +148,10 @@ function EnglishFlag() {
 
 /** One round button: the current language, as its flag, flips to the other. */
 export function LangToggle() {
-  const { i18n, t } = useTranslation()
-  const lang = i18n.language === 'en' ? 'en' : 'it'
+  const { t } = useTranslation()
+  const lang = useSyncExternalStore(subscribeLanguage, selectedLanguage)
   const next = lang === 'it' ? 'en' : 'it'
-  const label = t('common.language_switch', { lang: t(`common.lang_${next}`) })
+  const label = t('common.language_switch', { lng: lang, lang: t(`common.lang_${next}`, { lng: lang }) })
   return (
     <button
       type="button"
@@ -176,24 +192,24 @@ export function TimeTravel() {
         title={t('time.title')}
       >
         <NavIcon icon={Clock} motion="clock" playing={motion.playing} className="size-3.5" />
-        {label ? <span className="hidden sm:inline">{t('time.badge', { time: label })}</span> : <span className="sr-only">{t('time.title')}</span>}
+        {label ? <span className="hidden sm:inline"><span className="language-text">{t('time.badge', { time: label })}</span></span> : <span className="sr-only"><span className="language-text">{t('time.title')}</span></span>}
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={t('time.title')}>
-        <p className="mb-4 text-sm text-muted">{t('time.help')}</p>
+        <p className="mb-4 text-sm text-muted"><span className="language-text">{t('time.help')}</span></p>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="secondary" onClick={() => apply(`${today}T10:00`)}>{t('time.morning')}</Button>
-          <Button variant="secondary" onClick={() => apply(`${today}T15:00`)}>{t('time.afternoon')}</Button>
-          <Button variant="secondary" onClick={() => apply(`${today}T18:30`)}>{t('time.evening')}</Button>
-          <Button variant="secondary" onClick={() => apply(`${addDays(today, 1)}T09:00`)}>{t('time.tomorrow')}</Button>
+          <Button variant="secondary" onClick={() => apply(`${today}T10:00`)}><span className="language-text">{t('time.morning')}</span></Button>
+          <Button variant="secondary" onClick={() => apply(`${today}T15:00`)}><span className="language-text">{t('time.afternoon')}</span></Button>
+          <Button variant="secondary" onClick={() => apply(`${today}T18:30`)}><span className="language-text">{t('time.evening')}</span></Button>
+          <Button variant="secondary" onClick={() => apply(`${addDays(today, 1)}T09:00`)}><span className="language-text">{t('time.tomorrow')}</span></Button>
         </div>
         <div className="mt-4 flex items-end gap-2">
           <Field label={t('time.custom')}>
             <input type="datetime-local" className={inputClass} value={custom} onChange={(e) => setCustom(e.target.value)} />
           </Field>
-          <Button onClick={() => apply(custom)}>{t('time.apply')}</Button>
+          <Button onClick={() => apply(custom)}><span className="language-text">{t('time.apply')}</span></Button>
         </div>
         <Button variant="ghost" className="mt-4 w-full" onClick={() => apply(null)}>
-          {t('time.real')}
+          <span className="language-text">{t('time.real')}</span>
         </Button>
       </Modal>
     </>
@@ -210,7 +226,7 @@ function SimBar() {
   }, [])
   if (!sim) return null
   const label = new Intl.DateTimeFormat(locale(i18n.language), { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(sim))
-  return <p className="bg-giallo px-4 py-1 text-center text-xs font-bold text-[#1d1b1e] sm:hidden">{t('time.badge', { time: label })}</p>
+  return <p className="bg-giallo px-4 py-1 text-center text-xs font-bold text-[#1d1b1e] sm:hidden"><span className="language-text">{t('time.badge', { time: label })}</span></p>
 }
 
 function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) {
@@ -326,30 +342,25 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
             <div className="min-w-0 flex-1">
               <p className="truncate font-bold">{member ? member.nick : t('shell.school_view')}</p>
               <p className="truncate text-xs text-muted">
-                {member ? `${t(`shell.role_${member.role}`)} · ${info.label}` : info.label}
-                {info.is_demo ? ` · ${t('shell.demo')}` : ''}
+                {member && <><span className="language-text">{t(`shell.role_${member.role}`)}</span> · </>}{info.label}
+                {info.is_demo && <> · <span className="language-text">{t('shell.demo')}</span></>}
               </p>
             </div>
-            <button type="button" role="menuitem" onClick={close} aria-label={t('common.close')} className="profile-action flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-ink/5">
-              <X className="size-5" />
+            <button type="button" role="menuitem" onClick={logout} aria-label={t('common.logout')} className="profile-action flex size-11 shrink-0 items-center justify-center rounded-full text-rosa-ink hover:bg-rosa-soft">
+              <LogOut className="size-5" />
             </button>
           </div>
           {member && (
             <button role="menuitem" onClick={openPin} className={row} style={{ '--i': 1 } as CSSProperties}>
-              <KeyRound className="size-4" /> {t('shell.change_pin')}
+              <KeyRound className="size-4" /> <span className="language-text">{t('shell.change_pin')}</span>
             </button>
           )}
           <button role="menuitem" onClick={replay} className={row} style={{ '--i': 2 } as CSSProperties}>
-            <GraduationCap className="size-4" /> {t('tour.replay')}
+            <GraduationCap className="size-4" /> <span className="language-text">{t('tour.replay')}</span>
           </button>
           <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 3 } as CSSProperties}>
             <ThemeToggle />
             <LangToggle />
-          </div>
-          <div className="mt-1 border-t border-line pt-1">
-            <button role="menuitem" onClick={logout} className={`${row} text-rosa-ink hover:bg-rosa-soft`} style={{ '--i': 4 } as CSSProperties}>
-              <LogOut className="size-4" /> {t('common.logout')}
-            </button>
           </div>
         </div>,
         document.body,
@@ -389,30 +400,10 @@ function ChangePinModal({ open, onClose }: { open: boolean; onClose: () => void 
         <Field label={t('join.new_pin')}>{pinInput(newPin, setNewPin)}</Field>
         {msg && <p className="text-sm font-medium">{msg}</p>}
         <Button className="w-full" onClick={submit} loading={busy} disabled={oldPin.length !== 6 || newPin.length !== 6}>
-          {t('common.save')}
+          <span className="language-text">{t('common.save')}</span>
         </Button>
       </div>
     </Modal>
-  )
-}
-
-type NavEntry = { to: string; icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
-
-const NAV: NavEntry[] = [
-  { to: '', icon: Sun, motion: 'today', key: 'nav.today', end: true },
-  { to: 'ieri', icon: History, motion: 'yesterday', key: 'nav.yesterday' },
-  { to: 'in-arrivo', icon: CalendarClock, motion: 'upcoming', key: 'nav.upcoming' },
-  { to: 'classe', icon: Users, motion: 'class', key: 'nav.class' },
-]
-
-function NavItem({ entry, base, className, iconClass }: { entry: NavEntry; base: string; className: (isActive: boolean) => string; iconClass: string }) {
-  const { t } = useTranslation()
-  const { playing, triggers } = useNavIconMotion()
-  return (
-    <NavLink to={entry.to ? `${base}/${entry.to}` : base} end={entry.end} className={({ isActive }) => className(isActive)} data-tour={`nav-${entry.motion}`} {...triggers}>
-      <NavIcon icon={entry.icon} motion={entry.motion} playing={playing} className={iconClass} />
-      {t(entry.key)}
-    </NavLink>
   )
 }
 
@@ -430,6 +421,10 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const [party, setParty] = useState(false)
   const stopParty = useCallback(() => setParty(false), [])
   const autoTried = useRef(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  // One page per first segment after the class: filters, days and subjects stay on the same page.
+  const page = location.pathname.toLowerCase().split('/')[3] ?? ''
 
   useEffect(() => {
     if (takeCelebrate()) setParty(true)
@@ -469,32 +464,22 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   return (
     <div className="min-h-dvh md:flex">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
-        <Link to={base} className="mb-6 flex items-center gap-2" {...sideMark.triggers}>
-          <Wordmark size="md" playing={sideMark.playing} />
+        <div className="mb-6 flex items-center gap-2">
+          <Link to={base} {...sideMark.triggers}>
+            <Wordmark size="md" playing={sideMark.playing} />
+          </Link>
           <Logo className="h-6" />
-        </Link>
-        <nav className="flex flex-col gap-1">
-          {NAV.map((n) => (
-            <NavItem
-              key={n.key}
-              entry={n}
-              base={base}
-              iconClass="size-5"
-              className={(isActive) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 font-semibold transition ${isActive ? 'bg-bordeaux-soft text-bordeaux' : 'text-muted hover:bg-ink/5 hover:text-ink'}`
-              }
-            />
-          ))}
-        </nav>
-        <p className="mt-auto text-xs text-muted">{t('landing.footer')}</p>
+        </div>
+        <ClassNavigation code={info.code} />
+        <p className="mt-auto text-xs text-muted"><span className="language-text">{t('landing.footer')}</span></p>
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
           {info.viewer.kind === 'owner' && (
             <div className="flex items-center justify-between bg-ink px-4 py-1.5 text-xs font-semibold text-paper">
-              <span>{t('shell.school_view')}</span>
-              <Link to="/scuola" className="underline">{t('shell.back_school')}</Link>
+              <span><span className="language-text">{t('shell.school_view')}</span></span>
+              <Link to="/scuola" className="underline"><span className="language-text">{t('shell.back_school')}</span></Link>
             </div>
           )}
           <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
@@ -503,7 +488,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
             </Link>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
-              <p className="hidden truncate text-xs text-muted sm:block">{t('common.app_name')} · {t('common.tagline')}</p>
+              <p className="hidden truncate text-xs text-muted sm:block"><span className="language-text">{t('common.app_name')}</span> · <span className="language-text">{t('common.tagline')}</span></p>
             </div>
             {showClock && <TimeTravel />}
             <div className="hidden items-center gap-2 sm:flex">
@@ -515,22 +500,14 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-28 pt-5 outline-none md:pb-12">
+          {children}
+        </PageFrame>
       </div>
 
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-4">
-          {NAV.map((n) => (
-            <NavItem
-              key={n.key}
-              entry={n}
-              base={base}
-              iconClass="size-6"
-              className={(isActive) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold ${isActive ? 'text-bordeaux' : 'text-muted'}`}
-            />
-          ))}
-        </div>
-      </nav>
+      <div ref={barRef} className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
+        <ClassNavigation code={info.code} mobile />
+      </div>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}
       {party && <ConfettiBurst onDone={stopParty} />}
     </div>
