@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
-import { LangToggle, Logo, RECAPP_MARK_MS, ThemeToggle, Wordmark } from '../components/shell'
+import { LangToggle, RECAPP_MARK_MS, SchoolBadge, ThemeToggle, Wordmark } from '../components/shell'
 import { useNavIconMotion } from '../components/NavIcon'
 import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
@@ -67,7 +67,7 @@ export default function Landing() {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 border-b border-line/80 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-2.5 sm:py-3.5">
-          <Logo className="h-8 sm:h-10" />
+          <SchoolBadge />
           <div className="flex items-center gap-1.5">
             <Link to="/scuola" aria-label={t('landing.school')} className="inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-sm font-semibold text-muted hover:text-ink">
               <School className="size-4" />
