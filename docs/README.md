@@ -14,7 +14,7 @@ Documenti per il team: come è fatto Recapp, perché è fatto così e cosa tener
 | [sviluppo.md](sviluppo.md) | Avvio in locale, test, convenzioni, come aggiungere una funzione |
 | [devpost.md](devpost.md) | Testi inglesi della submission, aggiornati dal racconto del team |
 | [credits.md](credits.md) | Team, uso dell’AI e distinzione tra licenza del codice e logo scolastico |
-| [submission-checklist.md](submission-checklist.md) | Controlli finali. Il video è su YouTube (Claude Opus 5.5 e Remotion); restano voce, musica e l'invio su Devpost |
+| [submission-checklist.md](submission-checklist.md) | Consegna Devpost inviata. Video su YouTube: Claude Opus 5.5, Remotion, voce e musica di Claude |
 | [demo-script.md](demo-script.md) | Copione del video demo |
 
 Per mettere online da zero: [DEPLOY.md](../DEPLOY.md).

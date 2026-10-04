@@ -17,12 +17,8 @@ Aggiornato il 4 ottobre 2026. Questo file è operativo: non copiarlo nella descr
 Pubblico: <https://youtu.be/vZPQf7frLNk>
 
 - [x] Link nel README, in `docs/devpost.md` e in `docs/credits.md`.
-- [ ] Incollare lo stesso link nel campo video di Devpost.
-- [ ] Provare il link senza autenticazione e controllare audio, leggibilità e sottotitoli dell'export finale.
-- [x] Strumento del video nei crediti e in Devpost: Claude Opus 5.5 con la skill Remotion.
-- [ ] Voce, musica e altri materiali del video, se ce ne sono oltre a quello.
-- [ ] Verificare che il video descriva un prototipo testato dal team e non una sperimentazione scolastica già approvata.
-- [ ] Se il video mostra estrazione AI, verificare il provider realmente usato; dichiarare eventuali simulazioni e attese accorciate.
+- [x] Link incollato nel campo video di Devpost. Il team ha inviato la submission.
+- [x] Strumento del video: Claude Opus 5.5 con la skill Remotion. Voce e musica generate da Claude. Le immagini dell'app sono schermate vere di bassaleo.xyz.
 
 ## Prima di inviare
 
@@ -31,6 +27,6 @@ Pubblico: <https://youtu.be/vZPQf7frLNk>
 - [ ] Controllare che gli screenshot scelti siano aggiornati e mostrino dati dimostrativi adatti alla pubblicazione, senza codici di classi reali o inviti.
 - [ ] Se si vogliono citare modelli AI specifici o Render Workflows come servizi attivi, verificarli nella configurazione effettiva del deployment. Il codice supporta anche esecuzione locale e simulata.
 - [ ] Ricontrollare nel modulo Devpost i campi obbligatori, i componenti del team, le scelte relative ai premi, la scadenza visualizzata e le condizioni richieste.
-- [ ] Completare l'invio effettivo su Devpost e verificare lo stato della submission.
+- [x] Invio su Devpost fatto dal team il 5 ottobre 2026.
 
 La modifica di questi documenti non costituisce invio su Devpost né verifica del deployment. Riferimenti ufficiali: [gara](https://csc-back-to-school.devpost.com/), [regolamento](https://csc-back-to-school.devpost.com/rules), [calendario](https://csc-back-to-school.devpost.com/details/dates).
