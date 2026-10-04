@@ -86,7 +86,7 @@ Paste `https://youtu.be/vZPQf7frLNk` into the Devpost video field. The remaining
 
 **Inside the application.** The optional Featherless integration extracts draft items from submitted text or screenshots, using class subjects and calendar context. Uploaded images are re-encoded to remove metadata, but that does not remove personal information visible in the image or typed into the text. Students must choose appropriate material to submit. The AI does not publish recaps: a student reviews the drafts. The offline parser and simulated image results are distinct from live AI inference. Listen uses browser speech synthesis, not generative AI.
 
-The published demo is [on YouTube](https://youtu.be/vZPQf7frLNk). Editing tools, voice, music and any extra AI used only for the video are not listed here yet.
+The published demo is [on YouTube](https://youtu.be/vZPQf7frLNk). Oleksii made it with Claude Opus 5.5, using Remotion as a skill. Voice, music and other footage in the video are not listed here yet.
 
 ## Team
 

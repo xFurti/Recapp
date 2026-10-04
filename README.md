@@ -193,7 +193,7 @@ Our team supplied the initial ideas and product direction. **Cursor** helped wit
 
 This development assistance is separate from the app's optional **Featherless** extraction: it prepares draft items for human review and never publishes a recap on its own. The offline parser, simulated image output and browser speech synthesis are also distinct from live generative AI.
 
-See [credits and AI use](docs/credits.md) for roles and asset details. The demo video is on [YouTube](https://youtu.be/vZPQf7frLNk).
+See [credits and AI use](docs/credits.md) for roles and asset details. The demo video is on [YouTube](https://youtu.be/vZPQf7frLNk); Oleksii made it with Claude Opus 5.5 and Remotion.
 
 ## 📄 License and credits
 

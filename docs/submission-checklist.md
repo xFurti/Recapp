@@ -19,7 +19,8 @@ Pubblico: <https://youtu.be/vZPQf7frLNk>
 - [x] Link nel README, in `docs/devpost.md` e in `docs/credits.md`.
 - [ ] Incollare lo stesso link nel campo video di Devpost.
 - [ ] Provare il link senza autenticazione e controllare audio, leggibilità e sottotitoli dell'export finale.
-- [ ] Integrare strumenti di produzione, eventuale uso dell'AI, voce, musica e altri crediti effettivi in `docs/credits.md` e nella dichiarazione Devpost.
+- [x] Strumento del video nei crediti e in Devpost: Claude Opus 5.5 con la skill Remotion.
+- [ ] Voce, musica e altri materiali del video, se ce ne sono oltre a quello.
 - [ ] Verificare che il video descriva un prototipo testato dal team e non una sperimentazione scolastica già approvata.
 - [ ] Se il video mostra estrazione AI, verificare il provider realmente usato; dichiarare eventuali simulazioni e attese accorciate.
 
