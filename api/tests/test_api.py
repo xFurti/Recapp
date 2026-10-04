@@ -453,9 +453,16 @@ def test_render_hostname_allowed(monkeypatch):
 
     from api import app as app_module
 
-    patched = dataclasses.replace(app_module.settings, app_env="prod", public_url="https://bassaleo.xyz", extra_hosts=("ieri.onrender.com",))
+    patched = dataclasses.replace(
+        app_module.settings,
+        app_env="prod",
+        public_url="https://bassaleo.xyz",
+        extra_hosts=("ieri.onrender.com", "tryrecapp.xyz", "www.tryrecapp.xyz"),
+    )
     monkeypatch.setattr(app_module, "settings", patched)
     assert app_module._origin_allowed("https://ieri.onrender.com")
     assert app_module._origin_allowed("https://www.bassaleo.xyz")
+    assert app_module._origin_allowed("https://tryrecapp.xyz")
+    assert app_module._origin_allowed("https://www.tryrecapp.xyz")
     assert not app_module._origin_allowed("https://evil.example")
     assert not app_module._origin_allowed("http://localhost:5173")

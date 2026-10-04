@@ -11,11 +11,16 @@ services:
     domains:
       - bassaleo.xyz
       - www.bassaleo.xyz
+      - tryrecapp.xyz
+      - www.tryrecapp.xyz
     envVars:
       - key: APP_ENV
         value: prod
       - key: PUBLIC_URL
         value: https://bassaleo.xyz
+      # Second address while tryrecapp.xyz waits on DNS. Links stay on bassaleo.xyz.
+      - key: EXTRA_HOSTS
+        value: tryrecapp.xyz,www.tryrecapp.xyz
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
