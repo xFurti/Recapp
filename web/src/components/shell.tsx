@@ -1,6 +1,6 @@
 import { selectedLanguage, subscribeLanguage } from '../lib/language-transition'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium, X } from 'lucide-react'
+import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium } from 'lucide-react'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -346,8 +346,8 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
                 {info.is_demo && <> · <span className="language-text">{t('shell.demo')}</span></>}
               </p>
             </div>
-            <button type="button" role="menuitem" onClick={close} aria-label={t('common.close')} className="profile-action flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-ink/5">
-              <X className="size-5" />
+            <button type="button" role="menuitem" onClick={logout} aria-label={t('common.logout')} className="profile-action flex size-11 shrink-0 items-center justify-center rounded-full text-rosa-ink hover:bg-rosa-soft">
+              <LogOut className="size-5" />
             </button>
           </div>
           {member && (
@@ -361,11 +361,6 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
           <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 3 } as CSSProperties}>
             <ThemeToggle />
             <LangToggle />
-          </div>
-          <div className="mt-1 border-t border-line pt-1">
-            <button role="menuitem" onClick={logout} className={`${row} text-rosa-ink hover:bg-rosa-soft`} style={{ '--i': 4 } as CSSProperties}>
-              <LogOut className="size-4" /> <span className="language-text">{t('common.logout')}</span>
-            </button>
           </div>
         </div>,
         document.body,
