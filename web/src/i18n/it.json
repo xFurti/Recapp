@@ -17,14 +17,25 @@
     "you": "tu",
     "optional": "opzionale",
     "read_only": "Sola lettura",
-    "language": "Lingua"
+    "language": "Lingua",
+    "language_switch": "Passa a {{lang}}",
+    "lang_it": "italiano",
+    "lang_en": "inglese"
   },
   "nav": {
     "today": "Oggi",
     "yesterday": "Ieri",
     "upcoming": "In arrivo",
     "class": "Classe",
-    "days": "Tutti i giorni"
+    "days": "Tutti i giorni",
+    "sections": "Sezioni della classe"
+  },
+  "notFound": {
+    "document_title": "Pagina non trovata — Recapp",
+    "title": "Questa pagina non c'è",
+    "body": "Il collegamento potrebbe essere errato oppure la pagina potrebbe essere stata spostata o rimossa.",
+    "home": "Torna alla home",
+    "today": "Vai a Oggi"
   },
   "landing": {
     "title": "Ti sei perso un giorno?",
@@ -75,7 +86,9 @@
     "change_pin": "Cambia PIN",
     "old_pin": "PIN attuale",
     "pin_changed": "PIN aggiornato",
-    "profile_menu": "Menu del profilo"
+    "profile_menu": "Menu del profilo",
+    "demo": "Demo",
+    "school_site": "Sito dell'ITI G. Marconi di Verona — si apre in una nuova scheda"
   },
   "time": {
     "badge": "Ora simulata: {{time}}",
@@ -106,7 +119,15 @@
     "me_draft": "Hai una bozza in corso.",
     "published": "Pubblicata da <b>{{nick}}</b> alle {{time}}",
     "open_missing": "<b>{{nick}}</b> non ha pubblicato la giornata.",
-    "open_pass": "Il verbalista di oggi ha passato il turno.",
+    "open_pass": "Turno aperto alla classe.",
+    "pass_title": "Vuoi passare il turno?",
+    "pass_description": "Il turno diventerà aperto: un altro membro della classe potrà prendere in carico il riepilogo della giornata.",
+    "pass_action": "Passa il turno",
+    "pass_pending": "Sto passando il turno…",
+    "pass_error": "Non sono riuscito a passare il turno. Riprova.",
+    "pass_unavailable": "Il turno è cambiato: questa azione non è più disponibile.",
+    "pass_left_title": "Hai lasciato il turno di oggi.",
+    "pass_left_body": "Ricordati di avvisare i compagni che oggi non ti occuperai del riepilogo, così qualcuno potrà prendere il tuo posto.",
     "open_nobody": "Nessun verbalista assegnato per oggi.",
     "open_sub": "Il turno è libero: chiunque della classe può scriverla.",
     "me_open": "Il turno ora è aperto a tutti, ma puoi ancora scriverla tu.",
@@ -161,6 +182,10 @@
     "photo_limit": "Massimo 3 foto per materia"
   },
   "listen": {
+    "loading": "Avvio…",
+    "unavailable": "Nessuna voce disponibile. Controlla le voci del browser o del sistema e riprova.",
+    "failed": "Non è stato possibile leggere il riepilogo. Riprova o controlla le impostazioni audio.",
+
     "play": "Ascolta",
     "pause": "Pausa",
     "resume": "Riprendi",
@@ -217,6 +242,11 @@
     "hide_past": "Nascondi passati",
     "empty": "Niente in arrivo con questi filtri.",
     "empty_sub": "Aggiungi un compito, una verifica o un evento con il +.",
+    "subject": "Materia",
+    "no_subject": "Senza materia",
+    "no_match": "Nessun elemento corrisponde ai filtri selezionati.",
+    "clear_subject": "Rimuovi filtro materia",
+    "reset_filters": "Reimposta filtri",
     "add": "Aggiungi",
     "done": "Fatto",
     "mark_done": "Segna come fatto (solo su questo dispositivo)",
@@ -248,6 +278,15 @@
     "add": "Aggiungi"
   },
   "editor": {
+    "lesson_status": "Stato della lezione",
+    "lesson_status_svolta": "Svolta",
+    "lesson_status_non_svolta": "Non svolta",
+    "lesson_status_supplenza": "Supplenza",
+    "lesson_status_verifica": "Verifica svolta",
+    "lesson_status_hint_svolta": "Scrivi la lezione che è stata svolta.",
+    "lesson_status_hint_non_svolta": "Puoi non scrivere niente: la lezione non si è svolta.",
+    "lesson_status_hint_supplenza": "Se vuoi, scrivi cosa è stato fatto durante la supplenza.",
+    "lesson_status_hint_verifica": "Scrivi l'argomento della verifica che è stata svolta.",
     "title": "Giornata di {{day}}",
     "subtitle": "Scrivi quello che ricordi. Niente voti, niente nomi di compagni.",
     "lessons": "Lezioni di oggi",
@@ -295,6 +334,9 @@
     "saved_published": "Modifiche salvate alle {{time}}",
     "save_error": "Non salvato: {{msg}}",
     "anti_empty": "Scrivi almeno un punto, un blocco lab o un compito prima di pubblicare.",
+    "empty_title": "Aggiungi un contenuto prima di pubblicare",
+    "empty_body": "Scrivi almeno un punto, compila un blocco laboratorio oppure aggiungi un compito.",
+    "empty_complete": "Completa il riepilogo",
     "not_allowed": "Non puoi scrivere questa giornata.",
     "not_allowed_sub": "La scrive il verbalista del giorno. Dalle 18:00, se non l'ha pubblicata, puoi prendere il turno dalla tab Oggi.",
     "remove_item": "Rimuovi",
@@ -361,7 +403,32 @@
     "tt_cell": "{{day}}, {{hour}}ª ora",
     "tt_timezone": "Fuso orario",
     "tt_bell": "Orari delle ore",
-    "demo_locked": "Non disponibile nella demo"
+    "demo_locked": "Non disponibile nella demo",
+    "tt_view_day": "Giorno",
+    "tt_view_week": "Settimana",
+    "tt_days": "Giorni della settimana",
+    "tt_today": "Oggi",
+    "tt_go_today": "Vai a oggi",
+    "tt_next_day": "Prossimo giorno di lezione",
+    "tt_no_school_today": "Oggi non c'è lezione: ecco {{day}}, il prossimo giorno in orario.",
+    "tt_no_school_today_demo": "Oggi non c'è lezione in orario: ecco {{day}}, il prossimo giorno previsto.",
+    "tt_now": "In corso",
+    "tt_lab": "Laboratorio",
+    "tt_hour_short": "{{hour}}ª",
+    "tt_hours_short": "{{from}}ª–{{to}}ª",
+    "tt_hour_col": "Ora",
+    "tt_room_value": "Aula {{room}}",
+    "tt_room_missing": "Aula non indicata",
+    "tt_time_missing": "Orario non indicato",
+    "tt_free_hour": "Ora libera",
+    "tt_free_hour_sub": "Nessuna lezione in orario",
+    "tt_day_empty": "{{day}} non ha lezioni in orario.",
+    "tt_not_set": "Orario non ancora inserito",
+    "tt_not_set_admin": "Inseriscilo con «Modifica orario»: comparirà qui e nella pagina Oggi.",
+    "tt_not_set_member": "Un admin della classe può inserirlo: comparirà qui e nella pagina Oggi.",
+    "tt_scroll_hint": "Scorri per gli altri giorni",
+    "tt_week_caption": "Orario settimanale della classe",
+    "tt_demo_locked": "Nella demo puoi consultare l'orario, ma non modificarlo."
   },
   "school": {
     "title": "Area scuola",
@@ -420,6 +487,8 @@
   },
   "subject": {
     "by_subject": "Per materia",
+    "all_subjects": "Tutte le materie",
+    "back_general": "Torna alla vista generale",
     "week": "Questa settimana",
     "two_weeks": "Ultime 2 settimane",
     "all": "Tutto",
@@ -451,7 +520,12 @@
     "delete_confirm": "Eliminare questo messaggio?",
     "empty": "Nessuna risposta per ora.",
     "open_corrections_one": "{{count}} correzione da vedere",
-    "open_corrections_other": "{{count}} correzioni da vedere"
+    "open_corrections_other": "{{count}} correzioni da vedere",
+    "delete_description": "Il messaggio verrà rimosso dalla conversazione.",
+    "delete_action": "Elimina messaggio",
+    "deleting": "Eliminazione…",
+    "deleted": "Messaggio eliminato",
+    "delete_error": "Non è stato possibile eliminare il messaggio. Riprova o chiudi questa finestra."
   },
   "update": {
     "preparing": "Stiamo preparando un aggiornamento. Puoi continuare a usare Recapp.",

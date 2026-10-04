@@ -86,7 +86,7 @@ export function ItemForm({
             const Icon = TYPE_STYLE[ty].icon
             return (
               <Chip key={ty} active={item.type === ty} onClick={() => set({ type: ty })}>
-                <Icon className="size-4" /> {t(`types.${ty}`)}
+                <Icon className="size-4" /> <span className="language-text">{t(`types.${ty}`)}</span>
               </Chip>
             )
           })}
@@ -112,11 +112,11 @@ export function ItemForm({
           <input className={inputClass} value={item.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('item_form.title_ph')} maxLength={200} required autoFocus />
         </Field>
         <div>
-          <span className="mb-1 block text-sm font-semibold">{t('item_form.when')}</span>
+          <span className="mb-1 block text-sm font-semibold"><span className="language-text">{t('item_form.when')}</span></span>
           <div className="mb-2 flex flex-wrap gap-2">
-            {quick.map((q) => (
-              <Chip key={q.label} active={item.due_date === q.value} onClick={() => set({ due_date: q.value })}>
-                {q.label}
+            {quick.map((q, index) => (
+              <Chip key={index} active={item.due_date === q.value} onClick={() => set({ due_date: q.value })}>
+                <span className="language-text">{q.label}</span>
               </Chip>
             ))}
           </div>
@@ -149,11 +149,11 @@ export function ItemForm({
         <div className="flex gap-2 pt-1">
           {onDelete && (
             <Button type="button" variant="danger" onClick={onDelete}>
-              {t('common.delete')}
+              <span className="language-text">{t('common.delete')}</span>
             </Button>
           )}
           <Button type="submit" className="flex-1" loading={busy} disabled={!item.title.trim()}>
-            {item.id ? t('item_form.save') : t('item_form.add')}
+            <span className="language-text">{item.id ? t('item_form.save') : t('item_form.add')}</span>
           </Button>
         </div>
       </form>

@@ -5,7 +5,7 @@ export interface Creator {
   name: string
   role: LocalizedText
   bio: LocalizedText
-  photo?: { src: string; alt: LocalizedText }
+  photo?: { src: string; alt: LocalizedText; fit?: 'cover' | 'contain' }
   links?: { label: string; href: string }[]
 }
 
@@ -21,11 +21,16 @@ export const faqItems = [
 ] as const
 
 // Add only team-supplied profiles and personal links. Do not publish guessed identities.
-export const creators: Creator[] = ['Leo', 'Luca', 'Alex'].map((name) => ({
-  id: name.toLowerCase(),
+export const creators: Creator[] = [
+  { id: 'leonardo', name: 'Leonardo Bassanello', className: '4bi', photo: { src: '/creators/leonardo.webp', alt: { it: 'Avatar di Leonardo Bassanello', en: 'Avatar of Leonardo Bassanello' } } },
+  { id: 'luca', name: 'Luca Cremonese', className: '4bi', photo: { src: '/creators/luca.webp', alt: { it: 'Grafica di Magilla Gorilla per Luca Cremonese', en: 'Magilla Gorilla artwork for Luca Cremonese' }, fit: 'contain' as const } },
+  { id: 'oleksi', name: 'Oleksi Holovan', className: '4ai', photo: { src: '/creators/oleksi.webp', alt: { it: 'Logo personale di Oleksi Holovan', en: 'Personal logo of Oleksi Holovan' }, fit: 'contain' as const } },
+].map(({ id, name, className, photo }) => ({
+  id,
   name,
+  photo,
   role: { it: 'Developer e creatore', en: 'Developer and creator' },
-  bio: { it: '', en: '' },
+  bio: { it: `17 anni - ${className}`, en: `17 years old - ${className}` },
 }))
 
 export function localized(text: LocalizedText, language: string): string {

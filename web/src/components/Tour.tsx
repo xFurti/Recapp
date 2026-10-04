@@ -173,18 +173,18 @@ export function Tour({ demo, onClose }: { demo: boolean; onClose: (finished: boo
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-wide text-muted">
-                {t('tour.label')} · <span aria-hidden>{position}/{steps.length}</span>
-                <span className="sr-only">{t('tour.progress', { n: position, total: steps.length })}</span>
+                <span className="language-text">{t('tour.label')}</span> · <span aria-hidden>{position}/{steps.length}</span>
+                <span className="sr-only"><span className="language-text">{t('tour.progress', { n: position, total: steps.length })}</span></span>
               </p>
-              <h2 id={`${uid}-title`} className="mt-0.5 text-lg font-extrabold leading-snug">{t(`tour.${step.id}_title`)}</h2>
+              <h2 id={`${uid}-title`} className="mt-0.5 text-lg font-extrabold leading-snug"><span className="language-text">{t(`tour.${step.id}_title`)}</span></h2>
             </div>
             <button onClick={() => onClose(isLast)} className="-mr-1.5 -mt-1 rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-ink" aria-label={t('tour.close')}>
               <X className="size-4" />
             </button>
           </div>
           <p id={`${uid}-body`} className="mt-2 text-[15px] leading-relaxed text-ink/80">
-            {t(`tour.${step.id}_body`)}
-            {step.id === 'welcome' && demo && <span className="mt-1 block text-sm text-muted">{t('tour.welcome_demo')}</span>}
+            <span className="language-text">{t(`tour.${step.id}_body`)}</span>
+            {step.id === 'welcome' && demo && <span className="mt-1 block text-sm text-muted"><span className="language-text">{t('tour.welcome_demo')}</span></span>}
           </p>
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-end gap-2 [&_button]:whitespace-nowrap">
@@ -195,13 +195,13 @@ export function Tour({ demo, onClose }: { demo: boolean; onClose: (finished: boo
           </div>
           {isFirst ? (
             <>
-              <Button size="sm" variant="ghost" onClick={() => onClose(false)}>{t('tour.skip')}</Button>
-              <Button size="sm" onClick={() => go(1)}>{t('tour.start')}</Button>
+              <Button size="sm" variant="ghost" onClick={() => onClose(false)}><span className="language-text">{t('tour.skip')}</span></Button>
+              <Button size="sm" onClick={() => go(1)}><span className="language-text">{t('tour.start')}</span></Button>
             </>
           ) : (
             <>
-              <Button size="sm" variant="ghost" onClick={() => go(-1)}>{t('tour.back')}</Button>
-              <Button size="sm" onClick={() => go(1)}>{isLast ? t('tour.finish') : t('tour.next')}</Button>
+              <Button size="sm" variant="ghost" onClick={() => go(-1)}><span className="language-text">{t('tour.back')}</span></Button>
+              <Button size="sm" onClick={() => go(1)}><span className="language-text">{isLast ? t('tour.finish') : t('tour.next')}</span></Button>
             </>
           )}
         </div>

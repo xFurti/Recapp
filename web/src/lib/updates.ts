@@ -6,9 +6,9 @@ export type UpdateNotice = { kind: 'preparing'; key: string } | { kind: 'ready';
 
 type Status = { version: string; update_id: string | null }
 
-const POLL_MS = 60_000
-const POLL_PREPARING_MS = 30_000
-const CONFIRM_MS = 10_000
+const POLL_MS = 15_000
+const POLL_PREPARING_MS = 8_000
+const CONFIRM_MS = 8_000
 const ERROR_MS = 120_000
 const DISMISSED_KEY = 'recapp.update.dismissed'
 
@@ -43,14 +43,19 @@ function emit() {
 
 function apply(s: Status): number {
   if (loaded === null) loaded = s.version
+  const changed = s.version !== loaded
+  const confirmed = changed && candidate === s.version
+  // A banner that already said "updating" should become "ready" as soon as the new version answers,
+  // instead of disappearing for a poll and looking like the notice broke.
+  const wasPreparing = notice?.kind === 'preparing'
   let next: UpdateNotice | null = null
-  if (s.version !== loaded && candidate === s.version) {
+  if (changed && (confirmed || wasPreparing)) {
     next = { kind: 'ready', key: `ready:${s.version}` }
-  } else if (s.update_id) {
+  } else if (!changed && s.update_id) {
     next = { kind: 'preparing', key: `preparing:${s.update_id}` }
   }
-  const confirming = s.version !== loaded && candidate !== s.version
-  candidate = s.version !== loaded ? s.version : null
+  const confirming = changed && !confirmed && !wasPreparing
+  candidate = changed ? s.version : null
   if (next?.key !== notice?.key) {
     notice = next
     emit()

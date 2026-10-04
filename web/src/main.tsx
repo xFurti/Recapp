@@ -14,6 +14,7 @@ import ClassLayout from './pages/ClassLayout'
 import { DayByDate, DaysList, Yesterday } from './pages/DayPage'
 import Join from './pages/Join'
 import Landing from './pages/Landing'
+import NotFound from './pages/NotFound'
 import SubjectPage from './pages/SubjectPage'
 import Today from './pages/Today'
 import Upcoming from './pages/Upcoming'
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
       { path: '/privacy', element: later(<Privacy />) },
       { path: '/scuola', element: later(<SchoolArea />) },
       { path: '/c/:code/entra', element: <Join /> },
-      { path: '*', element: <Landing /> },
+      { path: '*', element: <NotFound /> },
     ],
   },
   {
@@ -59,6 +60,7 @@ const router = createBrowserRouter([
       { path: 'in-arrivo', element: <Upcoming /> },
       { path: 'classe', element: later(<ClassPage />) },
       { path: 'scrivi/:day', element: later(<Editor />) },
+      { path: '*', element: <NotFound /> },
     ],
   },
 ])

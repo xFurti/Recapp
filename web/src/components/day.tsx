@@ -12,7 +12,7 @@ import { Avatar, Badge, Modal } from './ui'
 
 export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
-  if (!lessons.length) return <p className="text-sm text-muted">{t('today.no_lessons')}</p>
+  if (!lessons.length) return <p className="text-sm text-muted"><span className="language-text">{t('today.no_lessons')}</span></p>
   return (
     <ol className="flex flex-wrap gap-2">
       {lessons.map((l) => (
@@ -22,12 +22,12 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
           <span className="text-xs font-medium text-muted">
-            {l.hours.length > 1 ? t('day.hours', { h: l.hours_label }) : t('day.hour', { h: l.hours_label })} · {l.start}
+            <span className="language-text">{l.hours.length > 1 ? t('day.hours', { h: l.hours_label }) : t('day.hour', { h: l.hours_label })}</span> · {l.start}
           </span>
           <span className="font-semibold leading-tight">{subjectName(subjects, l.subject_code, i18n.language)}</span>
           <span className="mt-1 flex items-center gap-1.5 text-xs text-muted">
             {l.room}
-            {l.is_lab && <Badge className="bg-verde-soft text-verde-ink">{t('day.lab')}</Badge>}
+            {l.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
           </span>
         </li>
       ))}
@@ -67,15 +67,15 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   return (
     <div className="mt-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
       <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
-        <FlaskConical className="size-4" /> {t('day.lab_title')}
+        <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_title')}</span>
       </p>
       <dl className="space-y-1.5 text-sm">
-        {rows.map((r) => (
-          <div key={r.label} className="flex gap-2">
+        {rows.map((r, index) => (
+          <div key={index} className="flex gap-2">
             <r.icon className={`mt-0.5 size-4 shrink-0 ${r.warn ? 'text-rosa-ink' : 'text-verde-ink'}`} aria-hidden />
-            <dt className="sr-only">{r.label}</dt>
+            <dt className="language-text sr-only">{r.label}</dt>
             <dd className="min-w-0">
-              <span className="font-semibold">{r.label}: </span>
+              <span className="language-text font-semibold">{r.label}: </span>
               {r.link ? (
                 <a href={r.value} target="_blank" rel="noreferrer noopener" className="break-all font-medium text-azzurro-ink underline">
                   {r.value.replace(/^https?:\/\//, '')}
@@ -114,16 +114,16 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
       </header>
 
       <div className="divide-y divide-line">
-        {entries.length === 0 && <p className="px-5 py-4 text-muted">{t('day.nothing_written')}</p>}
+        {entries.length === 0 && <p className="px-5 py-4 text-muted"><span className="language-text">{t('day.nothing_written')}</span></p>}
         {entries.map((e, i) => (
           <section key={`${e.subject_code}-${i}`} className="flex gap-3 px-4 py-4 sm:px-5">
             <span className="w-1.5 shrink-0 rounded-full" style={{ backgroundColor: subjectColor(subjects, e.subject_code) }} aria-hidden />
             <div className="min-w-0 flex-1">
               <h3 className="flex flex-wrap items-center gap-2">
                 <span className="font-bold">{subjectName(subjects, e.subject_code, i18n.language)}</span>
-                {e.hours && <span className="text-xs text-muted">{e.hours.includes('-') ? t('day.hours', { h: e.hours }) : t('day.hour', { h: e.hours })}</span>}
-                {e.is_lab && <Badge className="bg-verde-soft text-verde-ink">{t('day.lab')} {e.room}</Badge>}
-                {e.lesson_status !== 'svolta' && <Badge className="bg-giallo-soft text-ink">{t(`day.status_${e.lesson_status}`)}</Badge>}
+                {e.hours && <span className="text-xs text-muted"><span className="language-text">{e.hours.includes('-') ? t('day.hours', { h: e.hours }) : t('day.hour', { h: e.hours })}</span></span>}
+                {e.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {e.room}</Badge>}
+                {e.lesson_status !== 'svolta' && <Badge className="bg-giallo-soft text-ink"><span className="language-text">{t(`day.status_${e.lesson_status}`)}</span></Badge>}
               </h3>
               {e.bullets.length > 0 && (
                 <ul className="mt-1.5 list-disc space-y-1 pl-5 text-[15px] leading-relaxed marker:text-muted">
@@ -141,7 +141,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 
       {card.items.length > 0 && (
         <section className="border-t border-line bg-paper/60 px-4 py-4 sm:px-5">
-          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t('day.assigned')}</h3>
+          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.assigned')}</span></h3>
           <div className="space-y-2">
             {card.items.map((it) => (
               <ItemRow key={it.id} item={it} subjects={subjects} compact />
@@ -154,7 +154,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
         <section className="border-t border-line px-4 py-4 sm:px-5">
           <div className="rounded-xl bg-giallo-soft p-3">
             <p className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
-              <StickyNote className="size-4" /> {t('day.notes')}
+              <StickyNote className="size-4" /> <span className="language-text">{t('day.notes')}</span>
             </p>
             <p className="whitespace-pre-line text-[15px]">{card.notes}</p>
           </div>
@@ -163,7 +163,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 
       {card.attachments.length > 0 && (
         <section className="border-t border-line px-4 py-4 sm:px-5">
-          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t('day.attachments')}</h3>
+          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.attachments')}</span></h3>
           <div className="flex flex-wrap gap-2">
             {card.attachments.map((a) => (
               <button key={a.id} onClick={() => setZoom(a.id)} className="overflow-hidden rounded-lg border border-line">
@@ -208,25 +208,29 @@ export function speechText(card: Card, subjects: Subject[], t: TFunction, lang: 
 export function ListenButton({ card, subjects }: { card: Card; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
   const speech = useSpeech()
-  if (!speech.supported) return null
+  if (!speech.supported) return <p role="status" className="text-sm text-muted"><span className="language-text">{t('listen.unsupported')}</span></p>
   if (speech.state === 'idle') {
     return (
-      <button
-        onClick={() => speech.play(speechText(card, subjects, t, i18n.language), i18n.language)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux/15"
-      >
-        <Play className="size-4" /> {t('listen.play')}
-      </button>
+      <div className="flex flex-col items-end gap-1">
+        <button
+          onClick={() => speech.play(speechText(card, subjects, t, i18n.language), i18n.language)}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux/15"
+        >
+          <Play className="size-4" /> <span className="language-text">{t('listen.play')}</span>
+        </button>
+        {speech.error && <p role="alert" className="max-w-64 text-sm text-bordeaux"><span className="language-text">{t(`listen.${speech.error}`)}</span></p>}
+      </div>
     )
   }
   return (
     <div className="flex items-center gap-1">
       <button
+        disabled={speech.state === 'loading'}
         onClick={speech.state === 'playing' ? speech.pause : speech.resume}
         className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux px-3 text-sm font-semibold text-white"
       >
         {speech.state === 'playing' ? <Pause className="size-4" /> : <Play className="size-4" />}
-        {speech.state === 'playing' ? t('listen.pause') : t('listen.resume')}
+        <span className="language-text">{speech.state === 'loading' ? t('listen.loading') : speech.state === 'playing' ? t('listen.pause') : t('listen.resume')}</span>
       </button>
       <button onClick={speech.stop} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('listen.stop')}>
         <Square className="size-4" />

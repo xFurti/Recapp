@@ -8,13 +8,15 @@ Ordine e collegamenti delle FAQ sono in `web/src/content/about.ts`; domande e ri
 
 Le risposte sono state confrontate con README, Join, Landing, `api/services.py`, `api/schedule.py`, autenticazione e gestione delle immagini. Descrivono riepiloghi, demo dedicata al browser, inviti e PIN, rotazione, passaggio del turno, presa del turno alle 18:00 e importazione in bozze. Nessuna risposta dichiara accesso automatico ai servizi della scuola.
 
-Prima della pubblicazione il team deve approvare i testi, come richiesto dall’issue #18. L’apertura della PR serve alla revisione e non costituisce approvazione dei contenuti.
+I testi sono verificati tecnicamente rispetto al codice e al README. Il passaggio da draft a pronta per la review permette al team di svolgere la validazione editoriale richiesta dall’issue #18; non equivale alla pubblicazione in produzione né all’approvazione dei contenuti.
 
 ## Profili
 
-L’array `creators` in `web/src/content/about.ts` contiene i nickname forniti dal team: Leo, Luca e Alex, tutti con ruolo “Developer e creatore” (inglese: “Developer and creator”). Biografie, foto e link personali saranno aggiunti dal team in seguito. Finché la biografia è vuota non viene mostrato un paragrafo, e in assenza di foto compare la grafica con iniziali. Non inventare le informazioni personali mancanti.
+L’array `creators` in `web/src/content/about.ts` contiene i dati forniti dal team: Leonardo Bassanello (17 anni - 4bi), Luca Cremonese (17 anni - 4bi) e Oleksi Holovan (17 anni - 4ai), tutti con ruolo “Developer e creatore” (inglese: “Developer and creator”). Le descrizioni hanno anche la versione inglese. Leonardo usa il proprio avatar illustrato, Luca la grafica di Magilla Gorilla e Oleksi il proprio logo: tutte le immagini sono fornite dal team e ottimizzate in WebP. Logo e grafica usano `contain` per essere mostrati interamente; in caso di immagine mancante o errore di caricamento compaiono le iniziali. Non sono inseriti link personali. Non inventare le informazioni personali mancanti.
 
-Ogni profilo usa `id`, `name`, `role: { it, en }`, `bio: { it, en }`, una foto opzionale `{ src, alt: { it, en } }` e link opzionali `{ label, href }`. Usare immagini ridimensionate e compresse (preferibilmente WebP), con ritaglio quadrato. Il componente riserva lo spazio dell’immagine e usa una grafica con iniziali quando la foto manca o non si carica.
+Ogni profilo usa `id`, `name`, `role: { it, en }`, `bio: { it, en }`, una foto o grafica opzionale `{ src, alt: { it, en }, fit?: 'cover' | 'contain' }` e link opzionali `{ label, href }`. Usare immagini ridimensionate e compresse (preferibilmente WebP), con ritaglio quadrato. Il componente riserva lo spazio dell’immagine e usa una grafica con iniziali quando la foto manca o non si carica.
+
+Il cambio lingua mantiene aperta la stessa risposta e selezionato lo stesso creatore. Le etichette tradotte partecipano alla dissolvenza condivisa dell’app; nomi, biografie e immagini dei creatori restano separati da quella transizione. Il logo dell’istituto e il ritorno alla home sono collegamenti distinti.
 
 La presentazione avanza solo manualmente. Selettori, precedente/successivo, Tab, Invio, Spazio, frecce sinistra/destra, Home ed End funzionano anche senza animazioni. I profili inattivi e le risposte chiuse sono esclusi dalla navigazione e dagli screen reader. Tutti i profili condividono una cella della griglia, che riserva lo spazio della biografia più lunga.
 

@@ -1,5 +1,6 @@
-import { BookOpen, Check, ExternalLink, FlaskConical, GraduationCap, Megaphone, Paperclip } from 'lucide-react'
-import type { ComponentType } from 'react'
+import { TranslatedMessage } from './TranslatedMessage'
+import { BookOpen, ExternalLink, FlaskConical, GraduationCap, Megaphone, Paperclip } from 'lucide-react'
+import { useEffect, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { attachmentUrl } from '../api'
 import { countdown, relativeDay, subjectColor, subjectName } from '../lib/format'
@@ -21,7 +22,7 @@ export function TypeBadge({ type }: { type: ItemType }) {
   return (
     <Badge className={s.badge}>
       <Icon className="size-3.5" />
-      {t(`types.${type}`)}
+      <span className="language-text">{t(`types.${type}`)}</span>
     </Badge>
   )
 }
@@ -35,6 +36,34 @@ export function SubjectTag({ subjects, code }: { subjects: Subject[]; code: stri
       <span className="size-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
       {code}
     </span>
+  )
+}
+
+function DoneCheck({ done, onToggle, label }: { done: boolean; onToggle: () => void; label: string }) {
+  const [drawing, setDrawing] = useState(false)
+  useEffect(() => {
+    if (!drawing) return
+    const id = window.setTimeout(() => setDrawing(false), 700)
+    return () => window.clearTimeout(id)
+  }, [drawing])
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (!done) setDrawing(true)
+        onToggle()
+      }}
+      aria-pressed={done}
+      title={label}
+      aria-label={label}
+      className={`done-check flex size-9 shrink-0 items-center justify-center self-center rounded-full border ${
+        drawing ? 'is-drawing' : ''
+      } ${done ? 'is-done border-verde bg-verde text-white' : 'border-line text-muted hover:border-verde hover:text-verde-ink'}`}
+    >
+      <svg viewBox="0 0 24 24" className="size-5" aria-hidden>
+        <path className="done-check-mark" pathLength={1} d="M7 12.5 10.2 15.7 17 8.5" />
+      </svg>
+    </button>
   )
 }
 
@@ -88,11 +117,11 @@ export function ItemRow({
               {item.due_time ? ` · ${item.due_time}` : ''}
             </span>
             <SourceBadge source={item.source} />
-            {item.author && <span>{t('upcoming.added_by', { nick: item.author.nick })}</span>}
+            {item.author && <span><TranslatedMessage message={'upcoming.added_by'} values={{ nick: item.author.nick }} /></span>}
             {item.link && (
               <a href={item.link} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 font-semibold text-azzurro-ink hover:underline">
                 <ExternalLink className="size-3.5" />
-                {t('upcoming.open_link')}
+                <span className="language-text">{t('upcoming.open_link')}</span>
               </a>
             )}
             {item.attachment_id && (
@@ -109,20 +138,7 @@ export function ItemRow({
           </p>
         )}
       </div>
-      {onToggleDone && (
-        <button
-          type="button"
-          onClick={onToggleDone}
-          aria-pressed={done}
-          title={t('upcoming.mark_done')}
-          aria-label={t('upcoming.mark_done')}
-          className={`flex size-9 shrink-0 items-center justify-center self-center rounded-full border transition ${
-            done ? 'border-verde bg-verde text-white' : 'border-line text-muted hover:border-verde hover:text-verde-ink'
-          }`}
-        >
-          <Check className="size-4" />
-        </button>
-      )}
+      {onToggleDone && <DoneCheck done={!!done} onToggle={onToggleDone} label={t('upcoming.mark_done')} />}
     </div>
   )
 }

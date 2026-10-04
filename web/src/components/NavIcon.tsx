@@ -37,7 +37,7 @@ export function useNavIconMotion(ms = NAV_ICON_MS) {
       if (e.currentTarget.matches(':focus-visible')) play()
     },
   }
-  return { playing, triggers }
+  return { playing, play, triggers }
 }
 
 export function NavIcon({ icon: Icon, motion, playing, className }: { icon: LucideIcon; motion: NavMotion; playing: boolean; className?: string }) {

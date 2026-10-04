@@ -62,6 +62,31 @@ def test_demo_enter_does_not_ask_for_a_pin(client):
     assert client.get("/api/me").json()["member"]["nick"] == "leo"
 
 
+def test_unknown_page_is_the_app_and_unknown_api_stays_json(client, tmp_path):
+    missing = client.get("/api/not-a-real-endpoint")
+    assert missing.status_code == 404
+    assert "application/json" in missing.headers["content-type"]
+
+    from api.config import settings
+
+    index = tmp_path / "index.html"
+    index.write_text('<!doctype html><div id="root">Recapp</div>', encoding="utf-8")
+    previous = settings.web_dist
+    object.__setattr__(settings, "web_dist", tmp_path)
+    try:
+        page = client.get("/this-page-is-not-real", follow_redirects=False)
+        assert page.status_code == 200
+        assert "text/html" in page.headers["content-type"]
+        assert page.headers["cache-control"] == "no-cache"
+        assert page.headers.get("location") is None
+        assert 'id="root"' in page.text
+        again = client.get("/api/not-a-real-endpoint")
+        assert again.status_code == 404
+        assert "application/json" in again.headers["content-type"]
+    finally:
+        object.__setattr__(settings, "web_dist", previous)
+
+
 def test_html_is_not_cached(client):
     from api.app import cache_control_for
 
@@ -215,6 +240,10 @@ def test_feedback_comments_and_thanks(client):
     assert client.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 403
     assert leo.patch(f"/api/classes/DEMO/comments/{correction['id']}", json={"resolved": True}).status_code == 200
     assert client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()["open_corrections"] == 0
+    other = make_client()
+    demo_member(other, "sara")
+    assert other.delete(f"/api/classes/DEMO/comments/{correction['id']}").status_code == 403
+    assert len(client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()["comments"]) == 2
     assert client.delete(f"/api/classes/DEMO/comments/{correction['id']}").status_code == 200
     assert client.post(f"/api/classes/DEMO/cards/{day}/thanks").status_code == 200
     fb = client.get(f"/api/classes/DEMO/cards/{day}/feedback").json()
