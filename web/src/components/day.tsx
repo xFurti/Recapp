@@ -208,25 +208,29 @@ export function speechText(card: Card, subjects: Subject[], t: TFunction, lang: 
 export function ListenButton({ card, subjects }: { card: Card; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
   const speech = useSpeech()
-  if (!speech.supported) return null
+  if (!speech.supported) return <p role="status" className="text-sm text-muted"><span className="language-text">{t('listen.unsupported')}</span></p>
   if (speech.state === 'idle') {
     return (
-      <button
-        onClick={() => speech.play(speechText(card, subjects, t, i18n.language), i18n.language)}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux/15"
-      >
-        <Play className="size-4" /> <span className="language-text">{t('listen.play')}</span>
-      </button>
+      <div className="flex flex-col items-end gap-1">
+        <button
+          onClick={() => speech.play(speechText(card, subjects, t, i18n.language), i18n.language)}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux/15"
+        >
+          <Play className="size-4" /> <span className="language-text">{t('listen.play')}</span>
+        </button>
+        {speech.error && <p role="alert" className="max-w-64 text-sm text-bordeaux"><span className="language-text">{t(`listen.${speech.error}`)}</span></p>}
+      </div>
     )
   }
   return (
     <div className="flex items-center gap-1">
       <button
+        disabled={speech.state === 'loading'}
         onClick={speech.state === 'playing' ? speech.pause : speech.resume}
         className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux px-3 text-sm font-semibold text-white"
       >
         {speech.state === 'playing' ? <Pause className="size-4" /> : <Play className="size-4" />}
-        <span className="language-text">{speech.state === 'playing' ? t('listen.pause') : t('listen.resume')}</span>
+        <span className="language-text">{speech.state === 'loading' ? t('listen.loading') : speech.state === 'playing' ? t('listen.pause') : t('listen.resume')}</span>
       </button>
       <button onClick={speech.stop} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('listen.stop')}>
         <Square className="size-4" />
