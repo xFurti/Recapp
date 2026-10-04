@@ -178,6 +178,11 @@ class ClassAccess:
         if not self.can_manage:
             raise HTTPException(403, "Serve un admin della classe")
 
+    def require_staff(self) -> None:
+        """Admin roles are assigned by the school, not by a classmate."""
+        if not self.viewer.is_owner:
+            raise HTTPException(403, "Solo la preside o i collaboratori possono cambiare gli admin")
+
     def forbid_in_demo(self) -> None:
         """The public demo is shared by every visitor: no lasting admin changes."""
         if self.classroom.is_demo and not self.viewer.is_owner:

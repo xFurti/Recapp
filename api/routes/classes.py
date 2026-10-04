@@ -349,6 +349,8 @@ def add_member(data: MemberIn, access: ClassAccess = Depends(class_access), sess
     existing = session.exec(select(Member).where(Member.class_id == cid, Member.nick == data.nick)).first()
     if existing and existing.active:
         raise HTTPException(409, "Nick già presente in classe")
+    if data.role == "admin":
+        access.require_staff()
     invite = new_invite_code()
     max_order = session.exec(select(func.max(Member.rotation_order)).where(Member.class_id == cid)).one() or 0
     if existing:
@@ -406,6 +408,7 @@ def patch_member(member_id: int, data: MemberPatch, access: ClassAccess = Depend
     access.forbid_in_demo()
     member = _get_member(session, access, member_id)
     if data.role and data.role != member.role:
+        access.require_staff()
         if member.role == "admin" and _admins_left(session, access.classroom.id, member.id) == 0:
             raise HTTPException(409, "Serve almeno un admin nella classe")
         member.role = data.role
@@ -419,6 +422,8 @@ def remove_member(member_id: int, access: ClassAccess = Depends(class_access), s
     access.require_manage()
     access.forbid_in_demo()
     member = _get_member(session, access, member_id)
+    if member.role == "admin":
+        access.require_staff()
     if member.role == "admin" and _admins_left(session, access.classroom.id, member.id) == 0:
         raise HTTPException(409, "Serve almeno un admin nella classe")
     member.active = False

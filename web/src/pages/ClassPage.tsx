@@ -71,6 +71,7 @@ function Members() {
   if (list.isLoading) return <Spinner />
   if (list.error) return <ErrorBox error={list.error} onRetry={() => list.refetch()} />
   const { members, can_manage } = list.data!
+  const staff = info.viewer.kind === 'owner'
   const openMember = menu ? members.find((m) => m.id === menu.id) : undefined
 
   const confirmAct = (kind: 'reset' | 'admin' | 'member' | 'remove', m: MemberRow) => {
@@ -132,12 +133,12 @@ function Members() {
           <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', openMember)} />
           {info.is_demo ? (
             <p className="px-3 py-2 text-xs text-muted"><span className="language-text">{t('class.demo_locked')}</span></p>
-          ) : openMember.role === 'member' ? (
+          ) : staff && openMember.role === 'member' ? (
             <MenuItem icon={Crown} label={t('class.make_admin')} onClick={() => confirmAct('admin', openMember)} />
-          ) : (
+          ) : staff ? (
             <MenuItem icon={Crown} label={t('class.make_member')} onClick={() => confirmAct('member', openMember)} />
-          )}
-          {!openMember.is_me && !info.is_demo && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', openMember)} />}
+          ) : null}
+          {!openMember.is_me && !info.is_demo && (staff || openMember.role !== 'admin') && <MenuItem icon={UserMinus} label={t('class.remove')} danger onClick={() => confirmAct('remove', openMember)} />}
         </AnchoredMenu>
       )}
       <AddMemberModal open={adding} onClose={() => setAdding(false)} onCreated={(inv) => { setAdding(false); setInvite(inv); refresh() }} />
@@ -180,7 +181,7 @@ function AddMemberModal({ open, onClose, onCreated }: { open: boolean; onClose: 
   const [nick, setNick] = useState('')
   const [admin, setAdmin] = useState(false)
   const add = useMutation({
-    mutationFn: () => api.post<Invite>(classPath(info.code, '/members'), { nick, role: admin ? 'admin' : 'member' }),
+    mutationFn: () => api.post<Invite>(classPath(info.code, '/members'), { nick, role: info.viewer.kind === 'owner' && admin ? 'admin' : 'member' }),
     onSuccess: (inv) => {
       setNick('')
       setAdmin(false)
@@ -197,10 +198,12 @@ function AddMemberModal({ open, onClose, onCreated }: { open: boolean; onClose: 
         <Field label={t('class.nick_label')}>
           <input className={inputClass} value={nick} onChange={(e) => setNick(e.target.value)} placeholder={t('class.nick_ph')} maxLength={16} required autoFocus />
         </Field>
-        <label className="flex items-center gap-2 text-sm font-semibold">
-          <input type="checkbox" className="size-4 accent-bordeaux" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
-          <span className="language-text">{t('class.as_admin')}</span>
-        </label>
+        {info.viewer.kind === 'owner' && (
+          <label className="flex items-center gap-2 text-sm font-semibold">
+            <input type="checkbox" className="size-4 accent-bordeaux" checked={admin} onChange={(e) => setAdmin(e.target.checked)} />
+            <span className="language-text">{t('class.as_admin')}</span>
+          </label>
+        )}
         {add.error && <p className="text-sm font-medium text-rosa-ink">{(add.error as Error).message}</p>}
         <Button type="submit" className="w-full" loading={add.isPending} disabled={nick.trim().length < 2}>
           <span className="language-text">{t('class.add_btn')}</span>

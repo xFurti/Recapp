@@ -82,6 +82,34 @@ def test_demo_admin_changes_blocked_and_reset_restores(client):
     assert nicks == {"leo": "admin", "gianni": "member", "sara": "member", "marta": "member", "luca": "member", "anna": "member"}
 
 
+def test_only_school_staff_can_change_who_is_admin(client):
+    owner = make_client()
+    assert owner.post("/api/owner/login", json={"username": "preside", "password": "test-password"}).status_code == 200
+    created = owner.post("/api/owner/classes", json={"name": "4AD", "label": "Admin", "admin_nick": "capo", "timetable_from": "4BI"}).json()
+    code = created["code"]
+    admin = make_client()
+    assert admin.post(
+        f"/api/classes/{code}/activate",
+        json={"member_id": created["admin"]["member_id"], "invite": created["admin"]["invite"], "pin": "111111"},
+    ).status_code == 200
+    added = admin.post(f"/api/classes/{code}/members", json={"nick": "nina", "role": "admin"})
+    assert added.status_code == 403
+    added = admin.post(f"/api/classes/{code}/members", json={"nick": "nina", "role": "member"})
+    assert added.status_code == 200, added.text
+    nina = added.json()["member_id"]
+    assert admin.patch(f"/api/classes/{code}/members/{nina}", json={"role": "admin"}).status_code == 403
+    assert admin.patch(f"/api/classes/{code}/members/{created['admin']['member_id']}", json={"role": "member"}).status_code == 403
+    assert admin.delete(f"/api/classes/{code}/members/{created['admin']['member_id']}").status_code == 403
+
+    assert owner.patch(f"/api/classes/{code}/members/{nina}", json={"role": "admin"}).status_code == 200
+    members = owner.get(f"/api/classes/{code}/members").json()["members"]
+    assert next(m["role"] for m in members if m["id"] == nina) == "admin"
+    assert admin.delete(f"/api/classes/{code}/members/{nina}").status_code == 403
+    assert owner.delete(f"/api/classes/{code}/members/{nina}").status_code == 200
+    other = admin.post(f"/api/classes/{code}/members", json={"nick": "piero"}).json()["member_id"]
+    assert admin.delete(f"/api/classes/{code}/members/{other}").status_code == 200
+
+
 def test_attachment_visibility_follows_publication(client):
     reset_demo(client)
     day = TODAY.isoformat()
