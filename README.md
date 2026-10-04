@@ -1,190 +1,142 @@
 # Recapp
 
-**Three school apps. One card. Missed a day? Open yesterday, and see what's due next.**
+**Missed a day? Catch up with your class. One shared recap, notes and upcoming deadlines.**
 
-Built by three 4th-year Computer Science students at ITI G. Marconi, Verona (Italy) for the
-[CSC Back-to-School Hackathon](https://csc-back-to-school.devpost.com/). It is a real pilot for
-classes 4AI and 4BI, agreed with our headteacher.
+Built by three fourth-year Computer Science students at ITI G. Marconi, Verona, Italy, for the [CSC Back-to-School Hackathon](https://csc-back-to-school.devpost.com/).
 
-Live: https://bassaleo.xyz · Demo: open the site and press **Try the demo** (no account needed).
+[Try Recapp](https://bassaleo.xyz) · [Submission story](docs/devpost.md) · [Credits and AI use](docs/credits.md) · [Technical documentation](docs/README.md)
 
-## The problem
+Open the website and select **Try the demo** to explore without a school account.
 
-At our school, what happens in class lives in three places that do not talk to each other:
+> **Project status:** Recapp is a student prototype currently being tested by its team. We discussed the idea with our headteacher and plan to present the developed project after the competition. A possible pilot with two or three classes and any school adoption still need to be agreed. The timetables in the prototype do not imply that those classes are already participating in a pilot.
 
-1. **ClasseViva** (the official gradebook): topics, homework, agenda.
-2. **Google Classroom**: assignments and files.
-3. **Campus**: the school's internal learning content.
+## Why we built it
 
-None of them is "the truth", so every evening the class chat asks the same questions: *what
-homework is there? is there a test? where is the file?* And if you were absent, nobody tells you
-what happened **in the lab**: which repo, which command broke, what to bring next time. That
-isn't written in any of the three systems.
+At our school, information is spread across **ClasseViva**, **Google Classroom** and **Campus**, the school's learning platform. Homework and reminders are not always recorded in the electronic register. After missing a day, a student may need to check several places to find out what happened, what to study and what to bring next time.
 
-## What it does
+Recapp gives classmates a shared starting point. A rotating student note-taker writes a recap after school, adds notes and assignments, and preserves practical details from lab lessons. Students who attended can use it too, to compare notes and see upcoming deadlines together. We hope sharing the responsibility will encourage classmates to help one another.
 
-A class hub written by the students who were there, one short card per day:
+## What you can do
 
-- **Today**: who is today's note-taker and whether the day is published yet
-  (*"Gianni is today's note-taker. The day hasn't been published yet."*), today's lessons
-  from the real timetable, and what's due in the next 3 days.
-- **Yesterday**: the last published day. Subjects, up to 5 bullet points each, a **lab block**
-  (goal, repo, the trap to avoid, what to bring), homework and tests assigned, notes for
-  absent classmates. A **Listen** button reads it aloud (Web Speech API).
-- **Upcoming**: one flat list of homework, tests, events and labs grouped by date, with a
-  countdown on tests and a personal "done" tick stored only on your device.
-- **By subject**: every recap of one subject in one view, for catching up after a week off.
-- **Replies**: thank the note-taker or flag a correction under the published day.
-- **Share**: a card image for WhatsApp with the day's subjects and deadlines (never nicknames).
-- **Class**: members, the note-taker rotation (it skips weekends, holidays and school breaks
-  from the official Marconi calendar) and the weekly timetable.
-- **School area**: the headteacher and staff can see every class, read only.
+| View or feature | Purpose |
+| --- | --- |
+| **Today** | See the day's lessons, whose turn it is to write and whether the recap has been published. |
+| **Yesterday** | Read the latest published day, with subject summaries, notes, attachments and lab details. |
+| **Upcoming** | Find homework, tests and events by date; keep a personal checklist on the current device. |
+| **By subject** | Revisit recaps for one subject when catching up. |
+| **Write the day** | Start from the timetable, add notes and deadlines, then review and publish. |
+| **Lab blocks** | Record the goal, repository or link, a mistake to avoid and what to bring next time. |
+| **Replies and Share** | Suggest corrections under a recap or export a summary image for the class chat. |
+| **Class** | Consult members, note-taking turns and the timetable. |
+| **School area** | Provide staff access to class content and administrative tools for class setup and the calendar. |
 
-### Screenshots
+The interface supports Italian and English, light and dark themes, desktop and mobile layouts, and a guided first-visit tour. **Listen** uses browser speech synthesis where available; playback depends on the browser and installed voices.
 
-| Today: whose turn is it | Yesterday: the day card with lab blocks |
+### A day with Recapp
+
+1. The note-taking turn rotates on school days, using the configured timetable and calendar.
+2. After school, the note-taker opens **Write the day**. The timetable pre-fills subjects and lab blocks.
+3. They summarize lessons, attach appropriate notes, add reminders and set homework or test dates. Suggested dates can be reviewed and changed.
+4. They can paste text or upload a cropped screenshot from a school platform to obtain draft items through the configured extraction provider. Each draft can be accepted, edited or discarded.
+5. **Publish** makes the reviewed recap and its items available to the class. If the day remains unpublished after **18:00**, another classmate can take over; the note-taker can also pass the turn earlier.
+
+Recapp does not log into or automatically synchronize the official school platforms. Classmates write the recap, and the official platforms remain the reference for school information.
+
+## Screenshots
+
+These repository screenshots illustrate the interface; details may change as the prototype evolves.
+
+| Daily status | Published recap and lab details |
 | --- | --- |
 | ![Today](docs/screenshots/02-oggi-verbalista.png) | ![Yesterday](docs/screenshots/03-ieri-lab.png) |
-| **Write the day: pre-filled from the timetable** | **Upcoming: homework, tests, events** |
+| **Editor** | **Upcoming deadlines** |
 | ![Editor](docs/screenshots/04-editor-giornata.png) | ![Upcoming](docs/screenshots/05-in-arrivo.png) |
-| **Note-taker rotation (skips holidays)** | **Real timetable, labs highlighted** |
-| ![Turns](docs/screenshots/07-classe-turni.png) | ![Timetable](docs/screenshots/08-classe-orario.png) |
-| **English UI, 18:30: the turn is open** | **School area for the headteacher** |
-| ![English](docs/screenshots/09-today-english-1830.png) | ![School area](docs/screenshots/13-area-scuola.png) |
 
-<p>
-  <img src="docs/screenshots/10-mobile-oggi.png" alt="Today on a phone" width="260">
-  <img src="docs/screenshots/11-mobile-ieri.png" alt="Yesterday on a phone" width="260">
-</p>
+## How it is built
 
-More: [landing](docs/screenshots/01-landing.png), [members](docs/screenshots/06-classe-partecipanti.png),
-[privacy](docs/screenshots/12-privacy.png).
-
-### How a day gets written
-
-1. Every school day the turn rotates to the next member.
-2. After the bell, the note-taker opens **Write the day**. The editor is pre-filled from the
-   timetable: consecutive hours become one block, and rooms starting with `L` open the lab
-   block automatically.
-3. Inside each subject, **+ Homework / + Test / + Event** add an upcoming item. The date
-   defaults to **the next lesson of that subject**, computed from the timetable and calendar.
-4. For things that are already on ClasseViva, Classroom or Campus, the note-taker pastes a line
-   ("Math: ex. 12-15, test Fri") or uploads a **cropped screenshot**. AI (Featherless, running
-   on Render Workflows) turns it into drafts. **Nothing is published automatically**: the
-   note-taker accepts, edits or discards each draft, and dubious dates are highlighted.
-5. The draft autosaves, so classmates see "Gianni is writing…". **Publish** makes the day and
-   its items visible to the class.
-6. If the day isn't published by **18:00**, anyone in the class can **take the turn**. The
-   note-taker can also pass it earlier ("I'm away today").
-
-## What we deliberately don't do
-
-- **We don't log into the gradebook.** ClasseViva has no public API for third parties, and
-  storing students' school passwords in a public project would be an incident, not a feature.
-- No grades, disciplinary notes, absences, diagnoses or photos of faces.
-- Students type what they remember. The three official systems remain the source of truth;
-  we are the class summary.
-
-## Privacy by design
-
-- Access: class code → pick your nickname → personal 6-digit PIN, set on first login with a
-  one-time invite code from the class rep. PINs and invites are bcrypt-hashed; 5 wrong attempts
-  lock the nickname for 15 minutes.
-- Nicknames only, no surnames. Real classes are readable only by their members and by school
-  staff (read only).
-- Uploaded crops are re-encoded server-side: EXIF/GPS metadata removed, resized, stored as WebP.
-  The upload requires ticking "no grades, names or faces".
-- No credentials in the repository. Class codes, invites and PINs never appear in the code.
-
-## Tech
-
-| Layer | Choice |
+| Layer | Implementation |
 | --- | --- |
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, react-i18next (Italian / English) |
-| Backend | FastAPI, SQLModel, SQLite locally / Postgres (Neon) in production |
-| AI | Featherless: `Qwen3-VL-8B-Instruct` for screenshots, `Qwen3-30B-A3B-Instruct-2507` for pasted text |
-| Background jobs | **Render Workflows**: the extraction runs as the `extract_items` task, with an in-process fallback |
-| Hosting | One Render web service (Docker) serving the app and the API on the same domain, `bassaleo.xyz` from gen.xyz |
-| Voice | Browser Web Speech API |
-| Quality | 25 pytest tests (also run against Postgres), TypeScript strict build, oxlint |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, react-i18next |
+| Backend | FastAPI, SQLModel, SQLite locally; PostgreSQL supported for deployment |
+| Documented hosting setup | Docker on Render, Neon PostgreSQL, bassaleo.xyz domain from gen.xyz |
+| Extraction | Configurable Featherless text/vision models; offline text parser and simulated image output for local use |
+| Background work | Optional Render Workflows `extract_items` task, with in-process execution also supported |
+| Speech | Browser Web Speech API |
+| Verification tooling | pytest, Playwright, TypeScript production build, oxlint |
 
-```mermaid
-flowchart LR
-  Browser -->|"HTTPS bassaleo.xyz"| Web["Render web service: FastAPI + React"]
-  Web --> Neon["Neon Postgres"]
-  Web -->|"start_task"| Wf["Render Workflows: extract_items"]
-  Wf --> Feather["Featherless"]
+AI providers, model identifiers and task execution depend on the environment configuration. The repository supports live AI, but an offline or simulated result is not evidence that a model ran. See [configuration](.env.example), [deployment](DEPLOY.md) and [the extraction pipeline](docs/ai-e-ocr.md).
+
+```text
+web/            React interface and browser tests
+api/            FastAPI routes, data model, permissions and scheduling
+api/tasks.py    Extraction and offline parsing
+api/workflow.py Render Workflows entry point
+api/tests/      API tests
+scripts/        Local development helpers
+docs/           Technical documentation, submission and credits
 ```
 
-```
-web/            React app (pages: Today, Yesterday, Upcoming, Class, Editor, School area)
-api/            FastAPI app
-  app.py        routes + static app serving
-  schedule.py   school days, lessons from the timetable, note-taker rotation
-  services.py   day state machine, card save/publish rules
-  tasks.py      pure extraction function (mock parser + Featherless), shared with Workflows
-  workflow.py   Render Workflows entry point
-  seed.py       real 4AI/4BI timetables, 2026/27 calendar, demo class
-  tests/        pytest suite
-```
+## Run locally
 
-## Run it locally
-
-Requirements: Python 3.12 (via [uv](https://docs.astral.sh/uv/)) and Node 22+.
+Requirements: Python 3.12, [uv](https://docs.astral.sh/uv/) and Node.js 22+ with npm.
 
 ```bash
 ./scripts/dev.sh
 ```
 
-This starts the API on http://localhost:8000 and the app on http://localhost:5173. No keys are
-needed: SQLite, a rule-based offline parser instead of AI, and tasks run in-process. On first
-start the console prints the class codes of 4AI/4BI and one admin invite for each.
+The script installs dependencies and starts the API at `http://localhost:8000` and the frontend at `http://localhost:5173`. Local defaults use SQLite, an offline rule-based text parser, simulated image extraction and in-process tasks; no AI key is required. Dependency installation requires network access.
 
-- Demo: press **Try the demo**. Every demo nickname also works with PIN `123456`.
-- School area: `/scuola`, local credentials `preside` / `demo`.
-- In development and in the demo class, the clock button in the top bar simulates the time of
-  day, so you can see every state (not started, writing, 18:00 open turn, published, weekend).
+- Select **Try the demo** to explore the sample class.
+- Local school-area credentials are `preside` / `demo` at `/scuola`; these are development defaults, not production credentials.
+- The development/demo clock can simulate time to explore the daily states.
+- On first startup, the console prints class codes and initial admin invitations. Keep invitations private.
 
-Tests:
+After local setup, run the backend checks:
 
 ```bash
 .venv/bin/python -m pytest api/tests -q
 ```
 
-Configuration is documented in [`.env.example`](.env.example); deployment in
-[`DEPLOY.md`](DEPLOY.md). Technical documentation for the team (architecture, data model, API,
-AI pipeline, security, operations) is in [`docs/`](docs/README.md), written in Italian.
+Frontend checks:
 
-## AI disclosure
+```bash
+cd web
+npm run build
+npm run lint
+npx playwright install chromium ffmpeg
+npm run test:e2e
+```
 
-We used AI in two different ways and want to be clear about both.
+Browser-test setup and coverage are described in [web/tests/README.md](web/tests/README.md). Test totals change as the project evolves; use the output from the version being tested rather than a fixed count here.
 
-**While building.** We used Cursor, an AI coding assistant, to discuss the plan, write large parts
-of the code (backend, React pages, tests, Docker and Render configuration) and debug it. We
-decided the product and its rules: the problem, the three layers (class-written now, screenshots
-next, official integrations only with the school's permission), the privacy limits, the
-note-taker rotation and the 18:00 takeover, what each screen shows. We reviewed the generated
-code, ran it, tested it on our real timetables and on the live site with classmates, and fed the
-problems we found back into the work (for example a timezone bug and AI prompts that confused
-weekdays). We can explain how every part works; the [`docs/`](docs/README.md) folder is our map.
+## Data and access
 
-**Inside the product.** The note-taker can ask AI (Featherless models, called from a Render
-Workflows task) to turn a pasted line or a cropped screenshot into draft items. Only the cleaned
-image (no metadata) and the class context (subjects, dates) are sent; never nicknames. The AI never
-publishes: every draft is shown to a human who accepts, corrects or discards it, and dates that
-look wrong (weekends, holidays, too far ahead) are flagged. Without an AI key the app uses a
-simple rule-based parser instead. The "Listen" button uses the browser's built-in speech
-synthesis; it is not generative AI.
+Class access uses a class code, nickname and personal PIN, with an invitation for initial activation. The application includes authorization checks, hashed PINs and invitations, request limits, and image re-encoding to remove metadata. See [security and privacy](docs/sicurezza-privacy.md) for implementation details and limitations.
 
-## Built with
+Students should not upload grades, private school credentials, names or faces in screenshots. Removing image metadata does not remove information visible in an image. When live extraction is enabled, selected text or images and class context are sent to the configured provider. Review the material before submitting it and check the resulting drafts before publishing.
 
-React · TypeScript · Vite · Tailwind CSS · TanStack Query · react-i18next · FastAPI · SQLModel ·
-Pydantic · Pillow · Postgres (Neon) · Docker · Render (web service + Workflows) · Featherless ·
-Web Speech API · gen.xyz · Cursor (AI coding assistant)
+## Team and project story
 
-## Team and credits
+| Member | Role |
+| --- | --- |
+| [Leonardo Bassanello](https://github.com/xFurti) | Team coordinator, project originator, developer |
+| [Luca Cremonese](https://github.com/PiEnneGi) | Developer, beta tester, bug testing |
+| [Oleksii Holovan](https://github.com/Oleksi-Holovan) | Developer, beta tester, video creator |
 
-Three students of ITI G. Marconi, Verona, 4th year Computer Science: [ name ], [ name ], [ name ].
+We formed the team on **September 20, 2026**, discussed our ideas with the headteacher on **September 21**, and built Recapp from scratch for the competition. This was our first project together as a team of three. We are particularly proud of translating our ideas into an interface close to what we imagined while coordinating around school, sports and other commitments.
 
-The ITI G. Marconi logo belongs to the school and is used with its permission for this pilot;
-it is not covered by the MIT license of the code.
+After the competition, we hope to adapt the project with school feedback and agree on a small classroom pilot. School Google-account sign-in is a possible future improvement, not an existing feature. Read the [full project story](docs/devpost.md).
+
+## AI use
+
+Our team supplied the initial ideas and product direction. **Cursor** helped with planning and initial implementation; **Cursor and Claude** supported subsequent development and bug fixes. **Codex** also assisted with implementation, debugging, tests, reviews and documentation. AI contributed substantially to the code. **ChatGPT** helped generate the Recapp logo and some graphics, with some results edited manually by the team.
+
+This development assistance is separate from the app's optional **Featherless** extraction: it prepares draft items for human review and never publishes a recap on its own. The offline parser, simulated image output and browser speech synthesis are also distinct from live generative AI.
+
+See [credits and AI use](docs/credits.md) for roles and asset details. The demo video is being finalized; production credits will be added with the final link.
+
+## License and school logo
+
+The project code is available under the [MIT license](LICENSE). The **ITI G. Marconi Verona logo belongs to the school and is excluded from that license**; the code license grants no permission to reuse it.
+
+Our computer science teacher confirmed that we could display the school logo in this student project. Its presence does not indicate school adoption or an approved pilot. Third-party resources retain their own licenses; see [credits](docs/credits.md).

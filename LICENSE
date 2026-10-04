@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Yesterday Pack team (ITI G. Marconi Verona, 4th year Computer Science)
+Copyright (c) 2026 Recapp team (ITI G. Marconi Verona, 4th year Computer Science)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,5 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-The ITI G. Marconi Verona logo is property of the school and is used with the
-school's permission for this student pilot. It is not covered by this license.
+The ITI G. Marconi Verona logo is property of the school and is not covered
+by this license. This license grants no permission to reuse the school logo.
+See docs/credits.md for the context of its display in this student project.

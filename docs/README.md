@@ -12,7 +12,9 @@ Documenti per il team: come è fatto Recapp, perché è fatto così e cosa tener
 | [sicurezza-privacy.md](sicurezza-privacy.md) | Login, PIN, cookie, protezioni, dati salvati e non salvati, limiti noti |
 | [operazioni.md](operazioni.md) | Ambienti, regole di deploy durante la beta, log, recupero inviti, rollback |
 | [sviluppo.md](sviluppo.md) | Avvio in locale, test, convenzioni, come aggiungere una funzione |
-| [devpost.md](devpost.md) | Bozza della submission (in inglese) allineata alle regole del CSC Back-to-School |
+| [devpost.md](devpost.md) | Testi inglesi della submission, aggiornati dal racconto del team |
+| [credits.md](credits.md) | Team, uso dell’AI e distinzione tra licenza del codice e logo scolastico |
+| [submission-checklist.md](submission-checklist.md) | Controlli finali, link video e crediti ancora da completare |
 | [demo-script.md](demo-script.md) | Copione del video demo |
 
 Per mettere online da zero: [DEPLOY.md](../DEPLOY.md).

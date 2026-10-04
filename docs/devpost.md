@@ -1,13 +1,6 @@
-# Devpost submission draft (English)
+# Recapp — Devpost submission
 
-Checklist from the [CSC Back-to-School rules](https://csc-back-to-school.devpost.com/):
-project name, problem, what it does, demo/website link, tools used, AI-use disclosure, team
-member names, source code. Opt in to the CSC Innovation Awards (public repo, permission to feature).
-Deadline: **October 5, 2026, 00:00 PDT = 09:00 in Italy**. Team: max 4, ages 13-18.
-
-Fill the `[ ]` placeholders before submitting.
-
----
+English copy prepared from the team's account on October 4, 2026. The project story is ready for review. Video completion and submission checks are tracked separately in [submission-checklist.md](submission-checklist.md).
 
 ## Project name
 
@@ -15,103 +8,95 @@ Recapp
 
 ## Tagline
 
-Three school apps. One card. Missed a day? Open yesterday, and see what's due next.
+Missed a day? Catch up with your class. One shared recap, notes and upcoming deadlines.
 
-## The problem
+## Inspiration
 
-At ITI G. Marconi in Verona, class information lives in three disconnected systems: ClasseViva
-(the official gradebook), Google Classroom and the school's Campus platform. None of them is
-complete, so every evening the class chat asks the same questions: what's the homework, is there
-a test, where is the file. And when you're absent, nothing tells you what happened in the lab:
-which repository, which command broke, what to bring next time.
+At ITI G. Marconi in Verona, Italy, we use ClasseViva, Google Classroom and Campus, our school's learning platform. Homework and reminders are not always recorded in the electronic register. Missing a day can mean checking several places to piece together what happened, what to study and what to bring next time. Even when we attend, it helps to read a classmate's notes and see upcoming deadlines together.
 
-It affects every student who misses a lesson, and the classmates who answer the same questions
-every night.
+We discovered the competition after it had already started. On September 20, 2026, we formed our team and began exploring ideas. Our computer science teacher encouraged us to discuss them with our headteacher and build something that could remain useful beyond the competition. We met her the following day, and Recapp stood out among the ideas we discussed. We then chose to develop it from scratch for this competition.
 
 ## What it does
 
-Recapp is a class hub written by the students who were there:
+Recapp is a shared daily recap written by the students who were in class. A different student takes the note-taking turn each school day and writes the recap after school. It brings together what happened in each subject, shared notes, reminders and assignments.
 
-- **One card per school day**, written by a rotating note-taker after the bell: what each subject
-  covered, a lab block (goal, repo, the trap to avoid, what to bring) and what was assigned.
-- **Upcoming**: one list of homework, tests and events, with countdowns on tests.
-- **Fair rotation**: the turn moves every school day and skips weekends and holidays from the
-  official school calendar. The app shows "Gianni is today's note-taker and hasn't published yet";
-  if nothing is published by 18:00, anyone can take the turn.
-- **Pre-filled from the real timetable** of our two classes: lab hours open the lab block
-  automatically and "next lesson" dates are computed for each subject.
-- **AI drafts, human decisions**: paste a line or a cropped screenshot from ClasseViva/Classroom/
-  Campus and AI turns it into draft items; the note-taker accepts or edits each one.
-- **Listen** button, Italian/English interface, light/dark theme, read-only school area for the headteacher.
-- **By subject** view to catch up after a week of absence, replies and corrections under each day,
-  and a share image for the class chat (subjects and deadlines only, no nicknames).
+For example, the note-taker can record materials needed for tomorrow's mathematics lesson, add an Italian test for next week, and explain what the class did in the lab. Lab blocks include the goal, repository or link, a mistake to avoid and what to bring next time.
+
+- **Today** shows the note-taker, the day's lessons and publication status.
+- **Yesterday** shows the latest published recap. **By subject** helps classmates find earlier material for a particular subject.
+- **Upcoming** brings homework, tests and events together by date, with a personal checklist on the current device.
+- **The editor** starts from the class timetable and supports shared notes and attachments. The note-taker can paste text or upload a cropped screenshot from a school platform and request draft items to review, edit or discard before publishing.
+- **Shared responsibility** comes from a rotating turn, with a takeover option after 18:00 if the day has not been published.
+- **Replies and sharing** let classmates suggest corrections and export a recap image for the class chat.
+
+The interface supports Italian and English, light and dark themes, and desktop and mobile layouts. A Listen button uses browser speech synthesis where available. The school area provides staff access to class content and administrative tools for class setup and the calendar.
+
+Recapp is a student-written companion to the official school platforms. It does not automatically log into or synchronize with ClasseViva, Classroom or Campus. We hope sharing the writing responsibility will encourage classmates to help one another.
 
 ## How we built it
 
-- React 19 + TypeScript + Tailwind on the frontend, FastAPI + SQLModel on the backend.
-- One Render web service (Docker) serves the app and the API on our domain bassaleo.xyz.
-- Postgres on Neon.
-- **Render Workflows** runs the AI extraction as a separate task (`extract_items`), calling
-  **Featherless** models (Qwen3-VL-8B for screenshots, Qwen3-30B for pasted text).
-- 25 automated tests (pytest), also run against Postgres.
+We built the application with React, TypeScript and Tailwind CSS on the frontend, and FastAPI with SQLModel on the backend. The repository supports SQLite for local development and PostgreSQL for deployment. The documented hosting setup uses Docker on Render, Neon PostgreSQL and our domain, bassaleo.xyz.
 
-## Challenges
+The extraction pipeline supports Featherless models for text and screenshots, with model identifiers supplied through configuration. It can run as an `extract_items` task on Render Workflows or inside the web service. Local defaults use a rule-based text parser and simulated image output; these are not model inference. Every extracted item remains a draft until the student reviews it and publishes the recap.
 
-- Choosing *not* to connect to the gradebook: ClasseViva has no public API and storing minors'
-  school passwords would be dangerous. We designed around it instead.
-- Making AI reliable with dates: models confused weekdays until we gave them an explicit school
-  calendar; every date is still validated and dubious ones are highlighted.
-- Making sure someone actually writes: rotation, a visible status and the 18:00 open turn.
+Our workflow combined team planning, AI-assisted implementation and testing. The repository includes pytest API tests, Playwright browser tests, a TypeScript production build and lint checks. The AI-use disclosure below describes the tools and our contributions.
+
+## Challenges we ran into
+
+Time was one of our biggest challenges: we discovered the competition after it had already started, and we had to coordinate development around school, sports and other commitments. This was also our first project together as a team of three, so we had to learn how to organize our work.
+
+We encountered bugs along the way and resolved them by analyzing the problems. We also challenged ourselves to consider different students' perspectives, aiming to make Recapp useful beyond our own individual needs.
+
+## Accomplishments that we're proud of
+
+We are especially proud of Recapp's interface: it came close to what we had imagined, and seeing our ideas take shape was rewarding. We also learned to coordinate as a team and turn those ideas into a working app.
+
+Regardless of the competition's outcome or whether our school adopts it, we believe the project is worth developing further. We hope it can eventually help students in other schools and countries who face similar challenges.
 
 ## What we learned
 
-[ Write 3-4 sentences in your own words: e.g. timezones (UTC vs Europe/Rome bug we found),
-privacy-by-design, testing on real data, deploying with Docker and DNS. ]
+This was our first project as a team of three, and we learned how to work together and combine our different perspectives. Luca became more confident using Cursor, while all of us gained a better understanding of which AI models to use for different tasks. Building something for a school problem we experience every day made the project especially meaningful and enjoyable. Above all, we learned how valuable it is to involve the people who will actually use what we build, because their experiences help reveal what matters in practice.
 
-## What's next
+## What's next for Recapp
 
-Pilot with classes 4AI and 4BI; with the school's approval, read-only Google Classroom
-integration and importing the timetable from the school's timetable service; end-of-year
-data deletion.
+We are currently testing Recapp within our team. Our headteacher has heard the idea and asked us to keep her updated; the school has not yet adopted the application or agreed to a classroom pilot.
+
+After the competition, we plan to present the developed project, gather feedback and adapt it to the school's needs. We hope to agree on a pilot with two or three classes before considering wider use. Possible improvements include signing in with school Google accounts and additional measures for use within the school. These steps still need to be discussed and agreed with the school; school-account sign-in is not a current feature.
 
 ## Built with
 
-React, TypeScript, Vite, Tailwind CSS, TanStack Query, FastAPI, SQLModel, Pydantic, Pillow,
-Postgres (Neon), Docker, Render (web service + Workflows), Featherless (Qwen3-VL-8B-Instruct,
-Qwen3-30B-A3B-Instruct-2507), Web Speech API, gen.xyz domain, Cursor (AI coding assistant).
+React, TypeScript, Vite, Tailwind CSS, TanStack Query, React Router, react-i18next, FastAPI, SQLModel, Pydantic, Pillow, SQLite, PostgreSQL, Neon, Docker, Render, Render Workflows integration, Featherless integration, Web Speech API, pytest, Playwright, oxlint, gen.xyz, Cursor, Claude, Codex, ChatGPT.
 
 ## Links
 
-- Website: https://bassaleo.xyz (press "Try the demo")
-- Source code: https://github.com/xFurti/Recapp
-- Video: [ link ]
+- [Website and demo](https://bassaleo.xyz) — select **Try the demo**.
+- [Source code](https://github.com/xFurti/Recapp).
+- [Product screenshots](https://github.com/xFurti/Recapp/tree/main/docs/screenshots).
+
+The video is being finalized. Add its public URL to the Devpost video field once it is available; the remaining checks are in [submission-checklist.md](submission-checklist.md).
 
 ## AI-use disclosure
 
-**While building**: we used Cursor, an AI coding assistant, to discuss the plan, write large parts
-of the code (backend, React pages, tests, deployment files) and debug it. The team decided the
-product and its rules: the problem, not connecting to the gradebook, the privacy limits, the
-note-taker rotation and the 18:00 takeover, the screens. We reviewed and ran the code, tested it
-with our real timetables and on the live site, and reported the bugs we found back into the
-process. [ Add here which parts each member wrote, changed or tested themselves. ]
+**Planning and development.** Our team collected the original ideas and defined the problem from our experience as students. We used AI to expand those ideas and explore possible architectures. Planning and initial implementation started in Cursor; we then used Cursor and Claude to help implement features, fix bugs and improve the application. AI contributed substantially to implementation. Codex also assisted with code changes, debugging, tests, reviews and documentation, including preparing this submission from our answers. We tested the application within the team and used the issues we found to guide further work.
 
-**Inside the product**: Featherless models, run through Render Workflows, turn a pasted line or a
-cropped screenshot into draft items. The AI never publishes: a student accepts, edits or discards
-each draft, and unusual dates are flagged. Without an AI key the app falls back to a rule-based
-parser. The Listen button uses the browser's built-in speech synthesis.
+**Design assets.** We used ChatGPT to generate the Recapp logo and some graphics, and manually modified some of the results. The school's logo is a separate asset belonging to the school.
+
+**Team contributions.** Leonardo coordinated the team, originated the project idea and contributed to development. Luca contributed to development, beta testing and finding and checking bugs. Oleksii contributed to development and beta testing and is creating the demo video. We worked with AI assistance; these roles do not imply that all code was written manually.
+
+**Inside the application.** The optional Featherless integration extracts draft items from submitted text or screenshots, using class subjects and calendar context. Uploaded images are re-encoded to remove metadata, but that does not remove personal information visible in the image or typed into the text. Students must choose appropriate material to submit. The AI does not publish recaps: a student reviews the drafts. The offline parser and simulated image results are distinct from live AI inference. Listen uses browser speech synthesis, not generative AI.
+
+Video production tools and any additional AI use will be added when the video is finalized.
 
 ## Team
 
-[ Name Surname ] · [ Name Surname ] · [ Name Surname ] — 4th year Computer Science, ITI G. Marconi, Verona.
+Three fourth-year Computer Science students at ITI G. Marconi, Verona, Italy:
 
----
+| Member | Contribution | GitHub |
+| --- | --- | --- |
+| Leonardo Bassanello | Team coordinator, project originator, developer | [xFurti](https://github.com/xFurti) |
+| Luca Cremonese | Developer, beta tester, bug testing | [PiEnneGi](https://github.com/PiEnneGi) |
+| Oleksii Holovan | Developer, beta tester, video creator | [Oleksi-Holovan](https://github.com/Oleksi-Holovan) |
 
-## How the project maps to the judging criteria
+## Credits and project status
 
-| Criterion | Where to point the judges |
-| --- | --- |
-| Learning | AI disclosure above, `docs/` folder, challenges section; be ready to explain rotation, day states and the AI validation |
-| Design | Screenshots in the README, mobile layout, clear daily status banner, IT/EN |
-| Creativity | The lab block ("the trap to avoid"), rotation with 18:00 takeover, refusing to scrape the gradebook |
-| Functionality | Live site with demo, real timetables, 16 tests, AI on Render Workflows |
-| Impact | Real pilot in two classes agreed with the headteacher; who it helps and why |
+Our computer science teacher encouraged the discussion with our headteacher and confirmed that we could display the school's logo in this student project. This does not mean the school has adopted Recapp. The school logo is excluded from the code's MIT license; see [credits.md](credits.md). Recapp began as a new project for this competition and uses the external libraries and tools listed above.

@@ -9,6 +9,8 @@ Tagline EN: *Three school apps. One card. Missed a day? Open yesterday — and s
 
 ---
 
+> Documento di pianificazione storica: alcune ipotesi non descrivono lo stato attuale. Per funzionalità, team e rapporto con la scuola vedere il [README](README.md) e la [submission aggiornata](docs/devpost.md). Al 4 ottobre 2026 i test sono interni al team; un pilota scolastico è ancora da concordare.
+
 ## 0. Come leggere questo foglio
 
 Tre strati. Non sono lo stesso prodotto.
@@ -100,7 +102,7 @@ La classe ottiene un posto solo. I tre sistemi restano la fonte ufficiale. Voi s
 ## 4. Vincoli che restano
 
 - **Telefoni in ora:** circolare MIM 3392/2025. Compilazione e lettura **dopo campanella**, a casa, o dal **browser del PC lab**.  
-- **Preside:** pilota ok, “serve formazione” → template + 1 verbalista, non un corso.  
+- **Preside:** idee discusse; ha chiesto di essere aggiornata. Presentazione del progetto sviluppato e possibile pilota ancora da concordare. Template e verbalista sono scelte progettuali del team.
 - **Privacy:** niente voti, note, assenze ufficiali, diagnosi, foto volti, password.  
 - **CSC:** progetto nuovo e pubblico. No AppVinili / Synara. Disclosure AI.  
 - **Tempo:** submit 4 ott sera. Perk Render partecipanti fino al **1 ott**.
