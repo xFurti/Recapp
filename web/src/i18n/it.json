@@ -27,7 +27,17 @@
     "yesterday": "Ieri",
     "upcoming": "In arrivo",
     "class": "Classe",
-    "days": "Tutti i giorni"
+    "days": "Tutti i giorni",
+    "sections": "Sezioni della classe"
+  },
+  "notFound": {
+    "document_title": "Pagina non trovata — Recapp",
+    "title": "Questa pagina non c'è",
+    "body": "Il collegamento potrebbe essere errato oppure la pagina potrebbe essere stata spostata o rimossa.",
+    "home": "Torna alla home",
+    "today": "Vai a Oggi",
+    "egg_label": "404, c’è una sorpresa",
+    "egg": "Mi siedo qui finché non torna la pagina."
   },
   "landing": {
     "title": "Ti sei perso un giorno?",

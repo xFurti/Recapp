@@ -426,6 +426,30 @@
   100% { opacity: 1; transform: none; }
 }
 
+/* Unknown address: a short rise, skipped when motion is reduced. */
+.not-found-in {
+  animation: not-found-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes not-found-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .not-found-in { animation: none; }
+}
+
+/* 404 surprise: a small gorilla pops up beside the number. */
+.not-found-gorilla {
+  animation: not-found-gorilla 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes not-found-gorilla {
+  from { opacity: 0; transform: translateY(14px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .not-found-gorilla { animation: none; }
+}
+
 /* Done check: the tick draws itself, the circle pops, a ring expands. */
 .done-check {
   position: relative;
@@ -592,4 +616,28 @@ html.theme-anim {
     animation: none !important;
   }
   .confetti-piece { display: none; }
+}
+
+/* Shared selection background: only the decorative layer moves, never the links. */
+.section-nav-indicator {
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.section-nav-desktop .section-nav-indicator {
+  inset: 0 0 auto;
+  height: calc((100% - 0.75rem) / 4);
+  transform: translateY(calc(var(--section-index) * (100% + 0.25rem)));
+}
+.section-nav-mobile .section-nav-indicator {
+  inset: 0 auto 0 0;
+  width: 25%;
+  transform: translateX(calc(var(--section-index) * 100%));
+}
+.section-nav-link {
+  transition: color 240ms ease, background-color 150ms ease;
+}
+.section-nav-link:focus-visible {
+  outline-offset: -3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-nav-indicator, .section-nav-link { transition: none; }
 }
