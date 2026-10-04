@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+.lesson-status { container-type: inline-size; }
+@container (min-width: 36rem) {
+  .lesson-status-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.lesson-status-option {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
+  overflow-wrap: anywhere;
+}
+.lesson-status label:hover .lesson-status-option { border-color: var(--color-bordeaux); }
+.lesson-status label:active .lesson-status-option { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-status-option { transition: none; }
+  .lesson-status label:active .lesson-status-option { transform: none; }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {

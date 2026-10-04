@@ -18,3 +18,9 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 The tests cover cancellation by button, close, Escape and backdrop; focus containment and restoration; selected-message preview; ownership controls; pending state and duplicate requests; errors, dismissal and retry; desktop/mobile and light/dark layouts; English labels and reduced motion. The recording test attaches a short WebM showing cancellation, error, retry, pending state and success.
 
 A converted MP4 recording is committed at `docs/media/issue-19-delete-message.mp4` and linked in the PR. The harness is outside `src` and is not included in the production build.
+
+# Lesson status browser tests
+
+`lesson-status.html` mounts the real Editor and AppShell with routing, React Query and StrictMode. Only HTTP responses are mocked. The tests cover stored status, radio keyboard navigation and visible focus, independent lesson groups, autosave, reopening a draft, preview and publication. They verify that changing status preserves points, lab data, notes and both lesson/day attachment IDs. Layout checks cover desktop/mobile, light/dark themes, English labels, long subject names, enlarged text and reduced motion.
+
+Run with the same `npm run test:e2e` command above. This harness is outside the production entry point. The issue #28 screenshots and recordings use the production build and a local API with isolated demo data; they are attached directly to the PR, outside the repository.

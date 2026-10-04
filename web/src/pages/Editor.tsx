@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { api, ApiError, attachmentUrl } from '../api'
 import { DayCardView, EntryPhotos } from '../components/day'
+import { LessonStatusSelector } from '../components/LessonStatusSelector'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
@@ -13,7 +14,7 @@ import { todayIso } from '../lib/clock'
 import { usePendingWork } from '../lib/pendingWork'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { classPath, useClass } from '../queries'
-import type { Card, CardPage, Draft, Entry, ItemType, LabData, LessonStatus } from '../types'
+import type { Card, CardPage, Draft, Entry, ItemType, LabData } from '../types'
 
 interface EntryDraft extends Entry {
   key: string
@@ -31,7 +32,6 @@ type SaveStatus = { kind: 'idle' } | { kind: 'saving' } | { kind: 'saved'; at: s
 let keySeq = 0
 const newKey = () => `k${++keySeq}`
 const emptyLab = (): LabData => ({ goal: '', repo_url: '', pitfall: '', bring: '' })
-const STATUSES: LessonStatus[] = ['svolta', 'non_svolta', 'supplenza', 'verifica']
 const QUICK_TYPES: ItemType[] = ['compito', 'verifica', 'evento']
 
 function initialState(page: CardPage): EditorState {
@@ -434,28 +434,21 @@ function EntryEditor({
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h3 className="font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
+        <h3 className="min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
         {entry.hours && <span className="text-xs text-muted">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span>}
         {entry.room && <span className="text-xs text-muted">· {entry.room}</span>}
         {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink">{t('day.lab')}</Badge>}
-        <select
-          value={entry.lesson_status}
-          onChange={(e) => onChange({ lesson_status: e.target.value as LessonStatus })}
-          className="ml-auto rounded-lg border border-line bg-surface px-2 py-1 text-xs font-semibold"
-          aria-label={t('editor.lessons')}
-        >
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {t(`day.status_${s}`)}
-            </option>
-          ))}
-        </select>
-        <button onClick={onRemove} className="rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
+        <button onClick={onRemove} className="ml-auto shrink-0 rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
           <Trash2 className="size-4" />
         </button>
       </header>
 
       <div className="space-y-3 px-4 pb-4 pt-2">
+        <LessonStatusSelector
+          subject={subjectName(info.subjects, entry.subject_code, i18n.language)}
+          value={entry.lesson_status}
+          onChange={(lesson_status) => onChange({ lesson_status })}
+        />
         {!skipped && (
           <>
             <ul className="space-y-1.5">

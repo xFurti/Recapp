@@ -256,6 +256,12 @@
     "add": "Aggiungi"
   },
   "editor": {
+    "lesson_status": "Stato della lezione",
+    "lesson_status_svolta": "Svolta",
+    "lesson_status_non_svolta": "Non svolta",
+    "lesson_status_supplenza": "Supplenza",
+    "lesson_status_verifica": "Verifica svolta",
+    "lesson_status_hint": "“Verifica svolta” descrive queste ore. “+ Verifica” aggiunge una scadenza.",
     "title": "Giornata di {{day}}",
     "subtitle": "Scrivi quello che ricordi. Niente voti, niente nomi di compagni.",
     "lessons": "Lezioni di oggi",
