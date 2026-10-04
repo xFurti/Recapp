@@ -1,8 +1,8 @@
 import { ArrowLeft, ArrowRight, ExternalLink, Users } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import recappIcon from '../assets/recapp-icon.png'
 import { localized, type Creator } from '../content/about'
-import { Stairs } from './ui'
 import { TranslatedMessage } from './TranslatedMessage'
 
 function Portrait({ creator }: { creator: Creator }) {
@@ -15,7 +15,7 @@ function Portrait({ creator }: { creator: Creator }) {
       ) : (
         <div aria-hidden className="flex flex-col items-center gap-5">
           <span className="flex size-24 items-center justify-center rounded-3xl bg-surface text-4xl font-extrabold text-bordeaux shadow-sm">{creator.name.trim().split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase()}</span>
-          <Stairs className="w-32 opacity-70" />
+          <img src={recappIcon} alt="" className="h-20 w-auto" />
         </div>
       )}
     </div>

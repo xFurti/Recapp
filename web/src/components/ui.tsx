@@ -1,4 +1,5 @@
 import { LoaderCircle, X } from 'lucide-react'
+import recappIcon from '../assets/recapp-icon.png'
 import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -84,23 +85,10 @@ export function Badge({ className = '', children }: { className?: string; childr
   )
 }
 
-const STAIR_COLORS = ['#A02848', '#F8B828', '#1898C8', '#80B830', '#E01058', '#8038B8']
-
-/** The six coloured "stairs" of the Marconi logo, used as a light illustration. */
-export function Stairs({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 132 60" className={className} aria-hidden>
-      {STAIR_COLORS.map((c, i) => (
-        <path key={c} d={`M${i * 22} 60 v-${18 + i * 7} h10 v-10 h10 v${28 + i * 7} z`} fill={c} />
-      ))}
-    </svg>
-  )
-}
-
 export function EmptyState({ title, text, children }: { title: string; text?: string; children?: ReactNode }) {
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
-      <Stairs className="mb-4 h-12 opacity-80" />
+      <img src={recappIcon} alt="" className="mb-4 h-20 w-auto" />
       <p className="language-text text-lg font-semibold">{title}</p>
       {text && <p className="language-text mt-1 max-w-sm text-muted">{text}</p>}
       {children && <div className="mt-4">{children}</div>}
