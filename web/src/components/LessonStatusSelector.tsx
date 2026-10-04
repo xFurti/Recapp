@@ -43,7 +43,7 @@ export function LessonStatusSelector({ subject, value, onChange }: {
           </label>
         ))}
       </div>
-      <p id={`${id}-hint`} className="mt-2 text-xs leading-relaxed text-muted">{t('editor.lesson_status_hint')}</p>
+      <p id={`${id}-hint`} className="mt-2 text-xs leading-relaxed text-muted" aria-live="polite">{t(`editor.lesson_status_hint_${value}`)}</p>
     </fieldset>
   )
 }
