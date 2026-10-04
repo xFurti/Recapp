@@ -5,6 +5,7 @@ import { useCallback, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
+import { ClassBoard } from '../components/ClassBoard'
 import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { InviteModal } from '../components/InviteModal'
 import { DayView, WeekGrid } from '../components/timetable'
@@ -25,6 +26,7 @@ export default function ClassPage() {
   return (
     <div>
       <h1 className="mb-4 text-2xl font-extrabold tracking-tight"><span className="language-text">{t('nav.class')}</span></h1>
+      <ClassBoard />
       <Segmented
         value={tab}
         onChange={(v) => setParams({ tab: v }, { replace: true })}
