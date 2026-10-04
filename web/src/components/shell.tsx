@@ -513,21 +513,62 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
 }
 
 export function PinPad({ value, onChange, onSubmit, disabled }: { value: string; onChange: (v: string) => void; onSubmit?: (v: string) => void; disabled?: boolean }) {
+  const valueRef = useRef(value)
+  const disabledRef = useRef(disabled)
+  const onChangeRef = useRef(onChange)
+  const onSubmitRef = useRef(onSubmit)
+
+  useEffect(() => {
+    const typed = valueRef.current
+    if (value.length === 0 || !(typed.startsWith(value) && typed.length >= value.length)) valueRef.current = value
+    disabledRef.current = disabled
+    onChangeRef.current = onChange
+    onSubmitRef.current = onSubmit
+  }, [value, disabled, onChange, onSubmit])
+
   const press = (d: string) => {
-    if (disabled || value.length >= 6) return
-    const next = value + d
-    onChange(next)
-    if (next.length === 6) onSubmit?.(next)
+    if (disabledRef.current || valueRef.current.length >= 6) return
+    const next = valueRef.current + d
+    valueRef.current = next
+    onChangeRef.current(next)
+    if (next.length === 6) onSubmitRef.current?.(next)
   }
+  const erase = () => {
+    if (disabledRef.current || valueRef.current.length === 0) return
+    const next = valueRef.current.slice(0, -1)
+    valueRef.current = next
+    onChangeRef.current(next)
+  }
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat) return
+      const target = event.target
+      if (target instanceof Element && target.closest('input, textarea, select')) return
+      const fromCode = /^Digit(\d)$/.exec(event.code)?.[1] ?? /^Numpad(\d)$/.exec(event.code)?.[1]
+      const digit = /^\d$/.test(event.key) ? event.key : fromCode
+      if (!digit && event.key !== 'Backspace') return
+      event.preventDefault()
+      if (disabledRef.current) return
+      if (digit) {
+        if (valueRef.current.length >= 6) return
+        const next = valueRef.current + digit
+        valueRef.current = next
+        onChangeRef.current(next)
+        if (next.length === 6) onSubmitRef.current?.(next)
+        return
+      }
+      if (valueRef.current.length === 0) return
+      const next = valueRef.current.slice(0, -1)
+      valueRef.current = next
+      onChangeRef.current(next)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
-    <div
-      className="mx-auto w-full max-w-xs"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (/^\d$/.test(e.key)) press(e.key)
-        else if (e.key === 'Backspace') onChange(value.slice(0, -1))
-      }}
-    >
+    <div className="mx-auto w-full max-w-xs">
       <div className="mb-5 flex justify-center gap-3" aria-live="polite" aria-label={`${value.length}/6`}>
         {Array.from({ length: 6 }, (_, i) => (
           <span key={i} className={`size-3.5 rounded-full transition ${i < value.length ? 'bg-bordeaux' : 'bg-ink/15'}`} />
@@ -543,7 +584,7 @@ export function PinPad({ value, onChange, onSubmit, disabled }: { value: string;
         <button type="button" onClick={() => press('0')} disabled={disabled} className="h-14 rounded-2xl bg-surface text-xl font-semibold shadow-sm ring-1 ring-line hover:bg-paper active:scale-95">
           0
         </button>
-        <button type="button" onClick={() => onChange(value.slice(0, -1))} disabled={disabled} className="flex h-14 items-center justify-center rounded-2xl text-muted hover:bg-ink/5" aria-label="Cancella">
+        <button type="button" onClick={erase} disabled={disabled} className="flex h-14 items-center justify-center rounded-2xl text-muted hover:bg-ink/5" aria-label="Cancella">
           <Delete className="size-6" />
         </button>
       </div>
