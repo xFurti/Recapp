@@ -5,6 +5,7 @@ import { useCallback, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
+import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { InviteModal } from '../components/InviteModal'
 import { DayView, WeekGrid } from '../components/timetable'
 import { AnchoredMenu, Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
@@ -51,6 +52,7 @@ function Members() {
   const [adding, setAdding] = useState(false)
   const [invite, setInvite] = useState<Invite | null>(null)
   const [menu, setMenu] = useState<{ id: number; el: HTMLButtonElement } | null>(null)
+  const [confirm, setConfirm] = useState<{ kind: 'reset' | 'remove'; member: MemberRow } | null>(null)
   const closeMenu = useCallback(() => setMenu(null), [])
   const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public'].includes(String(q.queryKey[0])) })
   const act = useMutation({
@@ -72,8 +74,11 @@ function Members() {
   const openMember = menu ? members.find((m) => m.id === menu.id) : undefined
 
   const confirmAct = (kind: 'reset' | 'admin' | 'member' | 'remove', m: MemberRow) => {
-    if (kind === 'reset' && !window.confirm(t('class.reset_confirm', { nick: m.nick }))) return
-    if (kind === 'remove' && !window.confirm(t('class.remove_confirm', { nick: m.nick }))) return
+    closeMenu()
+    if (kind === 'reset' || kind === 'remove') {
+      setConfirm({ kind, member: m })
+      return
+    }
     act.mutate({ kind, m })
   }
 
@@ -138,6 +143,20 @@ function Members() {
       <AddMemberModal open={adding} onClose={() => setAdding(false)} onCreated={(inv) => { setAdding(false); setInvite(inv); refresh() }} />
       {invite && (
         <InviteModal open onClose={() => setInvite(null)} nick={invite.nick} invite={invite.invite} joinUrl={invite.join_url} classCode={info.code} />
+      )}
+      {confirm && (
+        <ConfirmationDialog
+          title={t(confirm.kind === 'remove' ? 'class.remove_title' : 'class.reset_title', { nick: confirm.member.nick })}
+          description={t(confirm.kind === 'remove' ? 'class.remove_body' : 'class.reset_body')}
+          confirmLabel={t(confirm.kind === 'remove' ? 'class.remove_action' : 'class.reset_action')}
+          pendingLabel={t(confirm.kind === 'remove' ? 'class.remove_pending' : 'class.reset_pending')}
+          errorLabel={t(confirm.kind === 'remove' ? 'class.remove_error' : 'class.reset_error')}
+          confirmVariant={confirm.kind === 'remove' ? 'danger' : 'primary'}
+          icon={confirm.kind === 'remove' ? <UserMinus className="size-6" aria-hidden /> : <KeyRound className="size-6" aria-hidden />}
+          iconClassName={confirm.kind === 'remove' ? 'bg-rosa-soft text-rosa-ink' : 'bg-bordeaux-soft text-bordeaux'}
+          onConfirm={() => act.mutateAsync({ kind: confirm.kind, m: confirm.member })}
+          onClose={() => setConfirm(null)}
+        />
       )}
     </div>
   )
