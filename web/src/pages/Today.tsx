@@ -1,10 +1,11 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, Hand, Info, Pencil, PartyPopper, TriangleAlert } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { ArrowRight, Hand, Info, Pencil, PartyPopper, TriangleAlert, X } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
-import { api } from '../api'
+import { api, ApiError } from '../api'
+import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { DayCardView, LessonsStrip } from '../components/day'
 import { Feedback } from '../components/Feedback'
 import { ItemRow } from '../components/items'
@@ -25,7 +26,8 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   const refresh = () => qc.invalidateQueries({ queryKey: ['today', info.code] })
 
   const takeover = useMutation({ mutationFn: () => api.post(classPath(info.code, '/today/takeover'), { day: data.day }), onSuccess: refresh })
-  const pass = useMutation({ mutationFn: () => api.post(classPath(info.code, '/today/pass'), { day: data.day }), onSuccess: refresh })
+  const [confirmPass, setConfirmPass] = useState(false)
+  const [leftTurn, setLeftTurn] = useState(false)
 
   let tone = 'bg-surface border-line'
   let title: ReactNode = null
@@ -33,7 +35,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   let actions: ReactNode = null
 
   const passBtn = data.can_pass && (
-    <Button variant="ghost" size="sm" onClick={() => window.confirm(t('banner.pass_confirm')) && pass.mutate()} loading={pass.isPending}>
+    <Button variant="ghost" size="sm" onClick={() => setConfirmPass(true)}>
       <Hand className="size-4" /> <span className="language-text">{t('banner.pass')}</span>
     </Button>
   )
@@ -125,8 +127,21 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       }
   }
 
-  const error = takeover.error || pass.error
+  const error = takeover.error
   return (
+    <>
+    {leftTurn && (
+      <div role="status" className="mb-4 flex items-start gap-3 rounded-2xl border border-bordeaux/25 bg-bordeaux-soft p-4 text-ink">
+        <Hand className="mt-0.5 size-5 shrink-0 text-bordeaux" aria-hidden />
+        <p className="min-w-0 flex-1 text-sm leading-relaxed">
+          <span className="language-text font-bold">{t('banner.pass_left_title')}</span>{' '}
+          <span className="language-text">{t('banner.pass_left_body')}</span>
+        </p>
+        <button type="button" onClick={() => setLeftTurn(false)} aria-label={t('common.close')} className="rounded-full p-1 text-muted hover:bg-ink/5">
+          <X className="size-4" />
+        </button>
+      </div>
+    )}
     <section className={`rounded-2xl border p-4 sm:p-5 ${tone}`} aria-live="polite">
       <div className="flex gap-3">
         {data.status === 'published' ? (
@@ -147,6 +162,38 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       {actions && <div className="mt-4 flex flex-wrap items-center gap-2">{actions}</div>}
       {error && <p className="mt-2 text-sm font-medium text-rosa-ink">{(error as Error).message}</p>}
     </section>
+    {confirmPass && (
+      <ConfirmationDialog
+        title={t('banner.pass_title')}
+        description={t('banner.pass_description')}
+        confirmLabel={t('banner.pass_action')}
+        pendingLabel={t('banner.pass_pending')}
+        errorLabel={t('banner.pass_error')}
+        confirmVariant="primary"
+        iconClassName="bg-bordeaux-soft text-bordeaux"
+        icon={<Hand className="size-6" aria-hidden />}
+        onConfirm={async () => {
+          try {
+            await api.post(classPath(info.code, '/today/pass'), { day: data.day })
+          } catch (caught) {
+            if (caught instanceof ApiError && caught.status === 409) {
+              await qc.invalidateQueries({ queryKey: ['today', info.code] })
+              const unavailable = new Error(t('banner.pass_unavailable'))
+              unavailable.name = 'ActionUnavailable'
+              throw unavailable
+            }
+            throw caught
+          }
+        }}
+        onClose={(confirmed) => {
+          setConfirmPass(false)
+          if (!confirmed) return
+          setLeftTurn(true)
+          refresh()
+        }}
+      />
+    )}
+    </>
   )
 }
 
