@@ -54,14 +54,14 @@ function LabBadge() {
   const { t } = useTranslation()
   return (
     <Badge className="bg-verde-soft text-verde-ink">
-      <FlaskConical className="size-3.5" aria-hidden /> {t('class.tt_lab')}
+      <FlaskConical className="size-3.5" aria-hidden /> <span className="language-text">{t('class.tt_lab')}</span>
     </Badge>
   )
 }
 
 function NowBadge() {
   const { t } = useTranslation()
-  return <Badge className="bg-bordeaux text-white">{t('class.tt_now')}</Badge>
+  return <Badge className="bg-bordeaux text-white"><span className="language-text">{t('class.tt_now')}</span></Badge>
 }
 
 export function DayView({ data, model, demo }: { data: TimetableData; model: TimetableModel; demo: boolean }) {
@@ -108,23 +108,23 @@ export function DayView({ data, model, demo }: { data: TimetableData; model: Tim
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <h2 className="text-xl font-extrabold">{weekdayName(day, lang)}</h2>
-        {day === model.todayWd && <Badge className="bg-bordeaux-soft text-bordeaux">{t('class.tt_today')}</Badge>}
-        {day === model.nextWd && <Badge className="bg-azzurro-soft text-azzurro-ink">{t('class.tt_next_day')}</Badge>}
+        {day === model.todayWd && <Badge className="bg-bordeaux-soft text-bordeaux"><span className="language-text">{t('class.tt_today')}</span></Badge>}
+        {day === model.nextWd && <Badge className="bg-azzurro-soft text-azzurro-ink"><span className="language-text">{t('class.tt_next_day')}</span></Badge>}
         {model.todayWd !== null && day !== model.todayWd && (
           <Button size="sm" variant="secondary" className="ml-auto min-h-11" onClick={() => setPicked(model.todayWd)}>
-            <CalendarCheck className="size-4" /> {t('class.tt_go_today')}
+            <CalendarCheck className="size-4" /> <span className="language-text">{t('class.tt_go_today')}</span>
           </Button>
         )}
       </div>
       {day === model.nextWd && model.nextDay && (
         <p className="mt-2 flex gap-2 rounded-xl border border-azzurro/20 bg-azzurro-soft px-3 py-2 text-sm text-azzurro-ink">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
-          {t(demo ? 'class.tt_no_school_today_demo' : 'class.tt_no_school_today', { day: longDay(model.nextDay, lang) })}
+          <span className="language-text">{t(demo ? 'class.tt_no_school_today_demo' : 'class.tt_no_school_today', { day: longDay(model.nextDay, lang) })}</span>
         </p>
       )}
 
       {blocks.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-muted">{t('class.tt_day_empty', { day: weekdayName(day, lang) })}</p>
+        <p className="mt-4 rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-muted"><span className="language-text">{t('class.tt_day_empty', { day: weekdayName(day, lang) })}</span></p>
       ) : (
         <ol className="mt-3 space-y-2" style={{ touchAction: 'pan-y' }} onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerCancel={() => (swipe.current = null)}>
           {blocks.map((b) => {
@@ -137,8 +137,8 @@ export function DayView({ data, model, demo }: { data: TimetableData; model: Tim
                     {validTime(b.hours[0].start) && <p className="text-xs text-muted">{b.hours[0].start}</p>}
                   </div>
                   <div>
-                    <p className="font-semibold text-muted">{t('class.tt_free_hour')}</p>
-                    <p className="text-xs text-muted">{t('class.tt_free_hour_sub')}</p>
+                    <p className="font-semibold text-muted"><span className="language-text">{t('class.tt_free_hour')}</span></p>
+                    <p className="text-xs text-muted"><span className="language-text">{t('class.tt_free_hour_sub')}</span></p>
                   </div>
                 </li>
               )
@@ -222,11 +222,11 @@ export function WeekGrid({
       <div className="relative">
         <div ref={scroller} className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-1">
           <table className="w-full min-w-[34rem] table-fixed border-separate border-spacing-1 text-sm">
-            <caption className="sr-only">{t('class.tt_week_caption')}</caption>
+            <caption className="sr-only"><span className="language-text">{t('class.tt_week_caption')}</span></caption>
             <thead>
               <tr>
                 <th scope="col" className={`sticky left-0 z-10 w-14 bg-paper ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
-                  <span className="sr-only">{t('class.tt_hour_col')}</span>
+                  <span className="sr-only"><span className="language-text">{t('class.tt_hour_col')}</span></span>
                 </th>
                 {days.map((w) => {
                   const today = model?.todayWd === w
@@ -234,7 +234,7 @@ export function WeekGrid({
                     <th key={w} scope="col" className={`rounded-lg px-1 py-2 text-xs font-bold ${today ? 'bg-bordeaux text-white' : 'bg-ink text-paper'}`}>
                       <span className="hidden sm:inline">{weekdayName(w, lang)}</span>
                       <span className="sm:hidden">{weekdayName(w, lang, 'short')}</span>
-                      {today && <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-90">{t('class.tt_today')}</span>}
+                      {today && <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-90"><span className="language-text">{t('class.tt_today')}</span></span>}
                     </th>
                   )
                 })}
@@ -244,7 +244,7 @@ export function WeekGrid({
               {hours.map((h) => (
                 <tr key={h.hour}>
                   <th scope="row" className={`sticky left-0 z-10 bg-paper pr-1 text-right align-middle text-xs font-normal text-muted ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
-                    <span className="block font-bold text-ink">{t('class.tt_hour_short', { hour: h.hour })}</span>
+                    <span className="block font-bold text-ink"><span className="language-text">{t('class.tt_hour_short', { hour: h.hour })}</span></span>
                     {validTime(h.start) ? h.start : '—'}
                   </th>
                   {days.map((w) => {
@@ -297,7 +297,7 @@ export function WeekGrid({
       </div>
       {overflow.more && (
         <p className="mt-1 flex items-center justify-end gap-1 text-xs font-semibold text-muted" aria-hidden>
-          {t('class.tt_scroll_hint')} <ArrowRight className="size-3.5" />
+          <span className="language-text">{t('class.tt_scroll_hint')}</span> <ArrowRight className="size-3.5" />
         </p>
       )}
       {detail && <LessonModal data={data} {...detail} now={model?.todayWd === detail.weekday && model.currentHour === detail.hour.hour} onClose={() => setDetail(null)} />}

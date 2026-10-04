@@ -43,15 +43,15 @@ export default function NotFound() {
             <FileQuestion className="size-8" aria-hidden />
           </div>
           <p className="mt-6 text-6xl font-extrabold tracking-tight text-bordeaux">404</p>
-          <h1 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">{t('notFound.title')}</h1>
-          <p className="mt-3 text-base text-muted">{t('notFound.body')}</p>
+          <h1 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl"><span className="language-text">{t('notFound.title')}</span></h1>
+          <p className="mt-3 text-base text-muted"><span className="language-text">{t('notFound.body')}</span></p>
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-center">
             <Link to="/" className={`${linkClass} bg-bordeaux text-white shadow-sm hover:bg-bordeaux-dark`}>
-              {t('notFound.home')}
+              <span className="language-text">{t('notFound.home')}</span>
             </Link>
             {today && (
               <Link to={`/c/${today}`} className={`${linkClass} border border-line bg-surface text-ink hover:border-ink/30`}>
-                {t('notFound.today')}
+                <span className="language-text">{t('notFound.today')}</span>
               </Link>
             )}
           </div>

@@ -433,7 +433,7 @@
 }
 .lang-swap {
   display: inline-block;
-  animation: lang-swap 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: lang-swap 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 @keyframes lang-swap {
   0% { opacity: 0; transform: translateY(7px) rotate(-14deg); }
@@ -655,4 +655,25 @@ html.theme-anim {
 }
 @media (prefers-reduced-motion: reduce) {
   .section-nav-indicator, .section-nav-link { transition: none; }
+}
+
+/* Only translated text fades: icons, surfaces and authored content stay put.
+   Inline spans retain normal wrapping; no duplicated text or focus targets. */
+.language-text {
+  transition: opacity 110ms ease-out;
+}
+html[data-language-transition='out'] .language-text {
+  opacity: 0;
+  transition-duration: 90ms;
+}
+input::placeholder, textarea::placeholder {
+  transition: opacity 110ms ease-out;
+}
+html[data-language-transition='out'] input::placeholder,
+html[data-language-transition='out'] textarea::placeholder {
+  opacity: 0;
+  transition-duration: 90ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .language-text, input::placeholder, textarea::placeholder { transition: none; }
 }

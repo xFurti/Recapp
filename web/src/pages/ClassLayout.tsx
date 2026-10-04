@@ -44,7 +44,7 @@ export default function ClassLayout() {
       <div className="mx-auto max-w-md p-6">
         <ErrorBox error={info.error} />
         <Button variant="secondary" className="mt-4" onClick={() => (window.location.href = '/')}>
-          {t('common.back')}
+          <span className="language-text">{t('common.back')}</span>
         </Button>
       </div>
     )

@@ -1,3 +1,4 @@
+import { TranslatedMessage } from './TranslatedMessage'
 import { BookOpen, ExternalLink, FlaskConical, GraduationCap, Megaphone, Paperclip } from 'lucide-react'
 import { useEffect, useState, type ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +22,7 @@ export function TypeBadge({ type }: { type: ItemType }) {
   return (
     <Badge className={s.badge}>
       <Icon className="size-3.5" />
-      {t(`types.${type}`)}
+      <span className="language-text">{t(`types.${type}`)}</span>
     </Badge>
   )
 }
@@ -116,11 +117,11 @@ export function ItemRow({
               {item.due_time ? ` · ${item.due_time}` : ''}
             </span>
             <SourceBadge source={item.source} />
-            {item.author && <span>{t('upcoming.added_by', { nick: item.author.nick })}</span>}
+            {item.author && <span><TranslatedMessage message={'upcoming.added_by'} values={{ nick: item.author.nick }} /></span>}
             {item.link && (
               <a href={item.link} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 font-semibold text-azzurro-ink hover:underline">
                 <ExternalLink className="size-3.5" />
-                {t('upcoming.open_link')}
+                <span className="language-text">{t('upcoming.open_link')}</span>
               </a>
             )}
             {item.attachment_id && (

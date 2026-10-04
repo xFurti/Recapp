@@ -1,3 +1,4 @@
+import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
@@ -113,16 +114,16 @@ export default function Join() {
         {cls.error && <ErrorBox error={cls.error} />}
         {cls.data && me.data?.kind === 'member' && me.data.classroom.code !== cls.data.code && (
           <div className="mb-4 rounded-xl bg-giallo-soft p-3 text-sm">
-            {t('join.wrong_class')}{' '}
+            <span className="language-text">{t('join.wrong_class')}</span>{' '}
             <button className="font-semibold underline" onClick={async () => { await api.post('/auth/logout'); qc.invalidateQueries() }}>
-              {t('join.switch')}
+              <span className="language-text">{t('join.switch')}</span>
             </button>
           </div>
         )}
         {cls.data && !member && (
           <>
-            <h1 className="text-3xl font-extrabold tracking-tight">{t('join.pick_title')}</h1>
-            <p className="mt-1 text-muted">{t('join.pick_sub', { name: cls.data.label })}</p>
+            <h1 className="text-3xl font-extrabold tracking-tight"><span className="language-text">{t('join.pick_title')}</span></h1>
+            <p className="mt-1 text-muted"><TranslatedMessage message={'join.pick_sub'} values={{ name: cls.data.label }} /></p>
             {cls.data.members.length === 0 ? (
               <EmptyState title={t('join.no_members')} />
             ) : (
@@ -135,7 +136,7 @@ export default function Join() {
                     >
                       <Avatar nick={m.nick} color={m.color} size="lg" />
                       <span className="font-semibold">{m.nick}</span>
-                      {m.needs_setup && <Badge className="bg-giallo-soft text-ink">{t('join.first_access')}</Badge>}
+                      {m.needs_setup && <Badge className="bg-giallo-soft text-ink"><span className="language-text">{t('join.first_access')}</span></Badge>}
                     </button>
                   </li>
                 ))}
@@ -147,14 +148,14 @@ export default function Join() {
         {member && (
           <div className="mx-auto max-w-sm">
             <button onClick={back} className="mb-6 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
-              <ArrowLeft className="size-4" /> {t('join.not_you')}
+              <ArrowLeft className="size-4" /> <span className="language-text">{t('join.not_you')}</span>
             </button>
             <div className="mb-6 flex flex-col items-center text-center">
               <Avatar nick={member.nick} color={member.color} size="lg" />
               <h1 className="mt-3 text-2xl font-extrabold">
-                {member.needs_setup ? t('join.setup_title', { nick: member.nick }) : t('join.pin_title', { nick: member.nick })}
+                <TranslatedMessage message={member.needs_setup ? 'join.setup_title' : 'join.pin_title'} values={{ nick: member.nick }} />
               </h1>
-              <p className="mt-1 text-muted">{member.needs_setup ? t('join.setup_sub') : t('join.pin_sub')}</p>
+              <p className="mt-1 text-muted"><span className="language-text">{member.needs_setup ? t('join.setup_sub') : t('join.pin_sub')}</span></p>
             </div>
             {member.needs_setup ? (
               <form onSubmit={activate} className="space-y-4">
@@ -169,7 +170,7 @@ export default function Join() {
                 </Field>
                 {error && <p className="text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
                 <Button type="submit" size="lg" className="w-full" loading={busy} disabled={pin1.length !== 6 || invite.length < 8}>
-                  {t('join.enter')}
+                  <span className="language-text">{t('join.enter')}</span>
                 </Button>
               </form>
             ) : cls.data?.is_demo ? (
@@ -181,7 +182,7 @@ export default function Join() {
               <>
                 <PinPad value={pin} onChange={setPin} onSubmit={login} disabled={busy} />
                 {error && <p className="mt-4 text-center text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
-                <p className="mt-6 text-center text-xs text-muted">{t('join.forgot')}</p>
+                <p className="mt-6 text-center text-xs text-muted"><span className="language-text">{t('join.forgot')}</span></p>
               </>
             )}
           </div>

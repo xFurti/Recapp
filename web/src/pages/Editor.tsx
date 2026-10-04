@@ -138,7 +138,7 @@ export default function Editor() {
       <Box>
         <EmptyState title={t('editor.not_allowed')} text={t('editor.not_allowed_sub')}>
           <Link to={`/c/${info.code}`} className="font-semibold text-bordeaux underline">
-            {t('nav.today')}
+            <span className="language-text">{t('nav.today')}</span>
           </Link>
         </EmptyState>
       </Box>
@@ -309,7 +309,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
     }
     return (
       <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
-        <h1 className="text-xl font-extrabold">{t('editor.preview_title')}</h1>
+        <h1 className="text-xl font-extrabold"><span className="language-text">{t('editor.preview_title')}</span></h1>
         <DayCardView card={card} subjects={info.subjects} classLabel={info.label} />
         <ActionBar save={save} published={published} onPreview={() => setPreview(false)} previewLabel={t('editor.back_edit')} onPublish={publish} publishing={publishing} error={publishError} />
         {emptyNotice && <EmptyPublishDialog onComplete={completeEmpty} onClose={() => setEmptyNotice(false)} />}
@@ -323,26 +323,26 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
     <div className="space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
       <div>
         <Link to={`/c/${info.code}`} className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
-          <ArrowLeft className="size-4" /> {t('nav.today')}
+          <ArrowLeft className="size-4" /> <span className="language-text">{t('nav.today')}</span>
         </Link>
-        <h1 className="text-2xl font-extrabold tracking-tight">{t('editor.title', { day: longDay(day, lang) })}</h1>
-        <p className="mt-1 text-sm text-muted">{t('editor.subtitle')}</p>
+        <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('editor.title', { day: longDay(day, lang) })}</span></h1>
+        <p className="mt-1 text-sm text-muted"><span className="language-text">{t('editor.subtitle')}</span></p>
       </div>
 
       {conflict && (
         <div className="rounded-2xl border border-rosa/30 bg-rosa-soft p-4" role="alert">
-          <p className="font-bold text-rosa-ink">{t('editor.conflict_title')}</p>
-          <p className="mt-1 text-sm">{t('editor.conflict_text')}</p>
+          <p className="font-bold text-rosa-ink"><span className="language-text">{t('editor.conflict_title')}</span></p>
+          <p className="mt-1 text-sm"><span className="language-text">{t('editor.conflict_text')}</span></p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" onClick={keepMine}>{t('editor.conflict_keep')}</Button>
-            <Button size="sm" variant="secondary" onClick={loadSaved}>{t('editor.conflict_reload')}</Button>
+            <Button size="sm" onClick={keepMine}><span className="language-text">{t('editor.conflict_keep')}</span></Button>
+            <Button size="sm" variant="secondary" onClick={loadSaved}><span className="language-text">{t('editor.conflict_reload')}</span></Button>
           </div>
         </div>
       )}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted">{t('editor.lessons')}</h2>
-        {state.entries.length === 0 && <p className="text-sm text-muted">{t('editor.no_lessons')}</p>}
+        <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.lessons')}</span></h2>
+        {state.entries.length === 0 && <p className="text-sm text-muted"><span className="language-text">{t('editor.no_lessons')}</span></p>}
         {state.entries.map((entry) => (
           <EntryEditor
             key={entry.key}
@@ -375,7 +375,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       {otherItems.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t('editor.other_items')}</h2>
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.other_items')}</span></h2>
           <div className="space-y-2">
             {otherItems.map((it) => (
               <ItemChip key={it.key} item={it} onEdit={() => setForm(it)} onRemove={() => removeItem(it.key)} />
@@ -386,7 +386,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       {state.attachment_ids.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted">{t('editor.attachments')}</h2>
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
           <div className="flex flex-wrap gap-2">
             {state.attachment_ids.map((id) => (
               <div key={id} className="relative">
@@ -406,7 +406,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       <section>
         <label htmlFor="notes" className="mb-2 block text-sm font-bold uppercase tracking-wide text-muted">
-          {t('editor.notes_title')}
+          <span className="language-text">{t('editor.notes_title')}</span>
         </label>
         <textarea
           id="notes"
@@ -485,9 +485,9 @@ function EntryEditor({
     <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
         <h3 className="min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
-        {entry.hours && <span className="text-xs text-muted">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span>}
+        {entry.hours && <span className="text-xs text-muted"><span className="language-text">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span></span>}
         {entry.room && <span className="text-xs text-muted">· {entry.room}</span>}
-        {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink">{t('day.lab')}</Badge>}
+        {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
         <button onClick={onRemove} className="ml-auto shrink-0 rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
           <Trash2 className="size-4" />
         </button>
@@ -528,15 +528,15 @@ function EntryEditor({
                 }}
                 className="text-sm font-semibold text-muted hover:text-ink"
               >
-                + {t('editor.add_bullet')}
+                + <span className="language-text">{t('editor.add_bullet')}</span>
               </button>
             ) : (
-              <p className="text-xs text-muted">{t('editor.max_bullets')}</p>
+              <p className="text-xs text-muted"><span className="language-text">{t('editor.max_bullets')}</span></p>
             )}
 
             <label className="flex w-fit cursor-pointer items-center gap-2 text-sm font-semibold">
               <input type="checkbox" className="size-4 accent-verde" checked={entry.is_lab} onChange={(e) => onChange({ is_lab: e.target.checked, lab: e.target.checked ? lab : entry.lab })} />
-              <FlaskConical className="size-4 text-verde-ink" /> {t('editor.lab_toggle')}
+              <FlaskConical className="size-4 text-verde-ink" /> <span className="language-text">{t('editor.lab_toggle')}</span>
             </label>
             <EntryPhotos ids={entry.attachment_ids} />
             {!skipped && (
@@ -558,7 +558,7 @@ function EntryEditor({
         )}
 
         <div className="border-t border-dashed border-line pt-3">
-          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted">{t('editor.assigned_today')}</p>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.assigned_today')}</span></p>
           {items.length > 0 && (
             <div className="mb-2 space-y-2">
               {items.map((it) => (
@@ -572,7 +572,7 @@ function EntryEditor({
               return (
                 <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
                   <Plus className="size-3.5" />
-                  <Icon className="size-4" /> {t(`editor.add_${ty}`)}
+                  <Icon className="size-4" /> <span className="language-text">{t(`editor.add_${ty}`)}</span>
                 </button>
               )
             })}
@@ -586,7 +586,7 @@ function EntryEditor({
 function LabInput({ label, value, placeholder, onChange, mono }: { label: string; value: string; placeholder: string; onChange: (v: string) => void; mono?: boolean }) {
   return (
     <label className="block">
-      <span className="mb-0.5 block text-xs font-bold text-verde-ink">{label}</span>
+      <span className="language-text mb-0.5 block text-xs font-bold text-verde-ink">{label}</span>
       <input className={`${inputClass} py-2 text-sm ${mono ? 'font-mono' : ''}`} value={value} placeholder={placeholder} maxLength={300} onChange={(e) => onChange(e.target.value)} />
     </label>
   )
@@ -640,15 +640,15 @@ function PhotoUpload({ ids, onAdd, onRemove }: { ids: number[]; onAdd: (id: numb
     <div className="flex flex-wrap items-center gap-2">
       <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
         <input type="checkbox" className="size-4 accent-bordeaux" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} />
-        {t('editor.privacy_check')}
+        <span className="language-text">{t('editor.privacy_check')}</span>
       </label>
       <input ref={ref} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = '' }} />
       {ids.length < 3 ? (
         <Button size="sm" variant="secondary" loading={busy} onClick={() => (privacy ? ref.current?.click() : setError(t('editor.privacy_needed')))}>
-          <ImagePlus className="size-4" /> {t('day.add_photo')}
+          <ImagePlus className="size-4" /> <span className="language-text">{t('day.add_photo')}</span>
         </Button>
       ) : (
-        <span className="text-xs text-muted">{t('day.photo_limit')}</span>
+        <span className="text-xs text-muted"><span className="language-text">{t('day.photo_limit')}</span></span>
       )}
       {ids.map((id) => (
         <button key={id} onClick={() => onRemove(id)} className="text-xs font-semibold text-muted hover:text-rosa-ink" aria-label={t('editor.remove_item')}>
@@ -667,7 +667,7 @@ function AddSubject({ onAdd, publishTarget }: { onAdd: (code: string) => void; p
   if (!open) {
     return (
       <button data-publish-target={publishTarget ? '' : undefined} onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-line py-3 text-sm font-semibold text-muted hover:border-ink/30 hover:text-ink" title={t('editor.add_subject_title')}>
-        <Plus className="size-4" /> {t('editor.add_subject')}
+        <Plus className="size-4" /> <span className="language-text">{t('editor.add_subject')}</span>
       </button>
     )
   }
@@ -764,38 +764,38 @@ function AiSources({
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">
       <h2 className="flex items-center gap-2 font-bold">
-        <Sparkles className="size-5 text-viola" /> {t('editor.sources_title')}
+        <Sparkles className="size-5 text-viola" /> <span className="language-text">{t('editor.sources_title')}</span>
       </h2>
-      <p className="mt-0.5 text-sm text-muted">{t('editor.sources_sub')}</p>
+      <p className="mt-0.5 text-sm text-muted"><span className="language-text">{t('editor.sources_sub')}</span></p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <textarea rows={2} className={`${inputClass} flex-1`} placeholder={t('editor.paste_ph')} value={text} onChange={(e) => setText(e.target.value)} maxLength={2000} />
         <Button variant="secondary" onClick={() => { setAttachmentId(null); run({ text }) }} disabled={!text.trim()} loading={busy && !!text} className="sm:self-start">
-          <Sparkles className="size-4" /> {t('editor.read_ai')}
+          <Sparkles className="size-4" /> <span className="language-text">{t('editor.read_ai')}</span>
         </Button>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <label className="flex cursor-pointer items-center gap-2 text-sm">
           <input type="checkbox" className="size-4 accent-bordeaux" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} />
-          {t('editor.privacy_check')}
+          <span className="language-text">{t('editor.privacy_check')}</span>
         </label>
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = '' }} />
         <Button variant="secondary" size="sm" onClick={() => (privacy ? fileRef.current?.click() : setError(t('editor.privacy_needed')))} disabled={busy}>
-          <ImagePlus className="size-4" /> {t('editor.upload')}
+          <ImagePlus className="size-4" /> <span className="language-text">{t('editor.upload')}</span>
         </Button>
       </div>
       {busy && (
         <p className="mt-3 flex items-center gap-2 text-sm font-medium text-viola-ink" role="status">
           <LoaderCircle className="size-4 animate-spin" aria-hidden />
-          {t('editor.reading')}
+          <span className="language-text">{t('editor.reading')}</span>
         </p>
       )}
       {error && <p className="mt-3 text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
       {message && <p className="mt-3 rounded-lg bg-giallo-soft px-3 py-2 text-xs">{message}</p>}
-      {done && !busy && <p className="mt-3 text-sm text-muted">{t('editor.no_drafts')}</p>}
+      {done && !busy && <p className="mt-3 text-sm text-muted"><span className="language-text">{t('editor.no_drafts')}</span></p>}
       {drafts.length > 0 && (
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted">{t('editor.drafts_title')}</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.drafts_title')}</span></p>
             <button
               className="text-sm font-semibold text-bordeaux"
               onClick={() => {
@@ -803,7 +803,7 @@ function AiSources({
                 setDrafts([])
               }}
             >
-              {t('editor.accept_all')}
+              <span className="language-text">{t('editor.accept_all')}</span>
             </button>
           </div>
           <ul className="space-y-2">
@@ -814,13 +814,13 @@ function AiSources({
                   <SubjectTag subjects={info.subjects} code={d.subject_code} />
                   <SourceBadge source={d.source} />
                   <span className="text-xs font-semibold">{capitalize(relativeDay(d.due_date, t, i18n.language))}{d.due_time ? ` · ${d.due_time}` : ''}</span>
-                  {d.needs_check && <Badge className="bg-giallo text-[#1d1b1e]">{t('editor.check_date')}</Badge>}
+                  {d.needs_check && <Badge className="bg-giallo text-[#1d1b1e]"><span className="language-text">{t('editor.check_date')}</span></Badge>}
                 </div>
                 <p className="mt-1 font-semibold">{d.title}</p>
                 <div className="mt-2 flex gap-2">
-                  <Button size="sm" onClick={() => { onAccept(d, attachmentId); drop(d.key) }}>{t('editor.accept')}</Button>
-                  <Button size="sm" variant="secondary" onClick={() => { onEdit(d, attachmentId); drop(d.key) }}>{t('common.edit')}</Button>
-                  <Button size="sm" variant="ghost" onClick={() => drop(d.key)}>{t('editor.discard')}</Button>
+                  <Button size="sm" onClick={() => { onAccept(d, attachmentId); drop(d.key) }}><span className="language-text">{t('editor.accept')}</span></Button>
+                  <Button size="sm" variant="secondary" onClick={() => { onEdit(d, attachmentId); drop(d.key) }}><span className="language-text">{t('common.edit')}</span></Button>
+                  <Button size="sm" variant="ghost" onClick={() => drop(d.key)}><span className="language-text">{t('editor.discard')}</span></Button>
                 </div>
               </li>
             ))}
@@ -854,10 +854,10 @@ function ActionBar({
         <p className={`text-xs leading-snug sm:min-w-0 sm:flex-1 sm:truncate ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
         <div className="grid grid-cols-2 gap-2 sm:flex">
           <Button variant="secondary" size="sm" onClick={onPreview} className="w-full sm:w-auto">
-            <Eye className="size-4" /> {previewLabel}
+            <Eye className="size-4" /> <span className="language-text">{previewLabel}</span>
           </Button>
           <Button size="sm" onClick={onPublish} loading={publishing} className="w-full sm:w-auto">
-            {published ? t('editor.republish') : t('editor.publish')}
+            <span className="language-text">{published ? t('editor.republish') : t('editor.publish')}</span>
           </Button>
         </div>
       </div>

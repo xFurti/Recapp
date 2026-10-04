@@ -75,16 +75,16 @@ export function EmptyPublishDialog({ onComplete, onClose }: { onComplete: () => 
           <TriangleAlert className="size-6" />
         </span>
         <div className="min-w-0 flex-1">
-          <h2 id={`${id}-title`} className="text-lg font-extrabold leading-snug">{t('editor.empty_title')}</h2>
-          <p id={`${id}-body`} className="mt-2 text-sm leading-relaxed text-muted">{t('editor.empty_body')}</p>
+          <h2 id={`${id}-title`} className="text-lg font-extrabold leading-snug"><span className="language-text">{t('editor.empty_title')}</span></h2>
+          <p id={`${id}-body`} className="mt-2 text-sm leading-relaxed text-muted"><span className="language-text">{t('editor.empty_body')}</span></p>
         </div>
         <button type="button" onClick={dismiss} className="rounded-full p-2 text-muted hover:bg-ink/5 hover:text-ink" aria-label={t('common.close')}>
           <X className="size-5" />
         </button>
       </div>
       <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button type="button" variant="secondary" onClick={dismiss}>{t('common.close')}</Button>
-        <Button type="button" data-complete onClick={finish}>{t('editor.empty_complete')}</Button>
+        <Button type="button" variant="secondary" onClick={dismiss}><span className="language-text">{t('common.close')}</span></Button>
+        <Button type="button" data-complete onClick={finish}><span className="language-text">{t('editor.empty_complete')}</span></Button>
       </div>
     </dialog>,
     document.body,

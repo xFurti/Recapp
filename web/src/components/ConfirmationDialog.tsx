@@ -112,19 +112,19 @@ export function ConfirmationDialog({ title, description, children, confirmLabel,
           <X className="size-5" aria-hidden />
         </button>
       </div>
-      <h2 id={`${id}-title`} className="mt-4 text-xl font-bold">{title}</h2>
-      <p id={`${id}-description`} className="mt-2 text-sm text-muted">{description}</p>
+      <h2 id={`${id}-title`} className="language-text mt-4 text-xl font-bold">{title}</h2>
+      <p id={`${id}-description`} className="language-text mt-2 text-sm text-muted">{description}</p>
       <div id={`${id}-preview`} className="mt-4 rounded-xl border border-line bg-paper p-3 text-[15px]">
         {children}
       </div>
       <p role="status" className="mt-3 text-sm text-muted">{pending && pendingLabel}</p>
-      {error && <p role="alert" className="mt-3 text-sm font-medium text-rosa-ink">{errorLabel}</p>}
+      {error && <p role="alert" className="mt-3 text-sm font-medium text-rosa-ink"><span className="language-text">{errorLabel}</span></p>}
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
         <button ref={cancel} type="button" disabled={pending || closing} onClick={dismiss} className="confirmation-action h-11 rounded-xl border border-line px-4 font-semibold hover:bg-ink/5 disabled:opacity-40">
-          {t('common.cancel')}
+          <span className="language-text">{t('common.cancel')}</span>
         </button>
         <Button type="button" variant="danger" loading={pending} disabled={closing} onClick={confirm} className="confirmation-action">
-          {pending ? pendingLabel : confirmLabel}
+          <span className="language-text">{pending ? pendingLabel : confirmLabel}</span>
         </Button>
       </div>
     </dialog>,

@@ -1,5 +1,5 @@
 import { LoaderCircle, X } from 'lucide-react'
-import { useEffect, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type RefObject } from 'react'
+import { useEffect, useEffectEvent, useId, useLayoutEffect, useRef, useState, type ButtonHTMLAttributes, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -43,7 +43,7 @@ export function Spinner({ label }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-2 py-10 text-muted" role="status">
       <LoaderCircle className="size-5 animate-spin" aria-hidden />
-      <span>{label ?? t('common.loading')}</span>
+      <span className="language-text">{label ?? t('common.loading')}</span>
     </div>
   )
 }
@@ -56,7 +56,7 @@ export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => v
       <p className="font-medium">{msg}</p>
       {onRetry && (
         <button className="mt-2 text-sm font-semibold underline" onClick={onRetry}>
-          {t('common.retry')}
+          <span className="language-text">{t('common.retry')}</span>
         </button>
       )}
     </div>
@@ -101,8 +101,8 @@ export function EmptyState({ title, text, children }: { title: string; text?: st
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
       <Stairs className="mb-4 h-12 opacity-80" />
-      <p className="text-lg font-semibold">{title}</p>
-      {text && <p className="mt-1 max-w-sm text-muted">{text}</p>}
+      <p className="language-text text-lg font-semibold">{title}</p>
+      {text && <p className="language-text mt-1 max-w-sm text-muted">{text}</p>}
       {children && <div className="mt-4">{children}</div>}
     </div>
   )
@@ -131,7 +131,7 @@ export function Segmented<T extends string>({
             value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
           }`}
         >
-          {o.label}
+          <span className="language-text">{o.label}</span>
         </button>
       ))}
     </div>
@@ -172,19 +172,21 @@ export function Modal({
 }: {
   open: boolean
   onClose: () => void
-  title: string
+  title: ReactNode
   children: ReactNode
   wide?: boolean
 }) {
   const { t } = useTranslation()
+  const titleId = useId()
+  const dismissOnEscape = useEffectEvent(onClose)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismissOnEscape()
     document.addEventListener('keydown', onKey)
     ref.current?.querySelector<HTMLElement>('input,textarea,select,button')?.focus()
     return () => document.removeEventListener('keydown', onKey)
-  }, [open, onClose])
+  }, [open])
   if (!open) return null
   // Portal: an ancestor with backdrop-filter (the sticky header) would trap `fixed` children.
   return createPortal(
@@ -193,12 +195,12 @@ export function Modal({
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
         className={`max-h-[92vh] w-full overflow-y-auto rounded-t-3xl bg-surface p-5 shadow-xl sm:rounded-3xl ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
       >
         <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 id={titleId} className={typeof title === 'string' ? 'language-text text-lg font-bold' : 'text-lg font-bold'}>{title}</h2>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('common.close')}>
             <X className="size-5" />
           </button>
@@ -304,9 +306,9 @@ export function useDismiss(ref: RefObject<HTMLElement | null>, open: boolean, on
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-sm font-semibold text-ink">{label}</span>
+      <span className="language-text mb-1 block text-sm font-semibold text-ink">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+      {hint && <span className="language-text mt-1 block text-xs text-muted">{hint}</span>}
     </label>
   )
 }

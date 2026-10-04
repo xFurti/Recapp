@@ -20,7 +20,7 @@ export function LessonStatusSelector({ subject, value, onChange }: {
   return (
     <fieldset className="lesson-status min-w-0" aria-describedby={`${id}-hint`}>
       <legend className="mb-2 text-xs font-bold text-muted">
-        {t('editor.lesson_status')}<span className="sr-only"> · {subject}</span>
+        <span className="language-text">{t('editor.lesson_status')}</span><span className="sr-only"> · {subject}</span>
       </legend>
       <div className="lesson-status-options grid grid-cols-2 gap-2">
         {OPTIONS.map(({ value: option, icon: Icon }) => (
@@ -35,7 +35,7 @@ export function LessonStatusSelector({ subject, value, onChange }: {
             />
             <span className="lesson-status-option flex min-h-12 h-full items-center gap-2 rounded-xl border border-line bg-paper/50 px-3 py-2 text-sm font-semibold text-muted peer-checked:border-bordeaux peer-checked:bg-bordeaux-soft peer-checked:text-bordeaux peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-bordeaux">
               <Icon className="size-4 shrink-0" aria-hidden="true" />
-              <span className="min-w-0 flex-1">{t(`editor.lesson_status_${option}`)}</span>
+              <span className="min-w-0 flex-1"><span className="language-text">{t(`editor.lesson_status_${option}`)}</span></span>
               <span className={`flex size-4 shrink-0 items-center justify-center rounded-full border ${value === option ? 'border-current bg-bordeaux text-surface' : 'border-muted/50'}`} aria-hidden="true">
                 {value === option && <Check className="size-3" strokeWidth={3} />}
               </span>
@@ -43,7 +43,7 @@ export function LessonStatusSelector({ subject, value, onChange }: {
           </label>
         ))}
       </div>
-      <p id={`${id}-hint`} className="mt-2 text-xs leading-relaxed text-muted" aria-live="polite">{t(`editor.lesson_status_hint_${value}`)}</p>
+      <p id={`${id}-hint`} className="mt-2 text-xs leading-relaxed text-muted" aria-live="polite"><span className="language-text">{t(`editor.lesson_status_hint_${value}`)}</span></p>
     </fieldset>
   )
 }

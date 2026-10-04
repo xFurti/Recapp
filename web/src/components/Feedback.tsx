@@ -99,7 +99,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
     <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 font-bold">
-          <MessageCircle className="size-5 text-bordeaux" /> {t('feedback.replies')}
+          <MessageCircle className="size-5 text-bordeaux" /> <span className="language-text">{t('feedback.replies')}</span>
         </h3>
         <button
           ref={likeRef}
@@ -120,12 +120,12 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
               {Array.from({ length: 8 }, (_, i) => <i key={i} />)}
             </span>
           </span>
-          {data ? t('feedback.thanks_count', { count: data.thanks }) : t('feedback.thanks')}
+          <span className="language-text">{data ? t('feedback.thanks_count', { count: data.thanks }) : t('feedback.thanks')}</span>
         </button>
       </div>
 
-      {fb.isLoading && <p className="mt-3 text-sm text-muted">{t('common.loading')}</p>}
-      {data && data.comments.length === 0 && <p className="mt-3 text-sm text-muted">{t('feedback.empty')}</p>}
+      {fb.isLoading && <p className="mt-3 text-sm text-muted"><span className="language-text">{t('common.loading')}</span></p>}
+      {data && data.comments.length === 0 && <p className="mt-3 text-sm text-muted"><span className="language-text">{t('feedback.empty')}</span></p>}
       {data && data.comments.length > 0 && (
         <ul className="mt-3 space-y-3">
           {data.comments.map((c) => (
@@ -136,7 +136,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
                   <span className="font-semibold">{c.author?.nick}</span>
                   {c.kind === 'correction' && (
                     <Badge className={c.resolved ? 'bg-verde-soft text-verde-ink' : 'bg-giallo text-[#1d1b1e]'}>
-                      <TriangleAlert className="size-3" /> {c.resolved ? t('feedback.resolved') : t('feedback.kind_correction')}
+                      <TriangleAlert className="size-3" /> <span className="language-text">{c.resolved ? t('feedback.resolved') : t('feedback.kind_correction')}</span>
                     </Badge>
                   )}
                   <span className="text-xs text-muted">{timeOf(c.created_at, i18n.language)}</span>
@@ -145,12 +145,12 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
                 <div className="mt-1 flex gap-3 text-xs font-semibold text-muted">
                   {c.kind === 'correction' && !readOnly && (
                     <button onClick={() => patch.mutate(c)} className="hover:text-ink">
-                      {c.resolved ? t('feedback.reopen') : t('feedback.resolve')}
+                      <span className="language-text">{c.resolved ? t('feedback.reopen') : t('feedback.resolve')}</span>
                     </button>
                   )}
                   {c.mine && (
                     <button onClick={() => setSelected(c)} className="inline-flex items-center gap-1 hover:text-rosa-ink">
-                      <Trash2 className="size-3.5" /> {t('common.delete')}
+                      <Trash2 className="size-3.5" /> <span className="language-text">{t('common.delete')}</span>
                     </button>
                   )}
                 </div>
@@ -165,14 +165,14 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
           <div className="flex gap-2">
             {(['comment', 'correction'] as const).map((k) => (
               <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
-                {k === 'correction' && <TriangleAlert className="size-3.5" />} {t(`feedback.kind_${k}`)}
+                {k === 'correction' && <TriangleAlert className="size-3.5" />} <span className="language-text">{t(`feedback.kind_${k}`)}</span>
               </Chip>
             ))}
           </div>
           <div className="flex gap-2">
             <input className={inputClass} value={body} onChange={(e) => setBody(e.target.value)} placeholder={t('feedback.placeholder')} maxLength={500} />
             <Button type="submit" loading={send.isPending} disabled={!body.trim()}>
-              {t('feedback.send')}
+              <span className="language-text">{t('feedback.send')}</span>
             </Button>
           </div>
           {send.error && <p className="text-sm font-medium text-rosa-ink">{(send.error as Error).message}</p>}
