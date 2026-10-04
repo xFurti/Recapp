@@ -9,6 +9,7 @@ import { Feedback } from '../components/Feedback'
 import { ItemRow } from '../components/items'
 import { Avatar, Button, Card, ErrorBox, Spinner } from '../components/ui'
 import { parseDay } from '../lib/clock'
+import { pageWipeEnabled, stashPageClone } from '../lib/pageWipe'
 import { capitalize, longDay, shortDay, timeOf } from '../lib/format'
 import { classPath, useClass, useToday } from '../queries'
 import type { TodayInfo } from '../types'
@@ -21,7 +22,11 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   const lang = i18n.language
   const nick = data.scribe?.nick ?? ''
   const bold = { b: <strong className="font-extrabold" /> }
-  const write = () => navigate(`/c/${info.code}/scrivi/${data.day}`)
+  const write = () => {
+    const to = `/c/${info.code}/scrivi/${data.day}`
+    if (pageWipeEnabled(window.location.pathname, to)) stashPageClone()
+    navigate(to)
+  }
   const refresh = () => qc.invalidateQueries({ queryKey: ['today', info.code] })
 
   const takeover = useMutation({ mutationFn: () => api.post(classPath(info.code, '/today/takeover'), { day: data.day }), onSuccess: refresh })

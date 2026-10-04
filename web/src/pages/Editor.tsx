@@ -10,6 +10,7 @@ import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/it
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
 import { queueCelebrate } from '../lib/celebrate'
 import { todayIso } from '../lib/clock'
+import { pageWipeEnabled, stashPageClone } from '../lib/pageWipe'
 import { usePendingWork } from '../lib/pendingWork'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { classPath, useClass } from '../queries'
@@ -229,7 +230,9 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       setPublished(true)
       qc.removeQueries({ queryKey: ['card', info.code, day] })
       await qc.invalidateQueries()
-      navigate(day === todayIso() ? `/c/${info.code}` : `/c/${info.code}/giorno/${day}`)
+      const to = day === todayIso() ? `/c/${info.code}` : `/c/${info.code}/giorno/${day}`
+      if (pageWipeEnabled(window.location.pathname, to)) stashPageClone()
+      navigate(to)
     } catch (e) {
       setPublishError((e as Error).message)
     } finally {

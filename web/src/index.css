@@ -614,3 +614,32 @@ html.theme-anim {
 @media (prefers-reduced-motion: reduce) {
   .section-nav-indicator, .section-nav-link { transition: none; }
 }
+
+/* Clip wipe: a still bordeaux panel, masked so one edge crosses the page. */
+.page-stage { position: relative; }
+.page-curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  visibility: hidden;
+  background: var(--color-bordeaux);
+}
+.page-stage.is-covering,
+.page-stage.is-revealing { pointer-events: none; }
+.page-stage.is-covering .page-curtain,
+.page-stage.is-revealing .page-curtain {
+  visibility: visible;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.page-stage.is-covering .page-curtain { animation-name: page-clip-cover; }
+.page-stage.is-revealing .page-curtain { animation-name: page-clip-reveal; }
+@keyframes page-clip-cover {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes page-clip-reveal {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 0 100%); }
+}

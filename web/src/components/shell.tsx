@@ -19,11 +19,13 @@ import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
 import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
 import { takeCelebrate } from '../lib/celebrate'
+import { pageWipeEnabled, stashPageClone } from '../lib/pageWipe'
 import { flushPendingWork } from '../lib/pendingWork'
 import { markTourSeen, tourSeen } from '../lib/tour'
 import { NavIcon, useNavIconMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
 import { ClassNavigation } from './ClassNavigation'
+import { PageStage } from './PageStage'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal } from './ui'
@@ -435,6 +437,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       // The tour walks through the Today page; unsaved editor changes are saved first, or we stay put.
       try {
         await flushPendingWork()
+        if (pageWipeEnabled(location.pathname, base)) stashPageClone()
         navigate(base)
       } catch {
         // Keep the page and its changes; the tour still works on the navigation.
@@ -484,7 +487,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
+        <PageStage>{children}</PageStage>
       </div>
 
       <div className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
