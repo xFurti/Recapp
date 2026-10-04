@@ -29,6 +29,13 @@
     "class": "Classe",
     "days": "Tutti i giorni"
   },
+  "notFound": {
+    "document_title": "Pagina non trovata — Recapp",
+    "title": "Questa pagina non c'è",
+    "body": "Il collegamento potrebbe essere errato oppure la pagina potrebbe essere stata spostata o rimossa.",
+    "home": "Torna alla home",
+    "today": "Vai a Oggi"
+  },
   "landing": {
     "title": "Ti sei perso un giorno?",
     "subtitle": "Apri Recapp: cosa abbiamo fatto in classe e in lab, e cosa c'è in arrivo. Scritto da chi c'era.",
