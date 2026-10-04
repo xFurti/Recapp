@@ -1,15 +1,17 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
+import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, Lock, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
 import { useCallback, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
+import { DayView, WeekGrid } from '../components/timetable'
 import { AnchoredMenu, Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
-import { capitalize, locale, shortDay, subjectColor, subjectName } from '../lib/format'
-import { classPath, useClass } from '../queries'
+import { capitalize, shortDay, subjectName } from '../lib/format'
+import { timetableModel, useSchoolClock, weekdayName, type Slot } from '../lib/timetable'
+import { classPath, useClass, useToday } from '../queries'
 import type { HourSlot, Invite, MemberBrief, MemberRow, RotationDay, TimetableData } from '../types'
 import { DemoWeekendNote, isWeekend } from './Today'
 
@@ -333,16 +335,6 @@ function Turns() {
 }
 
 // ---- timetable ---------------------------------------------------------------------
-const MONDAY = new Date(2026, 8, 28)
-
-function weekdayName(i: number, lang: string, style: 'short' | 'long' = 'long') {
-  const d = new Date(MONDAY)
-  d.setDate(d.getDate() + i)
-  return capitalize(new Intl.DateTimeFormat(locale(lang), { weekday: style }).format(d))
-}
-
-type Slot = TimetableData['slots'][number]
-
 const ZONES = ['Europe/Rome', 'Europe/Berlin', 'Europe/Paris', 'Europe/Madrid', 'Europe/London', 'UTC']
 
 function Timetable() {
@@ -356,6 +348,10 @@ function Timetable() {
   const [timezone, setTimezone] = useState('Europe/Rome')
   const [cell, setCell] = useState<{ weekday: number; hour: number } | null>(null)
   const [saved, setSaved] = useState(false)
+  // A phone shows one day at a time; wider screens get the whole week.
+  const [view, setView] = useState<'day' | 'week'>(() => (window.matchMedia('(min-width: 768px)').matches ? 'week' : 'day'))
+  const today = useToday(info.code)
+  const clock = useSchoolClock(today.data, today.dataUpdatedAt, tt.data?.timezone ?? 'Europe/Rome')
   const save = useMutation({
     mutationFn: (body: { slots: Slot[]; hours: HourSlot[]; timezone: string }) =>
       api.put(classPath(info.code, '/timetable'), {
@@ -371,12 +367,14 @@ function Timetable() {
     },
   })
   if (tt.isLoading) return <Spinner />
-  if (tt.error) return <ErrorBox error={tt.error} />
+  if (tt.error) return <ErrorBox error={tt.error} onRetry={() => tt.refetch()} />
   const data = tt.data!
   const slots = editing ?? data.slots
   const rows = hours ?? data.hours
   const at = (w: number, h: number) => slots.find((s) => s.weekday === w && s.hour === h)
   const hasAny = slots.length > 0
+  const model = timetableModel(data, clock, info.is_demo)
+  const canEdit = data.can_edit && !info.is_demo
 
   const startEdit = () => {
     setEditing(data.slots)
@@ -397,11 +395,20 @@ function Timetable() {
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted"><span className="language-text">{t('class.tt_lab_hint')}</span></p>
-        {data.can_edit && info.is_demo && <p className="text-xs text-muted"><span className="language-text">{t('class.demo_locked')}</span></p>}
-        {data.can_edit && !info.is_demo && !editing && (
-          <Button size="sm" variant="secondary" onClick={startEdit}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        {!editing && hasAny && (
+          <Segmented
+            value={view}
+            onChange={setView}
+            options={[
+              { value: 'day', label: t('class.tt_view_day') },
+              { value: 'week', label: t('class.tt_view_week') },
+            ]}
+          />
+        )}
+        {editing && <p className="text-sm text-muted"><span className="language-text">{t('class.tt_lab_hint')}</span></p>}
+        {canEdit && !editing && (
+          <Button size="sm" variant="secondary" className="min-h-11" onClick={startEdit}>
             <Pencil className="size-4" /> <span className="language-text">{t('class.tt_edit')}</span>
           </Button>
         )}
@@ -434,53 +441,17 @@ function Timetable() {
       )}
       {saved && <p className="mb-2 text-sm font-semibold text-verde-ink"><span className="language-text">{t('class.tt_saved')}</span></p>}
       {save.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
-      {!hasAny && !editing && <Card><EmptyState title={t('today.no_lessons')} /></Card>}
-      {(hasAny || editing) && (
-        <div className="-mx-4 overflow-x-auto px-4">
-          <table className="w-full min-w-[40rem] table-fixed border-separate border-spacing-1 text-sm">
-            <thead>
-              <tr>
-                <th className="w-20" />
-                {[0, 1, 2, 3, 4].map((w) => (
-                  <th key={w} className="rounded-lg bg-ink py-2 text-xs font-bold text-paper">{weekdayName(w, lang)}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((h) => (
-                <tr key={h.hour}>
-                  <td className="pr-1 text-right align-middle text-xs text-muted">
-                    <span className="block font-bold text-ink">{h.hour}ª</span>
-                    {h.start}
-                  </td>
-                  {[0, 1, 2, 3, 4].map((w) => {
-                    const s = at(w, h.hour)
-                    const content = s ? (
-                      <>
-                        <span className="block truncate font-bold" style={{ color: subjectColor(data.subjects, s.subject_code) }}>{s.subject_code}</span>
-                        <span className="block truncate text-[11px] text-muted">{s.room}</span>
-                      </>
-                    ) : (
-                      <span className="text-xs text-muted/50">—</span>
-                    )
-                    const cls = `h-14 w-full rounded-lg border px-2 py-1 text-left ${s?.is_lab ? 'border-verde/40 bg-verde-soft' : 'border-line bg-surface'}`
-                    return (
-                      <td key={w}>
-                        {editing ? (
-                          <button className={`${cls} hover:border-ink/40`} onClick={() => setCell({ weekday: w, hour: h.hour })} aria-label={t('class.tt_cell', { day: weekdayName(w, lang), hour: h.hour })} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>
-                            {content}
-                          </button>
-                        ) : (
-                          <div className={cls} title={s ? subjectName(data.subjects, s.subject_code, lang) : ''}>{content}</div>
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {!hasAny && !editing && (
+        <Card>
+          <EmptyState title={t('class.tt_not_set')} text={t(canEdit ? 'class.tt_not_set_admin' : 'class.tt_not_set_member')} />
+        </Card>
+      )}
+      {editing && <WeekGrid data={data} slots={slots} hours={rows} model={null} editing onEdit={(weekday, hour) => setCell({ weekday, hour })} />}
+      {!editing && hasAny && (view === 'day' ? <DayView data={data} model={model} demo={info.is_demo} /> : <WeekGrid data={data} slots={slots} hours={rows} model={model} />)}
+      {data.can_edit && info.is_demo && (
+        <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
+          <Lock className="size-3.5 shrink-0" aria-hidden /> <span className="language-text">{t('class.tt_demo_locked')}</span>
+        </p>
       )}
       {cell && (
         <CellModal

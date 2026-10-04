@@ -29,8 +29,17 @@ import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
+const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
+
+/** School mark. Same image and size in both themes, with no plate behind it. */
 export function Logo({ className = 'h-9' }: { className?: string }) {
-  return <img src={logo} alt="ITI G. Marconi Verona" className={`w-auto dark:rounded-md dark:bg-white dark:p-0.5 ${className}`} />
+  const { t } = useTranslation()
+  const label = t('shell.school_site')
+  return (
+    <a href={SCHOOL_SITE} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className="school-logo inline-flex shrink-0 items-center justify-center">
+      <img src={logo} alt="" className={`w-auto ${className}`} />
+    </a>
+  )
 }
 
 /** One full flip of all pages; the keyframes in index.css are written as fractions of it. */
@@ -451,10 +460,12 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   return (
     <div className="min-h-dvh md:flex">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
-        <Link to={base} className="mb-6 flex items-center gap-2" {...sideMark.triggers}>
-          <Wordmark size="md" playing={sideMark.playing} />
+        <div className="mb-6 flex items-center gap-2">
+          <Link to={base} {...sideMark.triggers}>
+            <Wordmark size="md" playing={sideMark.playing} />
+          </Link>
           <Logo className="h-6" />
-        </Link>
+        </div>
         <ClassNavigation code={info.code} />
         <p className="mt-auto text-xs text-muted"><span className="language-text">{t('landing.footer')}</span></p>
       </aside>

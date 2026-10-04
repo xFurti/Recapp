@@ -19,7 +19,10 @@ export default function SchoolArea() {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-30 border-b border-line bg-surface pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
-          <Link to="/" className="flex min-w-0 items-center gap-2"><Wordmark /><Logo className="h-7 sm:h-8" /></Link>
+          <span className="flex min-w-0 items-center gap-2">
+            <Link to="/" aria-label={t('common.app_name')}><Wordmark /></Link>
+            <Logo className="h-7 sm:h-8" />
+          </span>
           <div className="flex shrink-0 items-center gap-1.5">
             <ThemeToggle />
             <LangToggle />

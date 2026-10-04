@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { api, ApiError, attachmentUrl } from '../api'
 import { DayCardView, EntryPhotos } from '../components/day'
+import { EmptyPublishDialog } from '../components/EmptyPublishDialog'
+import { LessonStatusSelector } from '../components/LessonStatusSelector'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
 import { SourceBadge, SubjectTag, TYPE_STYLE, TypeBadge } from '../components/items'
 import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner } from '../components/ui'
@@ -13,7 +15,7 @@ import { todayIso } from '../lib/clock'
 import { usePendingWork } from '../lib/pendingWork'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { classPath, useClass } from '../queries'
-import type { Card, CardPage, Draft, Entry, ItemType, LabData, LessonStatus } from '../types'
+import type { Card, CardPage, Draft, Entry, ItemType, LabData } from '../types'
 
 interface EntryDraft extends Entry {
   key: string
@@ -31,7 +33,6 @@ type SaveStatus = { kind: 'idle' } | { kind: 'saving' } | { kind: 'saved'; at: s
 let keySeq = 0
 const newKey = () => `k${++keySeq}`
 const emptyLab = (): LabData => ({ goal: '', repo_url: '', pitfall: '', bring: '' })
-const STATUSES: LessonStatus[] = ['svolta', 'non_svolta', 'supplenza', 'verifica']
 const QUICK_TYPES: ItemType[] = ['compito', 'verifica', 'evento']
 
 function initialState(page: CardPage): EditorState {
@@ -57,6 +58,29 @@ function initialState(page: CardPage): EditorState {
     items: [],
     attachment_ids: [],
   }
+}
+
+/** Same rule as the server: a blank lab, whitespace and a status alone are not enough to publish. */
+function hasPublishableContent(s: EditorState) {
+  for (const entry of s.entries) {
+    if (entry.bullets.some((b) => b.trim())) return true
+    if (entry.attachment_ids.length > 0) return true
+    const lab = entry.lab
+    if (lab && [lab.goal, lab.repo_url, lab.pitfall, lab.bring].some((v) => v.trim())) return true
+  }
+  return s.items.length > 0
+}
+
+function focusPublishTarget() {
+  const el = document.querySelector<HTMLElement>('[data-publish-target]')
+  if (!el) return
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' })
+  el.focus({ preventScroll: true })
+  el.classList.remove('publish-flash')
+  void el.offsetWidth
+  el.classList.add('publish-flash')
+  window.setTimeout(() => el.classList.remove('publish-flash'), 1400)
 }
 
 function toPayload(s: EditorState, revision?: number) {
@@ -143,6 +167,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   const [published, setPublished] = useState(page.card?.status === 'published')
   const [preview, setPreview] = useState(false)
   const [publishError, setPublishError] = useState<string | null>(null)
+  const [emptyNotice, setEmptyNotice] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [form, setForm] = useState<ItemInput | null>(null)
   const [draftKey, setDraftKey] = useState<string | null>(null)
@@ -220,6 +245,12 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
     update((s) => ({ ...s, entries: s.entries.map((e) => (e.key === key ? { ...e, ...patch } : e)) }))
 
   const publish = async () => {
+    if (emptyNotice) return
+    if (!hasPublishableContent(stateRef.current)) {
+      setPublishError(null)
+      setEmptyNotice(true)
+      return
+    }
     setPublishError(null)
     setPublishing(true)
     try {
@@ -231,10 +262,21 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       await qc.invalidateQueries()
       navigate(day === todayIso() ? `/c/${info.code}` : `/c/${info.code}/giorno/${day}`)
     } catch (e) {
-      setPublishError((e as Error).message)
+      if (e instanceof ApiError && e.status === 422 && !hasPublishableContent(stateRef.current)) {
+        setPublishError(null)
+        setEmptyNotice(true)
+      } else {
+        setPublishError((e as Error).message)
+      }
     } finally {
       setPublishing(false)
     }
+  }
+
+  const completeEmpty = () => {
+    setEmptyNotice(false)
+    setPreview(false)
+    window.setTimeout(focusPublishTarget, 60)
   }
 
   const blockCodes = new Set(state.entries.map((e) => e.subject_code))
@@ -270,9 +312,12 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
         <h1 className="text-xl font-extrabold"><span className="language-text">{t('editor.preview_title')}</span></h1>
         <DayCardView card={card} subjects={info.subjects} classLabel={info.label} />
         <ActionBar save={save} published={published} onPreview={() => setPreview(false)} previewLabel={t('editor.back_edit')} onPublish={publish} publishing={publishing} error={publishError} />
+        {emptyNotice && <EmptyPublishDialog onComplete={completeEmpty} onClose={() => setEmptyNotice(false)} />}
       </div>
     )
   }
+
+  const writableKey = state.entries.find((entry) => entry.lesson_status !== 'non_svolta')?.key
 
   return (
     <div className="space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
@@ -302,6 +347,8 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
           <EntryEditor
             key={entry.key}
             entry={entry}
+            publishTarget={entry.key === writableKey}
+            itemTarget={!writableKey && entry.key === state.entries[0]?.key}
             onChange={(patch) => setEntry(entry.key, patch)}
             onRemove={() => update((s) => ({ ...s, entries: s.entries.filter((e) => e.key !== entry.key) }))}
             items={firstBlockOf.get(entry.subject_code) === entry.key ? state.items.filter((i) => i.subject_code === entry.subject_code) : []}
@@ -310,7 +357,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
             onRemoveItem={(item) => removeItem(item.key)}
           />
         ))}
-        <AddSubject
+        <AddSubject publishTarget={state.entries.length === 0}
           onAdd={(code) =>
             update((s) => ({ ...s, entries: [...s.entries, { key: newKey(), subject_code: code, hours: '', room: '', is_lab: false, lesson_status: 'svolta', bullets: [''], lab: null, attachment_ids: [] }] }))
           }
@@ -373,6 +420,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       </section>
 
       <ActionBar save={save} published={published} onPreview={() => setPreview(true)} previewLabel={t('editor.preview')} onPublish={publish} publishing={publishing} error={publishError} />
+      {emptyNotice && <EmptyPublishDialog onComplete={completeEmpty} onClose={() => setEmptyNotice(false)} />}
 
       <ItemForm
         key={form ? form.key ?? String(form.id ?? 'new') : 'closed'}
@@ -389,9 +437,11 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 }
 
 function EntryEditor({
-  entry, onChange, onRemove, items, onAddItem, onEditItem, onRemoveItem,
+  entry, publishTarget, itemTarget, onChange, onRemove, items, onAddItem, onEditItem, onRemoveItem,
 }: {
   entry: EntryDraft
+  publishTarget?: boolean
+  itemTarget?: boolean
   onChange: (p: Partial<EntryDraft>) => void
   onRemove: () => void
   items: ItemInput[]
@@ -434,28 +484,21 @@ function EntryEditor({
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h3 className="font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
+        <h3 className="min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
         {entry.hours && <span className="text-xs text-muted"><span className="language-text">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span></span>}
         {entry.room && <span className="text-xs text-muted">· {entry.room}</span>}
         {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
-        <select
-          value={entry.lesson_status}
-          onChange={(e) => onChange({ lesson_status: e.target.value as LessonStatus })}
-          className="ml-auto rounded-lg border border-line bg-surface px-2 py-1 text-xs font-semibold"
-          aria-label={t('editor.lessons')}
-        >
-          {STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {t(`day.status_${s}`)}
-            </option>
-          ))}
-        </select>
-        <button onClick={onRemove} className="rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
+        <button onClick={onRemove} className="ml-auto shrink-0 rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
           <Trash2 className="size-4" />
         </button>
       </header>
 
       <div className="space-y-3 px-4 pb-4 pt-2">
+        <LessonStatusSelector
+          subject={subjectName(info.subjects, entry.subject_code, i18n.language)}
+          value={entry.lesson_status}
+          onChange={(lesson_status) => onChange({ lesson_status })}
+        />
         {!skipped && (
           <>
             <ul className="space-y-1.5">
@@ -469,6 +512,7 @@ function EntryEditor({
                     className="w-full border-0 border-b border-transparent bg-transparent py-1.5 text-[15px] placeholder:text-muted/60 focus:border-azzurro focus:outline-none"
                     placeholder={t('editor.bullet_ph')}
                     value={b}
+                    data-publish-target={publishTarget && i === 0 ? '' : undefined}
                     maxLength={300}
                     onChange={(e) => setBullet(i, e.target.value)}
                     onKeyDown={(e) => onKey(i, e)}
@@ -523,10 +567,10 @@ function EntryEditor({
             </div>
           )}
           <div className="flex flex-wrap gap-2">
-            {QUICK_TYPES.map((ty) => {
+            {QUICK_TYPES.map((ty, index) => {
               const Icon = TYPE_STYLE[ty].icon
               return (
-                <button key={ty} onClick={() => onAddItem(ty)} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
+                <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
                   <Plus className="size-3.5" />
                   <Icon className="size-4" /> <span className="language-text">{t(`editor.add_${ty}`)}</span>
                 </button>
@@ -616,13 +660,13 @@ function PhotoUpload({ ids, onAdd, onRemove }: { ids: number[]; onAdd: (id: numb
   )
 }
 
-function AddSubject({ onAdd }: { onAdd: (code: string) => void }) {
+function AddSubject({ onAdd, publishTarget }: { onAdd: (code: string) => void; publishTarget?: boolean }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-line py-3 text-sm font-semibold text-muted hover:border-ink/30 hover:text-ink" title={t('editor.add_subject_title')}>
+      <button data-publish-target={publishTarget ? '' : undefined} onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-line py-3 text-sm font-semibold text-muted hover:border-ink/30 hover:text-ink" title={t('editor.add_subject_title')}>
         <Plus className="size-4" /> <span className="language-text">{t('editor.add_subject')}</span>
       </button>
     )

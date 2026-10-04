@@ -120,14 +120,14 @@ export function Segmented<T extends string>({
   className?: string
 }) {
   return (
-    <div className={`inline-flex rounded-xl bg-ink/5 p-1 ${className}`} role="tablist">
+    <div className={`inline-flex max-w-full flex-wrap rounded-xl bg-ink/5 p-1 ${className}`} role="tablist">
       {options.map((o) => (
         <button
           key={o.value}
           role="tab"
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
-          className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+          className={`min-h-11 rounded-lg px-3 py-1.5 text-sm font-semibold transition md:min-h-0 ${
             value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
           }`}
         >

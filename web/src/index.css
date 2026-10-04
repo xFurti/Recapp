@@ -1,5 +1,20 @@
 @import 'tailwindcss';
 
+.lesson-status { container-type: inline-size; }
+@container (min-width: 36rem) {
+  .lesson-status-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.lesson-status-option {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
+  overflow-wrap: anywhere;
+}
+.lesson-status label:hover .lesson-status-option { border-color: var(--color-bordeaux); }
+.lesson-status label:active .lesson-status-option { transform: scale(0.98); }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-status-option { transition: none; }
+  .lesson-status label:active .lesson-status-option { transform: none; }
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -388,6 +403,17 @@
   transform: translateX(3px);
 }
 
+/* School logo: the image only, the same size in light and dark. */
+.school-logo {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.school-logo:hover {
+  transform: translateY(-1px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .school-logo:hover { transform: none; }
+}
+
 /* Language button: a round flag. The mark flips in when the language changes. */
 .lang-btn {
   transition: transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -421,6 +447,19 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .not-found-in { animation: none; }
+}
+
+.publish-flash {
+  animation: publish-flash 1.2s ease;
+  scroll-margin-block: 6rem;
+}
+@keyframes publish-flash {
+  0% { box-shadow: 0 0 0 0 var(--color-azzurro); }
+  35% { box-shadow: 0 0 0 4px var(--color-azzurro); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .publish-flash { animation: none; }
 }
 
 /* Done check: the tick draws itself, the circle pops, a ring expands. */
