@@ -455,6 +455,19 @@
   .not-found-in { animation: none; }
 }
 
+.publish-flash {
+  animation: publish-flash 1.2s ease;
+  scroll-margin-block: 6rem;
+}
+@keyframes publish-flash {
+  0% { box-shadow: 0 0 0 0 var(--color-azzurro); }
+  35% { box-shadow: 0 0 0 4px var(--color-azzurro); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .publish-flash { animation: none; }
+}
+
 /* Done check: the tick draws itself, the circle pops, a ring expands. */
 .done-check {
   position: relative;
