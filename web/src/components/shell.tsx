@@ -22,10 +22,12 @@ import type { ClassInfo } from '../types'
 import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
 import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
+import { sectionIndex } from '../lib/sections'
 import { markTourSeen, tourSeen } from '../lib/tour'
 import { NavIcon, useNavIconMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
 import { ClassNavigation } from './ClassNavigation'
+import { PageFrame } from './PageTransition'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
 import { Avatar, Button, Field, inputClass, Modal } from './ui'
@@ -424,6 +426,10 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const [party, setParty] = useState(false)
   const stopParty = useCallback(() => setParty(false), [])
   const autoTried = useRef(false)
+  const headerRef = useRef<HTMLElement>(null)
+  const barRef = useRef<HTMLDivElement>(null)
+  // One page per first segment after the class: filters, days and subjects stay on the same page.
+  const page = location.pathname.toLowerCase().split('/')[3] ?? ''
 
   useEffect(() => {
     if (takeCelebrate()) setParty(true)
@@ -474,7 +480,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <header ref={headerRef} className="sticky top-0 z-30 border-b border-line bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
           {info.viewer.kind === 'owner' && (
             <div className="flex items-center justify-between bg-ink px-4 py-1.5 text-xs font-semibold text-paper">
               <span><span className="language-text">{t('shell.school_view')}</span></span>
@@ -499,10 +505,12 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <main className="mx-auto max-w-3xl px-4 pb-28 pt-5 md:pb-12">{children}</main>
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-28 pt-5 outline-none md:pb-12">
+          {children}
+        </PageFrame>
       </div>
 
-      <div className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
+      <div ref={barRef} className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
         <ClassNavigation code={info.code} mobile />
       </div>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}

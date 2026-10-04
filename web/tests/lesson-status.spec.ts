@@ -55,7 +55,7 @@ test('saved state, autosave, reopening, preview and publication preserve all les
   await expect(page.getByText('Portare il computer', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Pubblica', exact: true }).click()
   await expect(page).toHaveURL(/\/giorno\/2026-10-02$/)
-  await expect(page.getByText('Verifica svolta', { exact: true })).toBeVisible()
+  await expect(page.locator('main').getByText('Verifica svolta', { exact: true })).toBeVisible()
   expect(saved().status).toBe('published')
   expect(saved().entries[0]).toEqual({ ...card.entries[0], lesson_status: 'verifica' })
 })

@@ -30,3 +30,9 @@ Run with the same `npm run test:e2e` command above. This harness is outside the 
 `navigation.spec.ts` mounts the real `AppShell` (and `ClassNavigation`) in StrictMode with BrowserRouter, so URL changes and Back/Forward use browser history. Page bodies are small route labels; unrelated API responses are simulated. It checks the 240ms transform transition, alignment with the active link, no movement of link bounds, rapid navigation without accumulating transitions, initial deep links, hiding on editor/subject/archive routes, hover, keyboard focus and activation, existing icon animations, both themes, reduced motion, translation and breakpoint changes.
 
 The desktop and phone PR videos are recorded separately in the full production build, using a local FastAPI instance and its real demo data. Upload media directly to the PR with `gh pr comment --attach` or `gh pr edit --attach`; do not commit new recordings to the repository.
+
+## Page transition
+
+`page-transition.spec.ts` mounts the real `AppShell` under `createBrowserRouter` in StrictMode, as in production, with small pages for Oggi, Ieri, In arrivo, Classe and an editor whose changes cannot be saved. Only HTTP responses are mocked, with configurable latency and errors. It checks that the old page is frozen and covered while the new one mounts and starts loading at once; the total duration (`COVER_MS + REVEAL_MS`); the wipe direction on desktop and phone; header and navigation staying interactive; rapid clicks and Back/Forward settling on one consistent URL, page and selection; no transition on first load, filters, language or theme; slow data and errors never left covered; refused navigations; focus on the new heading; reduced motion; and the light and dark colors.
+
+The desktop and phone PR videos are recorded from the dev build with the local API and its demo data, and attached to the PR, not committed.

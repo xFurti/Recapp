@@ -2,15 +2,17 @@ import { CalendarClock, History, Sun, Users, type LucideIcon } from 'lucide-reac
 import type { CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
+import { sectionIndex, sectionPaths } from '../lib/sections'
 import { NavIcon, useNavIconMotion, type NavMotion } from './NavIcon'
 
-type NavEntry = { to: string; icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
+type NavEntry = { icon: LucideIcon; motion: NavMotion; key: string; end?: boolean }
 
+/** One entry per SECTIONS path, in the same order. */
 const NAV: NavEntry[] = [
-  { to: '', icon: Sun, motion: 'today', key: 'nav.today', end: true },
-  { to: 'ieri', icon: History, motion: 'yesterday', key: 'nav.yesterday' },
-  { to: 'in-arrivo', icon: CalendarClock, motion: 'upcoming', key: 'nav.upcoming' },
-  { to: 'classe', icon: Users, motion: 'class', key: 'nav.class' },
+  { icon: Sun, motion: 'today', key: 'nav.today', end: true },
+  { icon: History, motion: 'yesterday', key: 'nav.yesterday' },
+  { icon: CalendarClock, motion: 'upcoming', key: 'nav.upcoming' },
+  { icon: Users, motion: 'class', key: 'nav.class' },
 ]
 
 function NavItem({ entry, to, mobile }: { entry: NavEntry; to: string; mobile: boolean }) {
@@ -36,14 +38,8 @@ function NavItem({ entry, to, mobile }: { entry: NavEntry; to: string; mobile: b
 export function ClassNavigation({ code, mobile = false }: { code: string; mobile?: boolean }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
-  const base = `/c/${code}`
-  const paths = NAV.map((entry) => entry.to ? `${base}/${entry.to}` : base)
-  // Match NavLink's exact/end and segment-boundary rules, including trailing slashes.
-  const current = pathname.toLowerCase()
-  const selected = NAV.findIndex((entry, index) => {
-    const target = paths[index].toLowerCase()
-    return current === target || (!entry.end && current.startsWith(`${target}/`))
-  })
+  const paths = sectionPaths(code)
+  const selected = sectionIndex(pathname, code)
   return (
     <nav
       aria-label={t('nav.sections')}
