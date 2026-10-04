@@ -3,7 +3,7 @@
 ## In una frase
 
 Una sola applicazione web: FastAPI serve sia le API (`/api/...`) sia l'app React già compilata,
-sullo stesso indirizzo `https://bassaleo.xyz` (anche `https://tryrecapp.xyz`, sullo stesso servizio). I dati stanno su Postgres (Neon). La lettura dei
+sullo stesso indirizzo `https://bassaleo.xyz`. È stato registrato anche `tryrecapp.xyz`, ma per problemi all'ultimo minuto il sito pubblico è rimasto bassaleo, per stabilità e affidabilità. I dati stanno su Postgres (Neon). La lettura dei
 ritagli con l'AI gira come task separato su Render Workflows e chiama Featherless.
 
 ## Servizi
@@ -23,7 +23,7 @@ flowchart LR
 | Database | Neon Postgres, piano gratuito | Il disco di Render si azzera a ogni deploy; Neon non scade |
 | Workflow `recap-ai` | Render Workflows | Le letture AI durano 5-20 s: fuori dal web service, con retry e log separati |
 | AI | Featherless, API compatibile OpenAI | Crediti sponsor, modelli open-weight, nessun dato usato per addestrare |
-| Domini | `bassaleo.xyz` (principale, `PUBLIC_URL`) e `tryrecapp.xyz` (secondo indirizzo, in verifica) | Stesso servizio. Se tryrecapp non si verifica, bassaleo resta |
+| Domini | `bassaleo.xyz` (pubblico, `PUBLIC_URL`). `tryrecapp.xyz` è registrato ma non è l'indirizzo usato | Problemi all'ultimo minuto: bassaleo tenuto per stabilità e affidabilità |
 
 ## Percorso di una richiesta
 

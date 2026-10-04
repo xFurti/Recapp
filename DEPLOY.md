@@ -72,12 +72,14 @@ Checklist per mettere online Recapp su `https://bassaleo.xyz`. Le chiavi vanno *
 
 Il servizio in dashboard si chiama `recapp`. Lo slug e l'indirizzo Render restano `ieri.onrender.com`. Non cancellare i domini già verificati quando ne aggiungi un altro.
 
+All'ultimo minuto `tryrecapp.xyz` ha dato problemi di verifica. Per stabilità e affidabilità il sito pubblico resta `bassaleo.xyz` (`PUBLIC_URL`). tryrecapp può restare agganciato allo stesso servizio, ma non è l'indirizzo da comunicare.
+
 1. Render → servizio → Settings → Custom Domains, tutti insieme:
-   - `bassaleo.xyz` e `www.bassaleo.xyz` (indirizzo principale, `PUBLIC_URL`)
-   - `tryrecapp.xyz` e `www.tryrecapp.xyz` (secondo indirizzo; se la verifica DNS fallisce o il dominio viene tolto, bassaleo continua a funzionare)
+   - `bassaleo.xyz` e `www.bassaleo.xyz` (indirizzo pubblico, `PUBLIC_URL`)
+   - `tryrecapp.xyz` e `www.tryrecapp.xyz` (tenuto accanto; non sostituisce bassaleo)
 2. `EXTRA_HOSTS=tryrecapp.xyz,www.tryrecapp.xyz` è già nel servizio: le scritture API da quel sito non ricevono 403. Gli inviti generati restano su `https://bassaleo.xyz`.
 3. DNS di ciascun dominio verso lo stesso servizio (`A` sull'apex all'IP indicato da Render, `CNAME` di `www` verso `ieri.onrender.com`). Togli i record `AAAA` e il parcheggio del registrar.
-4. La verifica e il certificato HTTPS possono richiedere da pochi minuti a qualche ora. Finché `tryrecapp.xyz` non è verificato, il sito resta su bassaleo e su `https://ieri.onrender.com`.
+4. La verifica e il certificato HTTPS possono richiedere da pochi minuti a qualche ora. Il sito da usare è bassaleo, anche su `https://ieri.onrender.com`.
 
 ## 7. Verifica finale (STOP 5)
 

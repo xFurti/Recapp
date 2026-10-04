@@ -35,7 +35,7 @@ Recapp is a student-written companion to the official school platforms. It does 
 
 ## How we built it
 
-We built the application with React, TypeScript and Tailwind CSS on the frontend, and FastAPI with SQLModel on the backend. The repository supports SQLite for local development and PostgreSQL for deployment. The documented hosting setup uses Docker on Render, Neon PostgreSQL and our domain, bassaleo.xyz.
+We built the application with React, TypeScript and Tailwind CSS on the frontend, and FastAPI with SQLModel on the backend. The repository supports SQLite for local development and PostgreSQL for deployment. The documented hosting setup uses Docker on Render and Neon PostgreSQL. We also registered tryrecapp.xyz. Last-minute problems with that domain led us to keep [bassaleo.xyz](https://bassaleo.xyz) as the public site, for stability and reliability.
 
 The extraction pipeline supports Featherless models for text and screenshots, with model identifiers supplied through configuration. It can run as an `extract_items` task on Render Workflows or inside the web service. Local defaults use a rule-based text parser and simulated image output; these are not model inference. Every extracted item remains a draft until the student reviews it and publishes the recap.
 

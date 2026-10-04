@@ -98,7 +98,7 @@ Screenshots from development illustrate the core workflow; the latest interface 
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, react-i18next |
 | Backend | FastAPI, SQLModel, SQLite locally; PostgreSQL supported for deployment |
-| Documented hosting setup | Docker on Render, Neon PostgreSQL. Public site: [bassaleo.xyz](https://bassaleo.xyz). [tryrecapp.xyz](https://tryrecapp.xyz) is a second address on the same service while its DNS verification finishes. |
+| Documented hosting setup | Docker on Render, Neon PostgreSQL. Public site: [bassaleo.xyz](https://bassaleo.xyz). We also registered [tryrecapp.xyz](https://tryrecapp.xyz). Last-minute problems with that domain led us to keep bassaleo.xyz, for stability and reliability. |
 | Extraction | Configurable Featherless text/vision models; offline text parser and simulated image output for local use |
 | Background work | Optional Render Workflows `extract_items` task, with in-process execution also supported |
 | Speech | Browser Web Speech API |

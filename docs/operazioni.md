@@ -5,7 +5,7 @@
 | Ambiente | Indirizzo | Database | OCR |
 | --- | --- | --- | --- |
 | Locale | http://localhost:5173 | SQLite `ieri.db` (consigliato) | parser a regole o Featherless |
-| Produzione | https://bassaleo.xyz (anche https://tryrecapp.xyz quando il DNS è verificato) | Neon Postgres | Featherless via Render Workflows `recap-ai` |
+| Produzione | https://bassaleo.xyz. tryrecapp.xyz è registrato, ma per problemi all'ultimo minuto non è l'indirizzo pubblico | Neon Postgres | Featherless via Render Workflows `recap-ai` |
 
 Per lavorare in locale **senza toccare i dati veri**, nel `.env` commentate `DATABASE_URL`
 (`#DATABASE_URL=...`): l'app torna su SQLite.
