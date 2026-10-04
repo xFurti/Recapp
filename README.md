@@ -44,13 +44,7 @@ Recapp does not log into or automatically synchronize the official school platfo
 
 ## Screenshots
 
-These repository screenshots illustrate the interface; details may change as the prototype evolves.
-
-| Daily status | Published recap and lab details |
-| --- | --- |
-| ![Today](docs/screenshots/02-oggi-verbalista.png) | ![Yesterday](docs/screenshots/03-ieri-lab.png) |
-| **Editor** | **Upcoming deadlines** |
-| ![Editor](docs/screenshots/04-editor-giornata.png) | ![Upcoming](docs/screenshots/05-in-arrivo.png) |
+Interface captures from development live in [docs/screenshots](docs/screenshots). The numbered gallery (`02-oggi-verbalista.png` and the rest of that set) is not in the repository, so this page does not embed those files.
 
 ## How it is built
 
@@ -58,7 +52,7 @@ These repository screenshots illustrate the interface; details may change as the
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, TanStack Query, React Router, react-i18next |
 | Backend | FastAPI, SQLModel, SQLite locally; PostgreSQL supported for deployment |
-| Documented hosting setup | Docker on Render, Neon PostgreSQL, bassaleo.xyz domain from gen.xyz |
+| Documented hosting setup | Docker on Render, Neon PostgreSQL. Public site: [bassaleo.xyz](https://bassaleo.xyz). [tryrecapp.xyz](https://tryrecapp.xyz) is a second address on the same service while its DNS verification finishes. |
 | Extraction | Configurable Featherless text/vision models; offline text parser and simulated image output for local use |
 | Background work | Optional Render Workflows `extract_items` task, with in-process execution also supported |
 | Speech | Browser Web Speech API |

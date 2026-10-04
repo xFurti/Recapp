@@ -68,17 +68,16 @@ Checklist per mettere online Recapp su `https://bassaleo.xyz`. Le chiavi vanno *
 6. Se Workflows dà problemi: metti `TASK_RUNNER=inline` nel Web Service. L'OCR gira dentro
    l'app e tutto funziona uguale; si perde solo l'idoneità al premio Render.
 
-## 6. Dominio bassaleo.xyz (gen.xyz)
+## 6. Domini
 
-1. Render → servizio `ieri` → Settings → Custom Domains: `bassaleo.xyz` e `www.bassaleo.xyz`
-   (già in `render.yaml`).
-2. Pannello DNS di gen.xyz:
-   - record `A` per `@` verso l'IP indicato da Render (oggi `216.24.57.1`, controlla in dashboard);
-   - record `CNAME` per `www` verso `ieri.onrender.com` (o il nome mostrato da Render);
-   - elimina i record di parcheggio predefiniti di gen.xyz.
-3. Aspetta la verifica e il certificato HTTPS (da pochi minuti a qualche ora).
-4. Nel frattempo il sito è raggiungibile su `https://ieri.onrender.com`: per usarlo così,
-   metti temporaneamente `PUBLIC_URL=https://ieri.onrender.com`.
+Il servizio in dashboard si chiama `recapp`. Lo slug e l'indirizzo Render restano `ieri.onrender.com`. Non cancellare i domini già verificati quando ne aggiungi un altro.
+
+1. Render → servizio → Settings → Custom Domains, tutti insieme:
+   - `bassaleo.xyz` e `www.bassaleo.xyz` (indirizzo principale, `PUBLIC_URL`)
+   - `tryrecapp.xyz` e `www.tryrecapp.xyz` (secondo indirizzo; se la verifica DNS fallisce o il dominio viene tolto, bassaleo continua a funzionare)
+2. `EXTRA_HOSTS=tryrecapp.xyz,www.tryrecapp.xyz` è già nel servizio: le scritture API da quel sito non ricevono 403. Gli inviti generati restano su `https://bassaleo.xyz`.
+3. DNS di ciascun dominio verso lo stesso servizio (`A` sull'apex all'IP indicato da Render, `CNAME` di `www` verso `ieri.onrender.com`). Togli i record `AAAA` e il parcheggio del registrar.
+4. La verifica e il certificato HTTPS possono richiedere da pochi minuti a qualche ora. Finché `tryrecapp.xyz` non è verificato, il sito resta su bassaleo e su `https://ieri.onrender.com`.
 
 ## 7. Verifica finale (STOP 5)
 

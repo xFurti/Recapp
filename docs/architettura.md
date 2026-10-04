@@ -3,7 +3,7 @@
 ## In una frase
 
 Una sola applicazione web: FastAPI serve sia le API (`/api/...`) sia l'app React già compilata,
-sullo stesso indirizzo `https://bassaleo.xyz`. I dati stanno su Postgres (Neon). La lettura dei
+sullo stesso indirizzo `https://bassaleo.xyz` (anche `https://tryrecapp.xyz`, sullo stesso servizio). I dati stanno su Postgres (Neon). La lettura dei
 ritagli con l'AI gira come task separato su Render Workflows e chiama Featherless.
 
 ## Servizi
@@ -19,11 +19,11 @@ flowchart LR
 
 | Pezzo | Dove | Perché |
 | --- | --- | --- |
-| Web service `ieri` | Render, piano Starter, Frankfurt | Sempre acceso (niente attesa di 50 s), un solo dominio, cookie semplici |
+| Web service | Render, piano Starter, Frankfurt. In dashboard si chiama `recapp`; l'indirizzo resta `ieri.onrender.com` | Sempre acceso (niente attesa di 50 s), cookie per dominio |
 | Database | Neon Postgres, piano gratuito | Il disco di Render si azzera a ogni deploy; Neon non scade |
 | Workflow `recap-ai` | Render Workflows | Le letture AI durano 5-20 s: fuori dal web service, con retry e log separati |
 | AI | Featherless, API compatibile OpenAI | Crediti sponsor, modelli open-weight, nessun dato usato per addestrare |
-| Dominio | `bassaleo.xyz` su gen.xyz | Record A verso Render, `www` in CNAME; HTTPS automatico |
+| Domini | `bassaleo.xyz` (principale, `PUBLIC_URL`) e `tryrecapp.xyz` (secondo indirizzo, in verifica) | Stesso servizio. Se tryrecapp non si verifica, bassaleo resta |
 
 ## Percorso di una richiesta
 

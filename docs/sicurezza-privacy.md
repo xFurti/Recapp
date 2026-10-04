@@ -5,8 +5,8 @@
 | Chi | Come entra | Cosa può fare |
 | --- | --- | --- |
 | Partecipante | codice classe → nick → PIN di 6 cifre | Leggere la classe, aggiungere elementi in arrivo, scrivere la giornata nel suo turno |
-| Admin (rappresentante) | come sopra, ruolo admin | In più: gestire partecipanti, inviti, turni, orario; scrivere sempre |
-| Owner (dirigenza) | utente + password nell'Area scuola | Vedere tutte le classi in sola lettura, creare classi, gestire calendario, orari e inviti |
+| Admin (rappresentante) | come sopra, ruolo admin | In più: aggiungere e togliere partecipanti, inviti, turni, orario; scrivere sempre. Non può dare o togliere il ruolo admin, né rimuovere un altro admin |
+| Owner (dirigenza e collaboratori) | utente + password nell'Area scuola | Creare classi, calendario, orari e inviti; entrare in una classe e assegnare o togliere il ruolo admin |
 | Giudici / curiosi | "Prova la demo" | Solo la classe DEMO, rigenerata ogni giorno |
 
 - **Primo accesso**: l'admin crea il nick e ottiene un **codice invito monouso** (`XXXX-XXXX`),
@@ -26,8 +26,8 @@
 ## Protezioni sulle richieste
 
 - **Controllo `Origin`**: POST/PUT/PATCH/DELETE da un sito diverso da `bassaleo.xyz`,
-  `www.bassaleo.xyz` o `ieri.onrender.com` ricevono 403. Insieme a `SameSite=Lax` blocca le
-  richieste fatte "a nome tuo" da altri siti.
+  `www.bassaleo.xyz`, `tryrecapp.xyz`, `www.tryrecapp.xyz` o `ieri.onrender.com` ricevono 403.
+  Insieme a `SameSite=Lax` blocca le richieste fatte "a nome tuo" da altri siti.
 - **Permessi lato server**: ogni endpoint controlla ruolo e turno; nascondere un bottone nella
   UI non basta e non è usato come protezione. I ritagli sono leggibili da tutta la classe solo
   dopo la pubblicazione della giornata o dell'elemento a cui sono legati.

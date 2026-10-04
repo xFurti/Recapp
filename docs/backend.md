@@ -113,7 +113,9 @@ Tutte sotto `/api`. Le route `classes/{code}/...` richiedono un membro della cla
 | `PATCH /classes/{code}/rotation/order` · `POST /rotation/swap` | admin/owner | Ordine e scambi |
 | `GET` · `PUT /classes/{code}/timetable` | lettura membri, scrittura admin/owner | Orario |
 | `GET /classes/{code}/members` | membro/owner | Partecipanti con statistiche |
-| `POST /members` · `POST /members/{id}/reset-invite` · `PATCH` · `DELETE /members/{id}` | admin/owner | Gestione partecipanti e inviti |
+| `POST /members` · `POST /members/{id}/reset-invite` | admin/owner | Aggiunge un partecipante e rigenera l'invito. Il ruolo admin in creazione è solo dell'owner |
+| `PATCH /members/{id}` | owner | Cambia il ruolo admin. Un admin di classe riceve 403 |
+| `DELETE /members/{id}` | admin/owner | Toglie un partecipante. Un admin di classe non può togliere un altro admin |
 | `GET /classes/{code}/cards` · `GET /cards/{day}` · `GET /latest` | membro/owner | Elenco giornate, una giornata, ultima pubblicata |
 | `PUT /classes/{code}/cards/{day}` · `POST /cards/{day}/publish` | chi può scrivere | Salva bozza (sostituisce tutto) e pubblica |
 | `GET` · `POST /classes/{code}/upcoming` · `PATCH` · `DELETE /upcoming/{id}` | lettura tutti, modifica autore/admin | In arrivo |
