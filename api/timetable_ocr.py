@@ -77,14 +77,28 @@ def _room(value: Any) -> str:
     return token.upper()
 
 
+def _split_code_room(subject: Any, room: Any) -> tuple[str, str]:
+    """The Marconi grid prints ``SMS - PALESTRA`` on one line, under ``1 (08:00-08:50)``."""
+    subject_text = str(subject or "").strip()
+    room_text = str(room or "").strip()
+    if " - " in subject_text and not room_text:
+        code, place = subject_text.split(" - ", 1)
+        return code.strip(), place.strip()
+    return subject_text, room_text
+
+
 def _lesson(value: Any) -> Optional[dict]:
     if not isinstance(value, dict):
         return None
+    subject, room = _split_code_room(
+        value.get("materia", value.get("subject")),
+        value.get("aula", value.get("room")),
+    )
     return {
         "giorno": value.get("giorno", value.get("weekday", value.get("day"))),
         "ora": value.get("ora", value.get("hour")),
-        "materia": value.get("materia", value.get("subject")),
-        "aula": value.get("aula", value.get("room")),
+        "materia": subject,
+        "aula": room,
         "laboratorio": value.get("laboratorio", value.get("is_lab")),
     }
 
@@ -159,9 +173,10 @@ Rules:
 - Subjects of this class (code = name): @SUBJECTS@.
   Abbreviations: mate/mat = MAT, info/inf = INI, sistemi/sis/reti = SRI, tpsit = TPI,
   tele/tlc = TCI, ita = LIT, sto = STO, ing/eng = ING, motoria/ginnastica = SMS, religione = IRC.
-- Hours that exist: @HOURS@. Use the printed hour number (1ª, 2ª, …), not the clock time.
+- Hours that exist: @HOURS@. The hour is the number before the clock, as in "1 (08:00-08:50)" or "2 (08:50-09:40 Int.)": ora is 1 or 2, never 08 or 09. Ignore "Int.".
+- A lesson line looks like "SMS - PALESTRA" or "INI - L143": materia is the code before the dash, aula is the room after it.
 - Monday to Friday only. An empty cell is omitted, not guessed.
-- "aula" is only the room code (A215, L145, Palestra). Never include a teacher name.
+- "aula" is only the room code (A215, L143, Palestra). Never include a teacher name.
 - A room or label that says laboratorio means the room code if one is printed, otherwise "Laboratorio".
 - If two lessons are printed in the same hour, return both.
 - If a cell is unreadable, return materia null and still give giorno and ora.
@@ -197,7 +212,7 @@ def featherless_timetable(payload: dict) -> Any:
                 },
             ],
             "temperature": 0.1,
-            "max_tokens": 1200,
+            "max_tokens": 2000,
         },
         timeout=90,
     )

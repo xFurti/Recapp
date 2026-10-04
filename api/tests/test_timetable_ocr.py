@@ -73,6 +73,26 @@ def test_reading_drops_names_and_flags_what_it_cannot_place():
     assert not any(cell["hour"] is None for cell in parsed["slots"])
 
 
+def test_marconi_grid_uses_the_hour_number_and_the_code_before_the_room():
+    """The school site prints ``1 (08:00-08:50)`` and, under it, ``SMS - PALESTRA``."""
+    parsed = validate_timetable(
+        [
+            {"giorno": "lunedì", "ora": "1 (08:00-08:50)", "materia": "SMS - PALESTRA"},
+            {"giorno": "lunedì", "ora": "2 (08:50-09:40 Int.)", "materia": "STO", "aula": "A215"},
+            {"giorno": "lunedì", "ora": "3 (09:50-10:40 Int.)", "materia": "INI - L143"},
+            {"giorno": "venerdì", "ora": "7 (13:40-14:30)", "materia": "LIT", "aula": "A212"},
+        ],
+        CONTEXT,
+    )
+    gym = _cell(parsed, 0, 1)
+    assert gym["subject_code"] == "SMS" and gym["room"] == "Palestra" and gym["is_lab"] is False
+    assert _cell(parsed, 0, 2)["subject_code"] == "STO"
+    lab = _cell(parsed, 0, 3)
+    assert lab["subject_code"] == "INI" and lab["room"] == "L143" and lab["is_lab"] is True
+    assert _cell(parsed, 4, 7)["subject_code"] == "LIT"
+    assert parsed["unplaced"] == []
+
+
 def test_empty_reading_is_not_a_timetable():
     assert validate_timetable({"lezioni": []}, CONTEXT) == {"slots": [], "unplaced": []}
     assert validate_timetable("non è un orario", CONTEXT) == {"slots": [], "unplaced": []}
