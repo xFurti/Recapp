@@ -35,7 +35,31 @@
     "title": "This page isn’t here",
     "body": "The link may be wrong, or the page may have been moved or removed.",
     "home": "Back to home",
-    "today": "Go to Today"
+    "today": "Go to Today",
+    "eyebrow": "Error 404",
+    "magilla": "Magilla slipped out of the pet shop window to go look for it. Keep him running while you're here.",
+    "game": {
+      "role": "game",
+      "label": "Magilla's escape, a mini game",
+      "instructions": "Press Space or the Up arrow to jump and the Down arrow to duck. Grab bananas for extra points. Escape pauses.",
+      "start": "Press Space to help Magilla escape",
+      "start_touch": "Tap to help Magilla escape",
+      "jump": "jump",
+      "duck": "Duck",
+      "duck_hint": "duck",
+      "bananas": "Bananas",
+      "best_short": "HI",
+      "paused": "Paused",
+      "resume": "Press Space to keep running",
+      "resume_touch": "Tap to keep running",
+      "over_title": "We'll try again next week!",
+      "over_score": "{{score}} points · best {{best}}",
+      "new_best": "New best: {{score}} points!",
+      "again": "Play again",
+      "announce_over": "Caught with {{score}} points. Press Space to play again.",
+      "sound_on": "Turn sound on",
+      "sound_off": "Turn sound off"
+    }
   },
   "landing": {
     "title": "Missed a day?",
@@ -186,7 +210,6 @@
     "loading": "Starting…",
     "unavailable": "No voices available. Check your browser or system voices and try again.",
     "failed": "Could not read the summary. Try again or check your audio settings.",
-
     "play": "Listen",
     "pause": "Pause",
     "resume": "Resume",
