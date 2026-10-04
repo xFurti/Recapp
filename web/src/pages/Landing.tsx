@@ -148,9 +148,10 @@ export default function Landing() {
       <footer className="border-t border-line bg-surface/60 pb-[env(safe-area-inset-bottom)]">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
           <span><span className="language-text">{t('landing.footer')}</span></span>
-          <Link to="/privacy" className="font-semibold underline">
-            <span className="language-text">{t('landing.privacy')}</span>
-          </Link>
+          <nav aria-label={t('landing.info_links')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link to="/privacy" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('landing.privacy')}</span></Link>
+            <Link to="/faq" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('about.title')}</span></Link>
+          </nav>
         </div>
       </footer>
     </div>

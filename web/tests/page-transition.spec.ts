@@ -205,6 +205,9 @@ test('keyboard: the new page takes focus once it is revealed', async ({ page }) 
   const nav = await setup(page)
   await nav.getByRole('link', { name: 'Ieri' }).focus()
   await page.keyboard.press('Enter')
+  // Enter's default link activation can commit after keyboard.press resolves.
+  // Observe the transition only after navigation has actually started.
+  await expect(page.locator('.page-curtain')).toBeVisible()
   const during = await page.evaluate(() => ({
     covered: !document.querySelector<HTMLElement>('.page-curtain')!.hidden,
     focusInMain: !!document.activeElement?.closest('main'),

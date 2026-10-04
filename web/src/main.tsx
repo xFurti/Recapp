@@ -21,6 +21,7 @@ import Upcoming from './pages/Upcoming'
 
 const ClassPage = lazy(() => import('./pages/ClassPage'))
 const Editor = lazy(() => import('./pages/Editor'))
+const About = lazy(() => import('./pages/About'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const SchoolArea = lazy(() => import('./pages/SchoolArea'))
 
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
     element: <WithUpdateNotice />,
     children: [
       { path: '/', element: <Landing /> },
+      { path: '/faq', element: later(<About />) },
       { path: '/privacy', element: later(<Privacy />) },
       { path: '/scuola', element: later(<SchoolArea />) },
       { path: '/c/:code/entra', element: <Join /> },

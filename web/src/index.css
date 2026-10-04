@@ -346,6 +346,20 @@
   .tour-spot, .tour-content, .tour-icon svg { animation: none !important; }
 }
 
+/* FAQ answers use intrinsic grid sizing so long text and links are never clipped when open. */
+.faq-answer { display: grid; grid-template-rows: 0fr; visibility: hidden; transition: grid-template-rows 260ms ease, visibility 260ms; }
+.faq-answer[data-open='true'] { grid-template-rows: 1fr; visibility: visible; }
+.faq-chevron { transition: transform 260ms ease; }
+.about-action { transition: background-color 150ms, transform 150ms; }
+.about-action:active { transform: scale(0.98); }
+/* All slides share a grid cell, reserving enough height for the longest profile. */
+.creator-slide { opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity 240ms ease, transform 240ms ease, visibility 240ms; }
+.creator-slide[data-active='true'] { opacity: 1; visibility: visible; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .faq-answer, .faq-chevron, .about-action, .creator-slide { transition: none; }
+  .creator-slide, .about-action:active { transform: none; }
+}
+
 /* Native top-layer confirmation; the backdrop stays modal throughout the exit. */
 .confirmation-dialog {
   margin: auto;

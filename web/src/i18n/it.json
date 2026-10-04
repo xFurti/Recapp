@@ -56,7 +56,8 @@
     "f3_title": "Un verbalista al giorno",
     "f3_text": "A turno, dopo la campanella. Niente password della scuola, niente voti.",
     "footer": "Progetto studentesco pilota dell'ITI G. Marconi di Verona. Non è un portale ufficiale dell'istituto.",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "info_links": "Informazioni su Recapp"
   },
   "join": {
     "pick_title": "Chi sei?",
@@ -559,5 +560,54 @@
     "write_body": "Da qui apri l'editor della giornata. Le modifiche si salvano da sole e pubblichi quando sei pronto.",
     "done_title": "Tutto pronto!",
     "done_body": "Esplora pure Recapp. Puoi rivedere il tutorial quando vuoi dal menu del tuo profilo, qui in alto."
+  },
+  "about": {
+    "title": "FAQ e creatori",
+    "intro": "Come funziona Recapp, come entrare nella tua classe e chi c’è dietro il progetto.",
+    "home": "Torna alla home",
+    "faq_title": "Domande frequenti",
+    "creators_title": "Chi ha creato Recapp",
+    "carousel": "presentazione dei creatori",
+    "previous": "Creatore precedente",
+    "next": "Creatore successivo",
+    "select_creator": "Scegli un creatore",
+    "profile_position": "Profilo {{current}} di {{total}}",
+    "profile_status": "{{name}} · {{current}} di {{total}}",
+    "team_summary": "Recapp è un progetto di tre studenti del quarto anno di Informatica dell’ITI G. Marconi di Verona.",
+    "profiles_pending": "Le presentazioni personali dei creatori saranno aggiunte dal team.",
+    "faq": {
+      "purpose": {
+        "question": "Che cos’è Recapp e a cosa serve?",
+        "answer": "Recapp raccoglie i riepiloghi delle giornate scolastiche scritti dai compagni presenti in classe. Puoi recuperare lezioni e attività di laboratorio, vedere compiti, verifiche ed eventi in arrivo e leggere i riepiloghi per materia."
+      },
+      "school": {
+        "question": "Recapp è un servizio ufficiale della scuola?",
+        "answer": "No. È un progetto studentesco pilota dell’ITI G. Marconi di Verona, concordato con il dirigente scolastico. Non è un portale ufficiale dell’istituto."
+      },
+      "demo": {
+        "question": "Qual è la differenza tra demo e classe ufficiale?",
+        "answer": "La demo contiene dati di esempio e puoi provarla senza credenziali scolastiche. Il pulsante “Prova la demo” apre una copia dedicata al tuo browser, separata dalle classi reali. Le classi reali contengono i riepiloghi dei propri partecipanti e richiedono l’accesso; il personale scolastico autorizzato può consultarle in sola lettura."
+      },
+      "access": {
+        "question": "Come si accede alla propria classe?",
+        "answer": "Inserisci nella home il codice classe ricevuto dal rappresentante e scegli il tuo nickname. Al primo accesso servono il codice invito e un PIN personale di sei cifre da impostare. Per gli accessi successivi usi il tuo PIN. Se lo dimentichi, chiedi al rappresentante un nuovo invito."
+      },
+      "rotation": {
+        "question": "Chi scrive i riepiloghi e come funzionano i turni?",
+        "answer": "Ogni giorno di scuola un partecipante è incaricato di scrivere il riepilogo secondo la rotazione della classe, che salta i giorni senza lezioni. Dopo la campanella prepara e pubblica la giornata. Può passare il turno se è assente; se la giornata non è pubblicata entro le 18:00, un compagno può prendere il turno."
+      },
+      "sources": {
+        "question": "Recapp sostituisce il registro elettronico o Classroom?",
+        "answer": "No. ClasseViva, Classroom e Campus restano le fonti di riferimento. Recapp riunisce ciò che i compagni riportano e non accede con le credenziali della scuola. Il verbalista può importare testo o ritagli in bozze, che deve controllare prima di pubblicare."
+      },
+      "data": {
+        "question": "Come vengono utilizzati i dati e dove trovo l’informativa privacy?",
+        "answer": "Recapp usa nickname, ruoli e contenuti inseriti dalla classe per fornire riepiloghi e scadenze. I PIN sono conservati come hash, non in chiaro. I ritagli caricati vengono ripuliti dai metadati e non devono contenere voti, nomi di compagni o volti. Quando è configurata l’estrazione AI, testo o ritagli e il contesto delle materie vengono usati per preparare bozze da verificare. Leggi l’informativa per i dettagli."
+      },
+      "team": {
+        "question": "Chi ha creato il progetto?",
+        "answer": "Recapp è stato realizzato da tre studenti del quarto anno di Informatica dell’ITI G. Marconi di Verona per il CSC Back-to-School Hackathon. La sezione dedicata ai creatori raccoglie le presentazioni fornite dal team."
+      }
+    }
   }
 }
