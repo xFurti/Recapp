@@ -95,6 +95,8 @@
     "invite_label": "Codice invito",
     "new_pin": "Scegli un PIN di 6 cifre",
     "confirm_pin": "Ripeti il PIN",
+    "show_pin": "Mostra PIN",
+    "hide_pin": "Nascondi PIN",
     "pin_mismatch": "I due PIN non coincidono",
     "enter": "Entra",
     "not_you": "Non sei tu?",

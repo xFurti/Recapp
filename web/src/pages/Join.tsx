@@ -1,6 +1,6 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
@@ -24,6 +24,8 @@ export default function Join() {
   const [invite, setInvite] = useState('')
   const [pin1, setPin1] = useState('')
   const [pin2, setPin2] = useState('')
+  const [showPin1, setShowPin1] = useState(false)
+  const [showPin2, setShowPin2] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -163,10 +165,20 @@ export default function Join() {
                   <input className={`${inputClass} font-mono uppercase tracking-widest`} placeholder="XXXX-XXXX" value={invite} onChange={(e) => setInvite(e.target.value)} autoComplete="one-time-code" required />
                 </Field>
                 <Field label={t('join.new_pin')}>
-                  <input className={`${inputClass} tracking-[0.5em]`} type="password" inputMode="numeric" maxLength={6} value={pin1} onChange={(e) => setPin1(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" required />
+                  <div className="relative">
+                    <input className={`${inputClass} pr-11 tracking-[0.5em]`} type={showPin1 ? 'text' : 'password'} inputMode="numeric" maxLength={6} value={pin1} onChange={(e) => setPin1(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" required />
+                    <button type="button" onClick={() => setShowPin1((v) => !v)} className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted hover:text-ink" aria-label={t(showPin1 ? 'join.hide_pin' : 'join.show_pin')}>
+                      {showPin1 ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
                 </Field>
                 <Field label={t('join.confirm_pin')}>
-                  <input className={`${inputClass} tracking-[0.5em]`} type="password" inputMode="numeric" maxLength={6} value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" required />
+                  <div className="relative">
+                    <input className={`${inputClass} pr-11 tracking-[0.5em]`} type={showPin2 ? 'text' : 'password'} inputMode="numeric" maxLength={6} value={pin2} onChange={(e) => setPin2(e.target.value.replace(/\D/g, ''))} autoComplete="new-password" required />
+                    <button type="button" onClick={() => setShowPin2((v) => !v)} className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-muted hover:text-ink" aria-label={t(showPin2 ? 'join.hide_pin' : 'join.show_pin')}>
+                      {showPin2 ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
                 </Field>
                 {error && <p className="text-sm font-medium text-rosa-ink" role="alert">{error}</p>}
                 <Button type="submit" size="lg" className="w-full" loading={busy} disabled={pin1.length !== 6 || invite.length < 8}>

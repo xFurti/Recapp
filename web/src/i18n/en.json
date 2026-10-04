@@ -95,6 +95,8 @@
     "invite_label": "Invite code",
     "new_pin": "Choose a 6-digit PIN",
     "confirm_pin": "Repeat the PIN",
+    "show_pin": "Show PIN",
+    "hide_pin": "Hide PIN",
     "pin_mismatch": "The two PINs don't match",
     "enter": "Enter",
     "not_you": "Not you?",
