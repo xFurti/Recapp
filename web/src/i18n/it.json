@@ -35,7 +35,16 @@
     "title": "Questa pagina non c'è",
     "body": "Il collegamento potrebbe essere errato oppure la pagina potrebbe essere stata spostata o rimossa.",
     "home": "Torna alla home",
-    "today": "Vai a Oggi"
+    "today": "Vai a Oggi",
+    "game": {
+      "title": "Magilla Gorilla",
+      "start": "Spazio o tap per iniziare",
+      "again": "Spazio per ricominciare",
+      "over": "Oh, Magilla!",
+      "score": "Punti {{n}}",
+      "best": "Record {{n}}",
+      "aria": "Minigioco. Spazio, freccia su o tap per iniziare e per saltare."
+    }
   },
   "landing": {
     "title": "Ti sei perso un giorno?",

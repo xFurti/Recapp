@@ -35,7 +35,16 @@
     "title": "This page isn’t here",
     "body": "The link may be wrong, or the page may have been moved or removed.",
     "home": "Back to home",
-    "today": "Go to Today"
+    "today": "Go to Today",
+    "game": {
+      "title": "Magilla Gorilla",
+      "start": "Space or tap to start",
+      "again": "Space to play again",
+      "over": "Oh, Magilla!",
+      "score": "Score {{n}}",
+      "best": "Best {{n}}",
+      "aria": "Minigame. Space, arrow up, or tap to start and to jump."
+    }
   },
   "landing": {
     "title": "Missed a day?",
