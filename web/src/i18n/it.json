@@ -35,7 +35,31 @@
     "title": "Questa pagina non c'è",
     "body": "Il collegamento potrebbe essere errato oppure la pagina potrebbe essere stata spostata o rimossa.",
     "home": "Torna alla home",
-    "today": "Vai a Oggi"
+    "today": "Vai a Oggi",
+    "eyebrow": "Errore 404",
+    "magilla": "Magilla è scappato dalla vetrina del negozio di animali per andare a cercarla. Tienilo in corsa mentre sei qui.",
+    "game": {
+      "role": "gioco",
+      "label": "La fuga di Magilla, un minigioco",
+      "instructions": "Premi Spazio o la freccia su per saltare e la freccia giù per abbassarti. Prendi le banane per punti extra. Esc mette in pausa.",
+      "start": "Premi Spazio per aiutare Magilla a scappare",
+      "start_touch": "Tocca per aiutare Magilla a scappare",
+      "jump": "salta",
+      "duck": "Abbassati",
+      "duck_hint": "abbassati",
+      "bananas": "Banane",
+      "best_short": "REC",
+      "paused": "In pausa",
+      "resume": "Premi Spazio per riprendere a correre",
+      "resume_touch": "Tocca per riprendere a correre",
+      "over_title": "Ci riproveremo la settimana prossima!",
+      "over_score": "{{score}} punti · record {{best}}",
+      "new_best": "Nuovo record: {{score}} punti!",
+      "again": "Gioca ancora",
+      "announce_over": "Preso con {{score}} punti. Premi Spazio per giocare ancora.",
+      "sound_on": "Attiva i suoni",
+      "sound_off": "Disattiva i suoni"
+    }
   },
   "landing": {
     "title": "Ti sei perso un giorno?",
@@ -186,7 +210,6 @@
     "loading": "Avvio…",
     "unavailable": "Nessuna voce disponibile. Controlla le voci del browser o del sistema e riprova.",
     "failed": "Non è stato possibile leggere il riepilogo. Riprova o controlla le impostazioni audio.",
-
     "play": "Ascolta",
     "pause": "Pausa",
     "resume": "Riprendi",

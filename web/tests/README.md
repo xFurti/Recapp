@@ -36,3 +36,7 @@ The desktop and phone PR videos are recorded separately in the full production b
 `page-transition.spec.ts` mounts the real `AppShell` under `createBrowserRouter` in StrictMode, as in production, with small pages for Oggi, Ieri, In arrivo, Classe and an editor whose changes cannot be saved. Only HTTP responses are mocked, with configurable latency and errors. It checks that the old page is frozen and covered while the new one mounts and starts loading at once; the total duration (`COVER_MS + REVEAL_MS`); the wipe direction on desktop and phone; header and navigation staying interactive; rapid clicks and Back/Forward settling on one consistent URL, page and selection; no transition on first load, filters, language or theme; slow data and errors never left covered; refused navigations; focus on the new heading; reduced motion; and the light and dark colors.
 
 The desktop and phone PR videos are recorded from the dev build with the local API and its demo data, and attached to the PR, not committed.
+
+## 404 mini game
+
+`magilla.spec.ts` mounts the real `MagillaGame` (the Magilla Gorilla runner on the 404 page) in StrictMode. It checks that Space starts the run and the score climbs, that a crash shows the catchphrase and Play again and saves the best score, Escape pause and Space resume, that keys pressed on other controls are ignored, the remembered sound toggle, tap-to-start and the hold-to-duck pad on a phone, and dark theme with reduced motion.
