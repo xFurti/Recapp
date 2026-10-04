@@ -1,6 +1,6 @@
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
 import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium, X } from 'lucide-react'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
@@ -80,7 +80,58 @@ export function ThemeToggle() {
   )
 }
 
-/** One round button: it shows the current language and flips to the other. */
+/** Five-point star, point up. */
+function starPoints(cx: number, cy: number, r: number) {
+  const pts: string[] = []
+  for (let i = 0; i < 5; i++) {
+    const peak = -Math.PI / 2 + (i * 2 * Math.PI) / 5
+    const valley = peak + Math.PI / 5
+    pts.push(`${(cx + r * Math.cos(peak)).toFixed(2)},${(cy + r * Math.sin(peak)).toFixed(2)}`)
+    pts.push(`${(cx + r * 0.38 * Math.cos(valley)).toFixed(2)},${(cy + r * 0.38 * Math.sin(valley)).toFixed(2)}`)
+  }
+  return pts.join(' ')
+}
+
+function ItalyFlag() {
+  return (
+    <svg viewBox="0 0 32 32" className="size-full" aria-hidden>
+      <rect width="10.67" height="32" fill="#009246" />
+      <rect x="10.67" width="10.66" height="32" fill="#fff" />
+      <rect x="21.33" width="10.67" height="32" fill="#ce2b37" />
+    </svg>
+  )
+}
+
+/** UK on top, USA underneath: the two flags people mean by English, and not a French tricolor. */
+function EnglishFlag() {
+  const clip = useId().replace(/:/g, '')
+  const stripe = 16 / 13
+  return (
+    <svg viewBox="0 0 32 32" className="size-full" aria-hidden>
+      <svg width="32" height="16" viewBox="0 0 60 30">
+        <defs>
+          <clipPath id={clip}>
+            <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+          </clipPath>
+        </defs>
+        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath={`url(#${clip})`} stroke="#C8102E" strokeWidth="4" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
+      </svg>
+      <g transform="translate(0 16)">
+        {Array.from({ length: 13 }, (_, i) => (
+          <rect key={i} y={stripe * i} width="32" height={stripe + 0.08} fill={i % 2 ? '#fff' : '#B22234'} />
+        ))}
+        <rect width="12.8" height={stripe * 7} fill="#3C3B6E" />
+        <polygon points={starPoints(6.4, stripe * 3.5, 2.15)} fill="#fff" />
+      </g>
+    </svg>
+  )
+}
+
+/** One round button: the current language, as its flag, flips to the other. */
 export function LangToggle() {
   const { i18n, t } = useTranslation()
   const lang = i18n.language === 'en' ? 'en' : 'it'
@@ -90,12 +141,12 @@ export function LangToggle() {
     <button
       type="button"
       onClick={() => setLanguage(next)}
-      className={`lang-btn lang-flag lang-flag-${lang} flex size-8 items-center justify-center overflow-hidden rounded-full border border-black/15 text-[11px] font-bold uppercase tracking-wide`}
+      className="lang-btn flex size-8 items-center justify-center overflow-hidden rounded-full"
       title={label}
       aria-label={label}
     >
-      <span key={lang} className="lang-swap">
-        {lang}
+      <span key={lang} className="lang-swap block size-full">
+        {lang === 'it' ? <ItalyFlag /> : <EnglishFlag />}
       </span>
     </button>
   )
