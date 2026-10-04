@@ -34,7 +34,7 @@ import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
 const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
 
-/** School mark. Dark mode uses the same artwork with the black lettering turned white, at the same size. */
+/** School mark: the same artwork in both themes, with dark lettering in light mode and white lettering in dark mode. */
 export function Logo({ className = 'h-9' }: { className?: string }) {
   const { t } = useTranslation()
   const label = t('shell.school_site')
@@ -43,6 +43,26 @@ export function Logo({ className = 'h-9' }: { className?: string }) {
     <a href={SCHOOL_SITE} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className="school-logo inline-flex shrink-0 items-center justify-center">
       <img src={logo} alt="" className={`${img} logo-light`} />
       <img src={logoDark} alt="" className={`${img} logo-dark`} />
+    </a>
+  )
+}
+
+/** The pilot-project badge: the school mark on the left, then who runs Recapp. Links to the school site. */
+export function SchoolBadge() {
+  const { t } = useTranslation()
+  const label = t('shell.school_site')
+  return (
+    <a
+      href={SCHOOL_SITE}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      title={label}
+      className="school-logo inline-flex min-w-0 items-center gap-2 rounded-full border border-line bg-surface py-0.5 pl-3 pr-3.5 text-xs font-semibold leading-tight text-muted hover:text-ink"
+    >
+      <img src={logo} alt="" className="logo-light h-8 w-auto shrink-0" />
+      <img src={logoDark} alt="" className="logo-dark h-8 w-auto shrink-0" />
+      <span className="min-w-0"><span className="language-text">{t('landing.pilot_badge')}</span></span>
     </a>
   )
 }
@@ -95,18 +115,6 @@ export function ThemeToggle() {
   )
 }
 
-/** Five-point star, point up. */
-function starPoints(cx: number, cy: number, r: number) {
-  const pts: string[] = []
-  for (let i = 0; i < 5; i++) {
-    const peak = -Math.PI / 2 + (i * 2 * Math.PI) / 5
-    const valley = peak + Math.PI / 5
-    pts.push(`${(cx + r * Math.cos(peak)).toFixed(2)},${(cy + r * Math.sin(peak)).toFixed(2)}`)
-    pts.push(`${(cx + r * 0.38 * Math.cos(valley)).toFixed(2)},${(cy + r * 0.38 * Math.sin(valley)).toFixed(2)}`)
-  }
-  return pts.join(' ')
-}
-
 function ItalyFlag() {
   return (
     <svg viewBox="0 0 32 32" className="size-full" aria-hidden>
@@ -117,36 +125,26 @@ function ItalyFlag() {
   )
 }
 
-/** UK on top, USA underneath: the two flags people mean by English, and not a French tricolor. */
+/** The Union Jack, cropped to a centred square so it fills the round button. */
 function EnglishFlag() {
   const clip = useId().replace(/:/g, '')
-  const stripe = 16 / 13
   return (
-    <svg viewBox="0 0 32 32" className="size-full" aria-hidden>
-      <svg width="32" height="16" viewBox="0 0 60 30">
-        <defs>
-          <clipPath id={clip}>
-            <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
-          </clipPath>
-        </defs>
-        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
-        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
-        <path d="M0,0 L60,30 M60,0 L0,30" clipPath={`url(#${clip})`} stroke="#C8102E" strokeWidth="4" />
-        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
-        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
-      </svg>
-      <g transform="translate(0 16)">
-        {Array.from({ length: 13 }, (_, i) => (
-          <rect key={i} y={stripe * i} width="32" height={stripe + 0.08} fill={i % 2 ? '#fff' : '#B22234'} />
-        ))}
-        <rect width="12.8" height={stripe * 7} fill="#3C3B6E" />
-        <polygon points={starPoints(6.4, stripe * 3.5, 2.15)} fill="#fff" />
-      </g>
+    <svg viewBox="15 0 30 30" className="size-full" aria-hidden>
+      <defs>
+        <clipPath id={clip}>
+          <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+        </clipPath>
+      </defs>
+      <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+      <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+      <path d="M0,0 L60,30 M60,0 L0,30" clipPath={`url(#${clip})`} stroke="#C8102E" strokeWidth="4" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+      <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" strokeWidth="6" />
     </svg>
   )
 }
 
-/** One round button: the current language, as its flag, flips to the other. */
+/** One round button, the size of the profile avatar: the current language, as its flag, flips to the other. */
 export function LangToggle() {
   const { t } = useTranslation()
   const lang = useSyncExternalStore(subscribeLanguage, selectedLanguage)
@@ -156,7 +154,7 @@ export function LangToggle() {
     <button
       type="button"
       onClick={() => setLanguage(next)}
-      className="lang-btn flex size-8 items-center justify-center overflow-hidden rounded-full"
+      className="lang-btn flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full"
       title={label}
       aria-label={label}
     >
