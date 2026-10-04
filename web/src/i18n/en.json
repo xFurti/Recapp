@@ -264,6 +264,12 @@
     "add": "Add"
   },
   "editor": {
+    "lesson_status": "Lesson status",
+    "lesson_status_svolta": "Held",
+    "lesson_status_non_svolta": "Not held",
+    "lesson_status_supplenza": "Substitute teacher",
+    "lesson_status_verifica": "Test taken",
+    "lesson_status_hint": "“Test taken” describes these hours. “+ Test” adds a deadline.",
     "title": "Day of {{day}}",
     "subtitle": "Write what you remember. No grades, no classmates' names.",
     "lessons": "Today's lessons",
