@@ -29,6 +29,15 @@
     "class": "Class",
     "days": "All days"
   },
+  "notFound": {
+    "document_title": "Page not found — Recapp",
+    "title": "This page isn’t here",
+    "body": "The link may be wrong, or the page may have been moved or removed.",
+    "home": "Back to home",
+    "today": "Go to Today",
+    "egg_label": "404, there’s a surprise",
+    "egg": "I’ll sit here until the page comes back."
+  },
   "landing": {
     "title": "Missed a day?",
     "subtitle": "Open Recapp: what we did in class and in the lab, and what's due next. Written by classmates who were there.",
