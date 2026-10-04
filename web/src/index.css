@@ -407,6 +407,9 @@
 .school-logo {
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.school-logo .logo-dark { display: none; }
+.dark .school-logo .logo-light { display: none; }
+.dark .school-logo .logo-dark { display: block; }
 .school-logo:hover {
   transform: translateY(-1px);
 }

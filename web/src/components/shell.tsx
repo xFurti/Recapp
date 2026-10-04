@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
+import logoDark from '../assets/marconi-logo-dark.png'
 import page1 from '../assets/recapp-page-1.png'
 import page2 from '../assets/recapp-page-2.png'
 import page3 from '../assets/recapp-page-3.png'
@@ -30,13 +31,15 @@ import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
 const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
 
-/** School mark. Same image and size in both themes, with no plate behind it. */
+/** School mark. Dark mode uses the same artwork with the black lettering turned white, at the same size. */
 export function Logo({ className = 'h-9' }: { className?: string }) {
   const { t } = useTranslation()
   const label = t('shell.school_site')
+  const img = `w-auto ${className}`
   return (
     <a href={SCHOOL_SITE} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className="school-logo inline-flex shrink-0 items-center justify-center">
-      <img src={logo} alt="" className={`w-auto ${className}`} />
+      <img src={logo} alt="" className={`${img} logo-light`} />
+      <img src={logoDark} alt="" className={`${img} logo-dark`} />
     </a>
   )
 }
