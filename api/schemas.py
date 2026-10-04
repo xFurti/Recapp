@@ -207,6 +207,7 @@ class OcrIn(BaseModel):
     text: Optional[str] = Field(None, max_length=2000)
     attachment_id: Optional[int] = None
     day: Optional[date] = None
+    purpose: Literal["items", "timetable"] = "items"
 
 
 class OwnerClassIn(BaseModel):

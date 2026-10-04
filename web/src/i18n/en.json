@@ -462,7 +462,19 @@
     "tt_not_set_member": "A class admin can add it: it will show up here and on Today.",
     "tt_scroll_hint": "Scroll for the other days",
     "tt_week_caption": "Class weekly timetable",
-    "tt_demo_locked": "In the demo you can browse the timetable, but not edit it."
+    "tt_demo_locked": "In the demo you can browse the timetable, but not edit it.",
+    "tt_from_photo": "Upload a screenshot",
+    "tt_photo_privacy": "The photo is only used to read this class timetable. Names, grades and other writing are not saved.",
+    "tt_reading": "Reading the timetable…",
+    "tt_cancel_read": "Cancel reading",
+    "tt_not_image": "Choose an image.",
+    "tt_too_big": "Image too large (max 8 MB).",
+    "tt_unreadable": "This image doesn't look like a timetable. The saved one is unchanged.",
+    "tt_preview": "Check the marked cells before saving. Cancel leaves the timetable as it is.",
+    "tt_unplaced": "Could not place: {{what}}",
+    "tt_flag_unknown_subject": "Subject not recognised",
+    "tt_flag_duplicate": "Two lessons in the same hour",
+    "tt_flag_unclear_hour": "Hour unclear"
   },
   "school": {
     "title": "School area",

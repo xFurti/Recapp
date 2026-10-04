@@ -1,7 +1,7 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, KeyRound, Lock, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
-import { useCallback, useState, type FormEvent } from 'react'
+import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, ImagePlus, KeyRound, Lock, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
+import { useCallback, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { api } from '../api'
@@ -367,6 +367,13 @@ function Timetable() {
   const [timezone, setTimezone] = useState('Europe/Rome')
   const [cell, setCell] = useState<{ weekday: number; hour: number } | null>(null)
   const [saved, setSaved] = useState(false)
+  const [reading, setReading] = useState(false)
+  const [privacy, setPrivacy] = useState(false)
+  const [photoError, setPhotoError] = useState<string | null>(null)
+  const [notes, setNotes] = useState<Record<string, string>>({})
+  const [unplaced, setUnplaced] = useState<{ raw_subject: string; reason: string }[]>([])
+  const fileRef = useRef<HTMLInputElement>(null)
+  const cancelRead = useRef(false)
   // A phone shows one day at a time; wider screens get the whole week.
   const [view, setView] = useState<'day' | 'week'>(() => (window.matchMedia('(min-width: 768px)').matches ? 'week' : 'day'))
   const today = useToday(info.code)
@@ -381,6 +388,8 @@ function Timetable() {
     onSuccess: () => {
       setEditing(null)
       setHours(null)
+      setNotes({})
+      setUnplaced([])
       setSaved(true)
       qc.invalidateQueries({ predicate: (q) => ['timetable', 'today', 'card'].includes(String(q.queryKey[0])) })
     },
@@ -399,6 +408,8 @@ function Timetable() {
     setEditing(data.slots)
     setHours(data.hours.map((h) => ({ ...h })))
     setTimezone(data.timezone || 'Europe/Rome')
+    setNotes({})
+    setUnplaced([])
     setSaved(false)
   }
   const setHour = (hour: number, field: 'start' | 'end', value: string) => {
@@ -406,10 +417,75 @@ function Timetable() {
   }
 
   const setSlot = (w: number, h: number, subject: string | null, room: string) => {
+    setNotes((prev) => {
+      if (!prev[`${w}-${h}`]) return prev
+      const next = { ...prev }
+      delete next[`${w}-${h}`]
+      return next
+    })
     setEditing((prev) => {
       const base = (prev ?? data.slots).filter((s) => !(s.weekday === w && s.hour === h))
       return subject ? [...base, { weekday: w, hour: h, subject_code: subject, room, is_lab: /^l/i.test(room.trim()) }] : base
     })
+  }
+  const stopEdit = () => {
+    setEditing(null)
+    setHours(null)
+    setNotes({})
+    setUnplaced([])
+  }
+  const readPhoto = async (file: File) => {
+    if (reading) return
+    const image = file.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|heic|heif)$/i.test(file.name)
+    if (!image) {
+      setPhotoError(t('class.tt_not_image'))
+      return
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setPhotoError(t('class.tt_too_big'))
+      return
+    }
+    cancelRead.current = false
+    setReading(true)
+    setPhotoError(null)
+    setSaved(false)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      body.append('privacy_ok', 'true')
+      const att = await api.post<{ id: number }>(classPath(info.code, '/attachments'), body)
+      if (cancelRead.current) return
+      const started = await api.post<{ job_id: string }>(classPath(info.code, '/ocr'), { purpose: 'timetable', attachment_id: att.id })
+      let result: TimetableOcr | null = null
+      for (let i = 0; i < 90; i++) {
+        if (cancelRead.current) return
+        result = await api.get<TimetableOcr>(classPath(info.code, `/ocr/${started.job_id}`))
+        if (result.status === 'done' || result.status === 'error') break
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+      }
+      if (cancelRead.current) return
+      const grid = result?.timetable
+      const usable = grid?.slots.filter((cell) => cell.subject_code) ?? []
+      const flagged = grid?.slots.some((cell) => cell.needs_check) || (grid?.unplaced.length ?? 0) > 0
+      if (!result || result.status !== 'done' || !grid || (!usable.length && !flagged)) {
+        throw new Error(result?.message || t('class.tt_unreadable'))
+      }
+      setEditing(usable.map((cell) => ({
+        weekday: cell.weekday,
+        hour: cell.hour,
+        subject_code: cell.subject_code as string,
+        room: cell.room,
+        is_lab: cell.is_lab,
+      })))
+      setHours(data.hours.map((hour) => ({ ...hour })))
+      setTimezone(data.timezone || 'Europe/Rome')
+      setNotes(Object.fromEntries(grid.slots.filter((cell) => cell.needs_check).map((cell) => [`${cell.weekday}-${cell.hour}`, cell.check_reason])))
+      setUnplaced(grid.unplaced)
+    } catch (error) {
+      if (!cancelRead.current) setPhotoError((error as Error).message || t('class.tt_unreadable'))
+    } finally {
+      setReading(false)
+    }
   }
 
   return (
@@ -426,15 +502,32 @@ function Timetable() {
           />
         )}
         {editing && <p className="text-sm text-muted"><span className="language-text">{t('class.tt_lab_hint')}</span></p>}
-        {canEdit && !editing && (
-          <Button size="sm" variant="secondary" className="min-h-11" onClick={startEdit}>
-            <Pencil className="size-4" /> <span className="language-text">{t('class.tt_edit')}</span>
-          </Button>
+        {canEdit && !editing && !reading && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" variant="secondary" className="min-h-11" onClick={startEdit}>
+              <Pencil className="size-4" /> <span className="language-text">{t('class.tt_edit')}</span>
+            </Button>
+            <Button size="sm" variant="secondary" className="min-h-11" disabled={!privacy} onClick={() => fileRef.current?.click()}>
+              <ImagePlus className="size-4" /> <span className="language-text">{t('class.tt_from_photo')}</span>
+            </Button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              aria-label={t('class.tt_from_photo')}
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                event.target.value = ''
+                if (file) void readPhoto(file)
+              }}
+            />
+          </div>
         )}
         {editing && (
           <div className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => { setEditing(null); setHours(null) }}><span className="language-text">{t('common.cancel')}</span></Button>
-            <Button size="sm" onClick={() => editing && save.mutate({ slots: editing, hours: hours ?? data.hours, timezone })} loading={save.isPending}><span className="language-text">{t('class.tt_save')}</span></Button>
+            <Button size="sm" variant="ghost" className="min-h-11" onClick={stopEdit}><span className="language-text">{t('common.cancel')}</span></Button>
+            <Button size="sm" className="min-h-11" onClick={() => editing && save.mutate({ slots: editing, hours: hours ?? data.hours, timezone })} loading={save.isPending}><span className="language-text">{t('class.tt_save')}</span></Button>
           </div>
         )}
       </div>
@@ -458,14 +551,38 @@ function Timetable() {
           </div>
         </div>
       )}
-      {saved && <p className="mb-2 text-sm font-semibold text-verde-ink"><span className="language-text">{t('class.tt_saved')}</span></p>}
-      {save.error && <p className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
+      {canEdit && !editing && !reading && (
+        <label className="mb-3 flex min-h-11 items-start gap-2 text-sm text-muted">
+          <input type="checkbox" className="mt-1 size-4 shrink-0 accent-bordeaux" checked={privacy} onChange={(event) => setPrivacy(event.target.checked)} />
+          <span className="language-text">{t('class.tt_photo_privacy')}</span>
+        </label>
+      )}
+      {reading && (
+        <div role="status" className="mb-3 flex flex-wrap items-center gap-3">
+          <Spinner />
+          <p className="text-sm font-semibold"><span className="language-text">{t('class.tt_reading')}</span></p>
+          <Button size="sm" variant="ghost" className="min-h-11" onClick={() => { cancelRead.current = true }}><span className="language-text">{t('class.tt_cancel_read')}</span></Button>
+        </div>
+      )}
+      {photoError && <p role="alert" className="mb-3 text-sm font-medium text-rosa-ink">{photoError}</p>}
+      {editing && (Object.keys(notes).length > 0 || unplaced.length > 0) && (
+        <div className="mb-3 space-y-1 text-sm">
+          <p className="font-semibold"><span className="language-text">{t('class.tt_preview')}</span></p>
+          {unplaced.map((item, index) => (
+            <p key={`${item.raw_subject}-${index}`} className="font-medium">
+              <span className="language-text">{t('class.tt_unplaced', { what: item.raw_subject || t(`class.tt_flag_${item.reason}`) })}</span>
+            </p>
+          ))}
+        </div>
+      )}
+      {saved && <p role="status" className="mb-2 text-sm font-semibold text-verde-ink"><span className="language-text">{t('class.tt_saved')}</span></p>}
+      {save.error && <p role="alert" className="mb-2 text-sm font-medium text-rosa-ink">{(save.error as Error).message}</p>}
       {!hasAny && !editing && (
         <Card>
           <EmptyState title={t('class.tt_not_set')} text={t(canEdit ? 'class.tt_not_set_admin' : 'class.tt_not_set_member')} />
         </Card>
       )}
-      {editing && <WeekGrid data={data} slots={slots} hours={rows} model={null} editing onEdit={(weekday, hour) => setCell({ weekday, hour })} />}
+      {editing && <WeekGrid data={data} slots={slots} hours={rows} model={null} editing notes={notes} onEdit={(weekday, hour) => setCell({ weekday, hour })} />}
       {!editing && hasAny && (view === 'day' ? <DayView data={data} model={model} demo={info.is_demo} /> : <WeekGrid data={data} slots={slots} hours={rows} model={model} />)}
       {data.can_edit && info.is_demo && (
         <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
@@ -487,6 +604,15 @@ function Timetable() {
       )}
     </div>
   )
+}
+
+type TimetableOcr = {
+  status: string
+  message: string
+  timetable: {
+    slots: { weekday: number; hour: number; subject_code: string | null; room: string; is_lab: boolean; needs_check: boolean; check_reason: string }[]
+    unplaced: { raw_subject: string; reason: string }[]
+  } | null
 }
 
 function CellModal({ title, slot, subjects, onClose, onSave }: { title: string; slot?: Slot; subjects: TimetableData['subjects']; onClose: () => void; onSave: (subject: string | null, room: string) => void }) {

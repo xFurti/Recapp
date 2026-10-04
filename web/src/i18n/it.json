@@ -462,7 +462,19 @@
     "tt_not_set_member": "Un admin della classe può inserirlo: comparirà qui e nella pagina Oggi.",
     "tt_scroll_hint": "Scorri per gli altri giorni",
     "tt_week_caption": "Orario settimanale della classe",
-    "tt_demo_locked": "Nella demo puoi consultare l'orario, ma non modificarlo."
+    "tt_demo_locked": "Nella demo puoi consultare l'orario, ma non modificarlo.",
+    "tt_from_photo": "Carica screenshot",
+    "tt_photo_privacy": "La foto serve solo a leggere l'orario di questa classe. Nomi, voti e altre scritte non vengono salvati.",
+    "tt_reading": "Sto leggendo l'orario…",
+    "tt_cancel_read": "Annulla lettura",
+    "tt_not_image": "Scegli un'immagine.",
+    "tt_too_big": "Immagine troppo grande (max 8 MB).",
+    "tt_unreadable": "Non riesco a leggere un orario in questa immagine. Quello già salvato non è cambiato.",
+    "tt_preview": "Controlla le celle segnate prima di salvare. Annulla lascia l'orario com'è.",
+    "tt_unplaced": "Non ho potuto collocare: {{what}}",
+    "tt_flag_unknown_subject": "Materia non riconosciuta",
+    "tt_flag_duplicate": "Due lezioni nella stessa ora",
+    "tt_flag_unclear_hour": "Ora poco chiara"
   },
   "school": {
     "title": "Area scuola",

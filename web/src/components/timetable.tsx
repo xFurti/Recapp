@@ -175,7 +175,7 @@ export function DayView({ data, model, demo }: { data: TimetableData; model: Tim
 }
 
 export function WeekGrid({
-  data, slots, hours, model, editing, onEdit,
+  data, slots, hours, model, editing, onEdit, notes,
 }: {
   data: TimetableData
   slots: Slot[]
@@ -183,6 +183,8 @@ export function WeekGrid({
   model: TimetableModel | null
   editing?: boolean
   onEdit?: (weekday: number, hour: number) => void
+  /** Reason codes for cells the screenshot could not settle, keyed by weekday-hour. */
+  notes?: Record<string, string>
 }) {
   const { t, i18n } = useTranslation()
   const lang = i18n.language
@@ -206,12 +208,14 @@ export function WeekGrid({
     }
   }, [])
 
+  const noteLabel = (code?: string) => code ? t(`class.tt_flag_${code}`, { defaultValue: code }) : ''
   const cellLabel = (w: number, h: HourSlot, s?: Slot) =>
     [
       t('class.tt_cell', { day: weekdayName(w, lang), hour: h.hour }),
       s ? subjectName(data.subjects, s.subject_code, lang) : t('class.tt_free_hour'),
       s?.room ? t('class.tt_room_value', { room: s.room }) : '',
       s?.is_lab ? t('class.tt_lab') : '',
+      noteLabel(notes?.[`${w}-${h.hour}`]),
       model && w === model.todayWd && h.hour === model.currentHour && s ? t('class.tt_now') : '',
     ]
       .filter(Boolean)
@@ -249,11 +253,12 @@ export function WeekGrid({
                   </th>
                   {days.map((w) => {
                     const s = at(w, h.hour)
+                    const note = notes?.[`${w}-${h.hour}`]
                     const now = !!s && !editing && model?.todayWd === w && model.currentHour === h.hour
                     const color = s ? subjectColor(data.subjects, s.subject_code) : undefined
                     const cls = `flex min-h-14 w-full flex-col justify-center rounded-lg border px-2 py-1 text-left ${
                       s ? (s.is_lab ? 'bg-verde-soft' : 'bg-surface') : 'border-dashed bg-transparent'
-                    } ${now ? 'border-bordeaux ring-2 ring-bordeaux/40' : 'border-line'}`
+                    } ${note ? 'border-giallo ring-2 ring-giallo/50' : now ? 'border-bordeaux ring-2 ring-bordeaux/40' : 'border-line'}`
                     const content = s ? (
                       <>
                         <span className="flex items-center gap-1 font-bold">
@@ -261,9 +266,13 @@ export function WeekGrid({
                           {s.is_lab && <FlaskConical className="size-3.5 shrink-0 text-verde-ink" aria-hidden />}
                         </span>
                         <span className="block truncate text-[11px] text-muted">{s.room || '—'}</span>
+                        {note && <span className="language-text block truncate text-[10px] font-semibold">{noteLabel(note)}</span>}
                       </>
                     ) : (
-                      <span className="text-xs text-muted/60" aria-hidden>—</span>
+                      <>
+                        <span className="text-xs text-muted/60" aria-hidden>—</span>
+                        {note && <span className="language-text block truncate text-[10px] font-semibold">{noteLabel(note)}</span>}
+                      </>
                     )
                     return (
                       <td key={w} className="align-top">
