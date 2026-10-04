@@ -378,7 +378,11 @@ def featherless_extract(payload: dict) -> list[dict]:
 
 
 def extract_items(payload: dict) -> dict:
-    """payload: {kind: text|image, text?, image_b64?, mime?, context, provider, notice?}"""
+    """payload: {kind: text|image|timetable, text?, image_b64?, mime?, context, provider, notice?}"""
+    if payload.get("kind") == "timetable":
+        from .timetable_ocr import extract_timetable
+
+        return extract_timetable(payload)
     result = _extract(payload)
     if payload.get("notice"):
         result["warning"] = payload["notice"]

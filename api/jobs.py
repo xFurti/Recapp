@@ -30,10 +30,12 @@ def build_payload(session: Session, job: OcrJob, context: dict, provider: str | 
         "provider": provider or settings.ocr_provider,
         "notice": notice,
     }
-    if job.input_kind == "image":
+    if job.input_kind in ("image", "timetable"):
         att = session.get(Attachment, job.attachment_id)
         payload["image_b64"] = base64.b64encode(att.data).decode() if att else ""
         payload["mime"] = att.mime if att else "image/webp"
+        if job.input_kind == "timetable":
+            payload["kind"] = "timetable"
     else:
         payload["text"] = job.text
     return payload

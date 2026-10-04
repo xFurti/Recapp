@@ -12,6 +12,7 @@ from ..images import MAX_INPUT_BYTES, sanitize_image
 from ..jobs import build_payload, ocr_context, refresh_job, start_job
 from ..limits import allow, client_ip
 from ..models import Attachment, Classroom, DayCard, OcrJob, UpcomingItem
+from ..school_data import bell_hours
 from ..schedule import ClassCalendar
 from ..schemas import OcrIn
 from ..services import DayState
@@ -126,6 +127,21 @@ def start_ocr(
     session: Session = Depends(get_session),
 ):
     me = access.require_member()
+    timetable = data.purpose == "timetable"
+    if timetable:
+        access.require_manage()
+        access.forbid_in_demo()
+        if not data.attachment_id:
+            raise HTTPException(422, "Carica uno screenshot dell'orario")
+        busy = session.exec(
+            select(OcrJob).where(
+                OcrJob.class_id == access.classroom.id,
+                OcrJob.input_kind == "timetable",
+                OcrJob.status.in_(("queued", "running")),
+            )
+        ).first()
+        if busy is not None:
+            raise HTTPException(409, "C'è già una lettura in corso")
     if not data.text and not data.attachment_id:
         raise HTTPException(422, "Incolla una riga o carica un ritaglio")
     if data.attachment_id:
@@ -137,17 +153,20 @@ def start_ocr(
     provider, notice = _ocr_provider_for(session, request, access)
     now = request_now(request, access.classroom)
     cal = ClassCalendar(session, access.classroom)
+    context = ocr_context(cal, data.day or now.date())
+    if timetable:
+        context["hours"] = [h["hour"] for h in bell_hours(access.classroom.hours)]
     job = OcrJob(
         id=uuid.uuid4().hex,
         class_id=access.classroom.id,
-        input_kind="image" if data.attachment_id else "text",
+        input_kind="timetable" if timetable else ("image" if data.attachment_id else "text"),
         text=(data.text or "").strip(),
         attachment_id=data.attachment_id,
         created_by=me.id,
     )
     session.add(job)
     session.commit()
-    payload = build_payload(session, job, ocr_context(cal, data.day or now.date()), provider=provider, notice=notice)
+    payload = build_payload(session, job, context, provider=provider, notice=notice)
     start_job(session, job, payload, background)
     return {"job_id": job.id, "status": job.status}
 
@@ -160,11 +179,13 @@ def get_ocr(job_id: str, access: ClassAccess = Depends(class_access), session: S
     if access.member is not None and job.created_by != access.member.id and not access.is_admin:
         raise HTTPException(404, "Lettura non trovata")
     job = refresh_job(session, job)
+    timetable = job.input_kind == "timetable" and isinstance(job.result, dict)
     return {
         "job_id": job.id,
         "status": job.status,
         "provider": job.provider,
-        "drafts": job.result or [],
+        "drafts": [] if timetable else (job.result or []),
+        "timetable": job.result if timetable else None,
         "message": job.error,
     }
 
