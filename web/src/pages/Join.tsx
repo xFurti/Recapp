@@ -98,9 +98,10 @@ export default function Join() {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-30 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3">
-          <Link to="/" aria-label="Home" className="min-w-0">
-            <span className="flex items-center gap-2"><Wordmark /><Logo className="h-7" /></span>
-          </Link>
+          <span className="flex min-w-0 items-center gap-2">
+            <Link to="/" aria-label="Home"><Wordmark /></Link>
+            <Logo className="h-7" />
+          </span>
           <div className="flex shrink-0 items-center gap-1.5">
             <ThemeToggle />
             <LangToggle />

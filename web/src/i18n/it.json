@@ -86,7 +86,8 @@
     "old_pin": "PIN attuale",
     "pin_changed": "PIN aggiornato",
     "profile_menu": "Menu del profilo",
-    "demo": "Demo"
+    "demo": "Demo",
+    "school_site": "Sito dell'ITI G. Marconi di Verona — si apre in una nuova scheda"
   },
   "time": {
     "badge": "Ora simulata: {{time}}",

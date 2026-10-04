@@ -29,9 +29,7 @@ export default function NotFound() {
       {!info && (
         <header className="sticky top-0 z-30 border-b border-line/80 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-2.5 sm:py-3.5">
-            <Link to="/" aria-label={t('common.app_name')}>
-              <Logo className="h-8 sm:h-10" />
-            </Link>
+            <Logo className="h-8 sm:h-10" />
             <div className="flex items-center gap-1.5">
               <ThemeToggle />
               <LangToggle />
