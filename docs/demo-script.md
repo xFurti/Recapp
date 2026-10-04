@@ -1,5 +1,7 @@
 # Demo video script (60-90 s, English)
 
+Published cut: <https://youtu.be/vZPQf7frLNk>
+
 Record on a phone-sized browser window, demo class, simulated time via the clock button.
 
 | Time | Screen | Voice-over |

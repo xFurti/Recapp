@@ -70,10 +70,11 @@ React, TypeScript, Vite, Tailwind CSS, TanStack Query, React Router, react-i18ne
 ## Links
 
 - [Website and demo](https://bassaleo.xyz) — select **Try the demo**.
+- [Demo video](https://youtu.be/vZPQf7frLNk).
 - [Source code](https://github.com/xFurti/Recapp).
 - [Product screenshots](https://github.com/xFurti/Recapp/tree/main/docs/screenshots).
 
-The video is being finalized. Add its public URL to the Devpost video field once it is available; the remaining checks are in [submission-checklist.md](submission-checklist.md).
+Paste `https://youtu.be/vZPQf7frLNk` into the Devpost video field. The remaining checks are in [submission-checklist.md](submission-checklist.md).
 
 ## AI-use disclosure
 
@@ -81,11 +82,11 @@ The video is being finalized. Add its public URL to the Devpost video field once
 
 **Design assets.** We used ChatGPT to generate the Recapp logo and some graphics, and manually modified some of the results. The school's logo is a separate asset belonging to the school.
 
-**Team contributions.** Leonardo coordinated the team, originated the project idea and contributed to development. Luca contributed to development, beta testing and finding and checking bugs. Oleksii contributed to development and beta testing and is creating the demo video. We worked with AI assistance; these roles do not imply that all code was written manually.
+**Team contributions.** Leonardo coordinated the team, originated the project idea and contributed to development. Luca contributed to development, beta testing and finding and checking bugs. Oleksii contributed to development and beta testing and created the [demo video](https://youtu.be/vZPQf7frLNk). We worked with AI assistance; these roles do not imply that all code was written manually.
 
 **Inside the application.** The optional Featherless integration extracts draft items from submitted text or screenshots, using class subjects and calendar context. Uploaded images are re-encoded to remove metadata, but that does not remove personal information visible in the image or typed into the text. Students must choose appropriate material to submit. The AI does not publish recaps: a student reviews the drafts. The offline parser and simulated image results are distinct from live AI inference. Listen uses browser speech synthesis, not generative AI.
 
-Video production tools and any additional AI use will be added when the video is finalized.
+The published demo is [on YouTube](https://youtu.be/vZPQf7frLNk). Editing tools, voice, music and any extra AI used only for the video are not listed here yet.
 
 ## Team
 

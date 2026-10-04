@@ -12,9 +12,12 @@ Aggiornato il 4 ottobre 2026. Questo file è operativo: non copiarlo nella descr
 - [x] Logo scolastico escluso dalla licenza del codice; conferma del professore descritta senza attribuire adozione alla scuola.
 - [x] Rimossi numeri di test obsoleti e nomi del team lasciati come segnaposto.
 
-## Video quasi pronto — da completare quando disponibile
+## Video
 
-- [ ] Aggiungere il link pubblico del video in Devpost e in `docs/devpost.md`; eventualmente anche nel README.
+Pubblico: <https://youtu.be/vZPQf7frLNk>
+
+- [x] Link nel README, in `docs/devpost.md` e in `docs/credits.md`.
+- [ ] Incollare lo stesso link nel campo video di Devpost.
 - [ ] Provare il link senza autenticazione e controllare audio, leggibilità e sottotitoli dell'export finale.
 - [ ] Integrare strumenti di produzione, eventuale uso dell'AI, voce, musica e altri crediti effettivi in `docs/credits.md` e nella dichiarazione Devpost.
 - [ ] Verificare che il video descriva un prototipo testato dal team e non una sperimentazione scolastica già approvata.

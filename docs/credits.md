@@ -19,7 +19,7 @@ These roles describe the team's contributions in an AI-assisted workflow. Commit
 - **Codex:** assistance with implementation, debugging, tests, reviews and documentation; submission copy was prepared from the team's own account.
 - **ChatGPT:** generation of the Recapp logo and some graphics; the team manually edited some results.
 
-The team supplied the initial ideas, product direction and account of its experience, and tested the application. AI contributed substantially to the implementation. Video production credits are pending the final video; no particular video tool is claimed here.
+The team supplied the initial ideas, product direction and account of its experience, and tested the application. AI contributed substantially to the implementation. Oleksii created the [demo video](https://youtu.be/vZPQf7frLNk). Editing tools, voice, music and any extra AI used only for that video are not listed yet.
 
 ## AI inside Recapp
 
@@ -39,4 +39,4 @@ The school logo is distinct from the AI-assisted Recapp logo.
 
 The frontend dependencies and versions are recorded in [package.json](../web/package.json) and its lockfile; backend dependencies are recorded in [requirements.txt](../api/requirements.txt). The project uses resources including Lucide icons and the Inter typeface. Third-party resources retain their own applicable licenses; the project's MIT license does not replace them.
 
-Additional graphics, music, voices and footage used in the final video should be credited here when the video is ready. Review the rights for those specific assets before redistributing them.
+The demo video is published at <https://youtu.be/vZPQf7frLNk>. Graphics, music, voices and footage used only in that video still need to be credited here before they are redistributed on their own.

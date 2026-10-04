@@ -16,6 +16,7 @@
 
 <p align="center">
   <a href="https://bassaleo.xyz"><b>↗ Try the demo</b></a>
+  &nbsp; · &nbsp; <a href="https://youtu.be/vZPQf7frLNk"><b>▶ Watch the video</b></a>
   &nbsp; · &nbsp; <a href="docs/devpost.md">Our story</a>
   &nbsp; · &nbsp; <a href="docs/README.md">Documentation</a>
   &nbsp; · &nbsp; <a href="docs/credits.md">Credits</a>
@@ -192,7 +193,7 @@ Our team supplied the initial ideas and product direction. **Cursor** helped wit
 
 This development assistance is separate from the app's optional **Featherless** extraction: it prepares draft items for human review and never publishes a recap on its own. The offline parser, simulated image output and browser speech synthesis are also distinct from live generative AI.
 
-See [credits and AI use](docs/credits.md) for roles and asset details. The demo video is being finalized; production credits will be added with the final link.
+See [credits and AI use](docs/credits.md) for roles and asset details. The demo video is on [YouTube](https://youtu.be/vZPQf7frLNk).
 
 ## 📄 License and credits
 
