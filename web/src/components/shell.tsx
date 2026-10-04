@@ -30,7 +30,7 @@ import { Avatar, Button, Field, inputClass, Modal } from './ui'
 
 const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
 
-/** School mark. Light mode is the plain logo; dark mode keeps it on a small badge so “MARCONI” stays readable. */
+/** School mark. Same image and size in both themes, with no plate behind it. */
 export function Logo({ className = 'h-9' }: { className?: string }) {
   const { t } = useTranslation()
   const label = t('shell.school_site')

@@ -403,18 +403,12 @@
   transform: translateX(3px);
 }
 
-/* School logo: plain in light mode. In dark mode a small white badge keeps the wordmark readable. */
+/* School logo: the image only, the same size in light and dark. */
 .school-logo {
-  border-radius: 0.75rem;
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .school-logo:hover {
   transform: translateY(-1px);
-}
-.dark .school-logo {
-  background: #fff;
-  padding: 3px 8px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.22), 0 0 0 1px rgb(255 255 255 / 0.16);
 }
 @media (prefers-reduced-motion: reduce) {
   .school-logo:hover { transform: none; }
