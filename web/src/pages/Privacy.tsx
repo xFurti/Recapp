@@ -25,24 +25,24 @@ export default function Privacy() {
       </header>
       <main className="mx-auto max-w-2xl px-5 pb-16">
         <button onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))} className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
-          <ArrowLeft className="size-4" /> {t('common.back')}
+          <ArrowLeft className="size-4" /> <span className="language-text">{t('common.back')}</span>
         </button>
-        <h1 className="text-3xl font-extrabold tracking-tight">{t('privacy.title')}</h1>
-        <p className="mt-3 text-lg text-muted">{t('privacy.intro')}</p>
+        <h1 className="text-3xl font-extrabold tracking-tight"><span className="language-text">{t('privacy.title')}</span></h1>
+        <p className="mt-3 text-lg text-muted"><span className="language-text">{t('privacy.intro')}</span></p>
         <div className="mt-8 space-y-4">
-          {sections.map((s) => (
-            <section key={s.title} className="rounded-2xl border border-line bg-surface p-5">
+          {sections.map((s, index) => (
+            <section key={index} className="rounded-2xl border border-line bg-surface p-5">
               <h2 className="flex items-center gap-2 text-lg font-bold">
                 <span className={`flex size-9 items-center justify-center rounded-xl ${s.tone}`}><s.icon className="size-5" /></span>
-                {s.title}
+                <span className="language-text">{s.title}</span>
               </h2>
               <ul className="mt-3 list-disc space-y-1.5 pl-6">
-                {s.items.map((i) => <li key={i}>{i}</li>)}
+                {s.items.map((item, itemIndex) => <li key={itemIndex} className="language-text">{item}</li>)}
               </ul>
             </section>
           ))}
         </div>
-        <p className="mt-6 text-sm text-muted">{t('privacy.contact')}</p>
+        <p className="mt-6 text-sm text-muted"><span className="language-text">{t('privacy.contact')}</span></p>
       </main>
     </div>
   )

@@ -57,7 +57,7 @@ export function ShareButton({ card, info }: { card: Card; info: ClassInfo }) {
   return (
     <>
       <Button size="sm" variant="secondary" onClick={share} loading={busy}>
-        <Share2 className="size-4" /> {t('share.button')}
+        <Share2 className="size-4" /> <span className="language-text">{t('share.button')}</span>
       </Button>
       <Toast message={toast} onDone={() => setToast(null)} />
     </>

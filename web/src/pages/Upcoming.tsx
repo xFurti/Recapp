@@ -65,13 +65,13 @@ function SubjectFilterMenu({
           <li>
             <button type="button" role="option" aria-selected={value === 'all'} onClick={() => pick('all')} className={chosen(value === 'all')}>
               <span className="size-2 rounded-full border border-current" aria-hidden />
-              {t('subject.all_subjects')}
+              <span className="language-text">{t('subject.all_subjects')}</span>
             </button>
           </li>
           <li>
             <button type="button" role="option" aria-selected={value === 'none'} onClick={() => pick('none')} className={chosen(value === 'none')}>
               <span className="size-2 rounded-full border border-dashed border-current" aria-hidden />
-              {t('upcoming.no_subject')}
+              <span className="language-text">{t('upcoming.no_subject')}</span>
             </button>
           </li>
           {subjects.map((s) => (
@@ -181,23 +181,23 @@ export default function Upcoming() {
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-extrabold tracking-tight">{t('upcoming.title')}</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('upcoming.title')}</span></h1>
         {canAdd && (
           <Button onClick={() => setForm(emptyItem(type ?? 'compito', null, nextLessons))} className="hidden sm:inline-flex">
-            <Plus className="size-4" /> {t('upcoming.add')}
+            <Plus className="size-4" /> <span className="language-text">{t('upcoming.add')}</span>
           </Button>
         )}
       </div>
 
       <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
         <Chip active={type === null} onClick={() => setType(null)}>
-          {t('upcoming.all')}
+          <span className="language-text">{t('upcoming.all')}</span>
         </Chip>
         {TYPES.map((ty) => {
           const Icon = TYPE_STYLE[ty].icon
           return (
             <Chip key={ty} active={type === ty} onClick={() => setType(ty)}>
-              <Icon className="size-4" /> {t(`types_plural.${ty}`)}
+              <Icon className="size-4" /> <span className="language-text">{t(`types_plural.${ty}`)}</span>
             </Chip>
           )
         })}
@@ -232,9 +232,9 @@ export default function Upcoming() {
           <EmptyState title={t('upcoming.no_match')}>
             <div className="flex flex-wrap justify-center gap-2">
               {subject !== 'all' && (
-                <Button variant="secondary" size="sm" onClick={() => setSubject('all')}>{t('upcoming.clear_subject')}</Button>
+                <Button variant="secondary" size="sm" onClick={() => setSubject('all')}><span className="language-text">{t('upcoming.clear_subject')}</span></Button>
               )}
-              <Button variant="ghost" size="sm" onClick={resetFilters}>{t('upcoming.reset_filters')}</Button>
+              <Button variant="ghost" size="sm" onClick={resetFilters}><span className="language-text">{t('upcoming.reset_filters')}</span></Button>
             </div>
           </EmptyState>
         </Card>
@@ -243,7 +243,7 @@ export default function Upcoming() {
 
       <button onClick={() => setShowPast((s) => !s)} className="mt-8 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink" aria-expanded={showPast}>
         <ChevronDown className={`size-4 transition ${showPast ? 'rotate-180' : ''}`} />
-        {showPast ? t('upcoming.hide_past') : t('upcoming.show_past')}
+        <span className="language-text">{showPast ? t('upcoming.hide_past') : t('upcoming.show_past')}</span>
       </button>
       {showPast && (past.isLoading ? <Spinner /> : <div className="opacity-80">{renderGroups(pastVisible)}</div>)}
 

@@ -87,12 +87,12 @@ export function SubjectMenu({ active }: { active?: string }) {
             {active ? (
               <Link to={backTo} role="option" aria-selected={false} onClick={close} className={`${option} hover:bg-ink/5`}>
                 <span className="size-2 rounded-full border border-current" aria-hidden />
-                {t('subject.all_subjects')}
+                <span className="language-text">{t('subject.all_subjects')}</span>
               </Link>
             ) : (
               <button type="button" role="option" aria-selected onClick={close} className={`${option} bg-ink text-paper`}>
                 <span className="size-2 rounded-full border border-current" aria-hidden />
-                {t('subject.all_subjects')}
+                <span className="language-text">{t('subject.all_subjects')}</span>
               </button>
             )}
           </li>
@@ -136,7 +136,7 @@ export default function SubjectPage() {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux">{t('subject.by_subject')}</p>
+        <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux"><span className="language-text">{t('subject.by_subject')}</span></p>
         <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
           <span className="size-3 rounded-full" style={{ backgroundColor: color }} aria-hidden />
           {subjectName(info.subjects, subject, lang)}
@@ -144,7 +144,7 @@ export default function SubjectPage() {
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Link to={backTo} className="inline-flex h-10 items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
-          <ArrowLeft className="size-4" /> {t('subject.back_general')}
+          <ArrowLeft className="size-4" /> <span className="language-text">{t('subject.back_general')}</span>
         </Link>
         <SubjectMenu active={subject} />
       </div>
@@ -179,11 +179,11 @@ export default function SubjectPage() {
                     .join(' · ')}
                 </p>
               </div>
-              {r.is_lab && <Badge className="bg-verde-soft text-verde-ink">{t('day.lab')} {r.room}</Badge>}
+              {r.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {r.room}</Badge>}
               {r.author && <Avatar nick={r.author.nick} color={r.author.color} size="sm" />}
             </div>
             <div className="px-4 py-3">
-              {r.lesson_status !== 'svolta' && <Badge className="mb-2 bg-giallo-soft text-ink">{t(`day.status_${r.lesson_status}`)}</Badge>}
+              {r.lesson_status !== 'svolta' && <Badge className="mb-2 bg-giallo-soft text-ink"><span className="language-text">{t(`day.status_${r.lesson_status}`)}</span></Badge>}
               {r.bullets.length > 0 ? (
                 <ul className="list-disc space-y-1 pl-5 text-[15px] leading-relaxed marker:text-muted">
                   {r.bullets.map((b, j) => (
@@ -191,7 +191,7 @@ export default function SubjectPage() {
                   ))}
                 </ul>
               ) : (
-                r.lesson_status === 'svolta' && <p className="text-sm text-muted">{t('day.nothing_written')}</p>
+                r.lesson_status === 'svolta' && <p className="text-sm text-muted"><span className="language-text">{t('day.nothing_written')}</span></p>
               )}
               <EntryPhotos ids={r.attachment_ids} />
               <LabBox entry={r} />
@@ -203,7 +203,7 @@ export default function SubjectPage() {
                 </div>
               )}
               <Link to={`/c/${info.code}/giorno/${r.day}`} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-bordeaux hover:underline">
-                {t('subject.open_day')} <ArrowRight className="size-4" />
+                <span className="language-text">{t('subject.open_day')}</span> <ArrowRight className="size-4" />
               </Link>
             </div>
           </li>

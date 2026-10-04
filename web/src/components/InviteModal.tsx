@@ -1,3 +1,4 @@
+import { TranslatedMessage } from './TranslatedMessage'
 import { Check, Copy } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useState } from 'react'
@@ -14,7 +15,7 @@ function CopyField({ label, value, mono }: { label: string; value: string; mono?
   }
   return (
     <div>
-      <p className="mb-1 text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
+      <p className="language-text mb-1 text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
       <div className="flex items-center gap-2 rounded-xl border border-line bg-paper px-3 py-2">
         <span className={`min-w-0 flex-1 break-all ${mono ? 'font-mono text-lg font-bold tracking-widest' : 'text-sm'}`}>{value}</span>
         <button onClick={copy} className="shrink-0 rounded-lg p-1.5 hover:bg-ink/5" aria-label={t('common.copy')} title={copied ? t('common.copied') : t('common.copy')}>
@@ -37,8 +38,8 @@ export function InviteModal({
 }) {
   const { t } = useTranslation()
   return (
-    <Modal open={open} onClose={onClose} title={t('class.invite_title', { nick })}>
-      <p className="mb-4 rounded-xl bg-giallo-soft px-3 py-2 text-sm font-semibold">{t('class.invite_once')}</p>
+    <Modal open={open} onClose={onClose} title={<TranslatedMessage message="class.invite_title" values={{ nick }} />}>
+      <p className="mb-4 rounded-xl bg-giallo-soft px-3 py-2 text-sm font-semibold"><span className="language-text">{t('class.invite_once')}</span></p>
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
         <div className="rounded-2xl border border-line bg-surface p-3">
           <QRCodeSVG value={joinUrl} size={148} fgColor="#1d1b1e" />
@@ -51,7 +52,7 @@ export function InviteModal({
       <div className="mt-3">
         <CopyField label="Link" value={joinUrl} />
       </div>
-      <p className="mt-3 text-sm text-muted">{t('class.invite_steps', { nick })}</p>
+      <p className="mt-3 text-sm text-muted"><TranslatedMessage message={'class.invite_steps'} values={{ nick }} /></p>
     </Modal>
   )
 }

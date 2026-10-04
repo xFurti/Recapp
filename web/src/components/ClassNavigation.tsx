@@ -27,7 +27,7 @@ function NavItem({ entry, to, mobile }: { entry: NavEntry; to: string; mobile: b
       {...triggers}
     >
       <NavIcon icon={entry.icon} motion={entry.motion} playing={playing} className={mobile ? 'size-6' : 'size-5'} />
-      {t(entry.key)}
+      <span className="language-text">{t(entry.key)}</span>
     </NavLink>
   )
 }

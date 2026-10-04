@@ -34,7 +34,7 @@ function DayView({ day }: { day: string }) {
       </div>
       <div className="flex justify-center">
         <Link to={`${base}/giorni`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
-          <List className="size-4" /> {t('day.all_days')}
+          <List className="size-4" /> <span className="language-text">{t('day.all_days')}</span>
         </Link>
       </div>
       <SubjectMenu />
@@ -94,7 +94,7 @@ export function DaysList() {
   useRestoreReturnScroll()
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-extrabold tracking-tight">{t('day.days_title')}</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('day.days_title')}</span></h1>
       <SubjectMenu />
       {list.isLoading && <Spinner />}
       {list.error && <ErrorBox error={list.error} />}
@@ -118,7 +118,7 @@ export function DaysList() {
                   ))}
                   {c.has_lab && (
                     <Badge className="bg-verde-soft text-verde-ink">
-                      <FlaskConical className="size-3" /> {t('day.lab')}
+                      <FlaskConical className="size-3" /> <span className="language-text">{t('day.lab')}</span>
                     </Badge>
                   )}
                 </div>
