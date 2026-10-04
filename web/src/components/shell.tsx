@@ -498,12 +498,12 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-28 pt-5 outline-none md:pb-12">
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
           {children}
         </PageFrame>
       </div>
 
-      <div ref={barRef} className="pb-safe fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface md:hidden">
+      <div ref={barRef} className="tab-bar">
         <ClassNavigation code={info.code} mobile />
       </div>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}

@@ -94,12 +94,36 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Editor actions sit above the phone tab bar, including the home indicator. */
+/* Phone tab bar: a rounded dock, clear of the screen edges and the home indicator.
+   The selected color is a rounded pill inside it, so the bar has to be rounded too. */
+.tab-bar {
+  position: fixed;
+  z-index: 30;
+  right: 0.75rem;
+  left: 0.75rem;
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding: 0.35rem;
+  border: 1px solid var(--color-line);
+  border-radius: 1.35rem;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: 0 10px 28px rgb(29 27 30 / 0.16);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+@media (min-width: 768px) {
+  .tab-bar { display: none; }
+}
+
+/* Editor actions and floating controls sit above that dock. */
 .editor-actions {
-  bottom: calc(4.25rem + env(safe-area-inset-bottom));
+  bottom: calc(5rem + max(0.5rem, env(safe-area-inset-bottom)));
+}
+.above-tab-bar {
+  bottom: calc(5.6rem + max(0.5rem, env(safe-area-inset-bottom)));
 }
 @media (min-width: 768px) {
   .editor-actions { bottom: 0; }
+  .above-tab-bar { bottom: 2rem; }
 }
 
 /* Nav icon and Recapp mark micro-animations (see NavIcon.tsx). Only transforms, only on the icon.

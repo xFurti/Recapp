@@ -183,7 +183,7 @@ export default function Upcoming() {
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('upcoming.title')}</span></h1>
         {canAdd && (
-          <Button onClick={() => setForm(emptyItem(type ?? 'compito', null, nextLessons))} className="hidden sm:inline-flex">
+          <Button onClick={() => setForm(emptyItem(type ?? 'compito', null, nextLessons))} className="max-sm:hidden">
             <Plus className="size-4" /> <span className="language-text">{t('upcoming.add')}</span>
           </Button>
         )}
@@ -250,7 +250,7 @@ export default function Upcoming() {
       {canAdd && (
         <button
           onClick={() => setForm(emptyItem(type ?? 'compito', null, nextLessons))}
-          className="fixed bottom-24 right-5 z-20 flex size-14 items-center justify-center rounded-full bg-bordeaux text-white shadow-lg sm:hidden"
+          className="above-tab-bar fixed right-5 z-40 flex size-14 items-center justify-center rounded-full bg-bordeaux text-white shadow-lg sm:hidden"
           aria-label={t('upcoming.add')}
         >
           <Plus className="size-6" />

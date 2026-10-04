@@ -249,7 +249,7 @@ export function AnchoredMenu({
       const width = menu.offsetWidth
       const height = menu.offsetHeight
       // The class pages keep a bottom tab bar on small screens; don't tuck the menu under it.
-      const bottomInset = window.innerWidth < 768 ? 80 : 8
+      const bottomInset = window.innerWidth < 768 ? 128 : 8
       const below = anchor.bottom + gap
       const above = anchor.top - gap - height
       const openAbove = below + height > window.innerHeight - bottomInset && above >= 8
@@ -312,7 +312,7 @@ export function Toast({ message, onDone }: { message: string | null; onDone: () 
   }, [message, onDone])
   if (!message) return null
   return (
-    <div className="fixed inset-x-0 bottom-24 z-50 flex justify-center px-4 md:bottom-8" role="status">
+    <div className="above-tab-bar fixed inset-x-0 z-50 flex justify-center px-4" role="status">
       <div className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper shadow-lg">{message}</div>
     </div>
   )
