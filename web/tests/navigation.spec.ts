@@ -24,6 +24,44 @@ async function aligned(nav: Locator) {
 }
 
 for (const mobile of [false, true]) {
+  test(`${mobile ? 'mobile' : 'desktop'} interrupted transitions stay continuous and settle on the last route`, async ({ page }) => {
+    const nav = await setup(page, mobile)
+    const samples = await nav.evaluate(async element => {
+      const indicator = element.querySelector<HTMLElement>('.section-nav-indicator')!
+      const links = element.querySelectorAll<HTMLAnchorElement>('a')
+      const horizontal = element.classList.contains('section-nav-mobile')
+      const origin = element.getBoundingClientRect()
+      const positions: { position: number; elapsed: number }[] = []
+      const start = performance.now()
+      let step = 0
+      const sequence = [3, 1, 2, 0, 3]
+      await new Promise<void>(resolve => {
+        const frame = () => {
+          const elapsed = performance.now() - start
+          const rect = indicator.getBoundingClientRect()
+          positions.push({ position: horizontal ? rect.x - origin.x : rect.y - origin.y, elapsed })
+          if (step < sequence.length && elapsed >= step * 65) links[sequence[step++]].click()
+          if (elapsed < 650) requestAnimationFrame(frame)
+          else resolve()
+        }
+        requestAnimationFrame(frame)
+      })
+      return { positions, extent: horizontal ? origin.width : origin.height, sameElement: indicator === element.querySelector('.section-nav-indicator') }
+    })
+    expect(samples.sameElement).toBe(true)
+    expect(samples.positions.some(sample => sample.position > 1 && sample.position < samples.extent / 2)).toBe(true)
+    for (let index = 1; index < samples.positions.length; index++) {
+      const previous = samples.positions[index - 1]
+      const current = samples.positions[index]
+      expect(current.position).toBeGreaterThanOrEqual(-0.5)
+      expect(current.position).toBeLessThan(samples.extent)
+      // A jump to an endpoint between adjacent frames would exceed this generous speed bound.
+      if (current.elapsed - previous.elapsed < 25) expect(Math.abs(current.position - previous.position)).toBeLessThan(samples.extent * 0.4)
+    }
+    await expect(nav.getByRole('link', { name: 'Classe' })).toHaveAttribute('aria-current', 'page')
+    await aligned(nav)
+  })
+
   test(`${mobile ? 'mobile' : 'desktop'} selection follows routes, history and rapid clicks without layout shifts`, async ({ page }) => {
     const nav = await setup(page, mobile)
     const initial = await nav.getByRole('link', { name: 'Oggi' }).boundingBox()
