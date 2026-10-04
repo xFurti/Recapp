@@ -24,7 +24,7 @@ test('home links to public page beside Privacy; direct URL and home work without
   await expect(page.getByRole('img', { name: 'Grafica di Magilla Gorilla per Luca Cremonese' })).toBeVisible()
   await page.getByRole('button', { name: 'Oleksii Holovan', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Oleksii Holovan', exact: true })).toBeVisible()
-  await expect(page.locator('.creator-slide[data-active="true"]')).toContainText('17 anni - 4ai')
+  await expect(page.locator('.creator-slide[data-active="true"]')).toContainText('16 anni - 4ai')
   const logo = page.getByRole('img', { name: 'Logo personale di Oleksii Holovan' })
   await logo.scrollIntoViewIfNeeded()
   await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true)
