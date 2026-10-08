@@ -10,6 +10,7 @@ from ..config import settings
 from ..db import get_session
 from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem, utcnow
 from ..schedule import ClassCalendar
+from ..standings import class_board
 from ..school_data import bell_hours, is_lab_room
 from ..seed import DEMO_NICKS
 from ..schemas import DayIn, MemberIn, MemberPatch, RotationOrderIn, SwapIn, TimetableIn
@@ -229,6 +230,13 @@ def rotation_swap(data: SwapIn, access: ClassAccess = Depends(class_access), ses
 
 
 # ---- timetable -----------------------------------------------------------------
+@router.get("/board")
+def board(request: Request, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
+    """Thanks ranking and publishing streak. Members of this class only."""
+    today = request_now(request, access.classroom).date()
+    return class_board(session, access.classroom, today)
+
+
 @router.get("/timetable")
 def timetable(access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     slots = session.exec(

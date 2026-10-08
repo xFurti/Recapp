@@ -443,6 +443,77 @@ def test_attachment_upload_strips_metadata(client):
     assert make_client().get(f"/api/attachments/{r.json()['id']}").status_code == 403
 
 
+def test_board_ranks_thanks_and_keeps_the_streak(client):
+    reset_demo(client)
+    anon = make_client()
+    assert anon.get("/api/classes/DEMO/board").status_code == 401
+    assert "ranking" not in anon.get("/api/classes/DEMO/public").json()
+
+    demo_member(client, "gianni")
+    yesterday = (TODAY - timedelta(days=1)).isoformat()
+    author = client.get(f"/api/classes/DEMO/cards/{yesterday}").json()["card"]["author"]["nick"]
+    assert client.post(f"/api/classes/DEMO/cards/{yesterday}/thanks").status_code == 200
+    demo_member(client, "sara")
+    assert client.post(f"/api/classes/DEMO/cards/{yesterday}/thanks").status_code == 200
+
+    board = client.get("/api/classes/DEMO/board").json()
+    ranking = board["ranking"]
+    assert [row["member"]["nick"] for row in ranking if row["thanks"] == 0] == sorted(
+        (row["member"]["nick"] for row in ranking if row["thanks"] == 0), key=str.casefold
+    )
+    lead = ranking[0]
+    assert lead["member"]["nick"] == author
+    assert lead["thanks"] == 2 and lead["rank"] == 1
+    assert ranking[-1]["thanks"] == 0
+    assert all(row["rank"] == 1 or row["thanks"] < 2 for row in ranking)
+
+    streak = board["streak"]
+    assert streak["empty"] is False
+    assert streak["current"] == 5
+    assert streak["record"] == 5
+    assert streak["days"][0] == {"day": yesterday, "published": True}
+    assert TODAY.isoformat() not in {d["day"] for d in streak["days"]}
+    assert any(not d["published"] for d in streak["days"])
+
+    assert client.post(f"/api/classes/DEMO/cards/{yesterday}/thanks").status_code == 200
+    again = client.get("/api/classes/DEMO/board").json()
+    assert next(row for row in again["ranking"] if row["member"]["nick"] == author)["thanks"] == 1
+
+
+def test_streak_skips_today_and_keeps_the_record():
+    from api.standings import streak_summary
+
+    class Week:
+        def is_school_day(self, d):
+            return d.weekday() < 5
+
+        def prev_school_day(self, before, max_days=60):
+            d = before - timedelta(days=1)
+            for _ in range(max_days):
+                if self.is_school_day(d):
+                    return d
+                d -= timedelta(days=1)
+            return None
+
+    # Thu 1 Oct and Fri 2 Oct published. Mon 5 Oct not yet. Wed 30 Sep missed.
+    published = {date(2026, 10, 1), date(2026, 10, 2)}
+    today = date(2026, 10, 5)
+    streak = streak_summary(today, published, Week())
+    assert streak["current"] == 2
+    assert streak["record"] == 2
+    assert streak["days"][0]["day"] == "2026-10-02"
+    assert today.isoformat() not in {d["day"] for d in streak["days"]}
+
+    # Friday was missed, so the current run is zero and Thursday stays the record.
+    broken = streak_summary(today, {date(2026, 10, 1)}, Week())
+    assert broken["current"] == 0
+    assert broken["record"] == 1
+    assert broken["days"][0] == {"day": "2026-10-02", "published": False}
+
+    empty = streak_summary(today, set(), Week())
+    assert empty == {"current": 0, "record": 0, "empty": True, "days": []}
+
+
 def test_foreign_origin_rejected(client):
     r = client.post("/api/auth/demo", headers={"Origin": "https://evil.example"})
     assert r.status_code == 403
