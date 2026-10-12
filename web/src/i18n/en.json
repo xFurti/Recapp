@@ -247,6 +247,13 @@
     "Campus": "Campus",
     "altro": "Other"
   },
+  "calendar": {
+    "add": "Add to calendar",
+    "google": "Google Calendar",
+    "apple": "Apple Calendar",
+    "class": "Class",
+    "added_on": "Added on Recapp"
+  },
   "dates": {
     "today": "Today",
     "tomorrow": "Tomorrow",

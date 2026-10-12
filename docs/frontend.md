@@ -60,6 +60,12 @@ La parte più delicata del frontend.
   correzioni (evidenziate finché non sono segnate come viste). Si aggiorna ogni 30 secondi.
 - `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 (materie e scadenze, mai
   nick o note) condivisa col foglio di sistema, oppure scaricata con link WhatsApp.
+- `components/CalendarButton.tsx` + `lib/calendar.ts`: ogni elemento pubblicato in In arrivo,
+  Oggi, nelle card e nella pagina materia si può copiare in Google Calendar o scaricare come
+  `.ics` per Calendario Apple. L'evento è giornaliero sulla `due_date`, ignora eventuali
+  `due_time` e include solo tipo, materia, titolo, nome classe, fonte, link e indirizzo di
+  In arrivo. Non include autore, note della giornata o dati della sessione e non modifica
+  l'elemento su Recapp. Il menu usa un portal, resta sopra la barra mobile e supporta tastiera.
 
 ## Tema
 

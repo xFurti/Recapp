@@ -19,6 +19,12 @@ The tests cover cancellation by button, close, Escape and backdrop; focus contai
 
 A converted MP4 recording is committed at `docs/media/issue-19-delete-message.mp4` and linked in the PR. The harness is outside `src` and is not included in the production build.
 
+## Calendar export
+
+`calendar.spec.ts` renders the real Upcoming, Today, day card and subject pages inside AppShell. It checks all four item types, Italian/English, demo/official class context, desktop/phone, both themes, menu position above mobile navigation, keyboard focus and dismissal, unchanged done/link/attachment controls, Google links and downloaded `.ics` files. Date checks cover Rome, Los Angeles and Kiritimati. `calendar-export.spec.ts` also covers leap years, month/year boundaries, daylight saving dates, private data exclusion, text escaping and UTF-8 line folding. Run `npm run test:e2e -- tests/calendar.spec.ts tests/calendar-export.spec.ts`.
+
+These automated checks do not authenticate to Google or import into Apple Calendar. Actual import on iPhone/Mac needs a manual check: export an item, compare its all-day date and text with Recapp, and confirm it can be saved.
+
 ## Lesson status browser tests
 
 `lesson-status.html` mounts the real Editor and AppShell with routing, React Query and StrictMode. Only HTTP responses are mocked. The tests cover stored status, radio keyboard navigation and visible focus, independent lesson groups, autosave, reopening a draft, preview and publication. They verify that changing status preserves points, lab data, notes and both lesson/day attachment IDs. Layout checks cover desktop/mobile, light/dark themes, English labels, long subject names, enlarged text and reduced motion.
