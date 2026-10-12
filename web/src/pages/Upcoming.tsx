@@ -113,7 +113,7 @@ export default function Upcoming() {
   const refresh = () => qc.invalidateQueries({ predicate: (q) => ['upcoming', 'today', 'card'].includes(String(q.queryKey[0])) })
   const saveItem = useMutation({
     mutationFn: (item: ItemInput) => {
-      const body = { type: item.type, subject_code: item.subject_code, title: item.title, due_date: item.due_date, due_time: item.due_time, source: item.source, link: item.link }
+      const body = { type: item.type, subject_code: item.subject_code, title: item.title, due_date: item.due_date, due_time: null, source: item.source, link: item.link }
       return item.id ? api.patch(classPath(info.code, `/upcoming/${item.id}`), body) : api.post(classPath(info.code, '/upcoming'), body)
     },
     onSuccess: () => {
@@ -130,7 +130,7 @@ export default function Upcoming() {
   })
 
   const openEdit = (it: Item) =>
-    setForm({ id: it.id, type: it.type, subject_code: it.subject_code, title: it.title, due_date: it.due_date, due_time: it.due_time, source: it.source, link: it.link })
+    setForm({ id: it.id, type: it.type, subject_code: it.subject_code, title: it.title, due_date: it.due_date, due_time: null, source: it.source, link: it.link })
 
   const bySubject = (items: Item[]) => items.filter((it) => {
     if (subject === 'all') return true
