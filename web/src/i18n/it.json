@@ -657,5 +657,39 @@
         "answer": "Recapp è stato realizzato da tre studenti del quarto anno di Informatica dell’ITI G. Marconi di Verona per il CSC Back-to-School Hackathon. La sezione dedicata ai creatori raccoglie le presentazioni fornite dal team."
       }
     }
+  },
+  "item_corrections": {
+    "report": "Segnala un errore",
+    "requests": "Richieste di correzione",
+    "form_hint": "Correggi solo i dati sbagliati. L’autore o un admin potrà controllare e accettare la proposta.",
+    "reason": "Motivo",
+    "reason_hint": "Spiega brevemente cosa è sbagliato e perché.",
+    "send": "Invia richiesta",
+    "update": "Aggiorna richiesta",
+    "edit_request": "Modifica la tua richiesta",
+    "pending": "In attesa",
+    "accepted": "Accettata",
+    "rejected": "Rifiutata",
+    "already_fixed": "Già sistemata",
+    "mine_pending": "La tua richiesta è in attesa",
+    "mine_accepted": "La tua richiesta è stata accettata",
+    "mine_rejected": "La tua richiesta è stata rifiutata",
+    "pending_count_one": "{{count}} richiesta in attesa",
+    "pending_count_other": "{{count}} richieste in attesa",
+    "inbox_count_one": "{{count}} richiesta di correzione da controllare",
+    "inbox_count_other": "{{count}} richieste di correzione da controllare",
+    "current": "Valore attuale",
+    "proposed": "Valore proposto",
+    "empty_value": "Non indicato",
+    "accept": "Accetta",
+    "reject": "Rifiuta",
+    "close_fixed": "Chiudi come già sistemata",
+    "matches": "La proposta coincide già con i dati attuali. Puoi chiuderla come già sistemata.",
+    "note": "Nota per il rifiuto (facoltativa)",
+    "request_by": "Richiesta di {{nick}}",
+    "decided": "Decisione di {{nick}} · {{date}}",
+    "review_hint": "Il confronto usa i dati attuali e mostra solo i campi diversi. Accettare mantiene l’autore e gli allegati originali.",
+    "send_error": "Invio non riuscito. Controlla i campi e riprova; se l’elemento è cambiato, chiudi e riapri la richiesta.",
+    "decision_error": "Decisione non riuscita. Controlla i dati aggiornati e riprova."
   }
 }

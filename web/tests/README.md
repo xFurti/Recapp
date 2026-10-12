@@ -40,3 +40,11 @@ The desktop and phone PR videos are recorded from the dev build with the local A
 ## 404 mini game
 
 `magilla.spec.ts` mounts the real `MagillaGame` (the Magilla Gorilla runner on the 404 page) in StrictMode. It checks that Space starts the run and the score climbs, that a crash shows the catchphrase and Play again and saves the best score, Escape pause and Space resume, that keys pressed on other controls are ignored, the remembered sound toggle, tap-to-start and the hold-to-duck pad on a phone, and dark theme with reduced motion.
+
+## Upcoming item corrections
+
+`item-corrections.spec.ts` mounts the real Upcoming, Today, ItemForm and correction panels in AppShell and StrictMode. HTTP responses alone are simulated. It covers required reasons, sparse proposals, editing a pending request, privacy, current/proposed comparisons, multiple requests surviving acceptance and date regrouping, author/admin actions, rejection notes, already-fixed requests, error/retry and pending states, the inbox on Today, and outcomes for the requester. Layout and keyboard checks cover 320px, 390px and desktop, Italian/English, demo/official class context, light/dark, reduced motion, focus containment/restoration, 16px mobile inputs and a shortened viewport representing the keyboard. The proposal never includes a time.
+
+Run `npm run test:e2e -- item-corrections.spec.ts`. The API suite in `api/tests/test_item_corrections.py` separately checks real permissions, audit persistence, atomic decisions, sparse updates, unchanged author/attachments/day attribution, cross-class isolation, validation, past/draft items, and independence from day feedback, for both demo and official classes.
+
+Issue #64 screenshots are captured from the production build with an isolated local API and real demo/official accounts, then attached directly to the PR. Chromium viewport checks do not replace checking the physical keyboard and focus zoom in iPhone Safari.

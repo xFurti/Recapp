@@ -16,6 +16,8 @@ def test_migrations_add_missing_columns(tmp_path):
     init_db(engine)  # idempotent
 
     insp = inspect(engine)
+    assert "itemcorrection" in insp.get_table_names()
+    assert any(index["name"] == "uq_item_correction_pending" and index["unique"] for index in insp.get_indexes("itemcorrection"))
     assert "revision" in {c["name"] for c in insp.get_columns("daycard")}
     assert "attachment_ids" in {c["name"] for c in insp.get_columns("subjectentry")}
     classroom_cols = {c["name"] for c in insp.get_columns("classroom")}

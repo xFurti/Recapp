@@ -657,5 +657,39 @@
         "answer": "Recapp was built by three fourth-year Computer Science students at ITI G. Marconi in Verona for the CSC Back-to-School Hackathon. The creators section contains introductions provided by the team."
       }
     }
+  },
+  "item_corrections": {
+    "report": "Report an error",
+    "requests": "Correction requests",
+    "form_hint": "Change only the incorrect details. The author or an admin can review and accept your proposal.",
+    "reason": "Reason",
+    "reason_hint": "Briefly explain what is wrong and why.",
+    "send": "Send request",
+    "update": "Update request",
+    "edit_request": "Edit your request",
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "already_fixed": "Already fixed",
+    "mine_pending": "Your request is pending",
+    "mine_accepted": "Your request was accepted",
+    "mine_rejected": "Your request was rejected",
+    "pending_count_one": "{{count}} pending request",
+    "pending_count_other": "{{count}} pending requests",
+    "inbox_count_one": "{{count}} correction request to review",
+    "inbox_count_other": "{{count}} correction requests to review",
+    "current": "Current value",
+    "proposed": "Proposed value",
+    "empty_value": "Not specified",
+    "accept": "Accept",
+    "reject": "Reject",
+    "close_fixed": "Close as already fixed",
+    "matches": "The proposal already matches the current details. You can close it as already fixed.",
+    "note": "Rejection note (optional)",
+    "request_by": "Request from {{nick}}",
+    "decided": "Decided by {{nick}} · {{date}}",
+    "review_hint": "The comparison uses the current details and shows only changed fields. Accepting keeps the original author and attachments.",
+    "send_error": "The request could not be sent. Check the fields and retry; if the item changed, close and reopen the request.",
+    "decision_error": "The decision could not be saved. Check the updated details and retry."
   }
 }
