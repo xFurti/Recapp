@@ -40,3 +40,7 @@ The desktop and phone PR videos are recorded from the dev build with the local A
 ## 404 mini game
 
 `magilla.spec.ts` mounts the real `MagillaGame` (the Magilla Gorilla runner on the 404 page) in StrictMode. It checks that Space starts the run and the score climbs, that a crash shows the catchphrase and Play again and saves the best score, Escape pause and Space resume, that keys pressed on other controls are ignored, the remembered sound toggle, tap-to-start and the hold-to-duck pad on a phone, and dark theme with reduced motion.
+
+## Theme toggle
+
+`theme-toggle.spec.ts` exercises the actual landing and privacy pages and both AppShell header variants through the existing navigation harness, with HTTP responses mocked. It checks both directions from either saved theme, storage and remounting, the 32px button and 28px language flag without header movement, 500ms rotation/scale transitions with a 200ms incoming delay, independent page color blending, keyboard focus and Italian/English accessible names, rapid reversals, and immediate swaps with reduced motion. PR screenshots and desktop/phone videos are captured separately from the production build and a local API using isolated demo data, then uploaded directly to GitHub.

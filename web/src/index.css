@@ -209,17 +209,69 @@
   animation-name: nav-clock-hands;
 }
 
-/* Header theme: the sun's rays turn; the moon rocks. */
-.nav-icon[data-motion='theme'][data-playing] svg {
-  animation-name: nav-pulse;
+/*! ThemeToggle: adapted from https://uiverse.io/santosh-sarkar/terrible-mole-8
+   (Santosh Sarkar), a variation of https://uiverse.io/Creatlydev/massive-quail-70
+   (Samir Yangua Ruiz). Retrieved 2026-10-13; SVGs are in shell.tsx.
+
+   MIT License
+   Copyright - 2026 Creatlydev (Samir Yangua Ruiz)
+   Copyright - 2026 santosh-sarkar (Santosh Sarkar)
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE. */
+.theme-toggle {
+  transition: border-color 160ms ease, transform 120ms ease;
 }
-.nav-icon[data-motion='theme'][data-playing] svg > path {
-  transform-origin: 12px 12px;
-  animation-name: nav-rays;
+.theme-toggle:hover { border-color: var(--color-muted); }
+.theme-toggle:active { transform: scale(0.96); }
+.theme-icon {
+  grid-area: 1 / 1;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  transition: transform 500ms;
 }
-.nav-icon[data-motion='moon'][data-playing] svg > path {
-  transform-origin: 12px 12px;
-  animation-name: nav-moon;
+.theme-icon--moon {
+  color: #b4b4b4;
+  transform: rotate(0deg) scale(1);
+  transition-delay: 200ms;
+}
+.theme-icon--sun {
+  color: #ffa500;
+  transform: scale(0) rotate(0deg);
+}
+.theme-toggle[data-theme='light'] .theme-icon--moon {
+  transform: rotate(360deg) scale(0);
+  transition-delay: 0ms;
+}
+.theme-toggle[data-theme='light'] .theme-icon--sun {
+  transform: scale(1) rotate(360deg);
+  transition-delay: 200ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-icon { transition: none !important; }
+  .theme-toggle:active { transform: none; }
+  .theme-icon { transform: scale(0) !important; }
+  .theme-toggle[data-theme='dark'] .theme-icon--moon,
+  .theme-toggle[data-theme='light'] .theme-icon--sun {
+    transform: scale(1) !important;
+  }
 }
 
 /* Language letters lift once. */
@@ -258,10 +310,6 @@
 }
 @keyframes nav-clock-hands {
   45% { transform: rotate(70deg); }
-}
-@keyframes nav-moon {
-  40% { transform: rotate(-18deg); }
-  75% { transform: rotate(6deg); }
 }
 @keyframes nav-lang {
   40% { transform: translateY(-1px) scale(1.12); }
