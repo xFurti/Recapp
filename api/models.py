@@ -53,6 +53,16 @@ class Owner(SQLModel, table=True):
     session_version: int = 1
 
 
+class ReleaseSeen(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("account_kind", "account_id", "release_id"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    account_kind: str  # member | owner (demo preferences never enter this table)
+    account_id: int = Field(index=True)
+    release_id: str
+    seen_at: datetime = Field(default_factory=utcnow)
+
+
 class Subject(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("class_id", "code"),)
 

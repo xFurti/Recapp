@@ -1,0 +1,29 @@
+{
+  "id": "2026.10.13.1",
+  "published_at": "2026-10-13T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Le novità, tutte in un posto", "en": "What's new, all in one place" },
+  "summary": [
+    { "it": "Una pagina per scoprire cosa cambia in Recapp, anche senza accedere.", "en": "A page to discover what changes in Recapp, even without signing in." },
+    { "it": "Un breve riepilogo al prossimo aggiornamento, quando hai finito quello che stai facendo.", "en": "A short summary after the next update, once you've finished what you're doing." },
+    { "it": "Novità e storico disponibili in italiano e inglese, anche sul telefono.", "en": "Updates and release history in Italian and English, on your phone too." }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": { "it": "Scopri cosa c’è di nuovo", "en": "Discover what's new" },
+      "body": { "it": "Dalla home, accanto a Privacy, trovi Novità: una pagina aperta a tutti con gli aggiornamenti dal più recente. Ogni rilascio raccoglie nuove funzionalità, miglioramenti e correzioni, così puoi ritrovare anche i cambiamenti passati.", "en": "On the home page, next to Privacy, you'll find What's new: a page open to everyone with the latest updates first. Each release brings together new features, improvements and fixes, so you can revisit past changes too." },
+      "link": { "href": "/novita", "label": { "it": "Esplora le novità", "en": "Explore what's new" }, "requires_login": false }
+    },
+    {
+      "category": "feature",
+      "title": { "it": "Un riepilogo, al momento giusto", "en": "A summary at the right time" },
+      "body": { "it": "Dopo un aggiornamento vedrai un breve riepilogo con il collegamento alle note complete. Il tutorial ha la precedenza e il riepilogo aspetta mentre scrivi o salvi. Puoi chiuderlo con Ho capito o con il tasto Esc.", "en": "After an update you'll see a short summary with a link to the full notes. The tutorial comes first, and the summary waits while you're writing or saving. Dismiss it with Got it or the Escape key." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Recapp ricorda ciò che hai già visto", "en": "Recapp remembers what you've seen" },
+      "body": { "it": "Il riepilogo compare una sola volta per rilascio. Il tuo account lo ricorda anche su altri dispositivi; nella demo la preferenza resta nel browser. Se torni dopo più aggiornamenti, trovi un solo riepilogo e puoi leggere il resto nello storico.", "en": "The summary appears once per release. Your account remembers it across devices; in the demo, the preference stays in your browser. If you return after several updates, you'll see one summary and can read the rest in the history." }
+    }
+  ]
+}

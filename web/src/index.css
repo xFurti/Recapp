@@ -809,3 +809,6 @@ html[data-language-transition='out'] textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   .mg-float, .mg-twinkle, .mg-glow { animation: none; }
 }
+
+/* Native modality traps focus and keeps the page inert until dismissed. */
+.release-dialog::backdrop { background: rgb(0 0 0 / 45%); }

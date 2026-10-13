@@ -4,6 +4,8 @@ WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ ./
+COPY scripts/release-notes.mjs /scripts/release-notes.mjs
+COPY release-notes/ /release-notes/
 # Render passes its env vars as build args; the commit becomes the app version.
 ARG RENDER_GIT_COMMIT=""
 RUN npm run build
