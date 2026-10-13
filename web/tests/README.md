@@ -1,3 +1,7 @@
+## Publication attribution
+
+`card-attribution.spec.ts` opens the real application routes and mocks only HTTP responses. It checks Today, the day card, archive and subject page in Italian and English, on desktop and phone, for demo and official class layouts. It verifies the original author's Share/Edit controls, omission of the updater after an author's own edit, draft attribution, admin preview, the spoken text and attribution drawn into the actual sharing canvas. The API suite separately exercises publication and edits in real demo and official classes, including permissions, counts, item authors, conflicts and migration of historical data. PR screenshots use the production build with a local API and an isolated database.
+
 # Message deletion browser tests
 
 These tests render the real `Feedback` component with React StrictMode and React Query. Only the HTTP responses are mocked, allowing deterministic network latency and errors without altering application data. The API suite separately verifies deletion permissions against the real backend.

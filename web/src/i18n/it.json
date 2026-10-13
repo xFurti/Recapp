@@ -176,6 +176,8 @@
   },
   "day": {
     "by": "di {{nick}}",
+    "published_by": "Pubblicata da {{nick}}",
+    "updated_by": "Aggiornata da {{nick}}",
     "published_at": "pubblicata alle {{time}}",
     "assigned": "Assegnato oggi",
     "notes": "Per chi era assente",
@@ -218,6 +220,7 @@
     "stop": "Stop",
     "unsupported": "Il browser non supporta la lettura ad alta voce.",
     "s_intro": "Giornata di {{day}}, scritta da {{nick}}.",
+    "s_published_intro": "Giornata di {{day}}, pubblicata da {{nick}} alle {{time}}.",
     "s_not_done": "lezione non svolta.",
     "s_lab": "Laboratorio.",
     "s_goal": "Obiettivo: {{v}}.",

@@ -58,8 +58,9 @@ La parte più delicata del frontend.
 
 - `components/Feedback.tsx`: sotto ogni giornata pubblicata, "Grazie" con contatore, commenti e
   correzioni (evidenziate finché non sono segnate come viste). Si aggiorna ogni 30 secondi.
-- `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 (materie e scadenze, mai
-  nick o note) condivisa col foglio di sistema, oppure scaricata con link WhatsApp.
+- `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 con materie, scadenze e
+  attribuzione della pubblicazione e dell'ultimo aggiornamento, senza note, condivisa col foglio
+  di sistema oppure scaricata con link WhatsApp. L'autore della pubblicazione resta invariato.
 
 ## Tema
 

@@ -176,6 +176,8 @@
   },
   "day": {
     "by": "by {{nick}}",
+    "published_by": "Published by {{nick}}",
+    "updated_by": "Updated by {{nick}}",
     "published_at": "published at {{time}}",
     "assigned": "Assigned today",
     "notes": "For those who were absent",
@@ -218,6 +220,7 @@
     "stop": "Stop",
     "unsupported": "This browser can't read text aloud.",
     "s_intro": "Day of {{day}}, written by {{nick}}.",
+    "s_published_intro": "Day of {{day}}, published by {{nick}} at {{time}}.",
     "s_not_done": "lesson not held.",
     "s_lab": "Lab.",
     "s_goal": "Goal: {{v}}.",

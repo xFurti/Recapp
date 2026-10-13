@@ -3,6 +3,8 @@ import marconiLogo from '../assets/marconi-logo.png'
 export interface ShareImageData {
   classLabel: string
   dayLabel: string
+  publishedBy: string | null
+  updatedBy: string | null
   subjects: { name: string; color: string }[]
   items: { typeLabel: string; title: string; when: string; color: string }[]
   url: string
@@ -95,7 +97,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-/** 1080x1350 card for WhatsApp: subjects and deadlines only, never nicknames or notes. */
+/** 1080x1350 card for WhatsApp: publication attribution, subjects and deadlines. */
 export async function renderShareImage(d: ShareImageData): Promise<Blob> {
   await document.fonts?.ready
   const canvas = document.createElement('canvas')
@@ -136,7 +138,12 @@ export async function renderShareImage(d: ShareImageData): Promise<Blob> {
   ctx.font = `700 46px ${FONT}`
   ctx.fillText(fit(ctx, d.dayLabel, 660), 80, 270)
 
-  let y = 420
+  ctx.fillStyle = '#6b6570'
+  ctx.font = `500 26px ${FONT}`
+  if (d.publishedBy) ctx.fillText(fit(ctx, d.publishedBy, W - 160), 80, 360)
+  if (d.updatedBy) ctx.fillText(fit(ctx, d.updatedBy, W - 160), 80, 394)
+
+  let y = d.publishedBy || d.updatedBy ? 450 : 420
   ctx.fillStyle = '#1d1b1e'
   ctx.font = `800 44px ${FONT}`
   ctx.fillText(d.texts.did, 80, y)

@@ -15,6 +15,7 @@ from ..services import (
     iso_utc,
     member_brief,
     card_out,
+    card_attribution,
     get_card,
     check_attachment_ids,
     items_out,
@@ -151,11 +152,11 @@ def list_cards(
             entries.setdefault(e.card_id, []).append(e)
         for i in session.exec(select(UpcomingItem.card_id).where(UpcomingItem.card_id.in_(ids))).all():
             item_counts[i] = item_counts.get(i, 0) + 1
-    authors = member_names(session, {c.author_member_id for c in cards})
+    authors = member_names(session, {member_id for c in cards for member_id in (c.author_member_id, c.updated_by_member_id)})
     return [
         {
             "day": c.day.isoformat(),
-            "author": member_brief(authors.get(c.author_member_id)),
+            **card_attribution(c, authors),
             "subjects": [e.subject_code for e in entries.get(c.id, []) if e.bullets or e.is_lab],
             "has_lab": any(e.is_lab for e in entries.get(c.id, [])),
             "items": item_counts.get(c.id, 0),
@@ -247,13 +248,13 @@ def subject_entries(
         ).all()
         for item, row in zip(items, items_out(session, list(items))):
             items_by_card.setdefault(item.card_id, []).append(row)
-    authors = member_names(session, {c.author_member_id for _, c in rows})
+    authors = member_names(session, {member_id for _, c in rows for member_id in (c.author_member_id, c.updated_by_member_id)})
     out = []
     for e, c in rows:
         lab = labs.get(e.id)
         out.append({
             "day": c.day.isoformat(),
-            "author": member_brief(authors.get(c.author_member_id)),
+            **card_attribution(c, authors),
             "hours": e.hours,
             "room": e.room,
             "is_lab": e.is_lab,
