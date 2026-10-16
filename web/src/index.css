@@ -971,7 +971,66 @@ html[data-language-transition='out'] textarea::placeholder {
   border-radius: 1px;
   background: linear-gradient(var(--color-bordeaux), var(--color-line) 30%, var(--color-line));
 }
-.release-entry { position: relative; padding-left: 2rem; animation: not-found-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.release-entry { position: relative; padding-left: 2rem; animation: not-found-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(min(var(--i, 0), 6) * 90ms); }
+/* History (#83): month titles sit on the line, each day's label sticks under the header while
+   its releases scroll by, and cards fold open on a grid-rows transition. */
+.release-month + .release-month { margin-top: 2.5rem; }
+.release-month-title {
+  position: relative;
+  scroll-margin-top: calc(var(--news-top, 0px) + 0.75rem);
+  padding-left: 2rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.release-month-title::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.0625rem;
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 0.25rem;
+  transform: translateY(-50%) rotate(45deg);
+  background: var(--color-paper);
+  border: 2px solid var(--color-bordeaux);
+}
+.release-day { margin-top: 1rem; }
+.release-day-label {
+  position: sticky;
+  top: calc(var(--news-top, 0px) + 0.5rem);
+  z-index: 10;
+  width: fit-content;
+  max-width: calc(100% - 2rem);
+  margin: 0 0 0.75rem 2rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-paper) 92%, transparent);
+  backdrop-filter: blur(8px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-muted);
+}
+.release-card { scroll-margin-top: calc(var(--news-top, 0px) + 3.5rem); }
+.release-toggle { border-radius: 0.5rem; }
+.release-toggle::after { content: ''; position: absolute; inset: 0; }
+.release-toggle:focus-visible { outline: none; }
+.release-head { position: relative; }
+.release-head:has(.release-toggle:focus-visible) { box-shadow: inset 0 0 0 2px var(--color-azzurro); border-radius: 1.5rem; }
+.release-chevron { transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1); }
+.release-card[data-open] .release-chevron { transform: rotate(180deg); }
+.release-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms cubic-bezier(0.22, 1, 0.36, 1); }
+.release-collapse > div { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s 300ms; }
+.release-collapse[data-open] { grid-template-rows: 1fr; }
+.release-collapse[data-open] > div { visibility: visible; transition: visibility 0s; }
+.release-preview { animation: not-found-in 300ms ease-out both; }
+.release-note { transition: opacity 200ms; }
+.release-note[data-match] { margin-left: -0.875rem; padding-left: 0.75rem; border-left: 2px solid var(--color-giallo); }
+.release-note[data-dim] { opacity: 0.6; }
+.release-mark { border-radius: 0.2rem; padding: 0 0.1em; background: color-mix(in srgb, var(--color-giallo) 45%, transparent); color: inherit; }
+.release-tool { transition: background-color 150ms, border-color 150ms, color 150ms, transform 150ms; }
+.release-tool:active { transform: scale(0.95); }
 .release-dot {
   position: absolute;
   top: 1.75rem;
@@ -1029,6 +1088,9 @@ html[data-language-transition='out'] textarea::placeholder {
   .release-entry[data-latest] .release-dot::after { animation: none; }
   .release-twinkle { opacity: 1; }
   .release-card:hover { transform: none; }
+  .release-chevron, .release-collapse, .release-collapse > div, .release-note, .release-tool { transition: none; }
+  .release-preview { animation: none; }
+  .release-tool:active { transform: none; }
 }
 
 /* Report a bug or an idea (#67). The card keeps the What's new spotlight; the two kinds share
