@@ -786,11 +786,14 @@
     "reject": "Rifiuta",
     "close_fixed": "Chiudi come già sistemata",
     "matches": "La proposta coincide già con i dati attuali. Puoi chiuderla come già sistemata.",
-    "note": "Nota per il rifiuto (facoltativa)",
+    "note": "Nota per lo studente (facoltativa)",
     "request_by": "Richiesta di {{nick}}",
     "decided": "Decisione di {{nick}} · {{date}}",
     "review_hint": "Il confronto usa i dati attuali e mostra solo i campi diversi. Accettare mantiene l’autore e gli allegati originali.",
     "send_error": "Invio non riuscito. Controlla i campi e riprova; se l’elemento è cambiato, chiudi e riapri la richiesta.",
-    "decision_error": "Decisione non riuscita. Controlla i dati aggiornati e riprova."
+    "decision_error": "Decisione non riuscita. Controlla i dati aggiornati e riprova.",
+    "decision_note": "Nota di chi ha deciso",
+    "conflict_error": "La richiesta o l’elemento sono appena cambiati. Chiudi e riapri il pannello per vedere i dati aggiornati.",
+    "rate_limited": "Hai inviato molte richieste in poco tempo. Riprova più tardi."
   }
 }

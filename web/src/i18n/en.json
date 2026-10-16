@@ -786,11 +786,14 @@
     "reject": "Reject",
     "close_fixed": "Close as already fixed",
     "matches": "The proposal already matches the current details. You can close it as already fixed.",
-    "note": "Rejection note (optional)",
+    "note": "Note for the student (optional)",
     "request_by": "Request from {{nick}}",
     "decided": "Decided by {{nick}} · {{date}}",
     "review_hint": "The comparison uses the current details and shows only changed fields. Accepting keeps the original author and attachments.",
     "send_error": "The request could not be sent. Check the fields and retry; if the item changed, close and reopen the request.",
-    "decision_error": "The decision could not be saved. Check the updated details and retry."
+    "decision_error": "The decision could not be saved. Check the updated details and retry.",
+    "decision_note": "Note from the reviewer",
+    "conflict_error": "The request or the item just changed. Close and reopen the panel to see the updated details.",
+    "rate_limited": "You've sent many requests in a short time. Please try again later."
   }
 }

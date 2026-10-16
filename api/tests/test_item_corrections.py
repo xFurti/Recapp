@@ -104,6 +104,11 @@ def test_privacy_upsert_and_multiple_pending_requests(scenario):
     for nick in ("author", "admin"):
         inbox = scenario["clients"][nick].get(scenario["base"] + "/corrections").json()
         assert inbox["pending_count"] == 2 and inbox["items"][0]["pending_count"] == 2
+        # Inbox rows carry the same viewer flags as list rows, so the panel opened from them is complete.
+        assert inbox["items"][0]["item"]["can_review_corrections"]
+        assert inbox["items"][0]["item"]["can_request_correction"] == (nick == "admin")
+    assert details(scenario, "admin")["item"]["can_request_correction"]
+    assert not details(scenario, "author")["item"]["can_request_correction"]
     assert scenario["clients"]["student"].get(scenario["base"] + "/corrections").json()["pending_count"] == 0
     assert decision(scenario, replacement).status_code == 200
     remaining = details(scenario, "other")

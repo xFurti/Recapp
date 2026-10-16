@@ -174,9 +174,12 @@ export function Modal({
     const previousFocus = document.activeElement as HTMLElement | null
     const scrollY = window.scrollY
     const previousStyle = document.body.style.cssText
+    // Fixing the body removes the desktop scrollbar; pad its width so the page does not shift.
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth
     document.body.style.position = 'fixed'
     document.body.style.top = `-${scrollY}px`
     document.body.style.width = '100%'
+    if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`
     const viewport = window.visualViewport
     const resize = () => {
       if (!overlay.current) return
@@ -197,6 +200,9 @@ export function Modal({
         .filter(el => el.getClientRects().length > 0)
       const first = controls[0]
       const last = controls.at(-1)
+      // A pressed button that becomes disabled or disappears drops focus to <body>:
+      // bring the next Tab back inside instead of letting it reach the page behind.
+      if (!ref.current?.contains(document.activeElement)) { e.preventDefault(); (e.shiftKey ? last : first)?.focus(); return }
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus() }
       if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus() }
     }
@@ -218,14 +224,14 @@ export function Modal({
   if (!open) return null
   // Portal: an ancestor with backdrop-filter (the sticky header) would trap `fixed` children.
   return createPortal(
-    <div ref={overlay} className="fixed inset-x-0 top-0 z-50 flex h-dvh items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
+    <div ref={overlay} className="modal-backdrop fixed inset-x-0 top-0 z-50 flex h-dvh items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
-        className={`max-h-[92%] min-w-0 w-full overscroll-contain overflow-y-auto rounded-t-3xl bg-surface p-5 shadow-xl sm:rounded-3xl ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
+        className={`modal-sheet max-h-[92%] min-w-0 w-full overscroll-contain overflow-y-auto rounded-t-3xl bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl sm:pb-5 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
       >
         <div className="sticky -top-5 z-10 -mx-5 -mt-5 mb-4 flex items-center justify-between gap-4 bg-surface px-5 py-4">
           <h2 id={titleId} className={typeof title === 'string' ? 'language-text text-lg font-bold' : 'text-lg font-bold'}>{title}</h2>

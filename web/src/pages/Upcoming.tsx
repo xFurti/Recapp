@@ -111,7 +111,7 @@ export default function Upcoming() {
     enabled: showPast,
   })
 
-  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['upcoming', 'today', 'card'].includes(String(q.queryKey[0])) })
+  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['upcoming', 'today', 'card', 'correction-inbox', 'item-corrections'].includes(String(q.queryKey[0])) })
   const saveItem = useMutation({
     mutationFn: (item: ItemInput) => {
       const body = { type: item.type, subject_code: item.subject_code, title: item.title, due_date: item.due_date, due_time: item.due_time, source: item.source, link: item.link }

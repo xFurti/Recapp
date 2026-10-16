@@ -80,7 +80,9 @@ export function ItemForm({
   }
 
   const title = correction ? t('item_corrections.report') : item.id ? t('item_form.edit') : t(`item_form.new_${item.type}`)
-  const hasChanges = !correction || CORRECTION_FIELDS.some(field => item[field] !== correction.current[field])
+  // Compare the same trimmed title that submit sends, so a trailing space alone
+  // never enables a proposal the API would reject as unchanged.
+  const hasChanges = !correction || CORRECTION_FIELDS.some(field => (field === 'title' ? item.title.trim() : item[field]) !== correction.current[field])
 
   return (
     <Modal open={open} onClose={() => { if (!busy) onClose() }} title={title}>

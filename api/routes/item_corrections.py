@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from ..auth import ClassAccess, class_access, request_now
 from ..db import get_session
-from ..item_corrections import can_review, correction_out
+from ..item_corrections import annotate_items, can_review, correction_out
 from ..limits import allow
 from ..models import ItemCorrection, UpcomingItem
 from ..schemas import ItemCorrectionDecision, ItemCorrectionIn
@@ -30,7 +30,7 @@ def _item(session: Session, access: ClassAccess, item_id: int, *, lock: bool = F
 
 
 @router.get("/corrections")
-def inbox(access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
+def inbox(request: Request, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     me = access.member
     if me is None:
         return {"pending_count": 0, "items": []}
@@ -46,14 +46,17 @@ def inbox(access: ClassAccess = Depends(class_access), session: Session = Depend
     for correction, item in requests:
         items[item.id] = item
         counts[item.id] = counts.get(item.id, 0) + 1
+    rows = items_out(session, list(items.values()))
+    # The panel opened from the inbox reads the same viewer flags as a list row.
+    annotate_items(session, list(items.values()), rows, access, request_now(request, access.classroom).date())
     return {
         "pending_count": len(requests),
-        "items": [{"item": row, "pending_count": counts[row["id"]]} for row in items_out(session, list(items.values()))],
+        "items": [{"item": row, "pending_count": counts[row["id"]]} for row in rows],
     }
 
 
 @router.get("/{item_id}/corrections")
-def corrections(item_id: int, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
+def corrections(item_id: int, request: Request, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     me = access.require_member()
     item = _item(session, access, item_id)
     review = can_review(access, item)
@@ -61,8 +64,10 @@ def corrections(item_id: int, access: ClassAccess = Depends(class_access), sessi
     if not review:
         query = query.where(ItemCorrection.member_id == me.id)
     requests = session.exec(query.order_by(ItemCorrection.created_at.desc(), ItemCorrection.id.desc())).all()
+    row = items_out(session, [item])[0]
+    annotate_items(session, [item], [row], access, request_now(request, access.classroom).date())
     return {
-        "item": items_out(session, [item])[0],
+        "item": row,
         "can_review": review,
         "requests": [correction_out(session, r, access) for r in requests],
     }

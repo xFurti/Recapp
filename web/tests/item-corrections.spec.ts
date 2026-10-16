@@ -129,7 +129,7 @@ test('admin rejects with a note, retries errors, and still edits normally', asyn
   const state = await setup(page, { role: 'admin', initial: [request(1)], failDecision: true })
   await page.getByRole('button', { name: '1 richiesta in attesa', exact: true }).click()
   const panel = page.getByRole('dialog')
-  await panel.getByLabel('Nota per il rifiuto (facoltativa)').fill('Controllato sul registro')
+  await panel.getByLabel('Nota per lo studente (facoltativa)').fill('Controllato sul registro')
   await panel.getByRole('button', { name: 'Rifiuta', exact: true }).click()
   await expect(panel.getByRole('alert')).toBeVisible()
   await panel.getByRole('button', { name: 'Rifiuta', exact: true }).click()
@@ -166,7 +166,7 @@ test('320px English dark review shows all six changed fields without overflow', 
   for (const cell of await panel.locator('dd > div').all()) {
     expect(await cell.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true)
   }
-  const note = panel.getByLabel('Rejection note (optional)')
+  const note = panel.getByLabel('Note for the student (optional)')
   expect(await note.evaluate(el => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16)
   await note.fill('The original item is correct.')
   await panel.getByRole('button', { name: 'Reject', exact: true }).focus()
@@ -213,3 +213,36 @@ for (const width of [320, 390, 1280]) for (const dark of [false, true]) {
     await expect(past.getByRole('button', { name: dark ? 'Report an error' : 'Segnala un errore' })).toHaveCount(0)
   })
 }
+
+test('a trailing space alone cannot be sent and a conflict explains how to recover', async ({ page }) => {
+  const state = await setup(page)
+  await page.route('**/api/classes/TEST/upcoming/10/corrections', async route => {
+    if (route.request().method() === 'POST') await route.fulfill({ status: 409, json: { detail: 'La richiesta è appena cambiata.' } })
+    else await route.fallback()
+  })
+  await page.getByRole('button', { name: 'Segnala un errore', exact: true }).click()
+  const form = page.getByRole('dialog', { name: 'Segnala un errore' })
+  await form.getByLabel('Cosa', { exact: true }).fill(`${original.title} `)
+  await form.getByLabel('Motivo', { exact: true }).fill('Spazio in più')
+  const send = form.getByRole('button', { name: 'Invia richiesta' })
+  await expect(send).toBeDisabled()
+  await form.getByLabel('Cosa', { exact: true }).fill('Esercizi 1–10 pagina 112')
+  await send.click()
+  await expect(form.getByRole('alert')).toContainText('Chiudi e riapri il pannello')
+  expect(state.posts).toHaveLength(0)
+})
+
+test('accepted request keeps showing what changed, focus stays in the dialog and the note is sent', async ({ page }) => {
+  const state = await setup(page, { role: 'author', initial: [request(1)] })
+  await page.getByRole('button', { name: '1 richiesta in attesa', exact: true }).click()
+  const panel = page.getByRole('dialog')
+  await panel.getByLabel('Nota per lo studente (facoltativa)').fill('Grazie, corretto')
+  await panel.getByRole('button', { name: 'Accetta', exact: true }).click()
+  await expect(panel.getByText('Accettata', { exact: true })).toBeVisible()
+  expect(state.requests[0].decision_note).toBe('Grazie, corretto')
+  await expect(panel.locator('dt')).toHaveText(['Cosa', 'Quando'])
+  await expect(panel.locator('dd').first()).toContainText('Esercizi 1–10 pagina 112')
+  await expect(panel.getByText('Valore attuale')).toHaveCount(0)
+  await page.keyboard.press('Tab')
+  expect(await panel.evaluate(el => el.contains(document.activeElement))).toBe(true)
+})
