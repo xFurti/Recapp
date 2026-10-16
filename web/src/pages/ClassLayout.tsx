@@ -8,7 +8,7 @@ import { ClassContext } from '../queries'
 import type { ClassInfo } from '../types'
 import NotFound from './NotFound'
 
-const CLASS_PAGES = new Set(['', 'ieri', 'giorni', 'in-arrivo', 'classe'])
+const CLASS_PAGES = new Set(['', 'ieri', 'giorni', 'in-arrivo', 'classe', 'segnala'])
 
 /** True for the class screens declared in the router, false for a missing address. */
 function isKnownClassPath(pathname: string, code: string) {
