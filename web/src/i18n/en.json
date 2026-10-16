@@ -667,5 +667,20 @@
         "answer": "Recapp was built by three fourth-year Computer Science students at ITI G. Marconi in Verona for the CSC Back-to-School Hackathon. The creators section contains introductions provided by the team."
       }
     }
+  },
+  "news": {
+    "title": "What's new",
+    "intro": "Recapp grows with your class. Find out what changes, one update at a time.",
+    "popup_title": "Here's what's new in Recapp",
+    "got_it": "Got it",
+    "read_all": "Read all updates",
+    "feature": "New features",
+    "improvement": "Improvements",
+    "fix": "Fixes",
+    "latest": "Latest release",
+    "login_required": "Sign-in required",
+    "empty": "No updates have been published yet. Check back soon.",
+    "error": "Updates are unavailable right now. You can keep using Recapp and try again later.",
+    "footer": "Looking for a past update? The full history is here, with the latest first."
   }
 }

@@ -667,5 +667,20 @@
         "answer": "Recapp è stato realizzato da tre studenti del quarto anno di Informatica dell’ITI G. Marconi di Verona per il CSC Back-to-School Hackathon. La sezione dedicata ai creatori raccoglie le presentazioni fornite dal team."
       }
     }
+  },
+  "news": {
+    "title": "Novità",
+    "intro": "Recapp cresce insieme alla tua classe. Qui trovi cosa cambia, un aggiornamento alla volta.",
+    "popup_title": "Ecco le novità di Recapp",
+    "got_it": "Ho capito",
+    "read_all": "Leggi tutte le novità",
+    "feature": "Nuove funzionalità",
+    "improvement": "Miglioramenti",
+    "fix": "Correzioni",
+    "latest": "Ultimo rilascio",
+    "login_required": "Accesso richiesto",
+    "empty": "Non ci sono ancora novità pubblicate. Torna a trovarci.",
+    "error": "Le novità non sono disponibili in questo momento. Puoi continuare a usare Recapp e riprovare più tardi.",
+    "footer": "Cerchi un aggiornamento passato? Lo storico è tutto qui, dal più recente."
   }
 }

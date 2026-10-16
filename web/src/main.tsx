@@ -23,6 +23,7 @@ const ClassPage = lazy(() => import('./pages/ClassPage'))
 const Editor = lazy(() => import('./pages/Editor'))
 const About = lazy(() => import('./pages/About'))
 const Privacy = lazy(() => import('./pages/Privacy'))
+const News = lazy(() => import('./pages/News'))
 const SchoolArea = lazy(() => import('./pages/SchoolArea'))
 
 const later = (node: ReactNode) => <Suspense fallback={<Spinner />}>{node}</Suspense>
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
       { path: '/', element: <Landing /> },
       { path: '/faq', element: later(<About />) },
       { path: '/privacy', element: later(<Privacy />) },
+      { path: '/novita', element: later(<News />) },
       { path: '/scuola', element: later(<SchoolArea />) },
       { path: '/c/:code/entra', element: <Join /> },
       { path: '*', element: <NotFound /> },
