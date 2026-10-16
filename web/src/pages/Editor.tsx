@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Eye, FlaskConical, ImagePlus, LoaderCircle, Plus, Sparkles, Trash2, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { api, ApiError, attachmentUrl } from '../api'
@@ -13,6 +14,7 @@ import { Badge, Button, Card as Box, EmptyState, ErrorBox, inputClass, Spinner }
 import { queueCelebrate } from '../lib/celebrate'
 import { todayIso } from '../lib/clock'
 import { usePendingWork } from '../lib/pendingWork'
+import { editableLab, hasLabContent } from '../lib/lab'
 import { capitalize, longDay, relativeDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { Card, CardPage, Draft, Entry, ItemType, LabData } from '../types'
@@ -32,14 +34,15 @@ type SaveStatus = { kind: 'idle' } | { kind: 'saving' } | { kind: 'saved'; at: s
 
 let keySeq = 0
 const newKey = () => `k${++keySeq}`
-const emptyLab = (): LabData => ({ goal: '', repo_url: '', pitfall: '', bring: '' })
+const emptyLab = (): LabData => ({ notes: '', goal: '', repo_url: '', pitfall: '', bring: '' })
 const QUICK_TYPES: ItemType[] = ['compito', 'verifica', 'evento']
 
-function initialState(page: CardPage): EditorState {
+function initialState(page: CardPage, t: TFunction): EditorState {
   if (page.card) {
     return {
       entries: page.card.entries.map((e) => ({
         ...e, bullets: e.bullets.length ? e.bullets : [''], attachment_ids: e.attachment_ids ?? [], key: newKey(),
+        lab: e.lab ? editableLab(e.lab, t) : null,
       })),
       notes: page.card.notes,
       items: page.card.items.map((i) => ({
@@ -65,8 +68,7 @@ function hasPublishableContent(s: EditorState) {
   for (const entry of s.entries) {
     if (entry.bullets.some((b) => b.trim())) return true
     if (entry.attachment_ids.length > 0) return true
-    const lab = entry.lab
-    if (lab && [lab.goal, lab.repo_url, lab.pitfall, lab.bring].some((v) => v.trim())) return true
+    if (hasLabContent(entry.lab)) return true
   }
   return s.items.length > 0
 }
@@ -157,7 +159,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   const lang = i18n.language
   const navigate = useNavigate()
   const qc = useQueryClient()
-  const [state, setState] = useState<EditorState>(() => initialState(page))
+  const [state, setState] = useState<EditorState>(() => initialState(page, t))
   const stateRef = useRef(state)
   const versionRef = useRef(0)
   const savedVersionRef = useRef(page.card ? 0 : -1)
@@ -457,6 +459,10 @@ function EntryEditor({
   const { t, i18n } = useTranslation()
   const refs = useRef<(HTMLInputElement | null)[]>([])
   const [focusIdx, setFocusIdx] = useState<number | null>(null)
+  const [linkOpen, setLinkOpen] = useState(!!entry.lab?.repo_url.trim())
+  const linkInput = useRef<HTMLInputElement>(null)
+  const addLink = useRef<HTMLButtonElement>(null)
+  const labId = useId()
   useEffect(() => {
     if (focusIdx !== null) {
       refs.current[focusIdx]?.focus()
@@ -514,7 +520,7 @@ function EntryEditor({
                       refs.current[i] = el
                     }}
                     className="w-full border-0 border-b border-transparent bg-transparent py-1.5 text-[15px] placeholder:text-muted/60 focus:border-azzurro focus:outline-none"
-                    placeholder={t('editor.bullet_ph')}
+                    placeholder={t(entry.is_lab ? 'editor.lab_bullet_ph' : 'editor.bullet_ph')}
                     value={b}
                     data-publish-target={publishTarget && i === 0 ? '' : undefined}
                     maxLength={300}
@@ -551,11 +557,34 @@ function EntryEditor({
               />
             )}
             {entry.is_lab && (
-              <div className="grid gap-2 rounded-xl border border-verde/30 bg-verde-soft p-3 sm:grid-cols-2">
-                <LabInput label={t('day.lab_goal')} value={lab.goal} placeholder={t('editor.lab_goal_ph')} onChange={(v) => setLab({ goal: v })} />
-                <LabInput label={t('day.lab_repo')} value={lab.repo_url} placeholder={t('editor.lab_repo_ph')} onChange={(v) => setLab({ repo_url: v })} />
-                <LabInput label={t('day.lab_pitfall')} value={lab.pitfall} placeholder={t('editor.lab_pitfall_ph')} onChange={(v) => setLab({ pitfall: v })} mono />
-                <LabInput label={t('day.lab_bring')} value={lab.bring} placeholder={t('editor.lab_bring_ph')} onChange={(v) => setLab({ bring: v })} />
+              <div className="space-y-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
+                <label className="block" htmlFor={`${labId}-notes`}>
+                  <span className="language-text mb-1 block text-sm font-bold text-verde-ink">{t('day.lab_notes')}</span>
+                </label>
+                <p id={`${labId}-hint`} className="text-sm text-muted"><span className="language-text">{t('editor.lab_hint')}</span></p>
+                <textarea id={`${labId}-notes`} aria-describedby={`${labId}-hint`} className={inputClass} rows={4} maxLength={3000}
+                  value={lab.notes ?? ''} placeholder={t('editor.lab_notes_ph')} onChange={(e) => setLab({ notes: e.target.value })} />
+                {linkOpen ? (
+                  <div className="flex items-end gap-2">
+                    <label className="block min-w-0 flex-1">
+                      <span className="language-text mb-1 block text-sm font-bold text-verde-ink">{t('day.lab_link')}</span>
+                      <input ref={linkInput} className={inputClass} inputMode="url" value={lab.repo_url} placeholder={t('editor.lab_link_ph')}
+                        maxLength={500} onChange={(e) => setLab({ repo_url: e.target.value })} />
+                    </label>
+                    <button type="button" className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-ink/5"
+                      aria-label={t('editor.lab_remove_link')} onClick={() => {
+                        setLab({ repo_url: '' })
+                        setLinkOpen(false)
+                        requestAnimationFrame(() => addLink.current?.focus())
+                      }}><X className="size-4" /></button>
+                  </div>
+                ) : (
+                  <button ref={addLink} type="button" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-verde-ink"
+                    onClick={() => {
+                      setLinkOpen(true)
+                      requestAnimationFrame(() => linkInput.current?.focus())
+                    }}><Plus className="size-4" /><span className="language-text">{t('editor.lab_add_link')}</span></button>
+                )}
               </div>
             )}
           </>
@@ -563,6 +592,7 @@ function EntryEditor({
 
         <div className="border-t border-dashed border-line pt-3">
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.assigned_today')}</span></p>
+          {entry.is_lab && <p className="mb-2 text-sm text-muted"><span className="language-text">{t('editor.lab_items_hint')}</span></p>}
           {items.length > 0 && (
             <div className="mb-2 space-y-2">
               {items.map((it) => (
@@ -584,15 +614,6 @@ function EntryEditor({
         </div>
       </div>
     </article>
-  )
-}
-
-function LabInput({ label, value, placeholder, onChange, mono }: { label: string; value: string; placeholder: string; onChange: (v: string) => void; mono?: boolean }) {
-  return (
-    <label className="block">
-      <span className="language-text mb-0.5 block text-xs font-bold text-verde-ink">{label}</span>
-      <input className={`${inputClass} py-2 text-sm ${mono ? 'font-mono' : ''}`} value={value} placeholder={placeholder} maxLength={300} onChange={(e) => onChange(e.target.value)} />
-    </label>
   )
 }
 

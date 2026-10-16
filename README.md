@@ -48,7 +48,7 @@ Recapp gives classmates a shared starting point. A rotating student note-taker w
 | **📅 Upcoming** | Find homework, tests and events by date; keep a personal checklist on the current device. |
 | **📚 By subject** | Revisit recaps for one subject when catching up. |
 | **✍️ Write the day** | Start from the timetable, add notes and deadlines, then review and publish. |
-| **🧪 Lab blocks** | Record the goal, repository or link, a mistake to avoid and what to bring next time. |
+| **🧪 Lab blocks** | Describe the activity in the lesson points, with optional multiline notes and a useful link. Add dated materials or assignments to Upcoming. |
 | **💬 Replies and Share** | Suggest corrections under a recap or export a summary image for the class chat. |
 | **👥 Class** | Consult members, note-taking turns and the timetable. |
 | **🏫 School area** | Provide staff access to class content and administrative tools for class setup and the calendar. |

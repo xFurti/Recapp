@@ -19,6 +19,7 @@ from ..services import (
     get_card,
     check_attachment_ids,
     items_out,
+    lab_out,
     iso_utc,
     member_names,
     member_brief,
@@ -291,7 +292,7 @@ def subject_entries(
             "is_lab": e.is_lab,
             "lesson_status": e.lesson_status,
             "bullets": e.bullets or [],
-            "lab": {"goal": lab.goal, "repo_url": lab.repo_url, "pitfall": lab.pitfall, "bring": lab.bring} if lab else None,
+            "lab": lab_out(lab) if lab else None,
             "attachment_ids": e.attachment_ids or [],
             "items": items_by_card.pop(c.id, []),
         })

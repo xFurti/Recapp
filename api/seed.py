@@ -149,7 +149,7 @@ DEMO_BULLETS = {
     "INI": ["REST APIs with FastAPI: path and query parameters", "Built GET /stations returning JSON from SQLite", "Intro to HTTP status codes 200/404/422"],
     "SRI": ["Subnetting practice: /26 and /27 masks", "Configured VLANs on Packet Tracer"],
     "TPI": ["Threads vs processes in Python", "Race condition demo with a shared counter"],
-    "TCI": ["Signals: amplitude, frequency, period", "Fourier series intuition with a square wave"],
+    "TCI": ["Built series and parallel resistor circuits", "Measured voltage and current and compared them with theoretical values"],
     "MAT": ["Derivatives: product and quotient rule", "Exercises 3-7 page 112 done together"],
     "LIT": ["Ariosto, Orlando Furioso: canto I", "How to write the text analysis for the essay"],
     "STO": ["The Thirty Years' War: causes", "Map of Europe after the Peace of Westphalia"],
@@ -158,10 +158,10 @@ DEMO_BULLETS = {
     "IRC": ["Debate: ethics of artificial intelligence"],
 }
 DEMO_LABS = {
-    "INI": {"goal": "API GET /stations working locally", "repo_url": "https://github.com/example/4inf-lab-set", "pitfall": "Server does not reload: run uvicorn with --reload", "bring": "GitHub account and laptop charger"},
-    "SRI": {"goal": "Two VLANs that can ping through the router", "repo_url": "", "pitfall": "Trunk port left in access mode", "bring": "The .pkt file from last week"},
-    "TPI": {"goal": "Fix the race condition with a Lock", "repo_url": "https://github.com/example/tpsit-threads", "pitfall": "Forgot to join() the threads", "bring": ""},
-    "TCI": {"goal": "Measure a square wave on the oscilloscope", "repo_url": "", "pitfall": "Probe set to x10 instead of x1", "bring": "Lab notebook"},
+    "INI": {"notes": "The API runs locally.\nIf changes do not appear, restart uvicorn with --reload.", "repo_url": "https://github.com/example/4inf-lab-set"},
+    "SRI": {"notes": "The network diagram is in the notebook. Check that the trunk port is not in access mode before testing the connection."},
+    "TPI": {"notes": "Use a Lock around the shared counter and join the threads before checking the result.", "repo_url": "https://github.com/example/tpsit-threads"},
+    "TCI": {"notes": "The measurements are in the notebook.\nCheck the selected range before using the multimeter.", "repo_url": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc"},
 }
 
 
@@ -248,6 +248,8 @@ def _rebuild_demo(session: Session, classroom: Classroom, today: date) -> Classr
         for pos, block in enumerate(cal.lessons(day)):
             if back == 1 and block.subject_code == "INI" and not block.is_lab:
                 block.is_lab, block.room = True, "L143"
+            if block.subject_code == "TCI":
+                block.is_lab, block.room = True, "L143"
             bullets = DEMO_BULLETS.get(block.subject_code, ["Lesson notes"])
             entry = SubjectEntry(
                 card_id=card.id, position=pos, subject_code=block.subject_code, hours=block.hours_label,
@@ -269,6 +271,7 @@ def _rebuild_demo(session: Session, classroom: Classroom, today: date) -> Classr
         ("compito", "MAT", "Exercises 12-15 page 112", next_lesson("MAT", 1), None, "ClasseViva", 1, "anna"),
         ("compito", "INI", "Add GET /stations/{id} with 404 handling", next_lesson("INI", 2), None, "Classroom", 2, "luca"),
         ("lab", "SRI", "Lab report: VLAN configuration (PDF on Classroom)", today + timedelta(days=5), None, "Classroom", 3, "marta"),
+        ("compito", "TCI", "Complete the circuit calculations and bring the multimeter", next_lesson("TCI", 2), None, "detto in classe", 1, "anna"),
         ("evento", None, "Student assembly in the gym", today + timedelta(days=6), "10:50", "Campus", None, "leo"),
         ("compito", "ING", "Write a 150-word cover letter", next_lesson("ING", 2), None, "Classroom", None, "sara"),
         ("verifica", "STO", "Oral test: Thirty Years' War", today + timedelta(days=8), None, "ClasseViva", 4, "sara"),

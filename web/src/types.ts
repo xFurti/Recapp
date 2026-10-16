@@ -61,6 +61,7 @@ export interface Lesson {
 }
 
 export interface LabData {
+  notes?: string | null
   goal: string
   repo_url: string
   pitfall: string

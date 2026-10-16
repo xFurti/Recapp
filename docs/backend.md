@@ -32,7 +32,7 @@ erDiagram
 | `ScribeOverride` | `day`, `member_id`, `reason` swap/takeover/pass | Eccezioni alla rotazione |
 | `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `updated_by_member_id`, `notes`, `revision` | Una per classe e giorno. Alla prima pubblicazione l'autore diventa chi pubblica e resta invariato; i salvataggi successivi registrano separatamente chi aggiorna. `revision` cresce a ogni salvataggio e a ogni cambio di verbalista |
 | `SubjectEntry` | `subject_code`, `hours`, `room`, `is_lab`, `lesson_status`, `bullets` (JSON, max 5), `attachment_ids` (JSON, max 3) | Un blocco per materia. `attachment_ids` sono le foto degli appunti |
-| `LabBlock` | `goal`, `repo_url`, `pitfall`, `bring` | Legato a un `SubjectEntry` |
+| `LabBlock` | `notes` (max 3000), `repo_url` (link utile), `goal`, `pitfall`, `bring` (precedenti) | Legato a un `SubjectEntry`. `notes = NULL` distingue i vecchi campi dalle note già convertite, anche vuote |
 | `UpcomingItem` | `type`, `subject_code`, `title`, `due_date`, `due_time`, `source`, `link`, `status`, `card_id` | `draft` finché la card non è pubblicata |
 | `Attachment` | `data` (WebP), `width`, `height`, `card_id`, `created_by` | Immagine nel database, mai su disco. Visibile a tutti solo se la card o l'elemento è pubblicato |
 | `CardComment` | `card_id`, `member_id`, `kind` comment/correction, `body`, `resolved`, `deleted` | Risposte sotto la giornata pubblicata |
@@ -85,6 +85,12 @@ revisione della bozza cresce di uno: la sua scheda aperta riceve un conflitto o 
 
 Regola anti-vuoto alla pubblicazione: serve almeno un punto, una foto, un blocco lab **con almeno
 un campo compilato** o un elemento in arrivo. Un lab vuoto non basta.
+
+I vecchi laboratori vengono letti senza modificare il database. Aprendo l’editor, Obiettivo,
+Trappola e Cosa portare diventano paragrafi etichettati nelle note, nella lingua corrente;
+i testi originali e il link restano modificabili. Al salvataggio i vecchi campi vengono
+svuotati per evitare duplicazioni. Nessun materiale diventa una scadenza automaticamente.
+La migrazione aggiunge solo la colonna nullable `labblock.notes`, senza alterare lo storico.
 
 ## Conflitti di salvataggio
 
