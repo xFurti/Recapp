@@ -1,0 +1,18 @@
+{
+  "id": "2026.10.16.7",
+  "published_at": "2026-10-16T19:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Orario settimanale più comodo sul telefono", "en": "A smoother weekly timetable on your phone" },
+  "summary": [
+    { "it": "Sul telefono l’orario della settimana scorre un giorno intero alla volta.", "en": "On your phone the weekly timetable scrolls one whole day at a time." },
+    { "it": "La colonna delle ore resta ferma e non si sovrappone più alle lezioni.", "en": "The period column stays put and no longer overlaps the lessons." },
+    { "it": "Arrivato all’ultimo giorno, l’indicazione ti mostra come tornare indietro.", "en": "Once you reach the last day, the hint shows you how to scroll back." }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": { "it": "Scorrimento dell’orario settimanale", "en": "Weekly timetable scrolling" },
+      "body": { "it": "Nella pagina della classe, l’orario della settimana ora mostra sul telefono solo giorni interi e si ferma sempre all’inizio di un giorno, anche alla fine della settimana. La colonna delle ore resta visibile senza lasciare trasparire le lezioni sottostanti, e l’indicazione di scorrimento cambia direzione quando sei arrivato all’ultimo giorno.", "en": "On the class page, the weekly timetable now shows only whole days on your phone and always stops at the start of a day, even at the end of the week. The period column stays visible without lessons showing through it, and the scroll hint changes direction once you reach the last day." }
+    }
+  ]
+}
