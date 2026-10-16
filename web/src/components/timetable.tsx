@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarCheck, FlaskConical, Info } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarCheck, FlaskConical, Info } from 'lucide-react'
 import { useLayoutEffect, useRef, useState, type PointerEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { longDay, subjectColor, subjectName } from '../lib/format'
@@ -191,22 +191,35 @@ export function WeekGrid({
   const days = model?.days ?? [0, 1, 2, 3, 4]
   const at = (w: number, h: number) => slots.find((s) => s.weekday === w && s.hour === h)
   const scroller = useRef<HTMLDivElement>(null)
+  const [gridWidth, setGridWidth] = useState<number>()
   const [overflow, setOverflow] = useState({ more: false, scrolled: false })
   const [detail, setDetail] = useState<{ weekday: number; hour: HourSlot; slot: Slot } | null>(null)
 
   useLayoutEffect(() => {
     const el = scroller.current
     if (!el) return
+    const table = el.querySelector('table')!
     const update = () => setOverflow({ more: el.scrollLeft + el.clientWidth < el.scrollWidth - 2, scrolled: el.scrollLeft > 2 })
-    update()
+    const resize = () => {
+      const hourWidth = table.querySelector('th')!.getBoundingClientRect().width
+      const available = el.clientWidth - hourWidth
+      if (available <= 0) return
+      // Fit whole days in the viewport, including at the end of the week.
+      // The minimum day width scales with the fixed 4rem period column.
+      const visibleDays = Math.max(1, Math.min(days.length, Math.floor(available / (hourWidth * 1.5))))
+      setGridWidth(hourWidth + available * days.length / visibleDays)
+      update()
+    }
+    resize()
     el.addEventListener('scroll', update, { passive: true })
-    const ro = new ResizeObserver(update)
+    const ro = new ResizeObserver(resize)
     ro.observe(el)
+    ro.observe(table)
     return () => {
       el.removeEventListener('scroll', update)
       ro.disconnect()
     }
-  }, [])
+  }, [days.length])
 
   const noteLabel = (code?: string) => code ? t(`class.tt_flag_${code}`, { defaultValue: code }) : ''
   const cellLabel = (w: number, h: HourSlot, s?: Slot) =>
@@ -224,21 +237,26 @@ export function WeekGrid({
   return (
     <div>
       <div className="relative">
-        <div ref={scroller} className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-1">
-          <table className="w-full min-w-[34rem] table-fixed border-separate border-spacing-1 text-sm">
+        <div ref={scroller} className="overflow-x-auto overscroll-x-contain scroll-pl-16 snap-x snap-mandatory pb-1" tabIndex={0} role="region" aria-label={t('class.tt_week_caption')}>
+          {/* Cell padding keeps the gutters inside the cells: the sticky period
+              column paints one continuous opaque strip, with no gaps to leak through. */}
+          <table className="w-full table-fixed border-separate border-spacing-0 text-sm" style={{ width: gridWidth }}>
             <caption className="sr-only"><span className="language-text">{t('class.tt_week_caption')}</span></caption>
+            <colgroup><col className="w-16" /><col span={days.length} /></colgroup>
             <thead>
               <tr>
-                <th scope="col" className={`sticky left-0 z-10 w-14 bg-paper ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
+                <th scope="col" className={`sticky left-0 z-10 w-16 bg-paper ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
                   <span className="sr-only"><span className="language-text">{t('class.tt_hour_col')}</span></span>
                 </th>
                 {days.map((w) => {
                   const today = model?.todayWd === w
                   return (
-                    <th key={w} scope="col" className={`rounded-lg px-1 py-2 text-xs font-bold ${today ? 'bg-bordeaux text-white' : 'bg-ink text-paper'}`}>
-                      <span className="hidden sm:inline">{weekdayName(w, lang)}</span>
-                      <span className="sm:hidden">{weekdayName(w, lang, 'short')}</span>
-                      {today && <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-90"><span className="language-text">{t('class.tt_today')}</span></span>}
+                    <th key={w} scope="col" className="snap-start snap-always p-0.5 text-xs font-bold">
+                      <div className={`rounded-lg px-1 py-2 ${today ? 'bg-bordeaux text-white' : 'bg-ink text-paper'}`}>
+                        <span className="hidden sm:inline">{weekdayName(w, lang)}</span>
+                        <span className="sm:hidden">{weekdayName(w, lang, 'short')}</span>
+                        {today && <span className="block text-[10px] font-semibold uppercase tracking-wide opacity-90"><span className="language-text">{t('class.tt_today')}</span></span>}
+                      </div>
                     </th>
                   )
                 })}
@@ -247,7 +265,7 @@ export function WeekGrid({
             <tbody>
               {hours.map((h) => (
                 <tr key={h.hour}>
-                  <th scope="row" className={`sticky left-0 z-10 bg-paper pr-1 text-right align-middle text-xs font-normal text-muted ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
+                  <th scope="row" className={`sticky left-0 z-10 w-16 bg-paper py-0.5 pr-2 text-right align-middle text-xs font-normal text-muted ${overflow.scrolled ? 'shadow-[6px_0_8px_-6px_rgb(0_0_0/0.25)]' : ''}`}>
                     <span className="block font-bold text-ink"><span className="language-text">{t('class.tt_hour_short', { hour: h.hour })}</span></span>
                     {validTime(h.start) ? h.start : '—'}
                   </th>
@@ -275,7 +293,7 @@ export function WeekGrid({
                       </>
                     )
                     return (
-                      <td key={w} className="align-top">
+                      <td key={w} className="p-0.5 align-top">
                         {editing ? (
                           <button className={`${cls} hover:border-ink/40`} style={color ? { borderLeftColor: color, borderLeftWidth: 4 } : undefined} onClick={() => onEdit?.(w, h.hour)} aria-label={cellLabel(w, h, s)}>
                             {content}
@@ -302,11 +320,11 @@ export function WeekGrid({
             </tbody>
           </table>
         </div>
-        {overflow.more && <div className="pointer-events-none absolute inset-y-0 -right-4 w-10 bg-gradient-to-l from-paper to-transparent" aria-hidden />}
+        {overflow.more && <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-paper to-transparent" aria-hidden />}
       </div>
-      {overflow.more && (
+      {(overflow.more || overflow.scrolled) && (
         <p className="mt-1 flex items-center justify-end gap-1 text-xs font-semibold text-muted" aria-hidden>
-          <span className="language-text">{t('class.tt_scroll_hint')}</span> <ArrowRight className="size-3.5" />
+          <span className="language-text">{t('class.tt_scroll_hint')}</span> {overflow.more ? <ArrowRight className="size-3.5" /> : <ArrowLeft className="size-3.5" />}
         </p>
       )}
       {detail && <LessonModal data={data} {...detail} now={model?.todayWd === detail.weekday && model.currentHour === detail.hour.hour} onClose={() => setDetail(null)} />}

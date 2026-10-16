@@ -51,6 +51,10 @@ The desktop and phone PR videos are recorded from the dev build with the local A
 
 `magilla.spec.ts` mounts the real `MagillaGame` (the Magilla Gorilla runner on the 404 page) in StrictMode. It checks that Space starts the run and the score climbs, that a crash shows the catchphrase and Play again and saves the best score, Escape pause and Space resume, that keys pressed on other controls are ignored, the remembered sound toggle, tap-to-start and the hold-to-duck pad on a phone, and dark theme with reduced motion.
 
+## Weekly timetable scrolling
+
+`timetable.spec.ts` opens the actual Class page with deterministic HTTP responses for the five-day, seven-period 4BI timetable. At 320px and 390px, in both themes and languages, it holds native Chromium touch gestures mid-scroll and checks that no lesson is painted over the fixed period column, including the row gutters. It checks whole-day alignment after release, at both ends and after resizing; the overflow hint; the same behavior while editing; opening and saving the correct Friday period; and the existing Day view. Desktop checks verify that the week fits without scrolling or a hint. Issue #66 screenshots are attached directly to the PR.
+
 ## Upcoming item corrections
 
 `item-corrections.spec.ts` mounts the real Upcoming, Today, ItemForm and correction panels in AppShell and StrictMode. HTTP responses alone are simulated. It covers required reasons, sparse proposals, editing a pending request, privacy, current/proposed comparisons, multiple requests surviving acceptance and date regrouping, author/admin actions, rejection notes, already-fixed requests, error/retry and pending states, the inbox on Today, and outcomes for the requester. Layout and keyboard checks cover 320px, 390px and desktop, Italian/English, demo/official class context, light/dark, reduced motion, focus containment/restoration, 16px mobile inputs and a shortened viewport representing the keyboard. The proposal never includes a time.
