@@ -11,12 +11,16 @@ def test_migrations_add_missing_columns(tmp_path):
         c.execute(text("CREATE TABLE subjectentry (id INTEGER PRIMARY KEY, card_id INTEGER, position INTEGER, subject_code VARCHAR, hours VARCHAR, room VARCHAR, is_lab BOOLEAN, lesson_status VARCHAR, bullets JSON)"))
         c.execute(text("CREATE TABLE member (id INTEGER PRIMARY KEY, class_id INTEGER, nick VARCHAR, role VARCHAR, rotation_order INTEGER, active BOOLEAN, failed_attempts INTEGER, session_version INTEGER, created_at DATETIME)"))
         c.execute(text("INSERT INTO daycard (id, class_id, day, status, notes) VALUES (1, 1, '2026-10-01', 'draft', '')"))
+        c.execute(text("INSERT INTO member (id, class_id, nick) VALUES (2, 1, 'admin')"))
+        c.execute(text("INSERT INTO daycard (id, class_id, day, status, author_member_id, scribe_member_id, published_at) VALUES (2, 1, '2026-10-02', 'published', 2, 1, '2026-10-02 14:10:00')"))
 
     init_db(engine)
     init_db(engine)  # idempotent
 
     insp = inspect(engine)
     assert "revision" in {c["name"] for c in insp.get_columns("daycard")}
+    assert "updated_by_member_id" in {c["name"] for c in insp.get_columns("daycard")}
+    assert any(fk["constrained_columns"] == ["updated_by_member_id"] and fk["referred_table"] == "member" for fk in insp.get_foreign_keys("daycard"))
     assert "attachment_ids" in {c["name"] for c in insp.get_columns("subjectentry")}
     classroom_cols = {c["name"] for c in insp.get_columns("classroom")}
     assert {"timezone", "hours", "demo_token", "demo_seen_on"} <= classroom_cols
@@ -24,3 +28,4 @@ def test_migrations_add_missing_columns(tmp_path):
     assert {"cardcomment", "cardthanks", "releaseseen", "report"} <= set(insp.get_table_names())
     with engine.connect() as c:
         assert c.execute(text("SELECT revision FROM daycard WHERE id = 1")).scalar() == 0
+        assert c.execute(text("SELECT author_member_id, scribe_member_id, updated_by_member_id, published_at FROM daycard WHERE id = 2")).one() == (2, 1, None, '2026-10-02 14:10:00')

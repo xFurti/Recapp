@@ -14,6 +14,7 @@ log = logging.getLogger("ieri.migrations")
 # (table, column, DDL type and default)
 COLUMNS: list[tuple[str, str, str]] = [
     ("daycard", "revision", "INTEGER NOT NULL DEFAULT 0"),
+    ("daycard", "updated_by_member_id", "INTEGER REFERENCES member(id)"),
     ("subjectentry", "attachment_ids", "JSON"),
     ("classroom", "timezone", "VARCHAR NOT NULL DEFAULT 'Europe/Rome'"),
     ("classroom", "hours", "JSON"),

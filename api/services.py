@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import update
+from sqlalchemy import case, update
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, delete, func, select
 
@@ -81,6 +81,17 @@ def items_out(session: Session, items: list[UpcomingItem]) -> list[dict]:
 
 
 # ---- cards ---------------------------------------------------------------------
+def card_attribution(card: DayCard, members: dict[int, Member]) -> dict:
+    return {
+        "author": member_brief(members.get(card.author_member_id)),
+        "updated_by": (
+            member_brief(members.get(card.updated_by_member_id))
+            if card.status == "published" and card.updated_by_member_id != card.author_member_id
+            else None
+        ),
+    }
+
+
 def card_out(session: Session, card: DayCard) -> dict:
     entries = session.exec(
         select(SubjectEntry).where(SubjectEntry.card_id == card.id).order_by(SubjectEntry.position)
@@ -106,12 +117,12 @@ def card_out(session: Session, card: DayCard) -> dict:
         ).all()
         if a[0] not in entry_attachments
     ]
-    members = member_names(session, {card.author_member_id, card.scribe_member_id})
+    members = member_names(session, {card.author_member_id, card.scribe_member_id, card.updated_by_member_id})
     return {
         "id": card.id,
         "day": card.day.isoformat(),
         "status": card.status,
-        "author": member_brief(members.get(card.author_member_id)),
+        **card_attribution(card, members),
         "scribe": member_brief(members.get(card.scribe_member_id)),
         "notes": card.notes,
         "revision": card.revision,
@@ -336,6 +347,7 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             status="draft",
             scribe_member_id=state.scribe.id if state.scribe else me.id,
             author_member_id=me.id,
+            updated_by_member_id=me.id,
             notes=data.notes.strip(),
             revision=1,
             updated_at=now,
@@ -358,7 +370,9 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             .where(DayCard.id == card.id, DayCard.revision == data.revision)
             .values(
                 revision=DayCard.revision + 1,
-                author_member_id=me.id,
+                # Drafts follow their writer; publication freezes the publisher.
+                author_member_id=case((DayCard.status == "published", DayCard.author_member_id), else_=me.id),
+                updated_by_member_id=me.id,
                 notes=data.notes.strip(),
                 updated_at=now,
             )
@@ -452,6 +466,10 @@ def publish_card(session: Session, state: DayState) -> DayCard:
     if not has_content(session, card):
         raise HTTPException(422, "Scrivi almeno un punto, un blocco lab o un compito prima di pubblicare")
     now = datetime.now(timezone.utc)
+    if card.status != "published":
+        # The publisher can differ from both the draft writer and the scheduled scribe.
+        card.author_member_id = state.me.id
+        card.updated_by_member_id = state.me.id
     card.status = "published"
     card.published_at = card.published_at or now
     card.updated_at = now

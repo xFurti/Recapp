@@ -114,6 +114,7 @@ class DayCard(SQLModel, table=True):
     status: str = "draft"  # draft | published
     scribe_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     author_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
+    updated_by_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     notes: str = ""
     revision: int = 0
     created_at: datetime = Field(default_factory=utcnow)

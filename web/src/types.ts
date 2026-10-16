@@ -99,6 +99,7 @@ export interface Card {
   day: string
   status: 'draft' | 'published'
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   scribe: MemberBrief | null
   notes: string
   revision: number
@@ -147,6 +148,7 @@ export interface CardPage {
 export interface SubjectEntryRow {
   day: string
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   hours: string
   room: string
   is_lab: boolean
@@ -160,6 +162,7 @@ export interface SubjectEntryRow {
 export interface CardSummary {
   day: string
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   subjects: string[]
   has_lab: boolean
   items: number

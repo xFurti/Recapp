@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 import { api } from '../api'
 import { DayCardView } from '../components/day'
 import { Feedback } from '../components/Feedback'
+import { TranslatedMessage } from '../components/TranslatedMessage'
 import { SubjectTag } from '../components/items'
 import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
@@ -164,6 +165,7 @@ export function DaysList() {
                   {c.author && t('day.by', { nick: c.author.nick })}
                   {c.items > 0 && ` · ${t('day.n_items', { count: c.items })}`}
                 </p>
+                {c.updated_by && <p className="text-sm text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: c.updated_by.nick }} /></p>}
               </div>
               {c.author && <Avatar nick={c.author.nick} color={c.author.color} size="sm" />}
             </Link>
