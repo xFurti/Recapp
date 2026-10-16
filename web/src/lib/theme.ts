@@ -1,6 +1,13 @@
 export type ThemeChoice = 'light' | 'dark'
 
 const KEY = 'ieri.theme'
+const listeners = new Set<() => void>()
+
+/** Every ThemeToggle reads the same value, so a hidden header copy never shows a stale icon. */
+export const subscribeTheme = (listener: () => void) => {
+  listeners.add(listener)
+  return () => { listeners.delete(listener) }
+}
 
 export function getTheme(): ThemeChoice {
   return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light'
@@ -15,6 +22,7 @@ export function applyTheme(choice: ThemeChoice = getTheme()) {
 export function setTheme(choice: ThemeChoice) {
   localStorage.setItem(KEY, choice)
   applyTheme(choice)
+  listeners.forEach(listener => listener())
 }
 
 const TOKENS = [
@@ -130,3 +138,9 @@ export function animateTheme(choice: ThemeChoice) {
 }
 
 applyTheme()
+// Another tab changed the theme: follow it without animating.
+window.addEventListener('storage', (event) => {
+  if (event.key !== KEY) return
+  applyTheme()
+  listeners.forEach(listener => listener())
+})

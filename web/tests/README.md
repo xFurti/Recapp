@@ -62,3 +62,7 @@ The desktop and phone PR videos are recorded from the dev build with the local A
 Run `npm run test:e2e -- item-corrections.spec.ts`. The API suite in `api/tests/test_item_corrections.py` separately checks real permissions, audit persistence, atomic decisions, sparse updates, unchanged author/attachments/day attribution, cross-class isolation, validation, past/draft items, and independence from day feedback, for both demo and official classes.
 
 Issue #64 screenshots are captured from the production build with an isolated local API and real demo/official accounts, then attached directly to the PR. Chromium viewport checks do not replace checking the physical keyboard and focus zoom in iPhone Safari.
+
+## Theme toggle
+
+`theme-toggle.spec.ts` exercises the actual landing and privacy pages and both AppShell header variants through the existing navigation harness, with HTTP responses mocked. It checks both directions from either saved theme, storage and remounting, the 32px button and 28px language flag without header movement, 500ms rotation/scale transitions with a 200ms incoming delay, independent page color blending, keyboard focus and Italian/English accessible names, rapid reversals, and immediate swaps with reduced motion. PR screenshots and desktop/phone videos are captured separately from the production build and a local API using isolated demo data, then uploaded directly to GitHub.
