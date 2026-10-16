@@ -6,7 +6,7 @@ from sqlalchemy import case, update
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, delete, func, select
 
-from .auth import ClassAccess
+from .auth import ClassAccess, class_zone
 from .models import (
     Attachment,
     Classroom,
@@ -165,6 +165,39 @@ def iso_utc(dt: Optional[datetime]) -> Optional[str]:
 
 def get_card(session: Session, class_id: int, day: date) -> Optional[DayCard]:
     return session.exec(select(DayCard).where(DayCard.class_id == class_id, DayCard.day == day)).first()
+
+
+def recap_start(cal: ClassCalendar) -> date:
+    """First day a recap is expected: school days before the class joined Recapp were never forgotten."""
+    classroom = cal.classroom
+    if classroom.is_demo:
+        # The demo is rebuilt every day with its own recent history.
+        first = cal.session.exec(select(func.min(DayCard.day)).where(DayCard.class_id == classroom.id)).one()
+        return first or classroom.demo_seeded_on or date.max
+    created = classroom.created_at if classroom.created_at.tzinfo else classroom.created_at.replace(tzinfo=timezone.utc)
+    return created.astimezone(class_zone(classroom)).date()
+
+
+def missed_days(cal: ClassCalendar, today: date) -> dict[date, bool]:
+    """Past school days without a published recap, newest first, mapped to whether a draft exists."""
+    start = recap_start(cal)
+    if start >= today:
+        return {}
+    status = {
+        d: s
+        for d, s in cal.session.exec(
+            select(DayCard.day, DayCard.status).where(
+                DayCard.class_id == cal.classroom.id, DayCard.day >= start, DayCard.day < today
+            )
+        ).all()
+    }
+    out: dict[date, bool] = {}
+    d = today - timedelta(days=1)
+    while d >= start:
+        if cal.is_school_day(d) and status.get(d) != "published":
+            out[d] = d in status
+        d -= timedelta(days=1)
+    return out
 
 
 class DayState:

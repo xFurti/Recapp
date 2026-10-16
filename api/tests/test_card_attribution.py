@@ -9,7 +9,8 @@ from api.models import Classroom, ScribeOverride
 from .conftest import make_client
 from .test_api import at, demo_member, reset_demo
 
-DAY = date(2026, 10, 13)
+# A past school day outside the demo seed, which publishes the five days before today.
+DAY = date(2026, 10, 6)
 HEADERS = at(15, day=DAY)
 
 

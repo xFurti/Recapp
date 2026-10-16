@@ -61,6 +61,14 @@ La parte più delicata del frontend.
 - `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 con materie, scadenze e
   attribuzione della pubblicazione e dell'ultimo aggiornamento, senza note, condivisa col foglio
   di sistema oppure scaricata con link WhatsApp. L'autore della pubblicazione resta invariato.
+- `components/CalendarButton.tsx` + `lib/calendar.ts`: ogni elemento pubblicato in In arrivo,
+  Oggi, nelle card e nella pagina materia si può copiare in Google Calendar o scaricare come
+  `.ics` per Calendario Apple. L'evento è giornaliero sulla `due_date`, ignora eventuali
+  `due_time` e include solo tipo, materia, titolo, nome classe, fonte, link e indirizzo di
+  In arrivo. Non include autore, note della giornata o dati della sessione e non modifica
+  l'elemento su Recapp. Il menu usa un portal, resta sopra la barra mobile e supporta tastiera.
+  Nelle righe complete l'azione sta nella riga dei metadati; dopo l'esportazione l'icona diventa
+  una spunta per qualche istante e il download `.ics` mostra un avviso.
 
 ## Tema
 

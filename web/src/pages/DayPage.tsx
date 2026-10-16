@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, FlaskConical, List } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FlaskConical, List, PenLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { api } from '../api'
 import { DayCardView } from '../components/day'
 import { Feedback } from '../components/Feedback'
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { SubjectTag } from '../components/items'
-import { Avatar, Badge, Card, EmptyState, ErrorBox, Spinner } from '../components/ui'
+import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Spinner } from '../components/ui'
 import { todayIso } from '../lib/clock'
 import { capitalize, longDay, relativeDay, shortDay } from '../lib/format'
 import { classPath, useClass } from '../queries'
@@ -44,12 +44,34 @@ function DayView({ day }: { day: string }) {
           <DayCardView card={data.card} subjects={info.subjects} classLabel={info.label} classInfo={info} canShare={info.viewer.can_manage || info.viewer.member?.id === data.card.author?.id} />
           <Feedback code={info.code} day={day} readOnly={info.viewer.read_only} />
         </>
+      ) : data.state.is_school_day && day < todayIso() ? (
+        <Card>
+          <EmptyState
+            title={t('day.missed_title')}
+            text={data.state.has_draft ? t('day.missed_draft_sub') : t('day.missed_sub')}
+          >
+            {data.state.can_write && <RecoverButton day={day} hasDraft={data.state.has_draft} />}
+          </EmptyState>
+        </Card>
       ) : (
         <Card>
           <EmptyState title={t('day.no_card')} />
         </Card>
       )}
     </div>
+  )
+}
+
+/** Opens the editor on a past day nobody published, resuming its draft if there is one. */
+function RecoverButton({ day, hasDraft, size = 'md' }: { day: string; hasDraft: boolean; size?: 'sm' | 'md' }) {
+  const info = useClass()
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  return (
+    <Button size={size} onClick={() => navigate(`/c/${info.code}/scrivi/${day}`)}>
+      <PenLine className="size-4" aria-hidden />
+      <span className="language-text">{hasDraft ? t('day.complete_draft') : t('day.fill_day')}</span>
+    </Button>
   )
 }
 
@@ -99,13 +121,29 @@ export function DaysList() {
       <SubjectMenu />
       {list.isLoading && <Spinner />}
       {list.error && <ErrorBox error={list.error} />}
-      {list.data?.length === 0 && (
+      {list.data?.every((c) => c.missing) && (
         <Card>
           <EmptyState title={t('day.days_empty')} />
         </Card>
       )}
       <ul className="space-y-2">
-        {list.data?.map((c) => (
+        {list.data?.map((c) => c.missing ? (
+          <li key={c.day} className="flex items-center gap-3 rounded-2xl border border-dashed border-line bg-surface/60 p-3">
+            <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="w-16 shrink-0 text-center text-muted">
+                <p className="text-xs font-semibold uppercase">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
+                <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>
+              </div>
+              <div className="min-w-0 flex-1">
+                <Badge className="bg-rosa-soft text-rosa-ink">
+                  <span className="language-text">{c.has_draft ? t('day.draft_badge') : t('day.missed_badge')}</span>
+                </Badge>
+                <p className="language-text mt-1 text-sm text-muted">{t('day.missed_title')}</p>
+              </div>
+            </Link>
+            {c.can_write && <RecoverButton day={c.day} hasDraft={!!c.has_draft} size="sm" />}
+          </li>
+        ) : (
           <li key={c.day}>
             <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-ink/30">
               <div className="w-16 shrink-0 text-center">

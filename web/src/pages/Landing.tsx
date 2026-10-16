@@ -150,7 +150,9 @@ export default function Landing() {
           <span><span className="language-text">{t('landing.footer')}</span></span>
           <nav aria-label={t('landing.info_links')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <Link to="/privacy" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('landing.privacy')}</span></Link>
+            <Link to="/novita" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('news.title')}</span></Link>
             <Link to="/faq" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('about.title')}</span></Link>
+            <Link to="/segnala" state={{ from: '/' }} className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('report.link')}</span></Link>
           </nav>
         </div>
       </footer>
