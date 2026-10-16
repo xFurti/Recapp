@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.9",
+  "published_at": "2026-10-16T20:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Aggiungere compiti dal telefono",
+    "en": "Adding homework on your phone"
+  },
+  "summary": [
+    {
+      "it": "Data e ora hanno ciascuna una riga sui telefoni, per lasciare spazio alla data completa.",
+      "en": "Date and time each have their own row on phones, leaving room for the full date."
+    },
+    {
+      "it": "Il pannello gestisce il fuoco dopo aver fermato la pagina e lo restituisce al pulsante di apertura alla chiusura.",
+      "en": "The panel manages focus after locking the page and returns it to the opening button when closed."
+    },
+    {
+      "it": "La correzione vale per compiti, verifiche, eventi e lab, sia in In arrivo sia nell’editor della giornata.",
+      "en": "The fix covers homework, tests, events and labs in both Upcoming and the day editor."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Un modulo più stabile sul telefono",
+        "en": "A steadier form on your phone"
+      },
+      "body": {
+        "it": "Quando aggiungi un elemento, il pannello lascia che la pagina si fermi prima di spostare il fuoco. Alla chiusura il fuoco torna al pulsante da cui lo hai aperto. Sui telefoni data e ora sono su righe separate, così non devono dividersi il poco spazio disponibile; su computer restano affiancate.",
+        "en": "When you add an item, the panel lets the page lock before moving focus. Closing it returns focus to the button that opened it. On phones, date and time sit on separate rows so they do not have to share the limited space; on computers they remain side by side."
+      }
+    }
+  ]
+}
