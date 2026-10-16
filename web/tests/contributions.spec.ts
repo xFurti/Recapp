@@ -527,11 +527,31 @@ test('ranking updates move members between podium and list with the correct fina
   await expect(page.locator('[data-contributor]')).toHaveCount(4)
   await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
   await expect(page.locator('#contributions-me')).toBeFocused()
+  const beforeY = await page.evaluate(() => {
+    window.scrollTo({ top: 350, behavior: 'instant' })
+    const state = window as unknown as { contributionMotion: { delta: number; finalY: number } | null }
+    state.contributionMotion = null
+    new MutationObserver(() => {
+      const target = document.getElementById('contributions-me')
+      if (!target || target.getAttribute('value') !== '1' || state.contributionMotion) return
+      const flip = target.getAnimations().find(animation => (animation.effect as KeyframeEffect).getKeyframes()[0]?.transform)
+      if (!flip) return
+      const frame = (flip.effect as KeyframeEffect).getKeyframes()[0]
+      state.contributionMotion = {
+        delta: new DOMMatrix(String(frame.transform)).m42,
+        finalY: target.getBoundingClientRect().y + scrollY - new DOMMatrix(getComputedStyle(target).transform).m42,
+      }
+    }).observe(document.querySelector('.contribution-ranking')!, { subtree: true, childList: true, attributes: true })
+    return document.getElementById('contributions-me')!.getBoundingClientRect().y + scrollY
+  })
   const promoted = [ { ...rows[3], position: 1, thanks: 10 }, ...rows.slice(0, 3).map(r => ({ ...r, position: r.position + 1 })) ]
   server.update(podiumData(promoted))
   await refresh(page)
   await expect(page.locator('#contributions-me')).toHaveAttribute('value', '1')
   await expect(page.locator('#contributions-me')).toBeFocused()
+  const motion = await page.evaluate(() => (window as unknown as { contributionMotion: { delta: number; finalY: number } | null }).contributionMotion)
+  expect(motion).not.toBeNull()
+  expect(Math.abs(motion!.delta - (beforeY - motion!.finalY))).toBeLessThan(16)
   await expect(page.locator('[data-position="1"]')).toContainText('Leo')
   await expect(page.locator('[data-contributor]')).toHaveCount(4)
   await expect(page.locator('#contributions-me .contribution-number[data-value="10"]')).toHaveCount(1)

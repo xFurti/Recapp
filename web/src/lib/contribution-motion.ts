@@ -48,7 +48,7 @@ export function useStreakFeedback(scope: string, streak?: StreakInfo) {
 /** FLIP keeps the final layout in place while the same members move to their new positions. */
 export function useRankingMotion(ref: RefObject<HTMLElement | null>, signature: string) {
   const reduced = useReducedMotion()
-  const before = useRef(new Map<string, DOMRect>())
+  const before = useRef(new Map<string, { x: number; y: number; width: number }>())
   const focused = useRef<string | undefined>(undefined)
   useEffect(() => {
     const track = (event: FocusEvent) => {
@@ -67,11 +67,13 @@ export function useRankingMotion(ref: RefObject<HTMLElement | null>, signature: 
       if (group) group.open = true
       target?.focus({ preventScroll: true })
     }
-    const next = new Map<string, DOMRect>()
+    const next = new Map<string, { x: number; y: number; width: number }>()
     const animations: Animation[] = []
     for (const element of elements) {
       const id = element.dataset.contributor!
-      const box = element.getBoundingClientRect()
+      const rect = element.getBoundingClientRect()
+      // Document coordinates keep scrolling since the previous update out of the animation.
+      const box = { x: rect.x + window.scrollX, y: rect.y + window.scrollY, width: rect.width }
       const old = before.current.get(id)
       next.set(id, box)
       if (!reduced && old?.width && box.width && (Math.abs(old.x - box.x) > 1 || Math.abs(old.y - box.y) > 1)) {
