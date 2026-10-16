@@ -132,7 +132,7 @@ def delete_comment(comment_id: int, access: ClassAccess = Depends(class_access),
 def toggle_thanks(day: date, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     me = access.require_member()
     card = _published(session, access.classroom.id, day)
-    if card.author_member_id == me.id:
+    if not can_thank(me, card.author_member_id, True):
         raise HTTPException(403, "Non puoi ringraziare una giornata che hai pubblicato tu")
     existing = session.exec(select(CardThanks).where(CardThanks.card_id == card.id, CardThanks.member_id == me.id)).first()
     if existing:

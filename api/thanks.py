@@ -54,4 +54,5 @@ def item_thanks_count(session: Session, item: UpcomingItem) -> int:
 
 
 def can_thank(viewer: Optional[Member], author_member_id: Optional[int], published: bool) -> bool:
-    return viewer is not None and published and author_member_id != viewer.id
+    """Only members, only published content, only someone else's: a Grazie always reaches a person."""
+    return viewer is not None and published and author_member_id is not None and author_member_id != viewer.id

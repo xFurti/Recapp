@@ -24,10 +24,11 @@ COLUMNS: list[tuple[str, str, str]] = [
     ("upcomingitem", "published_at", "TIMESTAMP"),
 ]
 
-# Runs once, in the same transaction that adds the column. Only facts already in the
-# database are used: an item inside a published day became public with that day (or
-# later, if added afterwards); a standalone item was public as soon as it was created.
-# Drafts stay NULL.
+# Only facts already in the database are used: an item inside a published day became
+# public with that day (or later, if added afterwards); a standalone item was public as
+# soon as it was created. Drafts stay NULL. Every statement only fills NULLs, so running
+# them on each start is idempotent and also repairs a backfill interrupted after the
+# column was added (SQLite commits ALTER TABLE on its own).
 BACKFILLS: dict[tuple[str, str], list[str]] = {
     ("upcomingitem", "published_at"): [
         """
@@ -40,11 +41,11 @@ BACKFILLS: dict[tuple[str, str], list[str]] = {
             END
             FROM daycard WHERE daycard.id = upcomingitem.card_id
         ), created_at)
-        WHERE status = 'published' AND card_id IS NOT NULL
+        WHERE status = 'published' AND card_id IS NOT NULL AND published_at IS NULL
         """,
         """
         UPDATE upcomingitem SET published_at = created_at
-        WHERE status = 'published' AND card_id IS NULL
+        WHERE status = 'published' AND card_id IS NULL AND published_at IS NULL
         """,
     ],
 }
@@ -62,9 +63,12 @@ def run_migrations(engine: Engine) -> list[str]:
             if column in existing:
                 continue
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}"))
-            for statement in BACKFILLS.get((table, column), []):
-                conn.execute(text(statement))
             applied.append(f"{table}.{column}")
+    with engine.begin() as conn:
+        for (table, _column), statements in BACKFILLS.items():
+            if table in tables:
+                for statement in statements:
+                    conn.execute(text(statement))
     for name in applied:
         log.warning("migration applied: %s", name)
     return applied
