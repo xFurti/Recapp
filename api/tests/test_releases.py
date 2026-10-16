@@ -40,6 +40,8 @@ def test_missing_or_broken_notes_do_not_break_app(client, tmp_path, monkeypatch)
     assert client.get('/api/releases').json()['current'] is None
     (tmp_path / 'release-manifest.json').write_text('broken')
     assert client.get('/api/releases').status_code == 503
+    client.post('/api/auth/demo')
+    assert client.post('/api/release-preference', json={'release_id': '2026.10.13.1'}).status_code == 503
     assert client.get('/api/healthz').status_code == 200
 
 

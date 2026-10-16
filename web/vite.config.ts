@@ -2,8 +2,11 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { execFileSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 
-const releaseManifest = execFileSync('node', ['../scripts/release-notes.mjs', '--json'], { encoding: 'utf8' })
+// Resolved from this file, so the build works from any working directory.
+const releaseScript = fileURLToPath(new URL('../scripts/release-notes.mjs', import.meta.url))
+const releaseManifest = execFileSync(process.execPath, [releaseScript, '--json'], { encoding: 'utf8' })
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), {

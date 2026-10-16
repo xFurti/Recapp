@@ -34,14 +34,18 @@ def manifest() -> dict:
             "releases": [note for note in notes if note["visibility"] == "public"]}
 
 
-@router.get("/releases")
-def releases(response: Response):
-    response.headers["Cache-Control"] = "no-store"
+def available_manifest() -> dict:
     try:
-        return {"version": settings.app_version, **manifest()}
+        return manifest()
     except (OSError, ValueError, KeyError, TypeError):
         log.warning("Release notes unavailable")
         raise HTTPException(503, "Novità temporaneamente non disponibili") from None
+
+
+@router.get("/releases")
+def releases(response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return {"version": settings.app_version, **available_manifest()}
 
 
 def account(viewer: Viewer) -> tuple[str, int] | None:
@@ -70,7 +74,7 @@ class SeenIn(BaseModel):
 def mark_seen(data: SeenIn, viewer: Viewer = Depends(get_viewer), session: Session = Depends(get_session)):
     who = account(viewer)
     # A stale tab cannot acknowledge an upcoming or withdrawn release.
-    if data.release_id != manifest()["current"]:
+    if data.release_id != available_manifest().get("current"):
         raise HTTPException(409, "Il rilascio non è più quello corrente")
     if who is None:
         return {"ok": True, "stored": False}
