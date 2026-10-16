@@ -6,8 +6,20 @@ import en from './i18n/en.json'
 import it from './i18n/it.json'
 
 const KEY = 'ieri.lang'
-const saved = localStorage.getItem(KEY)
-const initial = saved === 'it' ? 'it' : 'en'
+
+function initialLanguage(): 'it' | 'en' {
+  const saved = localStorage.getItem(KEY)
+  if (saved === 'it' || saved === 'en') return saved
+
+  const preferences = navigator.languages?.length ? navigator.languages : [navigator.language]
+  for (const preference of preferences) {
+    const base = preference.split('-')[0].toLowerCase()
+    if (base === 'it' || base === 'en') return base
+  }
+  return 'en'
+}
+
+const initial = initialLanguage()
 
 i18n.use(initReactI18next).init({
   resources: { it: { translation: it }, en: { translation: en } },
