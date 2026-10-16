@@ -12,6 +12,7 @@ from .models import (
     Attachment,
     Classroom,
     DayCard,
+    ItemThanks,
     LabBlock,
     Member,
     Subject,
@@ -20,6 +21,7 @@ from .models import (
 )
 from .schedule import ClassCalendar, takeover_open
 from .schemas import CardIn, ItemIn
+from .thanks import can_thank, item_thanks
 
 AVATAR_COLORS = ["#A02848", "#1898C8", "#80B830", "#E01058", "#8038B8", "#D99A00", "#0E7490", "#8A5A2B"]
 
@@ -54,7 +56,13 @@ def member_names(session: Session, ids: set[int]) -> dict[int, Member]:
 
 
 # ---- items ---------------------------------------------------------------------
-def item_out(item: UpcomingItem, members: dict[int, Member], card_days: dict[int, date] | None = None) -> dict:
+def item_out(
+    item: UpcomingItem,
+    members: dict[int, Member],
+    card_days: dict[int, date] | None = None,
+    thanks: tuple[int, bool] = (0, False),
+    viewer: Optional[Member] = None,
+) -> dict:
     author = members.get(item.author_member_id) if item.author_member_id else None
     return {
         "id": item.id,
@@ -69,16 +77,30 @@ def item_out(item: UpcomingItem, members: dict[int, Member], card_days: dict[int
         "author": member_brief(author),
         "status": item.status,
         "card_day": (card_days or {}).get(item.card_id).isoformat() if item.card_id and card_days and item.card_id in card_days else None,
+        # The same counter wherever the item appears: In arrivo, Oggi, inside a day.
+        "thanks": thanks[0],
+        "thanked": thanks[1],
+        "can_thank": can_thank(viewer, item.author_member_id, item.status == "published"),
     }
 
 
-def items_out(session: Session, items: list[UpcomingItem]) -> list[dict]:
+def items_out(session: Session, items: list[UpcomingItem], viewer: Optional[Member] = None) -> list[dict]:
     members = member_names(session, {i.author_member_id for i in items if i.author_member_id})
     card_ids = {i.card_id for i in items if i.card_id}
     card_days = {}
     if card_ids:
         card_days = {c.id: c.day for c in session.exec(select(DayCard).where(col(DayCard.id).in_(card_ids))).all()}
-    return [item_out(i, members, card_days) for i in items]
+    thanks = item_thanks(session, items, viewer)
+    return [item_out(i, members, card_days, thanks.get(i.id, (0, False)), viewer) for i in items]
+
+
+def remove_items(session: Session, items: list[UpcomingItem]) -> None:
+    """Removing an item also removes its Grazie, so no total keeps counting it."""
+    ids = [i.id for i in items if i.id is not None]
+    if ids:
+        session.exec(delete(ItemThanks).where(col(ItemThanks.item_id).in_(ids)))
+    for item in items:
+        session.delete(item)
 
 
 # ---- cards ---------------------------------------------------------------------
@@ -97,7 +119,7 @@ def lab_out(lab: LabBlock) -> dict:
     return {"notes": lab.notes, "repo_url": lab.repo_url, "goal": lab.goal, "pitfall": lab.pitfall, "bring": lab.bring}
 
 
-def card_out(session: Session, card: DayCard) -> dict:
+def card_out(session: Session, card: DayCard, viewer: Optional[Member] = None) -> dict:
     entries = session.exec(
         select(SubjectEntry).where(SubjectEntry.card_id == card.id).order_by(SubjectEntry.position)
     ).all()
@@ -150,7 +172,7 @@ def card_out(session: Session, card: DayCard) -> dict:
             }
             for e in entries
         ],
-        "items": items_out(session, list(items)),
+        "items": items_out(session, list(items), viewer),
         "attachments": [{"id": a[0], "width": a[1], "height": a[2]} for a in attachments],
     }
 
@@ -340,14 +362,14 @@ def check_attachment_ids(session: Session, class_id: int, ids: list[int]) -> Non
         raise HTTPException(400, "Allegato non valido")
 
 
-def conflict(session: Session, card: DayCard) -> HTTPException:
+def conflict(session: Session, card: DayCard, viewer: Optional[Member] = None) -> HTTPException:
     session.rollback()
     session.refresh(card)
     return HTTPException(
         409,
         {
             "message": "Qualcuno ha modificato questa giornata mentre scrivevi",
-            "card": card_out(session, card),
+            "card": card_out(session, card, viewer),
         },
     )
 
@@ -391,10 +413,10 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             existing = get_card(session, classroom_id, state.day)
             if existing is None:
                 raise
-            raise conflict(session, existing)
+            raise conflict(session, existing, me)
     else:
         if data.revision is None:
-            raise conflict(session, card)
+            raise conflict(session, card, me)
         # Atomic compare-and-set: two saves based on the same revision cannot both win.
         result = session.execute(
             update(DayCard)
@@ -409,7 +431,7 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             )
         )
         if result.rowcount != 1:
-            raise conflict(session, card)
+            raise conflict(session, card, me)
         session.expire(card)
 
     old_entries = session.exec(select(SubjectEntry.id).where(SubjectEntry.card_id == card.id)).all()
@@ -443,20 +465,20 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             item = existing[it.id]
             keep.add(it.id)
         else:
+            # A new item is a contribution of whoever adds it, even inside someone else's day.
             item = UpcomingItem(
                 class_id=classroom_id,
                 card_id=card.id,
                 author_member_id=me.id,
                 status=item_status,
+                published_at=now if item_status == "published" else None,
                 type=it.type,
                 title=it.title,
                 due_date=it.due_date,
             )
         _item_fields(item, it)
         session.add(item)
-    for item_id, item in existing.items():
-        if item_id not in keep:
-            session.delete(item)
+    remove_items(session, [item for item_id, item in existing.items() if item_id not in keep])
 
     linked = set(data.attachment_ids) | {a for e in data.entries for a in e.attachment_ids}
     for att in session.exec(select(Attachment).where(Attachment.card_id == card.id)).all():
@@ -508,6 +530,7 @@ def publish_card(session: Session, state: DayState) -> DayCard:
     session.add(card)
     for item in session.exec(select(UpcomingItem).where(UpcomingItem.card_id == card.id)).all():
         item.status = "published"
+        item.published_at = item.published_at or now
         session.add(item)
     session.commit()
     session.refresh(card)

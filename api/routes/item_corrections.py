@@ -46,7 +46,7 @@ def inbox(request: Request, access: ClassAccess = Depends(class_access), session
     for correction, item in requests:
         items[item.id] = item
         counts[item.id] = counts.get(item.id, 0) + 1
-    rows = items_out(session, list(items.values()))
+    rows = items_out(session, list(items.values()), me)
     # The panel opened from the inbox reads the same viewer flags as a list row.
     annotate_items(session, list(items.values()), rows, access, request_now(request, access.classroom).date())
     return {
@@ -64,7 +64,7 @@ def corrections(item_id: int, request: Request, access: ClassAccess = Depends(cl
     if not review:
         query = query.where(ItemCorrection.member_id == me.id)
     requests = session.exec(query.order_by(ItemCorrection.created_at.desc(), ItemCorrection.id.desc())).all()
-    row = items_out(session, [item])[0]
+    row = items_out(session, [item], me)[0]
     annotate_items(session, [item], [row], access, request_now(request, access.classroom).date())
     return {
         "item": row,

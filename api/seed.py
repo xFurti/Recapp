@@ -8,13 +8,13 @@ once to the console. Nothing secret is stored in the repository.
 """
 
 import argparse
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Optional
 
 from sqlmodel import Session, col, delete, select, update
 
 from . import db
-from .auth import check_secret, hash_secret, new_class_code, new_invite_code, random_code
+from .auth import check_secret, class_zone, hash_secret, new_class_code, new_invite_code, random_code
 from .config import TZ, settings
 from .models import (
     Attachment,
@@ -23,6 +23,7 @@ from .models import (
     Classroom,
     DayCard,
     Holiday,
+    ItemThanks,
     LabBlock,
     Member,
     OcrJob,
@@ -165,6 +166,14 @@ DEMO_LABS = {
 }
 
 
+DEMO_DAY_THANKS = {2: ["leo", "sara", "anna"], 3: ["luca", "gianni"], 4: ["marta"]}
+DEMO_ITEM_THANKS = {
+    "Add GET /stations/{id} with 404 handling": ["marta"],
+    "Write a 150-word cover letter": ["anna"],
+    "Test: derivatives (rules + exercises)": ["gianni"],
+}
+
+
 def _wipe_demo(session: Session, classroom: Classroom) -> None:
     cid = classroom.id
     card_ids = session.exec(select(DayCard.id).where(DayCard.class_id == cid)).all()
@@ -175,6 +184,9 @@ def _wipe_demo(session: Session, classroom: Classroom) -> None:
         if entry_ids:
             session.exec(delete(LabBlock).where(col(LabBlock.entry_id).in_(entry_ids)))
         session.exec(delete(SubjectEntry).where(col(SubjectEntry.card_id).in_(card_ids)))
+    item_ids = session.exec(select(UpcomingItem.id).where(UpcomingItem.class_id == cid)).all()
+    if item_ids:
+        session.exec(delete(ItemThanks).where(col(ItemThanks.item_id).in_(item_ids)))
     session.exec(delete(UpcomingItem).where(UpcomingItem.class_id == cid))
     session.exec(delete(OcrJob).where(OcrJob.class_id == cid))
     session.exec(delete(Attachment).where(Attachment.class_id == cid))
@@ -231,16 +243,19 @@ def _rebuild_demo(session: Session, classroom: Classroom, today: date) -> Classr
     cal = ClassCalendar(session, classroom)
     by_nick = {m.nick: m for m in members}
     now = datetime.now(timezone.utc)
+    zone = class_zone(classroom)
     cards: dict[int, DayCard] = {}
     for back in range(1, 6):
         day = today - timedelta(days=back)
         scribe = cal.scheduled_scribe(day)
+        # After school on the day itself, in class time: the demo streak never depends on the seeding hour.
+        published_at = datetime.combine(day, time(15, 5 + 7 * back), tzinfo=zone).astimezone(timezone.utc)
         card = DayCard(
             class_id=classroom.id, day=day, status="published",
             scribe_member_id=scribe.id if scribe else None,
             author_member_id=scribe.id if scribe else None,
             notes="Bring the calculator tomorrow." if back == 1 else "",
-            published_at=now - timedelta(days=back, hours=-2), updated_at=now - timedelta(days=back),
+            created_at=published_at, published_at=published_at, updated_at=published_at,
         )
         session.add(card)
         session.flush()
@@ -277,15 +292,30 @@ def _rebuild_demo(session: Session, classroom: Classroom, today: date) -> Classr
         ("verifica", "STO", "Oral test: Thirty Years' War", today + timedelta(days=8), None, "ClasseViva", 4, "sara"),
         ("compito", "TPI", "Read chapter 4: synchronization", next_lesson("TPI", 3), None, "detto in classe", 5, "gianni"),
     ]
+    added: dict[str, UpcomingItem] = {}
     for tipo, subject, title, due, due_time, source, card_back, nick in items:
         author = cards[card_back].author_member_id if card_back else by_nick[nick].id
-        session.add(
-            UpcomingItem(
-                class_id=classroom.id, card_id=cards[card_back].id if card_back else None, type=tipo,
-                subject_code=subject, title=title, due_date=due, due_time=due_time, source=source,
-                author_member_id=author, status="published",
-            )
+        published_at = cards[card_back].published_at if card_back else now
+        item = UpcomingItem(
+            class_id=classroom.id, card_id=cards[card_back].id if card_back else None, type=tipo,
+            subject_code=subject, title=title, due_date=due, due_time=due_time, source=source,
+            author_member_id=author, status="published",
+            created_at=published_at, updated_at=published_at, published_at=published_at,
         )
+        session.add(item)
+        added[title] = item
+    session.flush()
+
+    # A few Grazie between fictitious classmates, so Contributi shows a first place and a tie.
+    # Yesterday's day is left without them: it is the one a visitor is most likely to thank.
+    for back, nicks in DEMO_DAY_THANKS.items():
+        for nick in nicks:
+            if by_nick[nick].id != cards[back].author_member_id:
+                session.add(CardThanks(card_id=cards[back].id, member_id=by_nick[nick].id, created_at=now))
+    for title, nicks in DEMO_ITEM_THANKS.items():
+        for nick in nicks:
+            if title in added and by_nick[nick].id != added[title].author_member_id:
+                session.add(ItemThanks(item_id=added[title].id, member_id=by_nick[nick].id, created_at=now))
     session.commit()
     return classroom
 
