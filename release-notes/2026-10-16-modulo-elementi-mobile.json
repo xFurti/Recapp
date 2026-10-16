@@ -1,6 +1,6 @@
 {
-  "id": "2026.10.16.9",
-  "published_at": "2026-10-16T20:00:00Z",
+  "id": "2026.10.16.10",
+  "published_at": "2026-10-16T20:01:00Z",
   "visibility": "public",
   "title": {
     "it": "Aggiungere compiti dal telefono",
@@ -8,12 +8,12 @@
   },
   "summary": [
     {
-      "it": "Data e ora hanno ciascuna una riga sui telefoni, per lasciare spazio alla data completa.",
-      "en": "Date and time each have their own row on phones, leaving room for the full date."
+      "it": "Aprire il modulo non attiva più un campo prima che il pannello sia pronto.",
+      "en": "Opening the form no longer activates a field before the panel is ready."
     },
     {
-      "it": "Il pannello gestisce il fuoco dopo aver fermato la pagina e lo restituisce al pulsante di apertura alla chiusura.",
-      "en": "The panel manages focus after locking the page and returns it to the opening button when closed."
+      "it": "Alla chiusura ritrovi il pulsante di apertura e la posizione che avevi nella pagina.",
+      "en": "Closing the panel restores the opening button and your position on the page."
     },
     {
       "it": "La correzione vale per compiti, verifiche, eventi e lab, sia in In arrivo sia nell’editor della giornata.",
@@ -28,8 +28,8 @@
         "en": "A steadier form on your phone"
       },
       "body": {
-        "it": "Quando aggiungi un elemento, il pannello lascia che la pagina si fermi prima di spostare il fuoco. Alla chiusura il fuoco torna al pulsante da cui lo hai aperto. Sui telefoni data e ora sono su righe separate, così non devono dividersi il poco spazio disponibile; su computer restano affiancate.",
-        "en": "When you add an item, the panel lets the page lock before moving focus. Closing it returns focus to the button that opened it. On phones, date and time sit on separate rows so they do not have to share the limited space; on computers they remain side by side."
+        "it": "Quando aggiungi un compito, una verifica, un evento o un lab, il modulo aspetta che la pagina sia ferma prima di gestire il focus. Alla chiusura il focus torna al pulsante da cui lo hai aperto e la pagina mantiene la sua posizione. La correzione vale sia in In arrivo sia nell’editor della giornata.",
+        "en": "When adding homework, a test, an event or a lab, the form waits for the page to be locked before managing focus. Closing it returns focus to the opening button and preserves the page position. The fix applies to both Upcoming and the day editor."
       }
     }
   ]

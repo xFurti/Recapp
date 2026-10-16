@@ -4,11 +4,11 @@
 
 ## Mobile item form
 
-`item-form.spec.ts` opens the real Upcoming and day editor routes, including AppShell and ItemForm, with only HTTP responses mocked. It covers all four item types at 320px and 390px, both languages and themes, focus on every control, 16px mobile fonts, native date/time sizing, saving, unchanged background position, scroll/style/focus restoration, Tab containment and dismissal. Keyboard-related checks resize the layout viewport and separately simulate visual viewport height/offset events; these do not open a physical keyboard. Desktop checks preserve 15px fields and the side-by-side date/time layout. The viewport meta tag remains unrestricted, and Chromium also checks a page scale of 2.
+`item-form.spec.ts` opens the real Upcoming and day editor routes, including AppShell and ItemForm, with only HTTP responses mocked. It covers all four item types at 320px and 390px, both languages and themes, focus on every available control, 16px mobile fonts, saving with the selected day and no time, unchanged background position, scroll/style/focus restoration, Tab containment and dismissal. The checks also work with the date-only form from PR #68; that PR owns removal of the time field and its dedicated date tests. Keyboard-related checks resize the layout viewport and separately simulate visual viewport height/offset events; these do not open a physical keyboard. Desktop checks preserve 15px fields and the centered sheet. The viewport meta tag remains unrestricted, and Chromium also checks a page scale of 2.
 
 Run `npm run test:e2e -- tests/item-form.spec.ts` for Chromium, or install Chromium and WebKit with `npx playwright install chromium webkit` and run `npm run test:e2e -- --config playwright.item-form.config.ts` for both engines with touch/mobile emulation. Optional executable overrides are `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` and `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH`.
 
-Issue #62 screenshots compare the original base and final production builds using a local API and isolated demo database, without mocked HTTP responses. Short viewport screenshots illustrate the available space; they do not show an iOS keyboard. Physical iPhone Safari focus zoom, keyboard dismissal and pinch gestures still need a device check.
+Issue #62 screenshots use production builds with a local API and isolated demo database, without mocked HTTP responses. Integration captures with PR #68 are labelled explicitly. Short viewport screenshots illustrate the available space; they do not show an iOS keyboard. Physical iPhone Safari focus zoom, keyboard dismissal and pinch gestures still need a device check.
 
 # Message deletion browser tests
 

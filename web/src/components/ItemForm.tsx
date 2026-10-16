@@ -129,11 +129,11 @@ export function ItemForm({
                 </Chip>
               ))}
             </div>
-            <div className={correction ? 'min-w-0' : 'grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]'}>
+            <div className={correction ? 'min-w-0' : 'grid grid-cols-[minmax(0,1fr)_auto] gap-2'}>
               <input type="date" className={inputClass} value={item.due_date} onChange={(e) => set({ due_date: e.target.value })} aria-label={t('item_form.pick_date')} required />
               {!correction && <input
                 type="time"
-                className={`${inputClass} sm:w-32`}
+                className={`${inputClass} w-32`}
                 value={item.due_time ?? ''}
                 onChange={(e) => set({ due_time: e.target.value || null })}
                 aria-label={`${t('item_form.time')} (${t('common.optional')})`}

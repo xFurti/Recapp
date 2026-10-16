@@ -4,8 +4,8 @@ import type { Card, Item, ItemType } from '../src/types'
 
 const types: ItemType[] = ['compito', 'verifica', 'evento', 'lab']
 const labels = {
-  it: { add: 'Aggiungi', close: 'Chiudi', title: 'Cosa', date: 'Scegli data', source: 'Fonte', subject: 'Materia', link: 'Link (opzionale)', time: 'Ora (opzionale)', types: ['Compito', 'Verifica', 'Evento', 'Lab'] },
-  en: { add: 'Add', close: 'Close', title: 'What', date: 'Pick a date', source: 'Source', subject: 'Subject', link: 'Link (optional)', time: 'Time (optional)', types: ['Homework', 'Test', 'Event', 'Lab'] },
+  it: { add: 'Aggiungi', close: 'Chiudi', title: 'Cosa', date: 'Scegli data', source: 'Fonte', subject: 'Materia', link: 'Link (opzionale)', types: ['Compito', 'Verifica', 'Evento', 'Lab'] },
+  en: { add: 'Add', close: 'Close', title: 'What', date: 'Pick a date', source: 'Source', subject: 'Subject', link: 'Link (optional)', types: ['Homework', 'Test', 'Event', 'Lab'] },
 }
 
 async function setup(page: Page, { width = 390, lang = 'it' as 'it' | 'en', dark = false, editor = false } = {}) {
@@ -90,7 +90,6 @@ for (const width of [320, 390]) for (const lang of ['it', 'en'] as const) for (c
       await dialog.getByRole('combobox', { name: text.subject, exact: true }).selectOption('INI')
       await dialog.getByLabel(text.title, { exact: true }).fill(`Prova ${type}`)
       await dialog.getByLabel(text.date, { exact: true }).fill('2026-10-05')
-      await dialog.getByLabel(text.time, { exact: true }).fill('09:30')
       await dialog.getByRole('combobox', { name: text.source, exact: true }).selectOption('Classroom')
       await dialog.getByLabel(text.link, { exact: true }).fill('https://example.com/lezione')
       for (const control of await dialog.locator('input,select,textarea').all()) {
@@ -100,13 +99,6 @@ for (const width of [320, 390]) for (const lang of ['it', 'en'] as const) for (c
         expect(bounds!.x).toBeGreaterThanOrEqual(20)
         expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width - 20)
       }
-      for (const control of await dialog.locator('input[type=date],input[type=time]').all()) {
-        expect(await control.evaluate(el => el.scrollWidth <= el.clientWidth), await control.getAttribute('type')).toBe(true)
-      }
-      const date = await dialog.locator('input[type=date]').boundingBox()
-      const time = await dialog.locator('input[type=time]').boundingBox()
-      expect(time!.y).toBeGreaterThanOrEqual(date!.y + date!.height)
-      expect(time!.width).toBeCloseTo(date!.width, 0)
       expect(await page.evaluate(() => visualViewport!.scale)).toBe(1)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
       // Android's resizes-content behavior: the layout viewport itself gets shorter.
@@ -129,7 +121,7 @@ for (const width of [320, 390]) for (const lang of ['it', 'en'] as const) for (c
     }
     const result = (editor ? saved().items : submissions) as Item[]
     expect(result.map(item => item.type)).toEqual(types)
-    expect(result.every(item => item.due_date === '2026-10-05' && item.due_time === '09:30' && item.link === 'https://example.com/lezione')).toBe(true)
+    expect(result.every(item => item.due_date === '2026-10-05' && item.due_time === null && item.link === 'https://example.com/lezione')).toBe(true)
   })
 }
 
@@ -165,7 +157,7 @@ test('visual viewport offset and resize keep the sheet reachable, then detach on
   await expect(dialog).toHaveCount(0)
 })
 
-test('desktop keeps 15px controls and the date/time row; page zoom stays enabled', async ({ page, browserName }) => {
+test('desktop keeps 15px controls and a centered sheet; page zoom stays enabled', async ({ page, browserName }) => {
   const { text } = await setup(page, { width: 1280, editor: true })
   await page.getByRole('button', { name: 'Compito', exact: true }).first().click()
   const dialog = page.getByRole('dialog')
@@ -173,10 +165,6 @@ test('desktop keeps 15px controls and the date/time row; page zoom stays enabled
   for (const control of await dialog.locator('input,select').all()) {
     expect(await control.evaluate(el => getComputedStyle(el).fontSize)).toBe('15px')
   }
-  const date = await dialog.locator('input[type=date]').boundingBox()
-  const time = await dialog.locator('input[type=time]').boundingBox()
-  expect(date!.y).toBe(time!.y)
-  expect(time!.width).toBe(128)
   expect((await dialog.boundingBox())!.width).toBe(448)
   await dialog.getByRole('button', { name: text.close, exact: true }).click()
   const viewport = await page.locator('meta[name=viewport]').getAttribute('content')
