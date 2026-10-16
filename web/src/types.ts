@@ -164,6 +164,10 @@ export interface CardSummary {
   has_lab: boolean
   items: number
   published_at: string | null
+  /** A past school day nobody published: listed so it can still be recovered. */
+  missing: boolean
+  has_draft?: boolean
+  can_write?: boolean
 }
 
 export interface MemberRow {

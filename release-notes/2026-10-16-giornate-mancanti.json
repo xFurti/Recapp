@@ -1,0 +1,23 @@
+{
+  "id": "2026.10.16.1",
+  "published_at": "2026-10-16T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Nessuna giornata resta indietro", "en": "No school day gets left behind" },
+  "summary": [
+    { "it": "Ieri mostra il giorno di scuola precedente anche quando nessuno l'ha pubblicato.", "en": "Yesterday shows the previous school day even when nobody published it." },
+    { "it": "Nello storico le giornate senza riepilogo restano visibili, anche dopo più giorni.", "en": "Days without a recap stay visible in the history, even days later." },
+    { "it": "Gli admin possono compilare la giornata o completare la bozza con un tocco.", "en": "Admins can fill in the day or complete the draft with one tap." }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": { "it": "Le giornate mancanti non vengono più saltate", "en": "Missed days are no longer skipped" },
+      "body": { "it": "Se nessuno pubblica il riepilogo, Ieri mostra comunque quella giornata con l'avviso “Nessuno ha ancora pubblicato il riepilogo di questa giornata”, invece di passare a un giorno più vecchio. Weekend, festività e giorni senza lezioni seguono il calendario della classe e non vengono segnalati.", "en": "If nobody publishes the recap, Yesterday still shows that day with the notice “Nobody has published the recap for this day yet”, instead of jumping to an older day. Weekends, holidays and days without lessons follow the class calendar and are not flagged." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Recupera una giornata dallo storico", "en": "Recover a day from the history" },
+      "body": { "it": "Tutti i giorni elenca anche le giornate non pubblicate e le bozze rimaste in sospeso. Gli admin della classe trovano Compila giornata o Completa bozza: l'editor parte dall'orario di quel giorno o riprende la bozza esistente, e il riepilogo pubblicato resta nella sua data originale.", "en": "All days also lists unpublished days and drafts left pending. Class admins find Fill in the day or Complete draft: the editor starts from that day's timetable or resumes the existing draft, and the published recap keeps its original date." }
+    }
+  ]
+}

@@ -206,7 +206,14 @@
     "photos": "Notes photos",
     "photo_open": "Open photo",
     "add_photo": "Add notes photo",
-    "photo_limit": "Up to 3 photos per subject"
+    "photo_limit": "Up to 3 photos per subject",
+    "missed_title": "Nobody has published the recap for this day yet",
+    "missed_sub": "This day was left without a recap.",
+    "missed_draft_sub": "There is a draft that hasn't been published yet.",
+    "missed_badge": "Not published",
+    "draft_badge": "Unpublished draft",
+    "fill_day": "Fill in the day",
+    "complete_draft": "Complete draft"
   },
   "listen": {
     "loading": "Starting…",
