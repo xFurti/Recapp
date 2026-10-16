@@ -18,6 +18,8 @@ def test_migrations_add_missing_columns(tmp_path):
     init_db(engine)  # idempotent
 
     insp = inspect(engine)
+    assert "itemcorrection" in insp.get_table_names()
+    assert any(index["name"] == "uq_item_correction_pending" and index["unique"] for index in insp.get_indexes("itemcorrection"))
     assert "revision" in {c["name"] for c in insp.get_columns("daycard")}
     assert "updated_by_member_id" in {c["name"] for c in insp.get_columns("daycard")}
     assert any(fk["constrained_columns"] == ["updated_by_member_id"] and fk["referred_table"] == "member" for fk in insp.get_foreign_keys("daycard"))

@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException
+from pydantic import ValidationError
 from sqlalchemy import case, update
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, delete, func, select
@@ -295,6 +296,37 @@ def _item_fields(item: UpcomingItem, data: ItemIn) -> None:
     item.link = data.link
     item.attachment_id = data.attachment_id
     item.updated_at = datetime.now(timezone.utc)
+
+
+def validate_item_changes(session: Session, item: UpcomingItem, changes: dict) -> dict:
+    """Normal edits and accepted proposals validate the same complete item.
+
+    Return only the supplied fields, so accepting a sparse proposal preserves
+    changes made in the meantime, along with authorship and attachments.
+    """
+    fields = ("type", "subject_code", "title", "due_date", "due_time", "source", "link", "attachment_id")
+    values = {field: getattr(item, field) for field in fields}
+    try:
+        validated = ItemIn.model_validate({**values, **changes})
+    except ValidationError as exc:
+        raise HTTPException(422, exc.errors(include_context=False)) from exc
+    if "subject_code" in changes and validated.subject_code:
+        subject = session.exec(select(Subject).where(
+            Subject.class_id == item.class_id, Subject.code == validated.subject_code,
+        )).first()
+        if subject is None:
+            raise HTTPException(400, "Materia non valida per questa classe")
+    normalized = validated.model_dump()
+    normalized["subject_code"] = validated.subject_code or None
+    return {field: normalized[field] for field in changes}
+
+
+def touch_item_card(session: Session, item: UpcomingItem) -> None:
+    """Prevent an already-open day editor from overwriting an item correction."""
+    if item.card_id:
+        session.exec(update(DayCard).where(DayCard.id == item.card_id).values(
+            revision=DayCard.revision + 1, updated_at=datetime.now(timezone.utc),
+        ))
 
 
 def check_attachment_ids(session: Session, class_id: int, ids: list[int]) -> None:

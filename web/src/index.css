@@ -384,6 +384,31 @@
   .creator-slide, .about-action:active { transform: none; }
 }
 
+/* Shared Modal: the sheet rises from the bottom on phones and settles in place on
+   larger screens, reusing the confirmation dialog's curve. Opacity only when reduced. */
+.modal-backdrop { animation: confirmation-backdrop-in 200ms ease-out both; }
+.modal-sheet { animation: modal-sheet-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes modal-sheet-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@media (min-width: 40rem) {
+  .modal-sheet { animation: confirmation-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-sheet, .modal-backdrop { animation: confirmation-backdrop-in 120ms ease-out both; }
+}
+
+/* Correction inbox and a just-decided request settle in instead of popping. */
+.correction-reveal { animation: correction-reveal 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes correction-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .correction-reveal { animation: none; }
+}
+
 /* Native top-layer confirmation; the backdrop stays modal throughout the exit. */
 .confirmation-dialog {
   margin: auto;

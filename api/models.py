@@ -1,7 +1,7 @@
 from datetime import date, datetime, timezone
 from typing import Optional
 
-from sqlalchemy import JSON, Column, LargeBinary, UniqueConstraint
+from sqlalchemy import JSON, Column, Index, LargeBinary, UniqueConstraint, text
 from sqlmodel import Field, SQLModel
 
 
@@ -170,6 +170,27 @@ class UpcomingItem(SQLModel, table=True):
     attachment_id: Optional[int] = Field(default=None, foreign_key="attachment.id")
     author_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     status: str = "published"  # draft | published
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+class ItemCorrection(SQLModel, table=True):
+    __table_args__ = (
+        Index("uq_item_correction_pending", "item_id", "member_id", unique=True,
+              sqlite_where=text("status = 'pending'"), postgresql_where=text("status = 'pending'")),
+    )
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    class_id: int = Field(foreign_key="classroom.id", index=True)
+    item_id: int = Field(foreign_key="upcomingitem.id", ondelete="CASCADE", index=True)
+    member_id: int = Field(foreign_key="member.id", index=True)
+    proposed: dict = Field(sa_column=Column(JSON, nullable=False))
+    reason: str
+    status: str = "pending"  # pending | accepted | rejected
+    decided_by: Optional[int] = Field(default=None, foreign_key="member.id")
+    decided_at: Optional[datetime] = None
+    decision_note: str = ""
+    already_fixed: bool = False
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
 
