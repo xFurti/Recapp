@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Users } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Megaphone, MessageCircle, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { CreatorSlideshow } from '../components/CreatorSlideshow'
@@ -24,6 +24,11 @@ export default function About() {
         <section aria-labelledby="faq-title" className="mt-9">
           <h2 id="faq-title" className="mb-4 flex items-center gap-2 text-xl font-bold"><MessageCircle className="size-5 text-bordeaux" aria-hidden /><span className="language-text">{t('about.faq_title')}</span></h2>
           <FaqAccordion />
+          <Link to="/segnala" state={{ from: '/faq' }} className="release-link mt-4 flex min-h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 font-semibold hover:border-bordeaux/40">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-bordeaux-soft text-bordeaux"><Megaphone className="size-4" aria-hidden /></span>
+            <span className="min-w-0 flex-1"><span className="language-text">{t('report.menu')}</span></span>
+            <ArrowRight className="size-4 text-muted" aria-hidden />
+          </Link>
         </section>
         <section id="creators" aria-labelledby="creators-title" className="mt-10 scroll-mt-5">
           <h2 id="creators-title" className="mb-4 flex items-center gap-2 text-xl font-bold"><Users className="size-5 text-bordeaux" aria-hidden /><span className="language-text">{t('about.creators_title')}</span></h2>

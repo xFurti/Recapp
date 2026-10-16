@@ -384,6 +384,31 @@
   .creator-slide, .about-action:active { transform: none; }
 }
 
+/* Shared Modal: the sheet rises from the bottom on phones and settles in place on
+   larger screens, reusing the confirmation dialog's curve. Opacity only when reduced. */
+.modal-backdrop { animation: confirmation-backdrop-in 200ms ease-out both; }
+.modal-sheet { animation: modal-sheet-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes modal-sheet-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@media (min-width: 40rem) {
+  .modal-sheet { animation: confirmation-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-sheet, .modal-backdrop { animation: confirmation-backdrop-in 120ms ease-out both; }
+}
+
+/* Correction inbox and a just-decided request settle in instead of popping. */
+.correction-reveal { animation: correction-reveal 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes correction-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .correction-reveal { animation: none; }
+}
+
 /* Native top-layer confirmation; the backdrop stays modal throughout the exit. */
 .confirmation-dialog {
   margin: auto;
@@ -613,6 +638,25 @@ html.theme-anim {
 @keyframes menu-pop {
   from { opacity: 0; transform: translateY(-4px) scale(0.96); }
 }
+/* Flipped above its button, the menu rises from below instead. */
+.menu-pop[data-side='top'] {
+  animation-name: menu-pop-up;
+}
+@keyframes menu-pop-up {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+}
+/* Menu choices follow the panel in a short cascade. */
+.menu-pop .menu-row {
+  animation: profile-row 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(40ms + var(--i, 0) * 45ms);
+}
+/* Calendar trigger: the plus becomes a check with a small spring once an event is exported. */
+.calendar-added {
+  animation: calendar-added 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes calendar-added {
+  from { opacity: 0; transform: scale(0.4) rotate(-14deg); }
+}
 
 /* Profile menu grows out of the avatar and folds back into it. */
 .profile-panel[data-phase='open'] {
@@ -665,7 +709,9 @@ html.theme-anim {
   .done-check.is-drawing::after,
   .confetti-piece,
   .confetti-bit,
-  .menu-pop {
+  .menu-pop,
+  .menu-pop .menu-row,
+  .calendar-added {
     animation: none !important;
   }
   .confetti-piece { display: none; }
@@ -808,4 +854,265 @@ html[data-language-transition='out'] textarea::placeholder {
 }
 @media (prefers-reduced-motion: reduce) {
   .mg-float, .mg-twinkle, .mg-glow { animation: none; }
+}
+
+/* What's new popup: native modality keeps the page inert. It rises in under a soft
+   glow in the logo colours, the points follow one by one, and it settles out on close. */
+.release-dialog {
+  animation: release-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.release-dialog:focus { outline: none; }
+.release-dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(3px);
+  animation: confirmation-backdrop-in 240ms ease-out both;
+}
+.release-dialog[data-closing] { animation: release-out 180ms ease-in both; }
+.release-dialog[data-closing]::backdrop { animation: confirmation-backdrop-out 180ms ease-in both; }
+.release-glow {
+  position: absolute;
+  inset: 0 -10% auto;
+  height: 10rem;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 100% at 12% 0%, color-mix(in srgb, var(--color-bordeaux) 20%, transparent), transparent 70%),
+    radial-gradient(45% 90% at 88% 0%, color-mix(in srgb, var(--color-giallo) 22%, transparent), transparent 70%),
+    radial-gradient(40% 80% at 50% 0%, color-mix(in srgb, var(--color-azzurro) 12%, transparent), transparent 70%);
+  animation: release-glow 6s ease-in-out infinite alternate;
+}
+.release-icon svg { animation: tour-pop 520ms 120ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.release-twinkle { animation: release-twinkle 2.4s 600ms ease-in-out infinite; }
+.release-point { animation: release-point-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(180ms + var(--i, 0) * 80ms); }
+.release-action { transition: background-color 150ms, transform 150ms; }
+.release-action:active { transform: scale(0.92); }
+.release-link .lucide-arrow-right, .release-link .lucide-arrow-up-right { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.release-link:hover .lucide-arrow-right { transform: translateX(3px); }
+.release-link:hover .lucide-arrow-up-right { transform: translate(2px, -2px); }
+@keyframes release-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes release-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(10px) scale(0.97); }
+}
+@keyframes release-point-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes release-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  45%, 60% { opacity: 1; transform: scale(1); }
+}
+@keyframes release-glow {
+  from { opacity: 0.75; transform: translateX(-4%); }
+  to { opacity: 1; transform: translateX(4%); }
+}
+
+/* What's new page: releases hang off a timeline; the latest pulses and the cards rise in.
+   On a mouse, a spotlight follows the pointer across each card. */
+.release-timeline { position: relative; }
+.release-timeline::before {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  left: 0.4375rem;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(var(--color-bordeaux), var(--color-line) 30%, var(--color-line));
+}
+.release-entry { position: relative; padding-left: 2rem; animation: not-found-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.release-dot {
+  position: absolute;
+  top: 1.75rem;
+  left: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 3px solid var(--color-paper);
+  background: var(--color-line);
+  box-shadow: 0 0 0 1px var(--color-line);
+}
+.release-entry[data-latest] .release-dot { background: var(--color-bordeaux); box-shadow: 0 0 0 1px var(--color-bordeaux); }
+.release-entry[data-latest] .release-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid var(--color-bordeaux);
+  animation: release-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.release-card { position: relative; overflow: hidden; transition: border-color 200ms, box-shadow 200ms, transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.release-entry[data-latest] .release-card { border-color: color-mix(in srgb, var(--color-bordeaux) 35%, var(--color-line)); }
+.release-card > * { position: relative; }
+.release-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(420px circle at var(--x, 50%) var(--y, 0%), color-mix(in srgb, var(--color-bordeaux) 9%, transparent), transparent 65%);
+  transition: opacity 300ms;
+}
+.release-entry[data-latest] .release-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-bordeaux), var(--color-rosa), var(--color-giallo), var(--color-azzurro), var(--color-verde));
+}
+.release-pulse { position: relative; display: inline-flex; width: 0.5rem; height: 0.5rem; }
+.release-pulse::before, .release-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; }
+.release-pulse::before { animation: release-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@media (hover: hover) {
+  .release-card:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -18px rgb(0 0 0 / 0.28); }
+  .release-card:hover::before { opacity: 1; }
+}
+@keyframes release-ping {
+  75%, 100% { opacity: 0; transform: scale(2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .release-dialog, .release-dialog[data-closing], .release-point, .release-entry { transform: none; }
+  @keyframes release-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes release-out { from { opacity: 1; } to { opacity: 0; } }
+  .release-glow, .release-twinkle, .release-icon svg, .release-pulse::before,
+  .release-entry[data-latest] .release-dot::after { animation: none; }
+  .release-twinkle { opacity: 1; }
+  .release-card:hover { transform: none; }
+}
+
+/* Report a bug or an idea (#67). The card keeps the What's new spotlight; the two kinds share
+   one sliding pill, the hint fades in on change, and a check draws itself once the report is sent. */
+.report-page { animation: not-found-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.report-hero-icon svg { animation: report-shout 900ms 200ms cubic-bezier(0.34, 1.56, 0.64, 1) both; transform-origin: 30% 60%; }
+.report-card { position: relative; overflow: hidden; }
+.report-card > * { position: relative; }
+.report-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(460px circle at var(--x, 50%) var(--y, 0%), color-mix(in srgb, var(--color-bordeaux) 7%, transparent), transparent 65%);
+  transition: opacity 300ms;
+}
+@media (hover: hover) { .report-card:hover::before { opacity: 1; } }
+
+.report-kind {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.25rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--color-ink) 5%, transparent);
+}
+.report-kind-pill {
+  position: absolute;
+  inset: 0.25rem auto 0.25rem 0.25rem;
+  width: calc(50% - 0.25rem);
+  border-radius: 0.8rem;
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 6px 16px -10px rgb(0 0 0 / 0.35);
+  border: 1px solid var(--color-line);
+  transition: transform 340ms cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.report-kind[data-kind='feature'] .report-kind-pill { transform: translateX(100%); }
+.report-kind-option {
+  position: relative;
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.8rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 200ms;
+  user-select: none;
+}
+.report-kind-option:hover { color: var(--color-ink); }
+.report-kind-option[data-active] { color: var(--color-ink); }
+.report-kind-option[data-active] .report-kind-icon { color: var(--color-bordeaux); animation: report-wiggle 520ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.report-kind-option:has(input:focus-visible) { outline: 3px solid var(--color-azzurro); outline-offset: 2px; }
+.report-hint { animation: report-hint-in 260ms ease-out both; }
+
+.report-drop {
+  transition: border-color 200ms, background-color 200ms, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.report-drop:hover, .report-drop[data-dragging] {
+  border-color: color-mix(in srgb, var(--color-bordeaux) 55%, var(--color-line));
+  background: color-mix(in srgb, var(--color-bordeaux) 5%, transparent);
+}
+.report-drop[data-dragging] { transform: scale(1.01); }
+.report-drop:hover .report-drop-icon, .report-drop[data-dragging] .report-drop-icon { animation: report-hop 520ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+.report-drop:has(input:focus-visible) { outline: 3px solid var(--color-azzurro); outline-offset: 2px; }
+.report-preview { animation: report-pop 320ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+.report-error { animation: report-hint-in 200ms ease-out both; }
+.report-send-icon { transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (hover: hover) { .report-send:hover .report-send-icon { transform: translate(3px, -3px) rotate(-8deg); } }
+
+.report-sent { animation: report-pop 420ms cubic-bezier(0.34, 1.3, 0.64, 1) both; }
+.report-sent-check circle, .report-sent-check path {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+}
+.report-sent-check circle { stroke: var(--color-verde); animation: done-check-draw 520ms cubic-bezier(0.65, 0, 0.45, 1) both; }
+.report-sent-check path { stroke: var(--color-verde-ink); animation: done-check-draw 360ms 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+.report-row { animation: release-point-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: calc(var(--i, 0) * 55ms); }
+.report-row[data-fresh] { animation: report-row-in 520ms cubic-bezier(0.34, 1.3, 0.64, 1) both, report-flash 1.8s 300ms ease-out both; }
+.report-status-dot { position: relative; width: 0.45rem; height: 0.45rem; border-radius: 9999px; background: currentColor; }
+.report-status[data-status='in_progress'] .report-status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-giallo);
+  animation: release-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.report-status[data-status='in_progress'] .report-status-dot { background: var(--color-giallo); }
+
+@keyframes report-shout {
+  0% { transform: scale(0.6) rotate(-14deg); opacity: 0; }
+  55% { transform: scale(1.12) rotate(6deg); opacity: 1; }
+  75% { transform: rotate(-4deg); }
+  100% { transform: none; }
+}
+@keyframes report-wiggle {
+  0% { transform: scale(0.8) rotate(0); }
+  40% { transform: scale(1.18) rotate(-12deg); }
+  70% { transform: rotate(8deg); }
+  100% { transform: none; }
+}
+@keyframes report-hop {
+  0%, 100% { transform: none; }
+  45% { transform: translateY(-4px) scale(1.08); }
+}
+@keyframes report-hint-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes report-pop {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes report-row-in {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes report-flash {
+  from { background-color: color-mix(in srgb, var(--color-verde) 18%, var(--color-surface)); border-color: var(--color-verde); }
+  to { background-color: var(--color-surface); border-color: var(--color-line); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .report-page, .report-hero-icon svg, .report-kind-option[data-active] .report-kind-icon, .report-hint, .report-preview,
+  .report-error, .report-sent, .report-row, .report-row[data-fresh], .report-drop-icon,
+  .report-status[data-status='in_progress'] .report-status-dot::after { animation: none; }
+  .report-kind-pill, .report-drop, .report-send-icon { transition: none; }
+  .report-sent-check circle, .report-sent-check path { animation: none; stroke-dashoffset: 0; }
 }

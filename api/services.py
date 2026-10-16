@@ -2,11 +2,12 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import update
+from pydantic import ValidationError
+from sqlalchemy import case, update
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, col, delete, func, select
 
-from .auth import ClassAccess
+from .auth import ClassAccess, class_zone
 from .models import (
     Attachment,
     Classroom,
@@ -81,6 +82,17 @@ def items_out(session: Session, items: list[UpcomingItem]) -> list[dict]:
 
 
 # ---- cards ---------------------------------------------------------------------
+def card_attribution(card: DayCard, members: dict[int, Member]) -> dict:
+    return {
+        "author": member_brief(members.get(card.author_member_id)),
+        "updated_by": (
+            member_brief(members.get(card.updated_by_member_id))
+            if card.status == "published" and card.updated_by_member_id != card.author_member_id
+            else None
+        ),
+    }
+
+
 def card_out(session: Session, card: DayCard) -> dict:
     entries = session.exec(
         select(SubjectEntry).where(SubjectEntry.card_id == card.id).order_by(SubjectEntry.position)
@@ -106,12 +118,12 @@ def card_out(session: Session, card: DayCard) -> dict:
         ).all()
         if a[0] not in entry_attachments
     ]
-    members = member_names(session, {card.author_member_id, card.scribe_member_id})
+    members = member_names(session, {card.author_member_id, card.scribe_member_id, card.updated_by_member_id})
     return {
         "id": card.id,
         "day": card.day.isoformat(),
         "status": card.status,
-        "author": member_brief(members.get(card.author_member_id)),
+        **card_attribution(card, members),
         "scribe": member_brief(members.get(card.scribe_member_id)),
         "notes": card.notes,
         "revision": card.revision,
@@ -154,6 +166,39 @@ def iso_utc(dt: Optional[datetime]) -> Optional[str]:
 
 def get_card(session: Session, class_id: int, day: date) -> Optional[DayCard]:
     return session.exec(select(DayCard).where(DayCard.class_id == class_id, DayCard.day == day)).first()
+
+
+def recap_start(cal: ClassCalendar) -> date:
+    """First day a recap is expected: school days before the class joined Recapp were never forgotten."""
+    classroom = cal.classroom
+    if classroom.is_demo:
+        # The demo is rebuilt every day with its own recent history.
+        first = cal.session.exec(select(func.min(DayCard.day)).where(DayCard.class_id == classroom.id)).one()
+        return first or classroom.demo_seeded_on or date.max
+    created = classroom.created_at if classroom.created_at.tzinfo else classroom.created_at.replace(tzinfo=timezone.utc)
+    return created.astimezone(class_zone(classroom)).date()
+
+
+def missed_days(cal: ClassCalendar, today: date) -> dict[date, bool]:
+    """Past school days without a published recap, newest first, mapped to whether a draft exists."""
+    start = recap_start(cal)
+    if start >= today:
+        return {}
+    status = {
+        d: s
+        for d, s in cal.session.exec(
+            select(DayCard.day, DayCard.status).where(
+                DayCard.class_id == cal.classroom.id, DayCard.day >= start, DayCard.day < today
+            )
+        ).all()
+    }
+    out: dict[date, bool] = {}
+    d = today - timedelta(days=1)
+    while d >= start:
+        if cal.is_school_day(d) and status.get(d) != "published":
+            out[d] = d in status
+        d -= timedelta(days=1)
+    return out
 
 
 class DayState:
@@ -253,6 +298,37 @@ def _item_fields(item: UpcomingItem, data: ItemIn) -> None:
     item.updated_at = datetime.now(timezone.utc)
 
 
+def validate_item_changes(session: Session, item: UpcomingItem, changes: dict) -> dict:
+    """Normal edits and accepted proposals validate the same complete item.
+
+    Return only the supplied fields, so accepting a sparse proposal preserves
+    changes made in the meantime, along with authorship and attachments.
+    """
+    fields = ("type", "subject_code", "title", "due_date", "due_time", "source", "link", "attachment_id")
+    values = {field: getattr(item, field) for field in fields}
+    try:
+        validated = ItemIn.model_validate({**values, **changes})
+    except ValidationError as exc:
+        raise HTTPException(422, exc.errors(include_context=False)) from exc
+    if "subject_code" in changes and validated.subject_code:
+        subject = session.exec(select(Subject).where(
+            Subject.class_id == item.class_id, Subject.code == validated.subject_code,
+        )).first()
+        if subject is None:
+            raise HTTPException(400, "Materia non valida per questa classe")
+    normalized = validated.model_dump()
+    normalized["subject_code"] = validated.subject_code or None
+    return {field: normalized[field] for field in changes}
+
+
+def touch_item_card(session: Session, item: UpcomingItem) -> None:
+    """Prevent an already-open day editor from overwriting an item correction."""
+    if item.card_id:
+        session.exec(update(DayCard).where(DayCard.id == item.card_id).values(
+            revision=DayCard.revision + 1, updated_at=datetime.now(timezone.utc),
+        ))
+
+
 def check_attachment_ids(session: Session, class_id: int, ids: list[int]) -> None:
     if not ids:
         return
@@ -303,6 +379,7 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             status="draft",
             scribe_member_id=state.scribe.id if state.scribe else me.id,
             author_member_id=me.id,
+            updated_by_member_id=me.id,
             notes=data.notes.strip(),
             revision=1,
             updated_at=now,
@@ -325,7 +402,9 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             .where(DayCard.id == card.id, DayCard.revision == data.revision)
             .values(
                 revision=DayCard.revision + 1,
-                author_member_id=me.id,
+                # Drafts follow their writer; publication freezes the publisher.
+                author_member_id=case((DayCard.status == "published", DayCard.author_member_id), else_=me.id),
+                updated_by_member_id=me.id,
                 notes=data.notes.strip(),
                 updated_at=now,
             )
@@ -419,6 +498,10 @@ def publish_card(session: Session, state: DayState) -> DayCard:
     if not has_content(session, card):
         raise HTTPException(422, "Scrivi almeno un punto, un blocco lab o un compito prima di pubblicare")
     now = datetime.now(timezone.utc)
+    if card.status != "published":
+        # The publisher can differ from both the draft writer and the scheduled scribe.
+        card.author_member_id = state.me.id
+        card.updated_by_member_id = state.me.id
     card.status = "published"
     card.published_at = card.published_at or now
     card.updated_at = now

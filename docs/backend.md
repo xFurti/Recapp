@@ -30,7 +30,7 @@ erDiagram
 | `TimetableSlot` | `weekday` 0-4, `hour` 1-7, `subject_code`, `room`, `is_lab` | `is_lab` dedotto dall'aula che inizia con `L` |
 | `Holiday` | `day`, `label`, `kind` festività/sospensione | Globale per la scuola |
 | `ScribeOverride` | `day`, `member_id`, `reason` swap/takeover/pass | Eccezioni alla rotazione |
-| `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `notes`, `revision` | Una per classe e giorno. `revision` cresce a ogni salvataggio e a ogni cambio di verbalista |
+| `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `updated_by_member_id`, `notes`, `revision` | Una per classe e giorno. Alla prima pubblicazione l'autore diventa chi pubblica e resta invariato; i salvataggi successivi registrano separatamente chi aggiorna. `revision` cresce a ogni salvataggio e a ogni cambio di verbalista |
 | `SubjectEntry` | `subject_code`, `hours`, `room`, `is_lab`, `lesson_status`, `bullets` (JSON, max 5), `attachment_ids` (JSON, max 3) | Un blocco per materia. `attachment_ids` sono le foto degli appunti |
 | `LabBlock` | `goal`, `repo_url`, `pitfall`, `bring` | Legato a un `SubjectEntry` |
 | `UpcomingItem` | `type`, `subject_code`, `title`, `due_date`, `due_time`, `source`, `link`, `status`, `card_id` | `draft` finché la card non è pubblicata |

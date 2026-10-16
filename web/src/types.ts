@@ -92,6 +92,41 @@ export interface Item {
   status: 'draft' | 'published'
   card_day: string | null
   can_edit?: boolean
+  can_request_correction?: boolean
+  can_review_corrections?: boolean
+  pending_corrections?: number
+  correction_count?: number
+  my_correction?: { id: number; status: ItemCorrection['status'] } | null
+}
+
+export const CORRECTION_FIELDS = ['type', 'subject_code', 'title', 'due_date', 'source', 'link'] as const
+export type CorrectionFields = Pick<Item, typeof CORRECTION_FIELDS[number]>
+
+export interface ItemCorrection {
+  id: number
+  item_id: number
+  author: MemberBrief
+  proposed: Partial<CorrectionFields>
+  reason: string
+  status: 'pending' | 'accepted' | 'rejected'
+  decided_by: MemberBrief | null
+  decided_at: string | null
+  decision_note: string
+  already_fixed: boolean
+  created_at: string
+  updated_at: string
+  mine: boolean
+}
+
+export interface ItemCorrectionsInfo {
+  item: Item
+  can_review: boolean
+  requests: ItemCorrection[]
+}
+
+export interface CorrectionInboxInfo {
+  pending_count: number
+  items: { item: Item; pending_count: number }[]
 }
 
 export interface Card {
@@ -99,6 +134,7 @@ export interface Card {
   day: string
   status: 'draft' | 'published'
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   scribe: MemberBrief | null
   notes: string
   revision: number
@@ -147,6 +183,7 @@ export interface CardPage {
 export interface SubjectEntryRow {
   day: string
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   hours: string
   room: string
   is_lab: boolean
@@ -160,10 +197,15 @@ export interface SubjectEntryRow {
 export interface CardSummary {
   day: string
   author: MemberBrief | null
+  updated_by: MemberBrief | null
   subjects: string[]
   has_lab: boolean
   items: number
   published_at: string | null
+  /** A past school day nobody published: listed so it can still be recovered. */
+  missing: boolean
+  has_draft?: boolean
+  can_write?: boolean
 }
 
 export interface MemberRow {
@@ -221,4 +263,36 @@ export interface OwnerClass extends Classroom {
   members_total: number
   members_active: number
   admins: string[]
+}
+
+export type ReportKind = 'bug' | 'feature'
+export type ReportStatus = 'new' | 'in_progress' | 'closed'
+
+export interface ReportBrief {
+  id: number
+  kind: ReportKind
+  title: string
+  status: ReportStatus
+  created_at: string
+  has_image: boolean
+}
+
+export interface ReportDetail extends ReportBrief {
+  body: string
+  is_demo: boolean
+  updated_at: string
+  image_width: number
+  image_height: number
+  context: {
+    page?: string
+    language?: string
+    theme?: string
+    version?: string
+    user_agent?: string
+    role?: 'admin' | 'member' | 'owner' | 'none'
+    class_label?: string
+    class_code?: string
+    nick?: string
+    is_demo?: boolean
+  }
 }

@@ -6,6 +6,7 @@ import { Link, useLocation, useParams } from 'react-router'
 import { api } from '../api'
 import { EntryPhotos, LabBox } from '../components/day'
 import { ItemRow } from '../components/items'
+import { TranslatedMessage } from '../components/TranslatedMessage'
 import { Avatar, Badge, Card, EmptyState, ErrorBox, Segmented, Spinner, useDismiss } from '../components/ui'
 import { capitalize, relativeDay, shortDay, subjectColor, subjectName } from '../lib/format'
 import { classPath, useClass } from '../queries'
@@ -178,6 +179,7 @@ export default function SubjectPage() {
                     .filter(Boolean)
                     .join(' · ')}
                 </p>
+                {r.updated_by && <p className="text-xs text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: r.updated_by.nick }} /></p>}
               </div>
               {r.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {r.room}</Badge>}
               {r.author && <Avatar nick={r.author.nick} color={r.author.color} size="sm" />}

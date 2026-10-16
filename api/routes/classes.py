@@ -8,6 +8,7 @@ from sqlmodel import Session, col, delete, func, select
 from ..auth import ClassAccess, class_access, hash_secret, new_invite_code, request_now
 from ..config import settings
 from ..db import get_session
+from ..item_corrections import annotate_items
 from ..models import CardComment, DayCard, Member, ScribeOverride, Subject, TimetableSlot, UpcomingItem, utcnow
 from ..schedule import ClassCalendar
 from ..school_data import bell_hours, is_lab_room
@@ -92,6 +93,7 @@ def today(
         out["next_school_day"] = None
     soon = session.exec(upcoming_query(access.classroom.id, target, target + timedelta(days=3))).all()
     out["upcoming_soon"] = items_out(session, list(soon))
+    annotate_items(session, list(soon), out["upcoming_soon"], access, now.date())
     out["open_corrections"] = 0
     if state.published and state.can_write:
         out["open_corrections"] = session.exec(
