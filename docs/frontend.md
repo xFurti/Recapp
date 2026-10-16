@@ -57,7 +57,16 @@ La parte più delicata del frontend.
 ## Risposte e condivisione
 
 - `components/Feedback.tsx`: sotto ogni giornata pubblicata, "Grazie" con contatore, commenti e
-  correzioni (evidenziate finché non sono segnate come viste). Si aggiorna ogni 30 secondi.
+  correzioni (evidenziate finché non sono segnate come viste). Si aggiorna ogni 30 secondi. Sulla
+  propria giornata il contatore è solo da leggere.
+- `components/Thanks.tsx`: il cuore "Grazie" condiviso da giornate ed elementi. Su ogni elemento
+  pubblicato (In arrivo, Oggi, card, pagina materia) il pulsante sta nella riga dei metadati;
+  il clic aggiorna subito lo stesso elemento in tutte le cache della classe e invalida
+  `contributions`. Sui propri elementi il conteggio è solo testo.
+- `components/contributions.tsx` + `pages/Contributions.tsx` (`/c/:code/classe/contributi`):
+  scheda compatta in Classe con giornate di fila, record e ultimi giorni (icona e testo per ogni
+  stato), e la vista Contributi della classe con periodo, classifica dei Grazie (posizioni
+  condivise, propria riga raggiungibile), stati vuoti, errore con Riprova e regole di conteggio.
 - `components/ShareButton.tsx` + `lib/shareImage.ts`: immagine 1080×1350 con materie, scadenze e
   attribuzione della pubblicazione e dell'ultimo aggiornamento, senza note, condivisa col foglio
   di sistema oppure scaricata con link WhatsApp. L'autore della pubblicazione resta invariato.
