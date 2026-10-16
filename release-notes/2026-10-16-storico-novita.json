@@ -1,0 +1,55 @@
+{
+  "id": "2026.10.16.11",
+  "published_at": "2026-10-16T21:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Novità più facili da esplorare",
+    "en": "Easier to explore what's new"
+  },
+  "summary": [
+    {
+      "it": "Cerca nelle novità per parola o numero di versione.",
+      "en": "Search updates by word or version number."
+    },
+    {
+      "it": "Filtra per giorno o per periodo e salta a un mese con un tocco.",
+      "en": "Filter by day or period and jump to a month in one tap."
+    },
+    {
+      "it": "Le schede meno recenti sono compatte e si aprono sul posto.",
+      "en": "Older cards are compact and open in place."
+    }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": {
+        "it": "Ricerca e filtri per data",
+        "en": "Search and date filters"
+      },
+      "body": {
+        "it": "Nella pagina Novità puoi cercare una parola nei titoli e nelle descrizioni, oppure un numero di versione: le note pertinenti sono evidenziate. Puoi anche scegliere un giorno preciso o un periodo, insieme alla ricerca, e azzerare tutto con un tocco. Ricerca e filtri restano nell'indirizzo, così ritrovi lo stesso punto quando torni indietro.",
+        "en": "On the What's new page you can search titles and descriptions for a word, or look up a version number: matching notes are highlighted. You can also pick a single day or a period, together with the search, and clear everything in one tap. Search and filters stay in the address, so you find the same spot when you come back."
+      },
+      "link": {
+        "href": "/novita",
+        "label": {
+          "it": "Apri le novità",
+          "en": "Open what's new"
+        },
+        "requires_login": false
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Uno storico ordinato per mese e giorno",
+        "en": "History grouped by month and day"
+      },
+      "body": {
+        "it": "I rilasci sono raggruppati per mese e per giorno, e l'etichetta del giorno resta in vista mentre scorri. Il menu dei mesi porta ai periodi meno recenti e un pulsante riporta alle ultime novità. Le schede passate mostrano titolo, data, versione e un'anteprima, e si aprono senza perdere il punto.",
+        "en": "Releases are grouped by month and day, and the day label stays in view while you scroll. The month menu takes you to older periods and a button brings you back to the latest updates. Past cards show title, date, version and a preview, and open without losing your place."
+      }
+    }
+  ]
+}
