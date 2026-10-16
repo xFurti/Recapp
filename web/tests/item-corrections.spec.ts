@@ -23,6 +23,7 @@ async function setup(page: Page, { role = 'student', initial = [] as ItemCorrect
     localStorage.setItem('ieri.theme', dark ? 'dark' : 'light')
     localStorage.setItem('ieri.lang', english ? 'en' : 'it')
     localStorage.setItem('ieri.simulatedNow', '2026-10-12T15:30')
+    localStorage.setItem('recapp.tour.demo', '1')
   }, { dark, english })
   await page.route('**/api/**', async route => {
     const url = new URL(route.request().url())

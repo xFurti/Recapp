@@ -117,7 +117,8 @@ export function ItemForm({
             </select>
           </Field>
           <Field label={t('item_form.title')}>
-            <input className={inputClass} value={item.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('item_form.title_ph')} maxLength={200} required autoFocus />
+            {/* Modal locks the page and remembers the opener before managing focus. */}
+            <input className={inputClass} value={item.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('item_form.title_ph')} maxLength={200} required />
           </Field>
           <div>
             <span className="mb-1 block text-sm font-semibold"><span className="language-text">{t('item_form.when')}</span></span>

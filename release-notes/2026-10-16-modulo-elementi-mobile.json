@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.10",
+  "published_at": "2026-10-16T20:01:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Aggiungere compiti dal telefono",
+    "en": "Adding homework on your phone"
+  },
+  "summary": [
+    {
+      "it": "Aprire il modulo non attiva più un campo prima che il pannello sia pronto.",
+      "en": "Opening the form no longer activates a field before the panel is ready."
+    },
+    {
+      "it": "Alla chiusura ritrovi il pulsante di apertura e la posizione che avevi nella pagina.",
+      "en": "Closing the panel restores the opening button and your position on the page."
+    },
+    {
+      "it": "La correzione vale per compiti, verifiche, eventi e lab, sia in In arrivo sia nell’editor della giornata.",
+      "en": "The fix covers homework, tests, events and labs in both Upcoming and the day editor."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Un modulo più stabile sul telefono",
+        "en": "A steadier form on your phone"
+      },
+      "body": {
+        "it": "Quando aggiungi un compito, una verifica, un evento o un lab, il modulo aspetta che la pagina sia ferma prima di gestire il focus. Alla chiusura il focus torna al pulsante da cui lo hai aperto e la pagina mantiene la sua posizione. La correzione vale sia in In arrivo sia nell’editor della giornata.",
+        "en": "When adding homework, a test, an event or a lab, the form waits for the page to be locked before managing focus. Closing it returns focus to the opening button and preserves the page position. The fix applies to both Upcoming and the day editor."
+      }
+    }
+  ]
+}
