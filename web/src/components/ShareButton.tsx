@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { todayIso } from '../lib/clock'
 import { capitalize, longDay, shortDay, subjectColor, subjectName } from '../lib/format'
 import { renderShareImage, shareImage } from '../lib/shareImage'
+import { hasEntrySummary } from '../lib/lab'
 import type { Card, ClassInfo, ItemType } from '../types'
 import { Button, Toast } from './ui'
 
@@ -22,8 +23,8 @@ export function ShareButton({ card, info }: { card: Card; info: ClassInfo }) {
       const dayLabel = capitalize(longDay(card.day, lang))
       const url = `${window.location.origin}/c/${info.code}/giorno/${card.day}`
       const subjects = card.entries
-        .filter((e) => e.bullets.length || e.lab || e.attachment_ids?.length)
-        .map((e) => ({ name: subjectName(info.subjects, e.subject_code, lang), color: subjectColor(info.subjects, e.subject_code) }))
+        .filter(hasEntrySummary)
+        .map((e) => ({ name: `${subjectName(info.subjects, e.subject_code, lang)}${e.is_lab ? ` · ${t('day.lab')}` : ''}`, color: subjectColor(info.subjects, e.subject_code) }))
       const items = [...card.items]
         .sort((a, b) => a.due_date.localeCompare(b.due_date))
         .map((it) => ({

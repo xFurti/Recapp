@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import type { Card, Draft, Item, TodayInfo } from '../src/types'
-import { card, cardPage, info } from './lesson-fixture'
+import { card, cardPage, convertedLab, info } from './lesson-fixture'
 
 const nextLessons = { INI: '2026-10-05' }
 const legacy: Item = {
@@ -144,7 +144,7 @@ test('editor autosave clears legacy times while preserving lesson and attachment
   await page.locator('input[value="API e database"]').fill('API e database aggiornati')
   await expect.poll(() => saved().items[0].due_time).toBeNull()
   expect(saved().items[0]).toMatchObject({ ...legacy, due_time: null })
-  expect(saved().entries[0]).toEqual({ ...card.entries[0], bullets: ['API e database aggiornati'] })
+  expect(saved().entries[0]).toEqual({ ...card.entries[0], lab: convertedLab, bullets: ['API e database aggiornati'] })
   expect(saved().entries[1]).toEqual(card.entries[1])
   expect(saved().attachments).toEqual(card.attachments)
   await page.getByRole('button', { name: /Legacy homework/ }).click()
@@ -161,7 +161,7 @@ test('editor autosave clears legacy times while preserving lesson and attachment
 
 test('imported times are hidden and cleared on both direct acceptance and editing', async ({ page }) => {
   const { saved } = await setup(page, { view: 'editor', width: 390, english: true })
-  await page.locator('textarea').first().fill('Campus: lab and test at 16:45')
+  await page.getByPlaceholder('Paste a line, e.g. "Math: ex. 12-15, test Fri"').fill('Campus: lab and test at 16:45')
   await page.getByRole('button', { name: 'Read with AI', exact: true }).click()
   const importedLab = page.getByRole('listitem').filter({ hasText: 'Imported lab' })
   const importedTest = page.getByRole('listitem').filter({ hasText: 'Imported test' })

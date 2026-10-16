@@ -20,7 +20,7 @@ We discovered the competition after it had already started. On September 20, 202
 
 Recapp is a shared daily recap written by the students who were in class. A different student takes the note-taking turn each school day and writes the recap after school. It brings together what happened in each subject, shared notes, reminders and assignments.
 
-For example, the note-taker can record materials needed for tomorrow's mathematics lesson, add an Italian test for next week, and explain what the class did in the lab. Lab blocks include the goal, repository or link, a mistake to avoid and what to bring next time.
+For example, the note-taker can record materials needed for tomorrow's mathematics lesson, add an Italian test for next week, and explain what the class did in the lab. Lab lessons use the usual activity points, with optional multiline notes and a useful link. Materials to bring and work to complete use the existing dated assignments in Upcoming.
 
 - **Today** shows the note-taker, the day's lessons and publication status.
 - **Yesterday** shows the latest published recap. **By subject** helps classmates find earlier material for a particular subject.

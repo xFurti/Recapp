@@ -142,6 +142,8 @@ class LabBlock(SQLModel, table=True):
     repo_url: str = ""
     pitfall: str = ""
     bring: str = ""
+    # NULL identifies old blocks whose labelled fields have not been combined yet.
+    notes: Optional[str] = None
 
 
 class Attachment(SQLModel, table=True):

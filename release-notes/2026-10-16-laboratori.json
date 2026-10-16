@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.12",
+  "published_at": "2026-10-16T21:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Laboratori per tutte le attività",
+    "en": "Labs for every school activity"
+  },
+  "summary": [
+    {
+      "it": "Racconta l’attività nei punti della lezione e aggiungi note di laboratorio facoltative.",
+      "en": "Describe the activity in the lesson points and add optional lab notes."
+    },
+    {
+      "it": "Aggiungi un link utile solo quando serve, a una scheda, una simulazione o un’altra risorsa.",
+      "en": "Add a useful link only when needed, to a worksheet, simulation or another resource."
+    },
+    {
+      "it": "I vecchi contenuti restano nelle note, con etichette e testi modificabili.",
+      "en": "Previous content stays in the notes, with editable labels and text."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Note libere per riprendere il lavoro",
+        "en": "Flexible notes to resume your work"
+      },
+      "body": {
+        "it": "La lezione in laboratorio mantiene la sua indicazione e viene riconosciuta dall’orario. L’attività svolta si racconta nei normali punti del riepilogo; le note su più righe e il link utile sono facoltativi. Nei laboratori già salvati, obiettivo, difficoltà e materiali vengono riuniti nelle note senza perdere i testi. Per cose da portare e lavori da completare, usa Compito o Evento con una data: li ritrovi in In arrivo.",
+        "en": "Lab lessons keep their badge and are recognised from the timetable. Describe the activity in the usual lesson points; multiline notes and a useful link are optional. In previously saved labs, goals, difficulties and materials are combined in the notes without losing the text. For things to bring and work to finish, use Homework or Event with a date: they will appear in Upcoming."
+      }
+    }
+  ]
+}

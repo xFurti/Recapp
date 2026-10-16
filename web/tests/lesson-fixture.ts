@@ -1,4 +1,6 @@
-import type { Card, CardPage, ClassInfo } from '../src/types'
+import type { Card, CardPage, ClassInfo, LabData } from '../src/types'
+
+export const convertedLab: LabData = { notes: 'Obiettivo: Salvare i dati\n\nTrappola: Controllare la connessione\n\nCosa portare: Computer', repo_url: 'https://example.com/lab', goal: '', pitfall: '', bring: '' }
 
 export const info: ClassInfo = {
   code: 'TEST', name: '4B', label: 'Classe di prova', is_demo: false,
