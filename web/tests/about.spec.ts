@@ -120,6 +120,7 @@ test('slideshow supports selectors, buttons, arrows, wrapping, photos and missin
 
 test('mobile touch and long creator text fit without clipping or layout shifts', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 360, height: 740 }, hasTouch: true })
+  await context.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
   const page = await context.newPage()
   await page.goto('/tests/creators.html')
   const card = page.getByRole('region', { name: 'Chi ha creato Recapp' })

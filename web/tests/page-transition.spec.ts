@@ -6,6 +6,7 @@ const TOTAL_MS = COVER_MS + REVEAL_MS
 type Log = { shown: number[]; hidden: number[]; frozen: string[]; started: number }
 
 async function setup(page: Page, { mobile = false, dark = false, route = '/c/TEST', upcomingDelay = 0 } = {}) {
+  await page.addInitScript(() => localStorage.setItem('ieri.lang', 'it'))
   await page.setViewportSize(mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 })
   await page.route('**/api/**', async r => {
     const path = new URL(r.request().url()).pathname

@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 async function setup(page: Page, query = '', mode = 'ready') {
   await page.addInitScript(({ mode }) => {
+    localStorage.setItem('ieri.lang', 'it')
     if (mode === 'unsupported') {
       Object.defineProperty(window, 'speechSynthesis', { value: undefined })
       delete (window as any).SpeechSynthesisUtterance
@@ -25,7 +26,6 @@ async function setup(page: Page, query = '', mode = 'ready') {
     engine.ready = () => { engine.voices = voices; engine.dispatchEvent(new Event('voiceschanged')) }
     Object.defineProperty(window, 'speechSynthesis', { value: engine })
     Object.defineProperty(window, 'SpeechSynthesisUtterance', { value: class { text: string; constructor(text: string) { this.text = text } } })
-    localStorage.setItem('ieri.lang', 'it')
   }, { mode })
   await page.goto(`/tests/speech.html${query}`)
 }
