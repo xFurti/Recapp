@@ -4,6 +4,11 @@ type Work = { dirty: () => boolean; flush: () => Promise<unknown> }
 
 const works = new Set<{ current: Work }>()
 
+/** Optional announcements must wait without triggering a save. */
+export function hasPendingWork() {
+  return [...works].some(({ current }) => current.dirty())
+}
+
 /** Lets a page with unsaved changes (or a save in flight) be saved before the app reloads itself. */
 export function usePendingWork(work: Work) {
   const ref = useRef(work)

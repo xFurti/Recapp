@@ -203,21 +203,28 @@ export function Modal({
 /** Closes a popover on tap/click outside `ref` and on Escape (touch screens have no mouseleave). */
 /**
  * Menu anchored to a button, portaled to the body so a clipping parent cannot cut it off.
- * Opens downward, and flips above the button when there is no room.
+ * Opens downward, and flips above the button when there is no room (the pop animation follows).
  */
 export function AnchoredMenu({
   open,
   anchorEl,
   onClose,
   children,
+  id,
+  label,
+  initialFocus,
 }: {
   open: boolean
   anchorEl: HTMLElement | null
   onClose: () => void
   children: ReactNode
+  id?: string
+  label?: string
+  initialFocus?: number
 }) {
   const menuRef = useRef<HTMLDivElement>(null)
   const [style, setStyle] = useState<CSSProperties>({ top: -9999, left: 0, visibility: 'hidden' })
+  const [side, setSide] = useState<'top' | 'bottom'>('bottom')
 
   useEffect(() => {
     if (!open) return
@@ -253,9 +260,10 @@ export function AnchoredMenu({
       const below = anchor.bottom + gap
       const above = anchor.top - gap - height
       const openAbove = below + height > window.innerHeight - bottomInset && above >= 8
-      const top = Math.max(8, openAbove ? above : below)
+      const top = Math.max(8, Math.min(openAbove ? above : below, window.innerHeight - bottomInset - height))
       const left = Math.min(Math.max(8, anchor.right - width), window.innerWidth - width - 8)
-      setStyle({ top, left, visibility: 'visible', transformOrigin: openAbove ? 'bottom right' : 'top right' })
+      setSide(openAbove ? 'top' : 'bottom')
+      setStyle({ top, left, maxHeight: window.innerHeight - bottomInset - 16, visibility: 'visible', transformOrigin: openAbove ? 'bottom right' : 'top right' })
     }
     place()
     window.addEventListener('resize', place)
@@ -266,9 +274,15 @@ export function AnchoredMenu({
     }
   }, [open, anchorEl, onClose])
 
+  useLayoutEffect(() => {
+    if (open && style.visibility === 'visible' && initialFocus !== undefined) {
+      menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')[initialFocus]?.focus({ preventScroll: true })
+    }
+  }, [open, style.visibility, initialFocus])
+
   if (!open) return null
   return createPortal(
-    <div ref={menuRef} role="menu" style={style} className={`fixed z-50 w-60 rounded-2xl border border-line bg-surface p-1.5 shadow-lg ${style.visibility === 'visible' ? 'menu-pop' : ''}`}>
+    <div ref={menuRef} id={id} role="menu" aria-label={label} data-side={side} style={style} className={`fixed z-50 w-60 max-w-[calc(100vw-16px)] overflow-y-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg transition-none ${style.visibility === 'visible' ? 'menu-pop' : ''}`}>
       {children}
     </div>,
     document.body,

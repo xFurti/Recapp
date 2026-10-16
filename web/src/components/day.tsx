@@ -7,6 +7,7 @@ import { capitalize, longDay, subjectColor, subjectName, timeOf } from '../lib/f
 import { useSpeech } from '../lib/speech'
 import type { Card, ClassInfo, Entry, Lesson, Subject } from '../types'
 import { ShareButton } from './ShareButton'
+import { TranslatedMessage } from './TranslatedMessage'
 import { ItemRow } from './items'
 import { Avatar, Badge, Modal } from './ui'
 
@@ -106,6 +107,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
               .filter(Boolean)
               .join(' · ')}
           </p>
+          {card.updated_by && <p className="text-sm text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: card.updated_by.nick }} /></p>}
         </div>
         <div className="ml-auto flex items-center gap-2">
           {classInfo && canShare && <ShareButton card={card} info={classInfo} />}
@@ -181,7 +183,8 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 }
 
 export function speechText(card: Card, subjects: Subject[], t: TFunction, lang: string): string {
-  const parts: string[] = [t('listen.s_intro', { day: longDay(card.day, lang), nick: card.author?.nick ?? '' })]
+  const parts: string[] = [t(card.status === 'published' ? 'listen.s_published_intro' : 'listen.s_intro', { day: longDay(card.day, lang), nick: card.author?.nick ?? '', time: timeOf(card.published_at, lang) })]
+  if (card.updated_by) parts.push(`${t('day.updated_by', { nick: card.updated_by.nick })}.`)
   for (const e of card.entries) {
     const name = subjectName(subjects, e.subject_code, lang)
     if (e.lesson_status === 'non_svolta') {

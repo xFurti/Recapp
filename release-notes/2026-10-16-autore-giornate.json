@@ -1,0 +1,23 @@
+{
+  "id": "2026.10.16.4",
+  "published_at": "2026-10-16T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Chi ha pubblicato resta in primo piano", "en": "Whoever published stays credited" },
+  "summary": [
+    { "it": "Modificare una giornata pubblicata non cambia più chi l'ha pubblicata.", "en": "Editing a published day no longer changes who published it." },
+    { "it": "L'ultima modifica compare a parte, come «Aggiornata da».", "en": "The latest edit is shown separately, as “Updated by”." },
+    { "it": "Anche l'immagine da condividere riporta entrambe le attribuzioni.", "en": "The share image shows both credits too." }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": { "it": "L'autore della giornata non viene più sostituito", "en": "The day's author is no longer replaced" },
+      "body": { "it": "Quando un admin corregge una giornata già pubblicata, autore e ora della prima pubblicazione restano quelli originali. Chi ha fatto l'ultima modifica compare sotto, come «Aggiornata da», nel banner, nelle card, nello storico e nell'immagine da condividere.", "en": "When an admin fixes a day that's already published, the original author and publication time stay as they were. Whoever made the latest edit appears below as “Updated by”, in the banner, cards, history and share image." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Ogni compito ha il suo autore", "en": "Each task keeps its own author" },
+      "body": { "it": "I compiti già presenti conservano chi li ha aggiunti, mentre quelli nuovi sono attribuiti a chi li inserisce durante la modifica.", "en": "Existing tasks keep whoever added them, while new ones are credited to whoever adds them during the edit." }
+    }
+  ]
+}

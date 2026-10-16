@@ -1,16 +1,20 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, CalendarOff, Eye, EyeOff, LogOut, Plus, Trash2 } from 'lucide-react'
-import { useState, type FormEvent } from 'react'
+import { ArrowRight, CalendarOff, ChevronRight, Eye, EyeOff, LogOut, Megaphone, Plus, Trash2 } from 'lucide-react'
+import { useState, type CSSProperties, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
 import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
-import { Badge, Button, Card, ErrorBox, Field, inputClass, Modal, Spinner } from '../components/ui'
+import { Badge, Button, Card, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
 import { capitalize, shortDay } from '../lib/format'
 import { useMe } from '../queries'
-import type { OwnerClass } from '../types'
+import type { OwnerClass, ReportDetail, ReportStatus } from '../types'
+import { KindIcon, StatusBadge } from '../components/Report'
+import { reportDate } from '../lib/report'
+import { ReleasePopup } from '../components/ReleasePopup'
+import { officialReleaseAccount } from '../lib/releases'
 
 export default function SchoolArea() {
   const { t } = useTranslation()
@@ -33,6 +37,8 @@ export default function SchoolArea() {
         {me.isLoading ? <Spinner /> : me.data?.kind === 'owner' ? <Dashboard name={me.data.owner.display_name || me.data.owner.username} /> : <OwnerLogin />}
       </main>
       <footer className="mx-auto max-w-4xl px-5 pb-8 text-xs text-muted"><span className="language-text">{t('landing.footer')}</span></footer>
+      {me.data?.kind === 'owner' && <ReleasePopup key={me.data.owner.username}
+        account={officialReleaseAccount('owner', me.data.owner.username)} firstVisit />}
     </div>
   )
 }
@@ -137,6 +143,8 @@ function Dashboard({ name }: { name: string }) {
           ))}
         </div>
       </section>
+
+      <Reports />
 
       <Holidays />
 
@@ -244,5 +252,127 @@ function Holidays() {
         </div>
       )}
     </section>
+  )
+}
+
+type DemoFilter = 'all' | 'hide' | 'only'
+const STATUSES: ReportStatus[] = ['new', 'in_progress', 'closed']
+
+function Reports() {
+  const { t, i18n } = useTranslation()
+  const [demo, setDemo] = useState<DemoFilter>('all')
+  const [openId, setOpenId] = useState<number | null>(null)
+  const list = useQuery({ queryKey: ['owner-reports', demo], queryFn: () => api.get<ReportDetail[]>(`/owner/reports?demo=${demo}`) })
+  const open = list.data?.find((r) => r.id === openId) ?? null
+  const fresh = list.data?.filter((r) => r.status === 'new').length ?? 0
+  return (
+    <section aria-labelledby="school-reports">
+      <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="school-reports" className="flex items-center gap-2 text-lg font-bold">
+            <Megaphone className="size-5 text-bordeaux" aria-hidden /><span className="language-text">{t('report.school_title')}</span>
+            {fresh > 0 && <Badge className="bg-azzurro-soft text-azzurro-ink"><span className="language-text">{t('report.new_count', { count: fresh })}</span></Badge>}
+          </h2>
+          <p className="text-sm text-muted"><span className="language-text">{t('report.school_sub')}</span></p>
+        </div>
+        <Segmented<DemoFilter>
+          value={demo}
+          onChange={setDemo}
+          options={[
+            { value: 'all', label: t('report.filter_all') },
+            { value: 'hide', label: t('report.filter_hide_demo') },
+            { value: 'only', label: t('report.filter_only_demo') },
+          ]}
+        />
+      </div>
+      {list.isLoading && <Spinner />}
+      {list.error && <ErrorBox error={list.error} onRetry={() => list.refetch()} />}
+      {list.data && !list.data.length && <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-muted"><span className="language-text">{t('report.school_empty')}</span></p>}
+      {!!list.data?.length && (
+        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+          {list.data.map((r, i) => (
+            <li key={r.id} className="report-row" style={{ '--i': Math.min(i, 8) } as CSSProperties}>
+              <button onClick={() => setOpenId(r.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-ink/[0.03]" aria-label={t('report.open', { title: r.title })}>
+                <span className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${r.kind === 'bug' ? 'bg-rosa-soft text-rosa-ink' : 'bg-giallo-soft text-ink'}`}>
+                  <KindIcon kind={r.kind} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">{r.title}</span>
+                  <span className="block truncate text-xs text-muted">
+                    <span className="language-text">{t(`report.kind_${r.kind}`)}</span> · {reportDate(r.created_at, i18n.language)} · {r.context.class_label ?? <span className="language-text">{t('report.no_class')}</span>}
+                    {r.context.nick && <> · {r.context.nick}</>}
+                  </span>
+                </span>
+                {r.is_demo && <Badge className="hidden bg-viola-soft text-viola-ink sm:inline-flex"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
+                <StatusBadge status={r.status} />
+                <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {open && <ReportModal report={open} onClose={() => setOpenId(null)} />}
+    </section>
+  )
+}
+
+function ReportModal({ report, onClose }: { report: ReportDetail; onClose: () => void }) {
+  const { t, i18n } = useTranslation()
+  const qc = useQueryClient()
+  const status = useMutation({
+    mutationFn: (value: ReportStatus) => api.patch<ReportDetail>(`/owner/reports/${report.id}`, { status: value }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['owner-reports'] }),
+  })
+  const ctx = report.context
+  const rows: [string, string | undefined][] = [
+    ['ctx_page', ctx.page],
+    ['ctx_class', ctx.class_label ? `${ctx.class_label} · ${ctx.class_code}` : t('report.no_class')],
+    ['ctx_role', ctx.role ? t(`report.role_${ctx.role}`) : undefined],
+    ['ctx_nick', ctx.nick],
+    ['ctx_language', ctx.language?.toUpperCase()],
+    ['ctx_theme', ctx.theme ? t(`theme.${ctx.theme}`) : undefined],
+    ['ctx_version', ctx.version],
+    ['ctx_browser', ctx.user_agent],
+  ]
+  const current = status.isPending && status.variables ? status.variables : report.status
+  return (
+    <Modal open onClose={onClose} title={report.title} wide>
+      <div className="space-y-5">
+        <p className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
+          <span className="inline-flex items-center gap-1"><KindIcon kind={report.kind} className="size-3.5" /><span className="language-text">{t(`report.kind_${report.kind}`)}</span></span>
+          · <time dateTime={report.created_at}>{reportDate(report.created_at, i18n.language)}</time>
+          {report.is_demo && <Badge className="bg-viola-soft text-viola-ink"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
+        </p>
+        <p className="whitespace-pre-wrap break-words leading-relaxed">{report.body}</p>
+        {report.has_image && (
+          <a href={`/api/reports/${report.id}/image`} target="_blank" rel="noopener noreferrer" className="block">
+            <img src={`/api/reports/${report.id}/image`} alt={t('report.image_alt')} width={report.image_width || undefined} height={report.image_height || undefined} className="max-h-80 w-auto rounded-xl border border-line" />
+          </a>
+        )}
+        <div>
+          <h3 className="mb-2 text-sm font-bold"><span className="language-text">{t('report.detail_context')}</span></h3>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-2xl bg-paper p-3.5 text-sm">
+            {rows.filter(([, value]) => value).map(([key, value]) => (
+              <div key={key} className="contents">
+                <dt className="text-muted"><span className="language-text">{t(`report.${key}`)}</span></dt>
+                <dd className="min-w-0 break-words font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <fieldset>
+          <legend className="mb-2 text-sm font-bold"><span className="language-text">{t('report.status_label')}</span></legend>
+          <div className="grid grid-cols-3 gap-2">
+            {STATUSES.map((value) => (
+              <label key={value} className={`flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-azzurro ${current === value ? 'border-ink bg-ink text-paper' : 'border-line hover:border-ink/40'}`}>
+                <input type="radio" name={`status-${report.id}`} value={value} checked={current === value} onChange={() => status.mutate(value)} className="sr-only" />
+                <span className="language-text">{t(`report.status_${value}`)}</span>
+              </label>
+            ))}
+          </div>
+          {status.error && <p role="alert" className="mt-2 text-sm font-medium text-rosa-ink">{(status.error as Error).message}</p>}
+        </fieldset>
+      </div>
+    </Modal>
   )
 }
