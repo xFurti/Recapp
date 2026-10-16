@@ -27,7 +27,10 @@ from ..services import (
     save_card,
     upcoming_query,
     week_bounds,
+    validate_item_changes,
+    touch_item_card,
 )
+from ..item_corrections import annotate_items
 
 router = APIRouter(prefix="/api/classes/{code}")
 
@@ -351,6 +354,7 @@ def upcoming(
     out = items_out(session, list(items))
     for row, item in zip(out, items):
         row["can_edit"] = me is not None and (access.is_admin or item.author_member_id == me.id)
+    annotate_items(session, list(items), out, access, today)
     return out
 
 
@@ -391,10 +395,11 @@ def _editable_item(session: Session, access: ClassAccess, item_id: int) -> Upcom
 @router.patch("/upcoming/{item_id}")
 def patch_upcoming(item_id: int, data: UpcomingPatch, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     item = _editable_item(session, access, item_id)
-    for field, value in data.model_dump(exclude_unset=True).items():
+    for field, value in validate_item_changes(session, item, data.model_dump(exclude_unset=True)).items():
         setattr(item, field, value)
     item.updated_at = datetime.now(timezone.utc)
     session.add(item)
+    touch_item_card(session, item)
     session.commit()
     session.refresh(item)
     return items_out(session, [item])[0]

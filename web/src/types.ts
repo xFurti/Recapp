@@ -92,6 +92,41 @@ export interface Item {
   status: 'draft' | 'published'
   card_day: string | null
   can_edit?: boolean
+  can_request_correction?: boolean
+  can_review_corrections?: boolean
+  pending_corrections?: number
+  correction_count?: number
+  my_correction?: { id: number; status: ItemCorrection['status'] } | null
+}
+
+export const CORRECTION_FIELDS = ['type', 'subject_code', 'title', 'due_date', 'source', 'link'] as const
+export type CorrectionFields = Pick<Item, typeof CORRECTION_FIELDS[number]>
+
+export interface ItemCorrection {
+  id: number
+  item_id: number
+  author: MemberBrief
+  proposed: Partial<CorrectionFields>
+  reason: string
+  status: 'pending' | 'accepted' | 'rejected'
+  decided_by: MemberBrief | null
+  decided_at: string | null
+  decision_note: string
+  already_fixed: boolean
+  created_at: string
+  updated_at: string
+  mine: boolean
+}
+
+export interface ItemCorrectionsInfo {
+  item: Item
+  can_review: boolean
+  requests: ItemCorrection[]
+}
+
+export interface CorrectionInboxInfo {
+  pending_count: number
+  items: { item: Item; pending_count: number }[]
 }
 
 export interface Card {

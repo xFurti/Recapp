@@ -8,6 +8,7 @@ import { daysBetween, todayIso } from '../lib/clock'
 import type { Item, ItemType, Subject } from '../types'
 import { Badge } from './ui'
 import { CalendarButton } from './CalendarButton'
+import { ItemCorrectionControls } from './ItemCorrections'
 
 export const TYPE_STYLE: Record<ItemType, { icon: ComponentType<{ className?: string }>; badge: string; bar: string }> = {
   compito: { icon: BookOpen, badge: 'bg-azzurro-soft text-azzurro-ink', bar: 'bg-azzurro' },
@@ -80,6 +81,7 @@ export function ItemRow({
   onToggleDone,
   onOpen,
   compact,
+  corrections = false,
 }: {
   item: Item
   subjects: Subject[]
@@ -87,6 +89,7 @@ export function ItemRow({
   onToggleDone?: () => void
   onOpen?: () => void
   compact?: boolean
+  corrections?: boolean
 }) {
   const { t, i18n } = useTranslation()
   const s = TYPE_STYLE[item.type]
@@ -139,6 +142,7 @@ export function ItemRow({
             {item.due_time ? ` · ${item.due_time}` : ''}
           </p>
         )}
+        {corrections && <ItemCorrectionControls item={item} />}
       </div>
       {compact && item.status === 'published' && <CalendarButton item={item} subjects={subjects} compact />}
       {onToggleDone && <DoneCheck done={!!done} onToggle={onToggleDone} label={t('upcoming.mark_done')} />}
