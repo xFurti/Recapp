@@ -82,7 +82,8 @@ test('outgoing icon rotates and shrinks for 500ms; incoming icon waits 200ms the
       ;(element as HTMLButtonElement).click()
       await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
       const icons = [...element.querySelectorAll<SVGElement>('svg')]
-      const animations = icons.map(icon => icon.getAnimations()[0])
+      // The moon's color also fades with the palette; only the transform is the swap.
+      const animations = icons.map(icon => icon.getAnimations().find(animation => (animation as CSSTransition).transitionProperty === 'transform')!)
       const timings = animations.map(animation => {
         animation.pause()
         const timing = animation.effect!.getTiming()
@@ -141,7 +142,7 @@ test('rapid reversals settle on the last choice and hover/focus do not spin the 
   const button = await setup(page)
   await button.hover()
   await button.focus()
-  expect(await button.evaluate(element => element.querySelectorAll('svg').length === 2 && [...element.querySelectorAll('svg')].every(icon => icon.getAnimations().length === 0))).toBe(true)
+  expect(await button.evaluate(element => element.querySelectorAll('svg').length === 2 && [...element.querySelectorAll('svg')].every(icon => icon.getAnimations().every(animation => (animation as CSSTransition).transitionProperty !== 'transform')))).toBe(true)
   for (let i = 0; i < 5; i++) {
     await button.evaluate(element => (element as HTMLButtonElement).click())
     await page.waitForTimeout(65)
@@ -165,4 +166,27 @@ for (const dark of [false, true]) test(`reduced motion from ${dark ? 'dark' : 'l
     expect(icons[nextDark ? 1 : 0]).toEqual({ animations: 0, delay: '0s', rotation: 0, scale: 0 })
     await settled(page, nextDark)
   }
+})
+
+test('the hidden header toggle follows a change made from the phone profile menu', async ({ page }) => {
+  const button = await setup(page, '/tests/navigation.html', false, true)
+  await button.click()
+  await settled(page, true)
+  await page.keyboard.press('Escape')
+  await page.setViewportSize({ width: 1280, height: 900 })
+  const header = page.getByRole('button', { name: /^(Tema|Theme):/ })
+  await expect(header).toHaveAttribute('data-theme', 'dark')
+  await expect(header).toHaveAccessibleName('Tema: scuro')
+  await header.click()
+  await settled(page, false)
+})
+
+test('another tab changing the theme updates the button without a reload', async ({ page }) => {
+  const button = await setup(page, '/privacy')
+  await page.evaluate(() => {
+    localStorage.setItem('ieri.theme', 'dark')
+    window.dispatchEvent(new StorageEvent('storage', { key: 'ieri.theme', newValue: 'dark' }))
+  })
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await expect(button).toHaveAttribute('data-theme', 'dark')
 })

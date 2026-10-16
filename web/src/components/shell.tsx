@@ -19,7 +19,7 @@ import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
-import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
+import { animateTheme, getTheme, subscribeTheme } from '../lib/theme'
 import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
 import { sectionIndex } from '../lib/sections'
@@ -101,12 +101,8 @@ export function Wordmark({ size = 'md', playing }: { size?: 'sm' | 'md' | 'lg'; 
 
 export function ThemeToggle() {
   const { t } = useTranslation()
-  const [choice, setChoice] = useState<ThemeChoice>(getTheme)
-  const next = () => {
-    const value: ThemeChoice = choice === 'dark' ? 'light' : 'dark'
-    setChoice(value)
-    animateTheme(value)
-  }
+  const choice = useSyncExternalStore(subscribeTheme, getTheme)
+  const next = () => animateTheme(choice === 'dark' ? 'light' : 'dark')
   const label = t('theme.label', { mode: t(`theme.${choice}`) })
   return (
     <button type="button" onClick={next} data-theme={choice} className="theme-toggle grid size-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface" title={label} aria-label={label}>

@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.5",
+  "published_at": "2026-10-16T18:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Nuovo pulsante del tema",
+    "en": "New theme button"
+  },
+  "summary": [
+    {
+      "it": "Sole e luna si scambiano con una rotazione quando cambi tema.",
+      "en": "The sun and moon swap with a spin when you change theme."
+    },
+    {
+      "it": "Con le animazioni ridotte lo scambio è immediato.",
+      "en": "With reduced motion the swap is instant."
+    },
+    {
+      "it": "Il pulsante resta allineato se cambi tema dal menu del profilo o da un’altra scheda.",
+      "en": "The button stays in sync when you change theme from the profile menu or another tab."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Sole e luna animati",
+        "en": "Animated sun and moon"
+      },
+      "body": {
+        "it": "Il pulsante del tema ora fa ruotare e rimpicciolire l’icona attuale mentre quella nuova cresce al suo posto. Se nel dispositivo hai ridotto le animazioni, lo scambio è immediato. Il pulsante resta allineato anche se cambi tema da un’altra scheda o dal menu del profilo sul telefono.",
+        "en": "The theme button now spins and shrinks the current icon while the new one grows in its place. If you've reduced motion on your device, the swap is instant. The button also stays in sync when you change theme from another tab or from the profile menu on your phone."
+      }
+    }
+  ]
+}
