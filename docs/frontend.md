@@ -66,6 +66,8 @@ La parte più delicata del frontend.
   `due_time` e include solo tipo, materia, titolo, nome classe, fonte, link e indirizzo di
   In arrivo. Non include autore, note della giornata o dati della sessione e non modifica
   l'elemento su Recapp. Il menu usa un portal, resta sopra la barra mobile e supporta tastiera.
+  Nelle righe complete l'azione sta nella riga dei metadati; dopo l'esportazione l'icona diventa
+  una spunta per qualche istante e il download `.ics` mostra un avviso.
 
 ## Tema
 

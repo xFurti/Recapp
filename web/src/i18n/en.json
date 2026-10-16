@@ -252,7 +252,10 @@
     "google": "Google Calendar",
     "apple": "Apple Calendar",
     "class": "Class",
-    "added_on": "Added on Recapp"
+    "added_on": "Added on Recapp",
+    "google_hint": "Opens in a new tab",
+    "apple_hint": "Downloads an .ics file",
+    "downloaded": "Event downloaded: open it to add it to your calendar"
   },
   "dates": {
     "today": "Today",

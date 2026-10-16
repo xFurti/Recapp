@@ -203,7 +203,7 @@ export function Modal({
 /** Closes a popover on tap/click outside `ref` and on Escape (touch screens have no mouseleave). */
 /**
  * Menu anchored to a button, portaled to the body so a clipping parent cannot cut it off.
- * Opens downward, and flips above the button when there is no room.
+ * Opens downward, and flips above the button when there is no room (the pop animation follows).
  */
 export function AnchoredMenu({
   open,
@@ -224,6 +224,7 @@ export function AnchoredMenu({
 }) {
   const menuRef = useRef<HTMLDivElement>(null)
   const [style, setStyle] = useState<CSSProperties>({ top: -9999, left: 0, visibility: 'hidden' })
+  const [side, setSide] = useState<'top' | 'bottom'>('bottom')
 
   useEffect(() => {
     if (!open) return
@@ -261,6 +262,7 @@ export function AnchoredMenu({
       const openAbove = below + height > window.innerHeight - bottomInset && above >= 8
       const top = Math.max(8, Math.min(openAbove ? above : below, window.innerHeight - bottomInset - height))
       const left = Math.min(Math.max(8, anchor.right - width), window.innerWidth - width - 8)
+      setSide(openAbove ? 'top' : 'bottom')
       setStyle({ top, left, maxHeight: window.innerHeight - bottomInset - 16, visibility: 'visible', transformOrigin: openAbove ? 'bottom right' : 'top right' })
     }
     place()
@@ -280,7 +282,7 @@ export function AnchoredMenu({
 
   if (!open) return null
   return createPortal(
-    <div ref={menuRef} id={id} role="menu" aria-label={label} style={style} className={`fixed z-50 w-60 max-w-[calc(100vw-16px)] overflow-y-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg transition-none ${style.visibility === 'visible' ? 'menu-pop' : ''}`}>
+    <div ref={menuRef} id={id} role="menu" aria-label={label} data-side={side} style={style} className={`fixed z-50 w-60 max-w-[calc(100vw-16px)] overflow-y-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg transition-none ${style.visibility === 'visible' ? 'menu-pop' : ''}`}>
       {children}
     </div>,
     document.body,

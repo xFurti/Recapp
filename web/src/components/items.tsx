@@ -130,6 +130,7 @@ export function ItemRow({
                 <Paperclip className="size-3.5" />
               </a>
             )}
+            {item.status === 'published' && <CalendarButton item={item} subjects={subjects} />}
           </div>
         )}
         {compact && (
@@ -137,11 +138,6 @@ export function ItemRow({
             {relativeDay(item.due_date, t, i18n.language)}
             {item.due_time ? ` · ${item.due_time}` : ''}
           </p>
-        )}
-        {!compact && item.status === 'published' && (
-          <div className="mt-1">
-            <CalendarButton item={item} subjects={subjects} />
-          </div>
         )}
       </div>
       {compact && item.status === 'published' && <CalendarButton item={item} subjects={subjects} compact />}

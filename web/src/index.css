@@ -613,6 +613,25 @@ html.theme-anim {
 @keyframes menu-pop {
   from { opacity: 0; transform: translateY(-4px) scale(0.96); }
 }
+/* Flipped above its button, the menu rises from below instead. */
+.menu-pop[data-side='top'] {
+  animation-name: menu-pop-up;
+}
+@keyframes menu-pop-up {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+}
+/* Menu choices follow the panel in a short cascade. */
+.menu-pop .menu-row {
+  animation: profile-row 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(40ms + var(--i, 0) * 45ms);
+}
+/* Calendar trigger: the plus becomes a check with a small spring once an event is exported. */
+.calendar-added {
+  animation: calendar-added 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes calendar-added {
+  from { opacity: 0; transform: scale(0.4) rotate(-14deg); }
+}
 
 /* Profile menu grows out of the avatar and folds back into it. */
 .profile-panel[data-phase='open'] {
@@ -665,7 +684,9 @@ html.theme-anim {
   .done-check.is-drawing::after,
   .confetti-piece,
   .confetti-bit,
-  .menu-pop {
+  .menu-pop,
+  .menu-pop .menu-row,
+  .calendar-added {
     animation: none !important;
   }
   .confetti-piece { display: none; }
