@@ -1,3 +1,9 @@
+## Initial interface language
+
+`initial-language.spec.ts` opens the real landing route and simulates only HTTP responses and browser language preferences. It checks saved-choice priority, ordered browser preferences, regional tags, missing/empty lists, invalid saved values, English fallback, detection on each reload, and manual choices persisting after reload and browser preference changes. A DOM observer checks the heading, selector and document language at the first React render, including mobile dark theme. Automatic detection must leave saved language storage untouched. `language.spec.ts` continues to cover the existing manual transition and preservation of authored text, focus, selection, scroll and open dialogs.
+
+Run `npm run test:e2e -- tests/initial-language.spec.ts tests/language.spec.ts`. Issue #80 screenshots use production builds and a real local API without mocked HTTP responses; the same fresh Italian browser context is used before and after the change.
+
 ## Publication attribution
 
 `card-attribution.spec.ts` opens the real application routes and mocks only HTTP responses. It checks Today, the day card, archive and subject page in Italian and English, on desktop and phone, for demo and official class layouts. It verifies the original author's Share/Edit controls, omission of the updater after an author's own edit, draft attribution, admin preview, the spoken text and attribution drawn into the actual sharing canvas. The API suite separately exercises publication and edits in real demo and official classes, including permissions, counts, item authors, conflicts and migration of historical data. PR screenshots use the production build with a local API and an isolated database.

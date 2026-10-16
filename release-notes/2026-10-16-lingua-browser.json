@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.14",
+  "published_at": "2026-10-16T20:30:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Recapp parte nella tua lingua",
+    "en": "Recapp starts in your language"
+  },
+  "summary": [
+    {
+      "it": "Al primo accesso Recapp sceglie italiano o inglese seguendo le preferenze del browser.",
+      "en": "On your first visit, Recapp chooses Italian or English using your browser preferences."
+    },
+    {
+      "it": "La lingua che scegli dal selettore ha sempre la precedenza nelle visite successive.",
+      "en": "The language you pick with the selector always takes priority on future visits."
+    },
+    {
+      "it": "Finché non scegli una lingua, Recapp rilegge le preferenze del browser a ogni apertura.",
+      "en": "Until you pick a language, Recapp checks your browser preferences each time you open it."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "La lingua giusta fin dall'apertura",
+        "en": "Your language from the start"
+      },
+      "body": {
+        "it": "Se non hai già scelto una lingua, Recapp usa la prima preferenza del browser disponibile tra italiano e inglese, riconoscendo anche le varianti regionali. Se nessuna è supportata, parte in inglese. Testi e selettore sono allineati fin dall'apertura. Puoi cambiare lingua quando vuoi: la tua scelta viene ricordata e ha sempre la precedenza.",
+        "en": "If you haven't picked a language yet, Recapp uses your browser's first supported preference between Italian and English, including regional variants. If none is supported, it starts in English. Text and the selector agree from the start. You can switch languages at any time: your choice is remembered and always takes priority."
+      }
+    }
+  ]
+}
