@@ -35,6 +35,12 @@ These automated checks do not authenticate to Google or import into Apple Calend
 
 Run with the same `npm run test:e2e` command above. This harness is outside the production entry point. The issue #28 screenshots and recordings use the production build and a local API with isolated demo data; they are attached directly to the PR, outside the repository.
 
+## Item dates
+
+`item-dates.spec.ts` mounts the real Upcoming, Today and Editor pages with AppShell, routing, React Query and StrictMode. Only HTTP responses are mocked. It checks all four item types without a time control, full-width date inputs at 320px, 390px and desktop in Italian/English and light/dark themes, date suggestions and manual selection, POST/PATCH payloads with `due_time: null`, legacy times hidden in rows and cleared on editor autosave, preservation of lesson and attachment data, preview, and imported times discarded on direct acceptance or editing.
+
+Run just this suite with `npm run test:e2e -- item-dates.spec.ts`. The harness stays outside the production build.
+
 ## Navigation indicator
 
 `navigation.spec.ts` mounts the real `AppShell` (and `ClassNavigation`) in StrictMode with BrowserRouter, so URL changes and Back/Forward use browser history. Page bodies are small route labels; unrelated API responses are simulated. It checks the 240ms transform transition, alignment with the active link, no movement of link bounds, rapid navigation without accumulating transitions, initial deep links, hiding on editor/subject/archive routes, hover, keyboard focus and activation, existing icon animations, both themes, reduced motion, translation and breakpoint changes.

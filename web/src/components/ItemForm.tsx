@@ -13,7 +13,7 @@ export interface ItemInput {
   subject_code: string | null
   title: string
   due_date: string
-  due_time: string | null
+  due_time: null
   source: ItemSource
   link: string
   attachment_id?: number | null
@@ -76,7 +76,7 @@ export function ItemForm({
   const submit = (e: FormEvent) => {
     e.preventDefault()
     if (busy || !item.title.trim() || (correction && !reason.trim())) return
-    onSubmit({ ...item, title: item.title.trim(), due_time: item.due_time || null }, reason.trim())
+    onSubmit({ ...item, title: item.title.trim(), due_time: null }, reason.trim())
   }
 
   const title = correction ? t('item_corrections.report') : item.id ? t('item_form.edit') : t(`item_form.new_${item.type}`)
@@ -128,16 +128,7 @@ export function ItemForm({
                 </Chip>
               ))}
             </div>
-            <div className={correction ? 'min-w-0' : 'grid grid-cols-[minmax(0,1fr)_auto] gap-2'}>
-              <input type="date" className={inputClass} value={item.due_date} onChange={(e) => set({ due_date: e.target.value })} aria-label={t('item_form.pick_date')} required />
-              {!correction && <input
-                type="time"
-                className={`${inputClass} w-32`}
-                value={item.due_time ?? ''}
-                onChange={(e) => set({ due_time: e.target.value || null })}
-                aria-label={`${t('item_form.time')} (${t('common.optional')})`}
-              />}
-            </div>
+            <input type="date" className={inputClass} value={item.due_date} onChange={(e) => set({ due_date: e.target.value })} aria-label={t('item_form.pick_date')} required />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('item_form.source')}>

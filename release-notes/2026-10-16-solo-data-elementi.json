@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.16.9",
+  "published_at": "2026-10-16T20:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Scadenze più semplici, con il solo giorno",
+    "en": "Simpler deadlines, with just the day"
+  },
+  "summary": [
+    {
+      "it": "Compiti, verifiche, eventi e lab richiedono solo la data, senza l'orario.",
+      "en": "Homework, tests, events and labs need only a date, with no time."
+    },
+    {
+      "it": "Il selettore della data occupa tutta la riga, anche su telefono.",
+      "en": "The date picker fills the whole row, including on phones."
+    },
+    {
+      "it": "Restano i suggerimenti per la prossima lezione, domani e tra una settimana.",
+      "en": "Suggestions for the next lesson, tomorrow and in a week remain available."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Una data per ogni scadenza",
+        "en": "A date for every deadline"
+      },
+      "body": {
+        "it": "Quando aggiungi o modifichi un compito, una verifica, un evento o un lab scegli solo il giorno. Il selettore della data ha più spazio e i suggerimenti rapidi restano disponibili. Anche gli elenchi e le proposte importate mostrano solo il giorno; gli eventuali orari salvati in passato non vengono più mostrati.",
+        "en": "When adding or editing homework, a test, an event or a lab, choose just the day. The date picker has more room and quick suggestions remain available. Lists and imported suggestions also show only the day; any times saved in the past are no longer displayed."
+      }
+    }
+  ]
+}

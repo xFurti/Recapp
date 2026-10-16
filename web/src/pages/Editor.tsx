@@ -44,7 +44,7 @@ function initialState(page: CardPage): EditorState {
       notes: page.card.notes,
       items: page.card.items.map((i) => ({
         id: i.id, key: newKey(), type: i.type, subject_code: i.subject_code, title: i.title, due_date: i.due_date,
-        due_time: i.due_time, source: i.source, link: i.link, attachment_id: i.attachment_id,
+        due_time: null, source: i.source, link: i.link, attachment_id: i.attachment_id,
       })),
       attachment_ids: page.card.attachments.map((a) => a.id),
     }
@@ -95,7 +95,7 @@ function toPayload(s: EditorState, revision?: number) {
     notes: s.notes,
     items: s.items.map((i) => ({
       id: i.id, type: i.type, subject_code: i.subject_code, title: i.title, due_date: i.due_date,
-      due_time: i.due_time, source: i.source, link: i.link, attachment_id: i.attachment_id ?? null,
+      due_time: null, source: i.source, link: i.link, attachment_id: i.attachment_id ?? null,
     })),
     attachment_ids: s.attachment_ids,
   }
@@ -372,9 +372,9 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
         day={day}
         onAttach={(id) => update((s) => ({ ...s, attachment_ids: [...s.attachment_ids, id] }))}
         onAccept={(d, attachmentId) =>
-          update((s) => ({ ...s, items: [...s.items, { key: newKey(), type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: d.due_time, source: d.source, link: '', attachment_id: attachmentId }] }))
+          update((s) => ({ ...s, items: [...s.items, { key: newKey(), type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId }] }))
         }
-        onEdit={(d, attachmentId) => setForm({ type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: d.due_time, source: d.source, link: '', attachment_id: attachmentId })}
+        onEdit={(d, attachmentId) => setForm({ type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId })}
       />
 
       {otherItems.length > 0 && (
@@ -817,7 +817,7 @@ function AiSources({
                   <TypeBadge type={d.type} />
                   <SubjectTag subjects={info.subjects} code={d.subject_code} />
                   <SourceBadge source={d.source} />
-                  <span className="text-xs font-semibold">{capitalize(relativeDay(d.due_date, t, i18n.language))}{d.due_time ? ` · ${d.due_time}` : ''}</span>
+                  <span className="text-xs font-semibold">{capitalize(relativeDay(d.due_date, t, i18n.language))}</span>
                   {d.needs_check && <Badge className="bg-giallo text-[#1d1b1e]"><span className="language-text">{t('editor.check_date')}</span></Badge>}
                 </div>
                 <p className="mt-1 font-semibold">{d.title}</p>

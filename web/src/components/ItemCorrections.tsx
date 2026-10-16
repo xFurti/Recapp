@@ -6,7 +6,7 @@ import { api, ApiError } from '../api'
 import { relativeDay, shortDay, subjectName } from '../lib/format'
 import { classPath, useClass, useToday } from '../queries'
 import { CORRECTION_FIELDS, type CorrectionFields, type CorrectionInboxInfo, type Item, type ItemCorrection, type ItemCorrectionsInfo } from '../types'
-import { ItemForm } from './ItemForm'
+import { ItemForm, type ItemInput } from './ItemForm'
 import { TypeBadge } from './items'
 import { Avatar, Badge, Button, ErrorBox, Field, inputClass, Modal, Spinner } from './ui'
 
@@ -191,8 +191,8 @@ function CorrectionProposalForm({ item, pending, onClose, onSubmit, busy, error 
   const today = useToday(info.code)
   // Freeze the opening values. A background refetch must not turn untouched
   // fields into changes or overwrite data edited by someone else meanwhile.
-  const [current] = useState(item)
-  const [initial] = useState(() => ({ ...item, ...pending?.proposed }))
+  const [current] = useState<ItemInput>(() => ({ ...item, due_time: null }))
+  const [initial] = useState<ItemInput>(() => ({ ...item, ...pending?.proposed, due_time: null }))
   return <ItemForm open initial={initial} subjects={info.subjects} nextLessons={today.data?.next_lessons ?? {}} baseDay={today.data?.day}
     correction={{ current, reason: pending?.reason ?? '', pending: !!pending }}
     onClose={onClose} onSubmit={(input, reason) => {

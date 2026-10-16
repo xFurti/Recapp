@@ -118,7 +118,6 @@ export function ItemRow({
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span className="font-medium text-ink/80">
               {relativeDay(item.due_date, t, i18n.language)}
-              {item.due_time ? ` · ${item.due_time}` : ''}
             </span>
             <SourceBadge source={item.source} />
             {item.author && <span><TranslatedMessage message={'upcoming.added_by'} values={{ nick: item.author.nick }} /></span>}
@@ -139,7 +138,6 @@ export function ItemRow({
         {compact && (
           <p className="mt-0.5 text-xs text-muted">
             {relativeDay(item.due_date, t, i18n.language)}
-            {item.due_time ? ` · ${item.due_time}` : ''}
           </p>
         )}
         {corrections && <ItemCorrectionControls item={item} />}
