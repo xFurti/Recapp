@@ -25,17 +25,19 @@ function Row({ row, ranked }: { row: ContributionRow; ranked: boolean }) {
       id={row.is_me ? 'contributions-me' : undefined}
       tabIndex={row.is_me ? -1 : undefined}
       aria-current={row.is_me ? 'true' : undefined}
-      className={`flex items-center gap-3 px-3 py-3 outline-offset-[-3px] sm:px-4 ${row.is_me ? 'bg-bordeaux-soft' : ''}`}
+      className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 outline-offset-[-3px] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-4 ${row.is_me ? 'bg-bordeaux-soft' : ''}`}
       data-me={row.is_me || undefined}
     >
-      {ranked && (
-        <div className="w-12 shrink-0 text-center sm:w-16">
-          <p className="text-lg font-extrabold tabular-nums leading-tight"><span className="language-text">{position(row)}</span></p>
-          {row.tied && <p className="text-[11px] font-semibold leading-tight text-muted"><span className="language-text">{t('contributions.tied')}</span></p>}
-        </div>
-      )}
-      <Avatar nick={row.member.nick} color={row.member.color} />
-      <div className="min-w-0 flex-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
+        {ranked && (
+          <div className="w-12 max-w-full text-center sm:w-16">
+            <p className="text-lg font-extrabold tabular-nums leading-tight"><span className="language-text">{position(row)}</span></p>
+            {row.tied && <p className="text-[11px] font-semibold leading-tight text-muted"><span className="language-text">{t('contributions.tied')}</span></p>}
+          </div>
+        )}
+        <Avatar nick={row.member.nick} color={row.member.color} />
+      </div>
+      <div className="col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
         <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-semibold">
           <span className="min-w-0 break-words">{row.member.nick}</span>
           {row.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
@@ -46,11 +48,11 @@ function Row({ row, ranked }: { row: ContributionRow; ranked: boolean }) {
           )}
         </p>
         <p className="flex flex-wrap gap-x-1.5 text-xs text-muted">
-          <span className="whitespace-nowrap"><span className="language-text">{t('contributions.days', { count: row.days_published })}</span><span aria-hidden> ·</span></span>
-          <span className="whitespace-nowrap"><span className="language-text">{t('contributions.items', { count: row.items_added })}</span></span>
+          <span><span className="language-text">{t('contributions.days', { count: row.days_published })}</span><span aria-hidden> ·</span></span>
+          <span><span className="language-text">{t('contributions.items', { count: row.items_added })}</span></span>
         </p>
       </div>
-      <p className="shrink-0 text-right">
+      <p className="col-start-2 row-start-1 text-right sm:col-start-3">
         <span className="block text-lg font-extrabold tabular-nums leading-tight">{row.thanks}</span>
         <span className="language-text block text-xs font-semibold text-muted">{t('contributions.thanks_label', { count: row.thanks })}</span>
       </p>
@@ -69,7 +71,7 @@ function Rules({ period }: { period: ContributionsInfo['period'] }) {
         <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}
           className="flex min-h-14 w-full items-center gap-3 px-4 py-3 text-left font-bold hover:bg-ink/5 sm:px-5">
           <Info className="size-5 shrink-0 text-bordeaux" aria-hidden />
-          <span className="language-text flex-1">{t('contributions.rules_title')}</span>
+          <span className="language-text min-w-0 flex-1 break-words">{t('contributions.rules_title')}</span>
           <ChevronDown className={`faq-chevron size-5 shrink-0 text-muted ${open ? 'rotate-180' : ''}`} aria-hidden />
         </button>
       </h2>
@@ -96,7 +98,7 @@ function MyPosition({ row, allZero }: { row: ContributionRow; allZero: boolean }
   return (
     <Card className="flex flex-wrap items-center gap-x-3 gap-y-2 border-bordeaux/30">
       <Avatar nick={row.member.nick} color={row.member.color} />
-      <div className="min-w-[11rem] flex-1">
+      <div className="min-w-0 flex-1 basis-44">
         <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('contributions.me')}</span></p>
         <p className="font-bold">
           {allZero ? (
@@ -190,7 +192,7 @@ export default function ContributionsPage() {
       <Link to={`/c/${info.code}/classe`} state={{ focus: 'contributions' }} className="-ml-1 mb-2 inline-flex min-h-11 items-center gap-1 rounded-lg px-1 text-sm font-semibold text-muted hover:text-ink">
         <ArrowLeft className="size-4" aria-hidden /> <span className="language-text">{t('contributions.back')}</span>
       </Link>
-      <h1 ref={heading} tabIndex={-1} data-page-focus="" className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('contributions.title')}</span></h1>
+      <h1 ref={heading} tabIndex={-1} data-page-focus="" className="break-words text-2xl font-extrabold tracking-tight"><span className="language-text">{t('contributions.title')}</span></h1>
       <p className="mb-4 mt-1 max-w-prose text-muted"><span className="language-text">{t('contributions.intro')}</span></p>
       {body}
     </div>

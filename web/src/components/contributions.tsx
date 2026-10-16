@@ -22,7 +22,7 @@ export function StreakDays({ streak }: { streak: StreakInfo }) {
   if (!streak.days.length) return null
   const weekday = new Intl.DateTimeFormat(locale(i18n.language), { weekday: 'short' })
   return (
-    <ol className="grid grid-cols-7 gap-1" aria-label={t('contributions.streak_days')}>
+    <ol className="grid grid-cols-[repeat(auto-fit,minmax(2rem,1fr))] gap-x-1 gap-y-3" aria-label={t('contributions.streak_days')}>
       {streak.days.map(({ day, status }) => {
         const style = STREAK_STATUS[status]
         const Icon = style.icon
@@ -70,11 +70,11 @@ export function StreakHeadline({ streak, level = 'h2' }: { streak: StreakInfo; l
   const { t } = useTranslation()
   const Heading = level
   return (
-    <div className="flex min-w-0 items-center gap-3">
+    <div className="flex min-w-0 flex-wrap items-center gap-3">
       <span aria-hidden className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${streak.current > 0 ? 'bg-bordeaux-soft text-bordeaux' : 'bg-ink/5 text-muted'}`}>
         <Flame className="size-6" />
       </span>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1 basis-40">
         <Heading className="text-xl font-extrabold leading-tight tracking-tight">
           <span className="language-text">{streak.has_published || streak.current > 0 ? t('contributions.streak_count', { count: streak.current }) : t('contributions.streak_empty')}</span>
         </Heading>

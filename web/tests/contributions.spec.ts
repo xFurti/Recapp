@@ -37,9 +37,9 @@ const item = (id: number, title: string, author: typeof leo, extra: Partial<Item
   author, status: 'published', card_day: '2026-10-14', thanks: 0, thanked: false, can_thank: author.id !== leo.id, ...extra,
 })
 
-type Setup = { lang?: 'it' | 'en'; width?: number; dark?: boolean; data?: ContributionsInfo; failures?: number; cardAuthor?: typeof leo }
+type Setup = { lang?: 'it' | 'en'; width?: number; dark?: boolean; data?: ContributionsInfo; failures?: number; cardAuthor?: typeof leo; thanksResponseError?: boolean }
 
-async function setup(page: Page, { lang = 'it', width = 390, dark = false, data = full, failures = 0, cardAuthor = ada }: Setup = {}) {
+async function setup(page: Page, { lang = 'it', width = 390, dark = false, data = full, failures = 0, cardAuthor = ada, thanksResponseError = false }: Setup = {}) {
   await page.setViewportSize({ width, height: 844 })
   await page.addInitScript(({ lang, dark }) => {
     localStorage.setItem('ieri.lang', lang)
@@ -76,6 +76,8 @@ async function setup(page: Page, { lang = 'it', width = 390, dark = false, data 
       target.thanked = !target.thanked
       target.thanks += target.thanked ? 1 : -1
       contributions = { ...contributions, ranking: contributions.ranking.map(r => r.member.id === target.author!.id ? { ...r, thanks: r.thanks + (target.thanked ? 1 : -1) } : r) }
+      // The save succeeded, but the response was lost: the next read must reconcile it.
+      if (thanksResponseError) return route.fulfill({ status: 500, json: { detail: 'Risposta interrotta' } })
       return route.fulfill({ json: { ok: true, thanks: target.thanks, thanked: target.thanked } })
     }
     const card: Card = {
@@ -115,7 +117,7 @@ const T = {
 const noOverflow = (page: Page) => expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
 
 for (const lang of ['it', 'en'] as const) {
-  for (const width of [390, 1280]) {
+  for (const width of [320, 390, 1280]) {
     const dark = lang === 'en' && width === 390
     test(`Classe card leads to Contributi with ties, own row and rules (${lang}, ${width}px${dark ? ', dark' : ''})`, async ({ page }) => {
       const t = T[lang]
@@ -191,6 +193,103 @@ test('all at zero: no winner, no positions, contributions still counted', async 
   await expect(region).not.toContainText('1°')
   await expect(region.getByRole('listitem').first()).toContainText('2 giornate pubblicate')
   await expect(page.getByText('0 Grazie, nessuna classifica per ora')).toBeVisible()
+})
+
+for (const lang of ['it', 'en'] as const) for (const width of [320, 390, 1280]) for (const scale of [1, 2]) {
+  test(`ranking content stays readable (${lang}, ${width}px, ${scale * 100}% text)`, async ({ page }) => {
+    await setup(page, { lang, width, dark: lang === 'en' })
+    await page.goto('/c/TEST/classe/contributi')
+    const rows = page.getByRole('region', { name: T[lang].ranking }).getByRole('listitem')
+    await expect(rows).toHaveCount(ranking.length)
+    await page.evaluate(scale => { document.documentElement.style.fontSize = `${scale * 100}%` }, scale)
+    await noOverflow(page)
+    // Checking page overflow alone misses text overlapping another column or clipped by the list.
+    const issues = await rows.evaluateAll(elements => elements.flatMap(element => {
+      const row = element.getBoundingClientRect()
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+      const boxes: { text: string; rect: DOMRect }[] = []
+      let node: Node | null
+      while ((node = walker.nextNode())) {
+        if (!node.textContent?.trim() || node.parentElement?.closest('[aria-hidden="true"], .sr-only')) continue
+        const range = document.createRange()
+        range.selectNodeContents(node)
+        for (const rect of range.getClientRects()) {
+          if (rect.width > 0 && rect.height > 0) boxes.push({ text: node.textContent, rect })
+        }
+      }
+      const clipped = boxes.filter(({ rect }) => rect.left < row.left - 1 || rect.right > row.right + 1 || rect.top < row.top - 1 || rect.bottom > row.bottom + 1)
+      const overlaps = boxes.flatMap((a, index) => boxes.slice(index + 1).filter(b =>
+        Math.min(a.rect.right, b.rect.right) - Math.max(a.rect.left, b.rect.left) > 1 &&
+        Math.min(a.rect.bottom, b.rect.bottom) - Math.max(a.rect.top, b.rect.top) > 1,
+      ).map(b => `${a.text} / ${b.text}`))
+      return [...clipped.map(({ text }) => `clipped: ${text}`), ...overlaps.map(text => `overlap: ${text}`)]
+    }))
+    expect(issues).toEqual([])
+    const days = page.getByRole('list', { name: T[lang].days }).getByRole('listitem')
+    const tiles = await days.evaluateAll(elements => elements.map(e => e.getBoundingClientRect().toJSON()))
+    for (let i = 1; i < tiles.length; i++) {
+      expect(tiles[i].top >= tiles[i - 1].bottom || tiles[i].left >= tiles[i - 1].right - 1).toBe(true)
+    }
+    const mine = page.locator('li[aria-current="true"]')
+    await page.getByRole('button', { name: T[lang].me }).click()
+    await expect(mine).toBeFocused()
+  })
+}
+
+test('pending Grazie is shared between copies of an item and survives navigating away', async ({ page }) => {
+  const calls = await setup(page)
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  let requests = 0
+  await page.route('**/upcoming/1/thanks', async route => {
+    requests++
+    await gate
+    await route.fallback()
+  })
+  await page.goto('/c/TEST')
+  const name = /^Grazie per «Esercizi 1–5 pagina 112»/
+  const buttons = page.getByRole('button', { name })
+  await expect(buttons).toHaveCount(2)
+  await buttons.first().click()
+  await expect.poll(() => requests).toBe(1)
+  for (const button of [buttons.first(), buttons.last()]) await expect(button).toHaveAttribute('aria-busy', 'true')
+  await buttons.last().click()
+  await page.keyboard.press('Space')
+  // Another item remains independent while the first request is pending.
+  const other = page.getByRole('button', { name: /^Grazie per «Ripasso derivate»/ })
+  await other.click()
+  await expect(other).toHaveText('4')
+  await expect(other).not.toHaveAttribute('aria-busy', 'true')
+  await page.locator('.section-nav-mobile').getByRole('link', { name: 'In arrivo' }).click()
+  await expect(page).toHaveURL(/\/in-arrivo$/)
+  await expect(buttons).toHaveCount(1)
+  await expect(buttons).toHaveAttribute('aria-busy', 'true')
+  await buttons.click()
+  release()
+  await expect(buttons).not.toHaveAttribute('aria-busy', 'true')
+  await expect(buttons).toHaveAttribute('aria-pressed', 'true')
+  await expect(buttons).toHaveText('1')
+  expect(requests).toBe(1)
+  expect(calls.thanks).toBe(2) // one per distinct item
+  await buttons.click()
+  await expect(buttons).toHaveAttribute('aria-pressed', 'false')
+  await expect(buttons).not.toHaveAttribute('aria-busy', 'true')
+  expect(requests).toBe(2)
+})
+
+test('a lost response after saving a Grazie reconciles all copies with the server', async ({ page }) => {
+  const calls = await setup(page, { thanksResponseError: true })
+  await page.goto('/c/TEST')
+  const buttons = page.getByRole('button', { name: /^Grazie per «Esercizi 1–5 pagina 112»/ })
+  await expect(buttons).toHaveCount(2)
+  await buttons.first().click()
+  await expect(page.getByRole('status').filter({ hasText: 'Risposta interrotta' })).toBeVisible()
+  for (const button of [buttons.first(), buttons.last()]) {
+    await expect(button).not.toHaveAttribute('aria-busy', 'true')
+    await expect(button).toHaveAttribute('aria-pressed', 'true')
+    await expect(button).toHaveText('1')
+  }
+  expect(calls.thanks).toBe(1)
 })
 
 test('a class with nothing published yet invites to start, on Classe and in Contributi', async ({ page }) => {

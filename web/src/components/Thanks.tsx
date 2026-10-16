@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { useIsMutating, useMutation, useQueryClient, type Query, type QueryClient } from '@tanstack/react-query'
 import { useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api'
@@ -85,6 +85,10 @@ export function ThanksCount({ count, small }: { count: number; small?: boolean }
 
 const ITEM_QUERIES = ['upcoming', 'today', 'card', 'subject', 'item-corrections', 'correction-inbox']
 
+const itemQueries = (code: string) => ({
+  predicate: (query: Query) => ITEM_QUERIES.includes(String(query.queryKey[0])) && query.queryKey[1] === code,
+})
+
 function patchItem(value: unknown, id: number, state: ThanksState): unknown {
   if (Array.isArray(value)) {
     let changed = false
@@ -109,7 +113,7 @@ function patchItem(value: unknown, id: number, state: ThanksState): unknown {
 
 /** One item, one counter: update it in every cached view of the class at once. */
 function patchItemThanks(qc: QueryClient, code: string, id: number, state: ThanksState) {
-  for (const query of qc.getQueryCache().findAll({ predicate: (q) => ITEM_QUERIES.includes(String(q.queryKey[0])) && q.queryKey[1] === code })) {
+  for (const query of qc.getQueryCache().findAll(itemQueries(code))) {
     qc.setQueryData(query.queryKey, (old: unknown) => patchItem(old, id, state))
   }
 }
@@ -119,10 +123,15 @@ export function ItemThanks({ item }: { item: Item }) {
   const { code } = useClass()
   const qc = useQueryClient()
   const [error, setError] = useState<string | null>(null)
+  const mutationKey = ['item-thanks', code, item.id]
+  const pending = useIsMutating({ mutationKey, exact: true }) > 0
   const current: ThanksState = { thanks: item.thanks ?? 0, thanked: !!item.thanked }
   const toggle = useMutation({
+    mutationKey,
     mutationFn: () => api.post<ThanksState>(classPath(code, `/upcoming/${item.id}/thanks`)),
-    onMutate: () => {
+    onMutate: async () => {
+      // An older read must not replace the optimistic state while the toggle is pending.
+      await qc.cancelQueries(itemQueries(code))
       const before = current
       patchItemThanks(qc, code, item.id, { thanked: !before.thanked, thanks: Math.max(0, before.thanks + (before.thanked ? -1 : 1)) })
       return before
@@ -132,7 +141,10 @@ export function ItemThanks({ item }: { item: Item }) {
       if (before) patchItemThanks(qc, code, item.id, before)
       setError((e as Error).message || t('common.error'))
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['contributions', code] }),
+    onSettled: () => Promise.all([
+      qc.invalidateQueries(itemQueries(code)),
+      qc.invalidateQueries({ queryKey: ['contributions', code] }),
+    ]),
   })
   if (item.status !== 'published') return null
   if (!item.can_thank) return current.thanks > 0 ? <ThanksCount count={current.thanks} small /> : null
@@ -141,8 +153,12 @@ export function ItemThanks({ item }: { item: Item }) {
       <ThanksButton
         small
         thanked={current.thanked}
-        busy={toggle.isPending}
-        onToggle={() => toggle.mutate()}
+        busy={pending}
+        onToggle={() => {
+          // The item can appear twice on Today, or remount while a request is still running.
+          // Check the shared cache synchronously, before either copy has time to rerender.
+          if (qc.isMutating({ mutationKey, exact: true }) === 0) toggle.mutate()
+        }}
         label={t('thanks.item_aria', { title: item.title, count: current.thanks })}
       >
         <span className="language-text tabular-nums">{current.thanks > 0 ? current.thanks : t('feedback.thanks')}</span>
