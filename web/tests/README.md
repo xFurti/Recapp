@@ -107,3 +107,13 @@ Omit the executable override when using Playwright's bundled Chromium. A local W
 Run `npm run test:e2e -- tests/contributions.spec.ts`. The API suite in `api/tests/test_contributions.py` separately checks attribution, uniqueness, withdrawal, self-thanks (blocked and legacy rows ignored), cross-class and draft isolation, school/anonymous access, aggregation with ties, inactive members, the period and deleted items, the punctual streak (open today, missed and late days, holidays, timezone, days before the class joined), the item publication backfill, and the demo seed. Issue #79 screenshots come from the production build served by a local API with isolated demo and official-class data.
 
 Regression checks also inspect individual text bounds and overlaps in every ranking row at 320px, 390px and desktop, in both languages, at 100% and 200% text size. They exercise shared pending state across duplicate item buttons and client-side navigation, independent items, and a server save whose response fails: all copies reconcile with the saved state. These use delayed or failed HTTP responses; the PR screenshots use the real local API without mocked data.
+
+## Contributions podium and motion
+
+`contributions.spec.ts` opens the real Classe, Contributi, Today and Upcoming routes with deterministic HTTP responses. The 39 cases run on Chromium and WebKit: single/paired/three-place podiums, competition positions for ties, a compact 24-person group and keyboard expansion, every member appearing once, personal focus within and beyond the podium (also after promotion), animated counters, genuine record detection and deduplication across refetch/navigation/reload, lower recalculated records, and changes to reduced-motion preferences. Layout checks cover 320/390/1280px, Italian/English, both themes, long unbroken names and 200% text, including text overlap and clipping. Existing Grazie and empty/error-state checks remain in the suite.
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --config playwright.contributions.config.ts
+```
+
+Install WebKit with `npx playwright install webkit`, or set `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH` to an existing launcher. Browser fixtures simulate HTTP responses only; they do not change counting rules. Issue #90 screenshots and video use production builds with the real local API and an isolated SQLite demo database. The recording includes a real Grazie changing the podium and a real publication advancing the streak and record; no HTTP responses are mocked in those captures. See `docs/screenshots/issue-90/README.md` for the original base and capture details.

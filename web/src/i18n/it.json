@@ -872,7 +872,12 @@
     "rule_credit": "Bozze e salvataggi automatici non contano. Chi corregge o ripubblica un contenuto non ne prende il merito; un elemento nuovo è di chi lo aggiunge. Appunti e foto fanno parte della giornata.",
     "rule_order": "Ordine: per Grazie ricevuti. A parità la posizione è condivisa e si segue l'ordine dei nickname. Giornate ed elementi restano numeri a parte: non c'è un punteggio, e ruolo e turni non danno vantaggi.",
     "rule_streak": "Giornate di fila: conta ogni giorno di scuola pubblicato entro mezzanotte, ora della classe. Weekend, festività e sospensioni non interrompono la serie. Una giornata recuperata dopo resta nell'archivio ma non allunga la serie. Oggi resta da completare fino a fine giornata: le 18:00 aprono solo il subentro.",
-    "rule_members": "Chi lascia la classe non compare in classifica; i suoi contenuti e i Grazie restano."
+    "rule_members": "Chi lascia la classe non compare in classifica; i suoi contenuti e i Grazie restano.",
+    "podium": "Il podio della classe",
+    "group_members_one": "{{count}} partecipante",
+    "group_members_other": "{{count}} partecipanti",
+    "group_open": "Mostra / nascondi i nomi",
+    "group_me": "Ci sei anche tu"
   },
   "thanks": {
     "item_aria": "Grazie per «{{title}}» · {{count}} grazie",
