@@ -80,3 +80,13 @@ Issue #64 screenshots are captured from the production build with an isolated lo
 ## Theme toggle
 
 `theme-toggle.spec.ts` exercises the actual landing and privacy pages and both AppShell header variants through the existing navigation harness, with HTTP responses mocked. It checks both directions from either saved theme, storage and remounting, the 32px button and 28px language flag without header movement, 500ms rotation/scale transitions with a 200ms incoming delay, independent page color blending, keyboard focus and Italian/English accessible names, rapid reversals, and immediate swaps with reduced motion. PR screenshots and desktop/phone videos are captured separately from the production build and a local API using isolated demo data, then uploaded directly to GitHub.
+
+## Lab notes (issue #81)
+
+`lab-notes.html` mounts the real Editor, AppShell, published card and Upcoming routes. Only HTTP responses are mocked. The dedicated Chromium/WebKit suite covers IT/EN, light/dark, 320px/1280px, keyboard focus when adding/removing the optional link, multiline notes, autosave, reopening, preview, publication, timetable defaults, the empty-publication guard, legacy conversion/editing/clearing, dated materials in Upcoming, speech text and the shared image's LAB badge.
+
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --config playwright.lab.config.ts
+```
+
+Omit the executable override when using Playwright's bundled Chromium. A local WebKit wrapper can be selected with `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH` when the host needs external browser libraries. Screenshots in `docs/screenshots/issue-81/` use production builds and a real local API with an isolated demo database; the before images come from the original base. The electronics example includes dated materials using the existing assignment flow. WebKit on Linux is a browser-engine check, not a physical iPhone test.

@@ -1,10 +1,11 @@
-import { Backpack, FlaskConical, Link as LinkIcon, Pause, Play, Square, StickyNote, Target, TriangleAlert } from 'lucide-react'
+import { FlaskConical, Link as LinkIcon, Pause, Play, Square, StickyNote } from 'lucide-react'
 import { useState } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { attachmentUrl } from '../api'
 import { capitalize, longDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { useSpeech } from '../lib/speech'
+import { hasEntrySummary, labNotes } from '../lib/lab'
 import type { Card, ClassInfo, Entry, Lesson, Subject } from '../types'
 import { ShareButton } from './ShareButton'
 import { TranslatedMessage } from './TranslatedMessage'
@@ -58,36 +59,22 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   const { t } = useTranslation()
   const lab = entry.lab
   if (!lab) return null
-  const rows = [
-    { icon: Target, label: t('day.lab_goal'), value: lab.goal },
-    { icon: LinkIcon, label: t('day.lab_repo'), value: lab.repo_url, link: true },
-    { icon: TriangleAlert, label: t('day.lab_pitfall'), value: lab.pitfall, warn: true },
-    { icon: Backpack, label: t('day.lab_bring'), value: lab.bring },
-  ].filter((r) => r.value)
-  if (!rows.length) return null
+  const notes = labNotes(lab, t)
+  if (!notes.trim() && !lab.repo_url.trim()) return null
   return (
     <div className="mt-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
-      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
-        <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_title')}</span>
-      </p>
-      <dl className="space-y-1.5 text-sm">
-        {rows.map((r, index) => (
-          <div key={index} className="flex gap-2">
-            <r.icon className={`mt-0.5 size-4 shrink-0 ${r.warn ? 'text-rosa-ink' : 'text-verde-ink'}`} aria-hidden />
-            <dt className="language-text sr-only">{r.label}</dt>
-            <dd className="min-w-0">
-              <span className="language-text font-semibold">{r.label}: </span>
-              {r.link ? (
-                <a href={r.value} target="_blank" rel="noreferrer noopener" className="break-all font-medium text-azzurro-ink underline">
-                  {r.value.replace(/^https?:\/\//, '')}
-                </a>
-              ) : (
-                <span className={r.warn ? 'font-mono text-[13px]' : ''}>{r.value}</span>
-              )}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      {notes.trim() && <>
+        <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
+          <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_notes')}</span>
+        </p>
+        <p className="whitespace-pre-wrap break-words text-sm">{notes}</p>
+      </>}
+      {lab.repo_url.trim() && <p className={`${notes.trim() ? 'mt-3' : ''} flex items-start gap-1.5 text-sm`}>
+        <LinkIcon className="mt-0.5 size-4 shrink-0 text-verde-ink" aria-hidden />
+        <a href={lab.repo_url} target="_blank" rel="noreferrer noopener" className="min-w-0 break-all font-medium text-azzurro-ink underline">
+          <span className="language-text">{t('day.lab_link')}</span> · {lab.repo_url.replace(/^https?:\/\//, '')}
+        </a>
+      </p>}
     </div>
   )
 }
@@ -95,7 +82,7 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
 export function DayCardView({ card, subjects, classLabel, classInfo, canShare }: { card: Card; subjects: Subject[]; classLabel?: string; classInfo?: ClassInfo; canShare?: boolean }) {
   const { t, i18n } = useTranslation()
   const [zoom, setZoom] = useState<number | null>(null)
-  const entries = card.entries.filter((e) => e.bullets.length || e.lab || e.attachment_ids?.length || e.lesson_status !== 'svolta')
+  const entries = card.entries.filter((e) => hasEntrySummary(e) || e.lesson_status !== 'svolta')
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface">
       <header className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
@@ -191,11 +178,13 @@ export function speechText(card: Card, subjects: Subject[], t: TFunction, lang: 
       parts.push(`${name}: ${t('listen.s_not_done')}`)
       continue
     }
-    if (!e.bullets.length && !e.lab) continue
+    if (!hasEntrySummary(e)) continue
     parts.push(`${name}${e.is_lab ? `, ${t('listen.s_lab')}` : '.'} ${e.bullets.join('. ')}.`)
-    if (e.lab?.goal) parts.push(t('listen.s_goal', { v: e.lab.goal }))
-    if (e.lab?.pitfall) parts.push(t('listen.s_pitfall', { v: e.lab.pitfall }))
-    if (e.lab?.bring) parts.push(t('listen.s_bring', { v: e.lab.bring }))
+    if (e.lab) {
+      const notes = labNotes(e.lab, t)
+      if (notes.trim()) parts.push(t('listen.s_lab_notes', { v: notes }))
+      if (e.lab.repo_url.trim()) parts.push(t('listen.s_lab_link'))
+    }
   }
   if (card.items.length) {
     parts.push(t('listen.s_assigned'))

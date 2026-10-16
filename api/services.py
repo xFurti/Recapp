@@ -93,6 +93,10 @@ def card_attribution(card: DayCard, members: dict[int, Member]) -> dict:
     }
 
 
+def lab_out(lab: LabBlock) -> dict:
+    return {"notes": lab.notes, "repo_url": lab.repo_url, "goal": lab.goal, "pitfall": lab.pitfall, "bring": lab.bring}
+
+
 def card_out(session: Session, card: DayCard) -> dict:
     entries = session.exec(
         select(SubjectEntry).where(SubjectEntry.card_id == card.id).order_by(SubjectEntry.position)
@@ -138,12 +142,7 @@ def card_out(session: Session, card: DayCard) -> dict:
                 "lesson_status": e.lesson_status,
                 "bullets": e.bullets or [],
                 "lab": (
-                    {
-                        "goal": labs[e.id].goal,
-                        "repo_url": labs[e.id].repo_url,
-                        "pitfall": labs[e.id].pitfall,
-                        "bring": labs[e.id].bring,
-                    }
+                    lab_out(labs[e.id])
                     if e.id in labs
                     else None
                 ),
@@ -483,7 +482,7 @@ def has_content(session: Session, card: DayCard) -> bool:
         return True
     if entries:
         labs = session.exec(select(LabBlock).where(col(LabBlock.entry_id).in_([e.id for e in entries]))).all()
-        if any(any(v.strip() for v in (l.goal, l.repo_url, l.pitfall, l.bring)) for l in labs):
+        if any(any(v.strip() for v in (l.notes or "", l.goal, l.repo_url, l.pitfall, l.bring)) for l in labs):
             return True
     item = session.exec(select(UpcomingItem.id).where(UpcomingItem.card_id == card.id)).first()
     return item is not None
@@ -496,7 +495,7 @@ def publish_card(session: Session, state: DayState) -> DayCard:
     if card is None:
         raise HTTPException(400, "Salva prima la giornata")
     if not has_content(session, card):
-        raise HTTPException(422, "Scrivi almeno un punto, un blocco lab o un compito prima di pubblicare")
+        raise HTTPException(422, "Scrivi almeno un punto, una nota di laboratorio o un compito prima di pubblicare")
     now = datetime.now(timezone.utc)
     if card.status != "published":
         # The publisher can differ from both the draft writer and the scheduled scribe.

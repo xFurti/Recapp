@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { card, cardPage } from './lesson-fixture'
+import { card, cardPage, convertedLab } from './lesson-fixture'
 import type { Card } from '../src/types'
 
 async function setup(page: Page, { mobile = false, dark = false, english = false } = {}) {
@@ -39,7 +39,7 @@ test('saved state, autosave, reopening, preview and publication preserve all les
     await group.getByRole('radio', { name: label, exact: true }).check()
     await expect(group.locator('input:checked')).toHaveCount(1)
     await expect.poll(() => saved().entries[0].lesson_status).toBe(status)
-    expect(saved().entries[0]).toEqual({ ...card.entries[0], lesson_status: status })
+    expect(saved().entries[0]).toEqual({ ...card.entries[0], lab: convertedLab, lesson_status: status })
     expect(saved().entries[1]).toEqual(card.entries[1])
     expect(saved().notes).toBe(card.notes)
     expect(saved().attachments).toEqual(card.attachments)
@@ -48,7 +48,7 @@ test('saved state, autosave, reopening, preview and publication preserve all les
   await page.goto('/tests/lesson-status.html')
   await expect(group.getByRole('radio', { name: 'Verifica svolta', exact: true })).toBeChecked()
   await expect(page.locator('input[value="API e database"]')).toBeVisible()
-  await expect(page.getByRole('checkbox', { name: 'È stato un lab' }).first()).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'Lezione in laboratorio' }).first()).toBeChecked()
   await page.getByRole('button', { name: 'Anteprima', exact: true }).click()
   await expect(page.getByText('Verifica svolta', { exact: true })).toBeVisible()
   await expect(page.getByText('API e database', { exact: true })).toBeVisible()
@@ -57,7 +57,7 @@ test('saved state, autosave, reopening, preview and publication preserve all les
   await expect(page).toHaveURL(/\/giorno\/2026-10-02$/)
   await expect(page.locator('main').getByText('Verifica svolta', { exact: true })).toBeVisible()
   expect(saved().status).toBe('published')
-  expect(saved().entries[0]).toEqual({ ...card.entries[0], lesson_status: 'verifica' })
+  expect(saved().entries[0]).toEqual({ ...card.entries[0], lab: convertedLab, lesson_status: 'verifica' })
 })
 
 test('native radio keyboard navigation, subject association and visible selection', async ({ page }) => {

@@ -45,6 +45,7 @@ class OwnerLoginIn(BaseModel):
 
 
 class LabIn(BaseModel):
+    notes: Optional[str] = Field(None, max_length=3000)
     goal: str = Field("", max_length=300)
     repo_url: str = Field("", max_length=500)
     pitfall: str = Field("", max_length=300)
@@ -55,13 +56,18 @@ class LabIn(BaseModel):
     def _trim(cls, v: str) -> str:
         return v.strip()
 
+    @field_validator("notes")
+    @classmethod
+    def _notes(cls, v: Optional[str]) -> Optional[str]:
+        return v.strip() if v is not None else None
+
     @field_validator("repo_url")
     @classmethod
     def _repo(cls, v: str) -> str:
         return _clean_link(v)
 
     def is_empty(self) -> bool:
-        return not any(v.strip() for v in (self.goal, self.repo_url, self.pitfall, self.bring))
+        return not any(v.strip() for v in (self.notes or "", self.goal, self.repo_url, self.pitfall, self.bring))
 
 
 class EntryIn(BaseModel):
