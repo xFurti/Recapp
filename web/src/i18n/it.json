@@ -206,7 +206,14 @@
     "photos": "Foto appunti",
     "photo_open": "Apri foto",
     "add_photo": "Aggiungi foto appunti",
-    "photo_limit": "Massimo 3 foto per materia"
+    "photo_limit": "Massimo 3 foto per materia",
+    "missed_title": "Nessuno ha ancora pubblicato il riepilogo di questa giornata",
+    "missed_sub": "La giornata è rimasta senza riepilogo.",
+    "missed_draft_sub": "C'è una bozza non ancora pubblicata.",
+    "missed_badge": "Non pubblicata",
+    "draft_badge": "Bozza non pubblicata",
+    "fill_day": "Compila giornata",
+    "complete_draft": "Completa bozza"
   },
   "listen": {
     "loading": "Avvio…",

@@ -20,7 +20,8 @@ def test_public_notes_and_unique_content_source(client):
     assert {key: body[key] for key in ('current', 'releases')} == built
     assert body['version'] == releases.settings.app_version
     assert client.get('/api/releases').headers['cache-control'] == 'no-store'
-    assert body['current'] == '2026.10.13.1'
+    # Every PR adds a note: the newest one is current, whatever its id.
+    assert body['current'] == body['releases'][0]['id']
     assert len(body['releases'][0]['summary']) == 3
 
 
