@@ -1,0 +1,23 @@
+{
+  "id": "2026.10.16.1",
+  "published_at": "2026-10-16T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Scadenze nel tuo calendario", "en": "Deadlines in your calendar" },
+  "summary": [
+    { "it": "Aggiungi compiti, verifiche, eventi e laboratori a Google Calendar o Calendario Apple.", "en": "Add homework, tests, events and labs to Google Calendar or Apple Calendar." },
+    { "it": "L’azione è in In arrivo, in Oggi, nelle giornate e nella pagina della materia.", "en": "The action is in Upcoming, Today, day cards and subject pages." },
+    { "it": "L’evento contiene solo i dati dell’elemento: niente autore, note o dati personali.", "en": "The event holds only the item details: no author, notes or personal data." }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": { "it": "Aggiungi al calendario", "en": "Add to calendar" },
+      "body": { "it": "Accanto a ogni elemento pubblicato trovi Aggiungi al calendario. Google Calendar si apre in una nuova scheda con l’evento già compilato; Calendario Apple scarica un file .ics da aprire. L’evento dura tutto il giorno della scadenza e include tipo, materia, titolo, classe, fonte e link.", "en": "Next to each published item you'll find Add to calendar. Google Calendar opens in a new tab with the event filled in; Apple Calendar downloads an .ics file to open. The event lasts the whole due day and includes type, subject, title, class, source and link." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Comodo anche da tastiera e telefono", "en": "Easy on keyboard and phone too" },
+      "body": { "it": "Il menu si usa con le frecce, Invio ed Esc e resta sempre sopra la barra in basso. Dopo l’aggiunta l’icona diventa una spunta, così sai che è andata a buon fine.", "en": "The menu works with the arrow keys, Enter and Escape, and always stays above the bottom bar. After adding, the icon turns into a check so you know it worked." }
+    }
+  ]
+}
