@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from ..auth import ClassAccess, class_access, request_now
@@ -24,6 +25,7 @@ from ..services import (
     member_brief,
     missed_days,
     publish_card,
+    remove_items,
     save_card,
     upcoming_query,
     week_bounds,
@@ -31,6 +33,7 @@ from ..services import (
     touch_item_card,
 )
 from ..item_corrections import annotate_items
+from ..thanks import can_thank, card_thanks
 
 router = APIRouter(prefix="/api/classes/{code}")
 
@@ -43,7 +46,7 @@ DEMO_COMMENT_LIMIT_PER_HOUR = 8
 def feedback(day: date, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     card = get_card(session, access.classroom.id, day)
     if card is None or card.status != "published":
-        return {"thanks": 0, "thanked": False, "open_corrections": 0, "comments": []}
+        return {"thanks": 0, "thanked": False, "can_thank": False, "open_corrections": 0, "comments": []}
     comments = session.exec(
         select(CardComment)
         .where(CardComment.card_id == card.id, CardComment.deleted == False)  # noqa: E712
@@ -51,10 +54,12 @@ def feedback(day: date, access: ClassAccess = Depends(class_access), session: Se
     ).all()
     authors = member_names(session, {c.member_id for c in comments})
     me = access.member
-    thanks = session.exec(select(CardThanks).where(CardThanks.card_id == card.id)).all()
+    thanks, thanked = card_thanks(session, card, me)
     return {
-        "thanks": len(thanks),
-        "thanked": me is not None and any(t.member_id == me.id for t in thanks),
+        "thanks": thanks,
+        "thanked": thanked,
+        # Grazie go to whoever published the day: never to yourself.
+        "can_thank": can_thank(me, card.author_member_id, True),
         "open_corrections": sum(1 for c in comments if c.kind == "correction" and not c.resolved),
         "comments": [
             {
@@ -127,13 +132,20 @@ def delete_comment(comment_id: int, access: ClassAccess = Depends(class_access),
 def toggle_thanks(day: date, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     me = access.require_member()
     card = _published(session, access.classroom.id, day)
+    if card.author_member_id == me.id:
+        raise HTTPException(403, "Non puoi ringraziare una giornata che hai pubblicato tu")
     existing = session.exec(select(CardThanks).where(CardThanks.card_id == card.id, CardThanks.member_id == me.id)).first()
     if existing:
         session.delete(existing)
     else:
         session.add(CardThanks(card_id=card.id, member_id=me.id))
-    session.commit()
-    return {"ok": True}
+    try:
+        session.commit()
+    except IntegrityError:
+        # A double tap raced another request that already saved the same Grazie.
+        session.rollback()
+    thanks, thanked = card_thanks(session, card, me)
+    return {"ok": True, "thanks": thanks, "thanked": thanked}
 
 
 @router.get("/cards")
@@ -216,7 +228,7 @@ def get_card_page(day: date, request: Request, access: ClassAccess = Depends(cla
     next_pub = min(filter(None, (next_pub, next_missed)), default=None)
     return {
         "state": state.as_dict(),
-        "card": card_out(session, card) if visible else None,
+        "card": card_out(session, card, access.member) if visible else None,
         "lessons": [b.as_dict(cal.hour_times()) for b in cal.lessons(day)],
         "next_lessons": cal.next_lessons(day),
         "prev_published": prev_pub.isoformat() if prev_pub else None,
@@ -230,7 +242,7 @@ def put_card(day: date, data: CardIn, request: Request, access: ClassAccess = De
     now = request_now(request, access.classroom)
     state = DayState(access, ClassCalendar(session, access.classroom), day, now)
     card = save_card(session, state, data)
-    return card_out(session, card)
+    return card_out(session, card, access.member)
 
 
 @router.post("/cards/{day}/publish")
@@ -239,7 +251,7 @@ def post_publish(day: date, request: Request, access: ClassAccess = Depends(clas
     now = request_now(request, access.classroom)
     state = DayState(access, ClassCalendar(session, access.classroom), day, now)
     card = publish_card(session, state)
-    return card_out(session, card)
+    return card_out(session, card, access.member)
 
 
 @router.get("/subjects/{subject}/entries")
@@ -277,7 +289,7 @@ def subject_entries(
         items = session.exec(
             select(UpcomingItem).where(UpcomingItem.card_id.in_(card_ids), UpcomingItem.subject_code == subject.upper())
         ).all()
-        for item, row in zip(items, items_out(session, list(items))):
+        for item, row in zip(items, items_out(session, list(items), access.member)):
             items_by_card.setdefault(item.card_id, []).append(row)
     authors = member_names(session, {member_id for _, c in rows for member_id in (c.author_member_id, c.updated_by_member_id)})
     out = []
@@ -351,7 +363,7 @@ def upcoming(
         q = q.where(UpcomingItem.type == type)
     items = session.exec(q).all()
     me = access.member
-    out = items_out(session, list(items))
+    out = items_out(session, list(items), me)
     for row, item in zip(out, items):
         row["can_edit"] = me is not None and (access.is_admin or item.author_member_id == me.id)
     annotate_items(session, list(items), out, access, today)
@@ -375,11 +387,12 @@ def add_upcoming(data: ItemIn, access: ClassAccess = Depends(class_access), sess
         attachment_id=data.attachment_id,
         author_member_id=me.id,
         status="published",
+        published_at=datetime.now(timezone.utc),
     )
     session.add(item)
     session.commit()
     session.refresh(item)
-    return items_out(session, [item])[0]
+    return items_out(session, [item], me)[0]
 
 
 def _editable_item(session: Session, access: ClassAccess, item_id: int) -> UpcomingItem:
@@ -402,12 +415,12 @@ def patch_upcoming(item_id: int, data: UpcomingPatch, access: ClassAccess = Depe
     touch_item_card(session, item)
     session.commit()
     session.refresh(item)
-    return items_out(session, [item])[0]
+    return items_out(session, [item], access.member)[0]
 
 
 @router.delete("/upcoming/{item_id}")
 def delete_upcoming(item_id: int, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     item = _editable_item(session, access, item_id)
-    session.delete(item)
+    remove_items(session, [item])
     session.commit()
     return {"ok": True}

@@ -21,7 +21,33 @@ COLUMNS: list[tuple[str, str, str]] = [
     ("classroom", "demo_token", "VARCHAR"),
     ("classroom", "demo_seen_on", "DATE"),
     ("member", "tour_seen_at", "TIMESTAMP"),
+    ("upcomingitem", "published_at", "TIMESTAMP"),
 ]
+
+# Runs once, in the same transaction that adds the column. Only facts already in the
+# database are used: an item inside a published day became public with that day (or
+# later, if added afterwards); a standalone item was public as soon as it was created.
+# Drafts stay NULL.
+BACKFILLS: dict[tuple[str, str], list[str]] = {
+    ("upcomingitem", "published_at"): [
+        """
+        UPDATE upcomingitem SET published_at = COALESCE((
+            SELECT CASE
+                WHEN daycard.published_at IS NULL THEN upcomingitem.created_at
+                WHEN upcomingitem.created_at IS NOT NULL AND upcomingitem.created_at > daycard.published_at
+                    THEN upcomingitem.created_at
+                ELSE daycard.published_at
+            END
+            FROM daycard WHERE daycard.id = upcomingitem.card_id
+        ), created_at)
+        WHERE status = 'published' AND card_id IS NOT NULL
+        """,
+        """
+        UPDATE upcomingitem SET published_at = created_at
+        WHERE status = 'published' AND card_id IS NULL
+        """,
+    ],
+}
 
 
 def run_migrations(engine: Engine) -> list[str]:
@@ -36,6 +62,8 @@ def run_migrations(engine: Engine) -> list[str]:
             if column in existing:
                 continue
             conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}"))
+            for statement in BACKFILLS.get((table, column), []):
+                conn.execute(text(statement))
             applied.append(f"{table}.{column}")
     for name in applied:
         log.warning("migration applied: %s", name)

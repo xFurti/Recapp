@@ -80,7 +80,7 @@ def today(
     out["next_lessons"] = cal.next_lessons(target)
     card = state.card
     if card is not None and (card.status == "published" or state.can_write):
-        out["card"] = card_out(session, card)
+        out["card"] = card_out(session, card, access.member)
     else:
         out["card"] = None
     if card is not None and card.status == "draft":
@@ -92,7 +92,7 @@ def today(
     else:
         out["next_school_day"] = None
     soon = session.exec(upcoming_query(access.classroom.id, target, target + timedelta(days=3))).all()
-    out["upcoming_soon"] = items_out(session, list(soon))
+    out["upcoming_soon"] = items_out(session, list(soon), access.member)
     annotate_items(session, list(soon), out["upcoming_soon"], access, now.date())
     out["open_corrections"] = 0
     if state.published and state.can_write:

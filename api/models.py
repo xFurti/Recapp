@@ -172,6 +172,8 @@ class UpcomingItem(SQLModel, table=True):
     status: str = "published"  # draft | published
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
+    # First publication: set once, never moved by edits or republishing. Drafts have none.
+    published_at: Optional[datetime] = None
 
 
 class ItemCorrection(SQLModel, table=True):
@@ -213,6 +215,17 @@ class CardThanks(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     card_id: int = Field(foreign_key="daycard.id", index=True)
     member_id: int = Field(foreign_key="member.id")
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+class ItemThanks(SQLModel, table=True):
+    """A thanks to whoever added an upcoming item: the same item keeps one counter in every view."""
+
+    __table_args__ = (UniqueConstraint("item_id", "member_id"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    item_id: int = Field(foreign_key="upcomingitem.id", ondelete="CASCADE", index=True)
+    member_id: int = Field(foreign_key="member.id", index=True)
     created_at: datetime = Field(default_factory=utcnow)
 
 
