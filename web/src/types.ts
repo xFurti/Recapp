@@ -98,6 +98,10 @@ export interface Item {
   pending_corrections?: number
   correction_count?: number
   my_correction?: { id: number; status: ItemCorrection['status'] } | null
+  /** Grazie to whoever added the item: one counter, the same in every view. */
+  thanks?: number
+  thanked?: boolean
+  can_thank?: boolean
 }
 
 export const CORRECTION_FIELDS = ['type', 'subject_code', 'title', 'due_date', 'source', 'link'] as const
@@ -296,4 +300,37 @@ export interface ReportDetail extends ReportBrief {
     nick?: string
     is_demo?: boolean
   }
+}
+
+export interface ThanksState {
+  thanks: number
+  thanked: boolean
+}
+
+/** `late`: published after its own day ended (class time). It breaks the streak like `missed`. */
+export type StreakDayStatus = 'published' | 'late' | 'missed' | 'today_open'
+
+export interface StreakInfo {
+  current: number
+  record: number
+  has_published: boolean
+  today: string
+  days: { day: string; status: StreakDayStatus }[]
+}
+
+export interface ContributionRow {
+  position: number
+  tied: boolean
+  member: MemberBrief
+  thanks: number
+  days_published: number
+  items_added: number
+  is_me: boolean
+}
+
+export interface ContributionsInfo {
+  period: { kind: 'school_year'; label: string; start: string; end: string }
+  streak: StreakInfo
+  ranking: ContributionRow[]
+  totals: { thanks: number; days_published: number; items_added: number }
 }

@@ -8,6 +8,7 @@ import { classPath } from '../queries'
 import type { MemberBrief } from '../types'
 import { Avatar, Badge, Button, Chip, Toast, inputClass } from './ui'
 import { ConfirmationDialog } from './ConfirmationDialog'
+import { ThanksButton, ThanksCount } from './Thanks'
 
 export interface Comment {
   id: number
@@ -22,6 +23,8 @@ export interface Comment {
 interface FeedbackData {
   thanks: number
   thanked: boolean
+  /** False for your own day (Grazie go to the publisher, never to yourself) and for read-only viewers. */
+  can_thank: boolean
   open_corrections: number
   comments: Comment[]
 }
@@ -46,7 +49,14 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   const [kind, setKind] = useState<'comment' | 'correction'>('comment')
   const refresh = () => qc.invalidateQueries({ queryKey: ['feedback', code, day] })
 
-  const thanks = useMutation({ mutationFn: () => api.post(classPath(code, `/cards/${day}/thanks`)), onSuccess: refresh })
+  const thanks = useMutation({
+    mutationFn: () => api.post<{ thanks: number; thanked: boolean }>(classPath(code, `/cards/${day}/thanks`)),
+    onSuccess: (state) => {
+      qc.setQueryData<FeedbackData>(['feedback', code, day], (current) => current && { ...current, ...state })
+      void refresh()
+      void qc.invalidateQueries({ queryKey: ['contributions', code] })
+    },
+  })
   const send = useMutation({
     mutationFn: () => api.post(classPath(code, `/cards/${day}/comments`), { kind, body: body.trim() }),
     onSuccess: () => {
@@ -75,53 +85,24 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
     if (body.trim()) send.mutate()
   }
   const data = fb.data
-  const likeRef = useRef<HTMLButtonElement>(null)
-  const [burst, setBurst] = useState(false)
-  const thank = () => {
-    if (readOnly || thanks.isPending) return
-    if (!data?.thanked && likeRef.current) {
-      likeRef.current.querySelectorAll<HTMLElement>('.t-like-particles i').forEach((dot) => {
-        const angle = Math.random() * Math.PI * 2
-        const dist = 14 + Math.random() * 16
-        dot.style.setProperty('--px', `${Math.cos(angle) * dist}px`)
-        dot.style.setProperty('--py', `${Math.sin(angle) * dist}px`)
-        dot.style.setProperty('--pdur', `${480 + Math.random() * 180}ms`)
-        dot.style.setProperty('--pdelay', `${Math.random() * 50}ms`)
-        dot.style.setProperty('--p-end-scale', `${0.35 + Math.random() * 0.45}`)
-        dot.style.setProperty('--psize', `${0.7 + Math.random() * 0.9}`)
-      })
-      setBurst(true)
-      window.setTimeout(() => setBurst(false), 700)
-    }
-    thanks.mutate()
-  }
   return (
     <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 font-bold">
           <MessageCircle className="size-5 text-bordeaux" /> <span className="language-text">{t('feedback.replies')}</span>
         </h3>
-        <button
-          ref={likeRef}
-          onClick={thank}
-          disabled={readOnly || thanks.isPending}
-          aria-pressed={data?.thanked}
-          aria-label={t('feedback.thanks_aria')}
-          data-liked={data?.thanked ? 'true' : 'false'}
-          className={`t-like inline-flex h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold ${burst ? 'is-bursting is-popping' : ''} ${
-            data?.thanked ? 'border-rosa bg-rosa-soft text-rosa-ink' : 'border-line hover:border-rosa/40'
-          }`}
-        >
-          <span className="t-like-icon">
-            <svg className="t-like-heart size-4" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-            </svg>
-            <span className="t-like-particles" aria-hidden>
-              {Array.from({ length: 8 }, (_, i) => <i key={i} />)}
-            </span>
-          </span>
-          <span className="language-text">{data ? t('feedback.thanks_count', { count: data.thanks }) : t('feedback.thanks')}</span>
-        </button>
+        {data?.can_thank === false ? (
+          <ThanksCount count={data.thanks} />
+        ) : (
+          <ThanksButton
+            thanked={!!data?.thanked}
+            busy={!data || readOnly || thanks.isPending}
+            onToggle={() => thanks.mutate()}
+            label={t('feedback.thanks_aria', { count: data?.thanks ?? 0 })}
+          >
+            <span className="language-text">{data ? t('feedback.thanks_count', { count: data.thanks }) : t('feedback.thanks')}</span>
+          </ThanksButton>
+        )}
       </div>
 
       {fb.isLoading && <p className="mt-3 text-sm text-muted"><span className="language-text">{t('common.loading')}</span></p>}

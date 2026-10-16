@@ -33,10 +33,11 @@ erDiagram
 | `DayCard` | `day`, `status` draft/published, `scribe_member_id`, `author_member_id`, `updated_by_member_id`, `notes`, `revision` | Una per classe e giorno. Alla prima pubblicazione l'autore diventa chi pubblica e resta invariato; i salvataggi successivi registrano separatamente chi aggiorna. `revision` cresce a ogni salvataggio e a ogni cambio di verbalista |
 | `SubjectEntry` | `subject_code`, `hours`, `room`, `is_lab`, `lesson_status`, `bullets` (JSON, max 5), `attachment_ids` (JSON, max 3) | Un blocco per materia. `attachment_ids` sono le foto degli appunti |
 | `LabBlock` | `notes` (max 3000), `repo_url` (link utile), `goal`, `pitfall`, `bring` (precedenti) | Legato a un `SubjectEntry`. `notes = NULL` distingue i vecchi campi dalle note già convertite, anche vuote |
-| `UpcomingItem` | `type`, `subject_code`, `title`, `due_date`, `due_time`, `source`, `link`, `status`, `card_id` | `draft` finché la card non è pubblicata |
+| `UpcomingItem` | `type`, `subject_code`, `title`, `due_date`, `due_time`, `source`, `link`, `status`, `card_id`, `author_member_id`, `published_at` | `draft` finché la card non è pubblicata. `published_at` è la prima pubblicazione: non cambia con modifiche o ripubblicazioni |
 | `Attachment` | `data` (WebP), `width`, `height`, `card_id`, `created_by` | Immagine nel database, mai su disco. Visibile a tutti solo se la card o l'elemento è pubblicato |
 | `CardComment` | `card_id`, `member_id`, `kind` comment/correction, `body`, `resolved`, `deleted` | Risposte sotto la giornata pubblicata |
-| `CardThanks` | `card_id`, `member_id` (unico per coppia) | Il "Grazie" al verbalista |
+| `CardThanks` | `card_id`, `member_id` (unico per coppia) | Il "Grazie" a chi ha pubblicato la giornata |
+| `ItemThanks` | `item_id` (cancellato con l'elemento), `member_id` (unico per coppia) | Il "Grazie" a chi ha aggiunto un elemento di In arrivo. Lo stesso contatore in ogni vista |
 | `OcrJob` | `status`, `input_kind`, `result` (JSON), `render_run_id` | Una lettura AI |
 
 ## Rotazione dei verbalisti (`schedule.py`)
@@ -129,13 +130,37 @@ Tutte sotto `/api`. Le route `classes/{code}/...` richiedono un membro della cla
 | `GET /classes/{code}/subjects/{subject}/entries` | membro/owner | Blocchi pubblicati di una materia (settimana, 2 settimane, tutto) |
 | `GET /classes/{code}/cards/{day}/feedback` | membro/owner | Commenti, correzioni aperte e conteggio dei "grazie" |
 | `POST /classes/{code}/cards/{day}/comments` · `PATCH` · `DELETE /comments/{id}` | membro | Commento o correzione; "risolta" solo autore della giornata o admin; elimina chi l'ha scritta o un admin |
-| `POST /classes/{code}/cards/{day}/thanks` | membro | Aggiunge o toglie il proprio "grazie" |
+| `POST /classes/{code}/cards/{day}/thanks` | membro | Aggiunge o toglie il proprio "grazie". 403 sulla propria giornata |
+| `POST /classes/{code}/upcoming/{id}/thanks` | membro | Aggiunge o toglie il proprio "grazie" a un elemento pubblicato della classe. 403 sul proprio elemento, 404 su bozze, elementi inesistenti o di altre classi |
+| `GET /classes/{code}/contributions` | membro/owner | Contributi della classe: periodo, giornate di fila e classifica dei Grazie (vedi sotto) |
 | `POST /classes/{code}/ocr` · `GET /ocr/{job_id}` | membro | Avvia e controlla una lettura AI |
 | `GET` · `POST /owner/classes` · `GET` · `POST` · `DELETE /owner/holidays` | owner | Area scuola |
 | `GET /healthz` | tutti | Stato, provider OCR, runner |
 
 `PUT /cards/{day}` è un "sostituisci tutto": il frontend manda l'intera giornata, il backend
 cancella e ricrea materie e lab, aggiorna gli elementi esistenti (per `id`) e crea i nuovi.
+
+## Contributi della classe (`contributions.py`, `thanks.py`)
+
+- **Grazie**: uno per membro e contenuto, ritirabile. Va a `DayCard.author_member_id` o a
+  `UpcomingItem.author_member_id`; modifiche dell'admin e subentri non spostano il credito. Il
+  Grazie a sé stessi è rifiutato; quelli salvati prima della regola restano nel database ma sono
+  esclusi da contatori, `thanked` e classifica. Ogni riga di elemento porta `thanks`, `thanked`
+  e `can_thank`, calcolati con una query per elenco.
+- **Periodo**: anno scolastico (`SCHOOL_YEAR_START`–`SCHOOL_YEAR_END`, fuso della classe).
+  Contano giornate ed elementi la cui *prima pubblicazione* cade nel periodo, con tutti i loro
+  Grazie. Bozze ed elementi rimossi non contano (rimuovere un elemento ne cancella i Grazie).
+- **Classifica**: membri attivi, ordinati per Grazie, poi nickname senza maiuscole, poi id.
+  Posizione condivisa a parità. Grazie ricevuti, giornate pubblicate ed elementi aggiunti restano
+  separati: nessun punteggio. Ruolo e turni non contano.
+- **Giornate di fila**: un giorno di scuola (da `recap_start`) conta solo se pubblicato entro la
+  mezzanotte del giorno stesso nel fuso della classe (`published`). Pubblicato dopo è `late`
+  («Recuperata») e interrompe la serie come `missed`. Oggi non pubblicato è `today_open` e non
+  interrompe nulla. Le 18:00 aprono il subentro, non sono la scadenza. Il record è la serie più
+  lunga nei dati correnti. La risposta include gli ultimi 7 giorni di scuola.
+- La migrazione di `upcomingitem.published_at` usa solo dati esistenti: elementi di una giornata
+  pubblicata → `published_at` della giornata (o `created_at` se aggiunti dopo), elementi singoli
+  pubblicati → `created_at`, bozze → `NULL`.
 
 ## Configurazione
 
@@ -151,6 +176,8 @@ All'avvio, in modo idempotente:
 3. Classi 4AI e 4BI con orario reale, se mancano, e un admin `rappresentante` con invito
    stampato **una sola volta** nei log.
 4. Classe DEMO: rigenerata ogni giorno con date relative a oggi (5 giornate passate, 8 elementi).
+   Le giornate risultano pubblicate nel pomeriggio del giorno stesso, così la serie in corso non
+   dipende dall'ora del seed, e alcuni Grazie tra nick fittizi mostrano un primo posto e una parità.
 
 `python -m api.seed --reset-demo` la rigenera subito.
 

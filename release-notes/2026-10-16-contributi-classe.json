@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.16.13",
+  "published_at": "2026-10-16T22:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Contributi della classe: Grazie e giornate di fila",
+    "en": "Class contributions: thanks and days in a row"
+  },
+  "summary": [
+    {
+      "it": "Puoi dire Grazie anche su un singolo compito, verifica, evento o lab di In arrivo.",
+      "en": "You can now say thanks for a single piece of homework, test, event or lab in Upcoming."
+    },
+    {
+      "it": "In Classe vedi quante giornate di fila la classe ha pubblicato in tempo, con il record.",
+      "en": "In Class you see how many days in a row the class published on time, with the record."
+    },
+    {
+      "it": "La vista Contributi della classe mostra Grazie ricevuti, giornate pubblicate ed elementi aggiunti, senza punteggi.",
+      "en": "The Class contributions view shows thanks received, days published and items added, with no scores."
+    }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": {
+        "it": "Grazie sugli elementi di In arrivo",
+        "en": "Thanks on Upcoming items"
+      },
+      "body": {
+        "it": "Il cuore Grazie compare su ogni elemento pubblicato, in In arrivo, in Oggi e dentro le giornate: è lo stesso contatore ovunque. Ognuno può dare un Grazie per contenuto e ritirarlo; va a chi ha aggiunto l'elemento o pubblicato la giornata. Sui tuoi contenuti vedi i Grazie ricevuti, ma non puoi ringraziarti da solo.",
+        "en": "The thanks heart appears on every published item, in Upcoming, Today and inside days: it's the same counter everywhere. Everyone can give one thanks per item and take it back; it goes to whoever added the item or published the day. On your own content you see the thanks you received, but you can't thank yourself."
+      }
+    },
+    {
+      "category": "feature",
+      "title": {
+        "it": "Giornate di fila e Contributi della classe",
+        "en": "Days in a row and Class contributions"
+      },
+      "body": {
+        "it": "In cima a Classe trovi le giornate di fila e gli ultimi giorni di scuola: Pubblicata, Recuperata, Mancata oppure Oggi da completare. Conta ogni giorno pubblicato entro mezzanotte; weekend e festività non interrompono la serie. Da lì apri Contributi della classe, con la classifica dei Grazie dell'anno scolastico, le parità, la tua posizione e le regole di conteggio.",
+        "en": "At the top of Class you find the days in a row and the latest school days: Published, Caught up late, Missed or Today still to do. Every day published by midnight counts; weekends and holidays don't break the streak. From there, open Class contributions for the school year's thanks ranking, ties, your position and the counting rules."
+      }
+    }
+  ]
+}

@@ -203,6 +203,8 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
         setState(withIds)
         setSave({ kind: 'saved', at: card.updated_at })
         qc.setQueryData<CardPage>(['card', info.code, day], (old) => (old ? { ...old, card } : old))
+        // Editing a published day can add or remove items: their credit and Grazie change too.
+        if (card.status === 'published') void qc.invalidateQueries({ predicate: (q) => ['contributions', 'members'].includes(String(q.queryKey[0])) && q.queryKey[1] === info.code })
       } catch (e) {
         if (e instanceof ApiError && e.status === 409) {
           const server = (e.detail as { card?: Card | null } | undefined)?.card ?? null

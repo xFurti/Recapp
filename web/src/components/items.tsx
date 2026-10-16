@@ -9,6 +9,7 @@ import type { Item, ItemType, Subject } from '../types'
 import { Badge } from './ui'
 import { CalendarButton } from './CalendarButton'
 import { ItemCorrectionControls } from './ItemCorrections'
+import { ItemThanks } from './Thanks'
 
 export const TYPE_STYLE: Record<ItemType, { icon: ComponentType<{ className?: string }>; badge: string; bar: string }> = {
   compito: { icon: BookOpen, badge: 'bg-azzurro-soft text-azzurro-ink', bar: 'bg-azzurro' },
@@ -133,12 +134,14 @@ export function ItemRow({
               </a>
             )}
             {item.status === 'published' && <CalendarButton item={item} subjects={subjects} />}
+            <ItemThanks item={item} />
           </div>
         )}
         {compact && (
-          <p className="mt-0.5 text-xs text-muted">
-            {relativeDay(item.due_date, t, i18n.language)}
-          </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+            <span>{relativeDay(item.due_date, t, i18n.language)}</span>
+            <ItemThanks item={item} />
+          </div>
         )}
         {corrections && <ItemCorrectionControls item={item} />}
       </div>
