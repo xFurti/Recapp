@@ -19,13 +19,13 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
       {lessons.map((l) => (
         <li
           key={`${l.subject_code}-${l.hours_label}`}
-          className="flex min-w-[8.5rem] flex-1 flex-col rounded-xl border border-line bg-surface px-3 py-2"
+          className="flex max-w-full flex-[1_1_7rem] flex-col rounded-xl border border-line bg-surface px-3 py-2"
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
           <span className="text-xs font-medium text-muted">
             <span className="language-text">{l.hours.length > 1 ? t('day.hours', { h: l.hours_label }) : t('day.hour', { h: l.hours_label })}</span> · {l.start}
           </span>
-          <span className="font-semibold leading-tight">{subjectName(subjects, l.subject_code, i18n.language)}</span>
+          <span className="font-semibold leading-tight break-words">{subjectName(subjects, l.subject_code, i18n.language)}</span>
           <span className="mt-1 flex items-center gap-1.5 text-xs text-muted">
             {l.room}
             {l.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
