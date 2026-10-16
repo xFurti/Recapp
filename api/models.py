@@ -53,6 +53,16 @@ class Owner(SQLModel, table=True):
     session_version: int = 1
 
 
+class ReleaseSeen(SQLModel, table=True):
+    __table_args__ = (UniqueConstraint("account_kind", "account_id", "release_id"),)
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    account_kind: str  # member | owner (demo preferences never enter this table)
+    account_id: int = Field(index=True)
+    release_id: str
+    seen_at: datetime = Field(default_factory=utcnow)
+
+
 class Subject(SQLModel, table=True):
     __table_args__ = (UniqueConstraint("class_id", "code"),)
 
@@ -104,6 +114,7 @@ class DayCard(SQLModel, table=True):
     status: str = "draft"  # draft | published
     scribe_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     author_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
+    updated_by_member_id: Optional[int] = Field(default=None, foreign_key="member.id")
     notes: str = ""
     revision: int = 0
     created_at: datetime = Field(default_factory=utcnow)
@@ -218,3 +229,25 @@ class OcrJob(SQLModel, table=True):
     render_run_id: str = ""
     created_by: Optional[int] = None
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class Report(SQLModel, table=True):
+    """A bug or an idea about Recapp itself, read only by the school (owner).
+
+    No foreign keys on class and member: demo classes are wiped and purged, and
+    the report must outlive them. The context columns keep what was true at send time."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    kind: str  # bug | feature
+    title: str
+    body: str
+    status: str = Field(default="new", index=True)  # new | in_progress | closed
+    member_id: Optional[int] = Field(default=None, index=True)  # None: sent without login
+    class_id: Optional[int] = None
+    is_demo: bool = Field(default=False, index=True)
+    context: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    image: Optional[bytes] = Field(default=None, sa_column=Column(LargeBinary, nullable=True))
+    image_width: int = 0
+    image_height: int = 0
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)

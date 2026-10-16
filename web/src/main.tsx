@@ -23,7 +23,10 @@ const ClassPage = lazy(() => import('./pages/ClassPage'))
 const Editor = lazy(() => import('./pages/Editor'))
 const About = lazy(() => import('./pages/About'))
 const Privacy = lazy(() => import('./pages/Privacy'))
+const News = lazy(() => import('./pages/News'))
 const SchoolArea = lazy(() => import('./pages/SchoolArea'))
+const ReportPage = lazy(() => import('./pages/Report'))
+const ClassReportPage = lazy(() => import('./pages/Report').then((m) => ({ default: m.ClassReportPage })))
 
 const later = (node: ReactNode) => <Suspense fallback={<Spinner />}>{node}</Suspense>
 
@@ -43,7 +46,9 @@ const router = createBrowserRouter([
       { path: '/', element: <Landing /> },
       { path: '/faq', element: later(<About />) },
       { path: '/privacy', element: later(<Privacy />) },
+      { path: '/novita', element: later(<News />) },
       { path: '/scuola', element: later(<SchoolArea />) },
+      { path: '/segnala', element: later(<ReportPage />) },
       { path: '/c/:code/entra', element: <Join /> },
       { path: '*', element: <NotFound /> },
     ],
@@ -60,6 +65,7 @@ const router = createBrowserRouter([
       { path: 'in-arrivo', element: <Upcoming /> },
       { path: 'classe', element: later(<ClassPage />) },
       { path: 'scrivi/:day', element: later(<Editor />) },
+      { path: 'segnala', element: later(<ClassReportPage />) },
       { path: '*', element: <NotFound /> },
     ],
   },

@@ -35,6 +35,8 @@ export function ShareButton({ card, info }: { card: Card; info: ClassInfo }) {
       const blob = await renderShareImage({
         classLabel: info.label,
         dayLabel,
+        publishedBy: card.author ? t('day.published_by', { nick: card.author.nick }) : null,
+        updatedBy: card.updated_by ? t('day.updated_by', { nick: card.updated_by.nick }) : null,
         subjects,
         items,
         url,

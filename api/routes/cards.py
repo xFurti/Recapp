@@ -15,12 +15,14 @@ from ..services import (
     iso_utc,
     member_brief,
     card_out,
+    card_attribution,
     get_card,
     check_attachment_ids,
     items_out,
     iso_utc,
     member_names,
     member_brief,
+    missed_days,
     publish_card,
     save_card,
     upcoming_query,
@@ -136,6 +138,7 @@ def toggle_thanks(day: date, access: ClassAccess = Depends(class_access), sessio
 
 @router.get("/cards")
 def list_cards(
+    request: Request,
     limit: int = 60,
     access: ClassAccess = Depends(class_access),
     session: Session = Depends(get_session),
@@ -154,18 +157,38 @@ def list_cards(
             entries.setdefault(e.card_id, []).append(e)
         for i in session.exec(select(UpcomingItem.card_id).where(UpcomingItem.card_id.in_(ids))).all():
             item_counts[i] = item_counts.get(i, 0) + 1
-    authors = member_names(session, {c.author_member_id for c in cards})
-    return [
+    authors = member_names(session, {member_id for c in cards for member_id in (c.author_member_id, c.updated_by_member_id)})
+    published = [
         {
             "day": c.day.isoformat(),
-            "author": member_brief(authors.get(c.author_member_id)),
+            **card_attribution(c, authors),
             "subjects": [e.subject_code for e in entries.get(c.id, []) if e.bullets or e.is_lab],
             "has_lab": any(e.is_lab for e in entries.get(c.id, [])),
             "items": item_counts.get(c.id, 0),
             "published_at": iso_utc(c.published_at),
+            "missing": False,
         }
         for c in cards
     ]
+    # Missed days stay listed so an admin can still recover them days later.
+    cal = ClassCalendar(session, access.classroom)
+    me = access.member
+    missing = []
+    for d, has_draft in missed_days(cal, request_now(request, access.classroom).date()).items():
+        scribe = cal.scribe(d)[0] if me is not None and not access.is_admin else None
+        missing.append({
+            "day": d.isoformat(),
+            "author": None,
+            "updated_by": None,
+            "subjects": [],
+            "has_lab": False,
+            "items": 0,
+            "published_at": None,
+            "missing": True,
+            "has_draft": has_draft,
+            "can_write": me is not None and (access.is_admin or (scribe is not None and scribe.id == me.id)),
+        })
+    return sorted(published + missing, key=lambda c: c["day"], reverse=True)
 
 
 @router.get("/cards/{day}")
@@ -185,6 +208,12 @@ def get_card_page(day: date, request: Request, access: ClassAccess = Depends(cla
         .where(DayCard.class_id == access.classroom.id, DayCard.status == "published", DayCard.day > day)
         .order_by(DayCard.day)
     ).first()
+    # The arrows also stop on missed school days, so a gap is never skipped silently.
+    missed = list(missed_days(cal, now.date()))
+    prev_missed = next((d for d in missed if d < day), None)
+    next_missed = next((d for d in reversed(missed) if d > day), None)
+    prev_pub = max(filter(None, (prev_pub, prev_missed)), default=None)
+    next_pub = min(filter(None, (next_pub, next_missed)), default=None)
     return {
         "state": state.as_dict(),
         "card": card_out(session, card) if visible else None,
@@ -250,13 +279,13 @@ def subject_entries(
         ).all()
         for item, row in zip(items, items_out(session, list(items))):
             items_by_card.setdefault(item.card_id, []).append(row)
-    authors = member_names(session, {c.author_member_id for _, c in rows})
+    authors = member_names(session, {member_id for _, c in rows for member_id in (c.author_member_id, c.updated_by_member_id)})
     out = []
     for e, c in rows:
         lab = labs.get(e.id)
         out.append({
             "day": c.day.isoformat(),
-            "author": member_brief(authors.get(c.author_member_id)),
+            **card_attribution(c, authors),
             "hours": e.hours,
             "room": e.room,
             "is_lab": e.is_lab,
@@ -271,16 +300,21 @@ def subject_entries(
 
 @router.get("/latest")
 def latest_card(request: Request, before: Optional[date] = None, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
-    """Most recent published day strictly before `before` (default: today).
-    On Monday this is Friday's card."""
+    """The previous school day before `before` (default: today) when nobody published it,
+    otherwise the most recent published day. On Monday this is Friday."""
     now = request_now(request, access.classroom)
     limit_day = before or now.date()
+    cal = ClassCalendar(session, access.classroom)
+    prev = cal.prev_school_day(limit_day)
+    missed = missed_days(cal, now.date())
+    if prev in missed:
+        return {"day": prev.isoformat(), "missing": True, "has_draft": missed[prev]}
     card = session.exec(
         select(DayCard)
         .where(DayCard.class_id == access.classroom.id, DayCard.status == "published", DayCard.day < limit_day)
         .order_by(DayCard.day.desc())
     ).first()
-    return {"day": card.day.isoformat() if card else None}
+    return {"day": card.day.isoformat() if card else None, "missing": False, "has_draft": False}
 
 
 # ---- upcoming ------------------------------------------------------------------

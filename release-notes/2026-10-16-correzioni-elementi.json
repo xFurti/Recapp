@@ -1,0 +1,18 @@
+{
+  "id": "2026.10.16.5",
+  "published_at": "2026-10-16T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Segnala un errore in un compito o una verifica", "en": "Report an error in homework or a test" },
+  "summary": [
+    { "it": "Su un elemento in arrivo puoi proporre la correzione di testo, giorno, materia o link.", "en": "On an upcoming item you can suggest a fix to its text, day, subject or link." },
+    { "it": "Chi l’ha pubblicato, o un admin, vede solo le differenze e accetta o rifiuta.", "en": "Whoever published it, or an admin, sees only the differences and accepts or rejects." },
+    { "it": "Ritrovi l’esito della tua richiesta direttamente sulla voce.", "en": "You'll find the outcome of your request right on the item." }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": { "it": "Segnala un errore", "en": "Report an error" },
+      "body": { "it": "In In arrivo, apri Segnala un errore su un compito, una verifica o un promemoria: il modulo è già compilato, cambi solo ciò che è sbagliato e spieghi il motivo. L’autore e gli admin vedono le richieste in In arrivo e in Oggi, confrontano i valori attuali con quelli proposti e decidono. Se accettano, l’elemento si aggiorna mantenendo autore e allegati; se rifiutano, possono lasciarti una nota.", "en": "In Upcoming, open Report an error on homework, a test or a reminder: the form is already filled in, you change only what's wrong and explain why. The author and admins see requests in Upcoming and Today, compare current and proposed values and decide. If they accept, the item updates and keeps its author and attachments; if they reject, they can leave you a note." }
+    }
+  ]
+}

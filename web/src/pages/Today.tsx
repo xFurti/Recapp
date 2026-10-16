@@ -65,6 +65,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
     case 'published':
       tone = 'bg-verde-soft border-verde/30'
       title = <TranslatedMessage message="banner.published" values={{ nick: data.card?.author?.nick ?? nick, time: timeOf(data.card?.published_at, lang) }} />
+      sub = data.card?.updated_by && <TranslatedMessage message="day.updated_by" values={{ nick: data.card.updated_by.nick }} />
       actions = data.can_write && (
         <Button variant="secondary" size="sm" onClick={write} data-tour="write">
           <Pencil className="size-4" /> <span className="language-text">{t('banner.edit')}</span>

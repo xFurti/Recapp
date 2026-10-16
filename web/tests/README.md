@@ -1,3 +1,7 @@
+## Publication attribution
+
+`card-attribution.spec.ts` opens the real application routes and mocks only HTTP responses. It checks Today, the day card, archive and subject page in Italian and English, on desktop and phone, for demo and official class layouts. It verifies the original author's Share/Edit controls, omission of the updater after an author's own edit, draft attribution, admin preview, the spoken text and attribution drawn into the actual sharing canvas. The API suite separately exercises publication and edits in real demo and official classes, including permissions, counts, item authors, conflicts and migration of historical data. PR screenshots use the production build with a local API and an isolated database.
+
 # Message deletion browser tests
 
 These tests render the real `Feedback` component with React StrictMode and React Query. Only the HTTP responses are mocked, allowing deterministic network latency and errors without altering application data. The API suite separately verifies deletion permissions against the real backend.
@@ -18,6 +22,12 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 The tests cover cancellation by button, close, Escape and backdrop; focus containment and restoration; selected-message preview; ownership controls; pending state and duplicate requests; errors, dismissal and retry; desktop/mobile and light/dark layouts; English labels and reduced motion. The recording test attaches a short WebM showing cancellation, error, retry, pending state and success.
 
 A converted MP4 recording is committed at `docs/media/issue-19-delete-message.mp4` and linked in the PR. The harness is outside `src` and is not included in the production build.
+
+## Calendar export
+
+`calendar.spec.ts` renders the real Upcoming, Today, day card and subject pages inside AppShell. It checks all four item types, Italian/English, demo/official class context, desktop/phone, both themes, menu position above mobile navigation, keyboard focus and dismissal, unchanged done/link/attachment controls, Google links and downloaded `.ics` files. Date checks cover Rome, Los Angeles and Kiritimati. `calendar-export.spec.ts` also covers leap years, month/year boundaries, daylight saving dates, private data exclusion, text escaping and UTF-8 line folding. Run `npm run test:e2e -- tests/calendar.spec.ts tests/calendar-export.spec.ts`.
+
+These automated checks do not authenticate to Google or import into Apple Calendar. Actual import on iPhone/Mac needs a manual check: export an item, compare its all-day date and text with Recapp, and confirm it can be saved.
 
 ## Lesson status browser tests
 
