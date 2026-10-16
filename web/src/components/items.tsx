@@ -7,6 +7,7 @@ import { countdown, relativeDay, subjectColor, subjectName } from '../lib/format
 import { daysBetween, todayIso } from '../lib/clock'
 import type { Item, ItemType, Subject } from '../types'
 import { Badge } from './ui'
+import { CalendarButton } from './CalendarButton'
 
 export const TYPE_STYLE: Record<ItemType, { icon: ComponentType<{ className?: string }>; badge: string; bar: string }> = {
   compito: { icon: BookOpen, badge: 'bg-azzurro-soft text-azzurro-ink', bar: 'bg-azzurro' },
@@ -129,6 +130,7 @@ export function ItemRow({
                 <Paperclip className="size-3.5" />
               </a>
             )}
+            {item.status === 'published' && <CalendarButton item={item} subjects={subjects} />}
           </div>
         )}
         {compact && (
@@ -138,6 +140,7 @@ export function ItemRow({
           </p>
         )}
       </div>
+      {compact && item.status === 'published' && <CalendarButton item={item} subjects={subjects} compact />}
       {onToggleDone && <DoneCheck done={!!done} onToggle={onToggleDone} label={t('upcoming.mark_done')} />}
     </div>
   )
