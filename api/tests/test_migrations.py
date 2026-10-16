@@ -21,6 +21,6 @@ def test_migrations_add_missing_columns(tmp_path):
     classroom_cols = {c["name"] for c in insp.get_columns("classroom")}
     assert {"timezone", "hours", "demo_token", "demo_seen_on"} <= classroom_cols
     assert "tour_seen_at" in {c["name"] for c in insp.get_columns("member")}
-    assert {"cardcomment", "cardthanks", "releaseseen"} <= set(insp.get_table_names())
+    assert {"cardcomment", "cardthanks", "releaseseen", "report"} <= set(insp.get_table_names())
     with engine.connect() as c:
         assert c.execute(text("SELECT revision FROM daycard WHERE id = 1")).scalar() == 0

@@ -207,3 +207,25 @@ class OcrJob(SQLModel, table=True):
     render_run_id: str = ""
     created_by: Optional[int] = None
     created_at: datetime = Field(default_factory=utcnow)
+
+
+class Report(SQLModel, table=True):
+    """A bug or an idea about Recapp itself, read only by the school (owner).
+
+    No foreign keys on class and member: demo classes are wiped and purged, and
+    the report must outlive them. The context columns keep what was true at send time."""
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    kind: str  # bug | feature
+    title: str
+    body: str
+    status: str = Field(default="new", index=True)  # new | in_progress | closed
+    member_id: Optional[int] = Field(default=None, index=True)  # None: sent without login
+    class_id: Optional[int] = None
+    is_demo: bool = Field(default=False, index=True)
+    context: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    image: Optional[bytes] = Field(default=None, sa_column=Column(LargeBinary, nullable=True))
+    image_width: int = 0
+    image_height: int = 0
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)

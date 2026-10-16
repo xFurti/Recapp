@@ -1,0 +1,19 @@
+{
+  "id": "2026.10.16.2",
+  "published_at": "2026-10-16T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Segnala un bug o un’idea", "en": "Report a bug or an idea" },
+  "summary": [
+    { "it": "Una pagina per segnalare un problema di Recapp o proporre una funzione.", "en": "A page to report a problem with Recapp or suggest a feature." },
+    { "it": "Dal menu del profilo nella classe, oppure dalla home e dalle FAQ anche senza accedere.", "en": "From the profile menu in your class, or from the home page and FAQ without signing in." },
+    { "it": "Le tue segnalazioni restano private e ne vedi lo stato.", "en": "Your reports stay private and you can follow their status." }
+  ],
+  "entries": [
+    {
+      "category": "feature",
+      "title": { "it": "Segnala un bug o un’idea", "en": "Report a bug or an idea" },
+      "body": { "it": "Scegli Bug o Funzionalità, scrivi titolo e descrizione e, se serve, aggiungi un’immagine. La segnalazione arriva alla scuola: non la vedono i compagni e non finisce su GitHub. Se sei entrato con il tuo nick, ritrovi le tue segnalazioni con lo stato: Nuova, Presa in carico o Chiusa.", "en": "Choose Bug or Feature, write a title and a description and, if useful, add an image. The report goes to the school: classmates can't see it and it doesn't end up on GitHub. If you signed in with your nickname, you'll find your reports with their status: New, In progress or Closed." },
+      "link": { "href": "/segnala", "label": { "it": "Apri la pagina", "en": "Open the page" }, "requires_login": false }
+    }
+  ]
+}

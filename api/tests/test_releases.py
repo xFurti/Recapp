@@ -20,8 +20,9 @@ def test_public_notes_and_unique_content_source(client):
     assert {key: body[key] for key in ('current', 'releases')} == built
     assert body['version'] == releases.settings.app_version
     assert client.get('/api/releases').headers['cache-control'] == 'no-store'
-    assert body['current'] == '2026.10.13.1'
-    assert len(body['releases'][0]['summary']) == 3
+    # Every PR adds a note: the newest public one is current, whatever its id.
+    assert body['current'] == body['releases'][0]['id']
+    assert 3 <= len(body['releases'][0]['summary']) <= 5
 
 
 def test_running_artifact_controls_history_and_rollback(client, tmp_path, monkeypatch):

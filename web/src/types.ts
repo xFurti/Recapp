@@ -222,3 +222,35 @@ export interface OwnerClass extends Classroom {
   members_active: number
   admins: string[]
 }
+
+export type ReportKind = 'bug' | 'feature'
+export type ReportStatus = 'new' | 'in_progress' | 'closed'
+
+export interface ReportBrief {
+  id: number
+  kind: ReportKind
+  title: string
+  status: ReportStatus
+  created_at: string
+  has_image: boolean
+}
+
+export interface ReportDetail extends ReportBrief {
+  body: string
+  is_demo: boolean
+  updated_at: string
+  image_width: number
+  image_height: number
+  context: {
+    page?: string
+    language?: string
+    theme?: string
+    version?: string
+    user_agent?: string
+    role?: 'admin' | 'member' | 'owner' | 'none'
+    class_label?: string
+    class_code?: string
+    nick?: string
+    is_demo?: boolean
+  }
+}

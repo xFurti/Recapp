@@ -1,6 +1,6 @@
 import { selectedLanguage, subscribeLanguage } from '../lib/language-transition'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium } from 'lucide-react'
+import { Clock, Delete, GraduationCap, KeyRound, LogOut, Megaphone, Moon, School, SunMedium } from 'lucide-react'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -309,6 +309,11 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
     setPhase('closed')
     onTour()
   }
+  const report = () => {
+    handoff.current = true
+    setPhase('closed')
+    navigate(`/c/${info.code}/segnala`, { state: { from: location.pathname } })
+  }
   const toggle = () => setPhase((current) => (current === 'open' ? 'closing' : 'open'))
   const row = 'profile-row profile-action flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm'
   return (
@@ -358,7 +363,10 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
           <button role="menuitem" onClick={replay} className={row} style={{ '--i': 2 } as CSSProperties}>
             <GraduationCap className="size-4" /> <span className="language-text">{t('tour.replay')}</span>
           </button>
-          <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 3 } as CSSProperties}>
+          <button role="menuitem" onClick={report} className={row} style={{ '--i': 3 } as CSSProperties}>
+            <Megaphone className="size-4" /> <span className="language-text">{t('report.menu')}</span>
+          </button>
+          <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 4 } as CSSProperties}>
             <ThemeToggle />
             <LangToggle />
           </div>
