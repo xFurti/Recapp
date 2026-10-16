@@ -24,6 +24,8 @@ import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
 import { sectionIndex } from '../lib/sections'
 import { markTourSeen, tourSeen } from '../lib/tour'
+import { demoReleaseAccount, officialReleaseAccount } from '../lib/releases'
+import { ReleasePopup } from './ReleasePopup'
 import { NavIcon, useNavIconMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
 import { ClassNavigation } from './ClassNavigation'
@@ -507,6 +509,9 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         <ClassNavigation code={info.code} mobile />
       </div>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}
+      {info.viewer.member && <ReleasePopup key={`member-${info.viewer.member.id}`}
+        account={info.is_demo ? demoReleaseAccount : officialReleaseAccount('member', info.viewer.member.id)}
+        firstVisit={!tourSeen(info)} suspended={tourOpen} />}
       {party && <ConfettiBurst onDone={stopParty} />}
     </div>
   )

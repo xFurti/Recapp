@@ -11,6 +11,8 @@ import { Badge, Button, Card, ErrorBox, Field, inputClass, Modal, Spinner } from
 import { capitalize, shortDay } from '../lib/format'
 import { useMe } from '../queries'
 import type { OwnerClass } from '../types'
+import { ReleasePopup } from '../components/ReleasePopup'
+import { officialReleaseAccount } from '../lib/releases'
 
 export default function SchoolArea() {
   const { t } = useTranslation()
@@ -33,6 +35,8 @@ export default function SchoolArea() {
         {me.isLoading ? <Spinner /> : me.data?.kind === 'owner' ? <Dashboard name={me.data.owner.display_name || me.data.owner.username} /> : <OwnerLogin />}
       </main>
       <footer className="mx-auto max-w-4xl px-5 pb-8 text-xs text-muted"><span className="language-text">{t('landing.footer')}</span></footer>
+      {me.data?.kind === 'owner' && <ReleasePopup key={me.data.owner.username}
+        account={officialReleaseAccount('owner', me.data.owner.username)} firstVisit />}
     </div>
   )
 }
