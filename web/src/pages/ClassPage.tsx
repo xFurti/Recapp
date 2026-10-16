@@ -1,11 +1,12 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowLeftRight, ArrowUp, Crown, ImagePlus, KeyRound, Lock, MoreVertical, Pencil, UserMinus, UserPlus } from 'lucide-react'
-import { useCallback, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { useLocation, useSearchParams } from 'react-router'
 import { api } from '../api'
 import { ConfirmationDialog } from '../components/ConfirmationDialog'
+import { StreakCard } from '../components/contributions'
 import { InviteModal } from '../components/InviteModal'
 import { DayView, WeekGrid } from '../components/timetable'
 import { AnchoredMenu, Avatar, Badge, Button, Card, EmptyState, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
@@ -22,9 +23,17 @@ export default function ClassPage() {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const tab = (params.get('tab') as Tab) || 'members'
+  const location = useLocation()
+  // Back from Contributi: return focus to the link that opened it.
+  useEffect(() => {
+    if ((location.state as { focus?: string } | null)?.focus === 'contributions') {
+      document.querySelector<HTMLElement>('[data-contributions-link]')?.focus({ preventScroll: true })
+    }
+  }, [location.state])
   return (
     <div>
       <h1 className="mb-4 text-2xl font-extrabold tracking-tight"><span className="language-text">{t('nav.class')}</span></h1>
+      <StreakCard />
       <Segmented
         value={tab}
         onChange={(v) => setParams({ tab: v }, { replace: true })}
@@ -54,7 +63,7 @@ function Members() {
   const [menu, setMenu] = useState<{ id: number; el: HTMLButtonElement } | null>(null)
   const [confirm, setConfirm] = useState<{ kind: 'reset' | 'remove'; member: MemberRow } | null>(null)
   const closeMenu = useCallback(() => setMenu(null), [])
-  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public'].includes(String(q.queryKey[0])) })
+  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public', 'contributions'].includes(String(q.queryKey[0])) })
   const act = useMutation({
     mutationFn: async ({ kind, m }: { kind: 'reset' | 'admin' | 'member' | 'remove'; m: MemberRow }) => {
       if (kind === 'reset') return api.post<Invite>(classPath(info.code, `/members/${m.id}/reset-invite`))

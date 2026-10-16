@@ -20,6 +20,7 @@ import Today from './pages/Today'
 import Upcoming from './pages/Upcoming'
 
 const ClassPage = lazy(() => import('./pages/ClassPage'))
+const Contributions = lazy(() => import('./pages/Contributions'))
 const Editor = lazy(() => import('./pages/Editor'))
 const About = lazy(() => import('./pages/About'))
 const Privacy = lazy(() => import('./pages/Privacy'))
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
       { path: 'materia/:subject', element: <SubjectPage /> },
       { path: 'in-arrivo', element: <Upcoming /> },
       { path: 'classe', element: later(<ClassPage />) },
+      { path: 'classe/contributi', element: later(<Contributions />) },
       { path: 'scrivi/:day', element: later(<Editor />) },
       { path: 'segnala', element: later(<ClassReportPage />) },
       { path: '*', element: <NotFound /> },

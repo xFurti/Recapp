@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createContext, useContext } from 'react'
 import { api } from './api'
-import type { ClassInfo, Me, TodayInfo } from './types'
+import type { ClassInfo, ContributionsInfo, Me, TodayInfo } from './types'
 
 export function useMe() {
   return useQuery({ queryKey: ['me'], queryFn: () => api.get<Me>('/me'), staleTime: 60_000 })
@@ -22,5 +22,13 @@ export function useToday(code: string) {
     queryKey: ['today', code],
     queryFn: () => api.get<TodayInfo>(classPath(code, '/today')),
     refetchInterval: 60_000,
+  })
+}
+
+/** Streak and Grazie leaderboard. Publications, item changes and Grazie invalidate it. */
+export function useContributions(code: string) {
+  return useQuery({
+    queryKey: ['contributions', code],
+    queryFn: () => api.get<ContributionsInfo>(classPath(code, '/contributions')),
   })
 }
