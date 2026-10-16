@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.16.8",
+  "published_at": "2026-10-16T19:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Piccole correzioni all’interfaccia",
+    "en": "Small interface fixes"
+  },
+  "summary": [
+    {
+      "it": "Il riquadro delle novità non scorre più di lato e il testo resta ben allineato.",
+      "en": "The what's new box no longer scrolls sideways and its text stays aligned."
+    },
+    {
+      "it": "Nelle lezioni di oggi i nomi lunghi delle materie restano dentro la loro scheda.",
+      "en": "In today's lessons, long subject names stay inside their card."
+    },
+    {
+      "it": "Su computer le lezioni della giornata stanno su una sola riga.",
+      "en": "On a computer, the day's lessons fit on a single row."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Riquadro delle novità",
+        "en": "What's new box"
+      },
+      "body": {
+        "it": "Lo sfondo colorato in alto non allarga più il riquadro: è sparita la barra di scorrimento laterale e titolo, punti e pulsanti hanno di nuovo margini uguali su entrambi i lati.",
+        "en": "The coloured glow at the top no longer widens the box: the sideways scrollbar is gone and the title, points and buttons have even margins on both sides again."
+      }
+    },
+    {
+      "category": "fix",
+      "title": {
+        "it": "Lezioni di oggi",
+        "en": "Today's lessons"
+      },
+      "body": {
+        "it": "Le schede si allargano quanto basta per il nome della materia, così nomi come Telecomunicazioni non escono più dal bordo. Su computer le lezioni restano su una riga, su telefono vanno a capo in modo ordinato.",
+        "en": "Cards widen just enough for the subject name, so names like Telecomunicazioni no longer spill over the edge. On a computer the lessons stay on one row; on a phone they wrap neatly."
+      }
+    }
+  ]
+}

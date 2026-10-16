@@ -121,7 +121,7 @@ function ReleaseDialog({ release, onDismiss, onClosed }: { release: Release; onD
         if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dismiss()
       } }}
       onAnimationEnd={(event) => { if (closing && event.target === event.currentTarget && event.animationName === 'release-out') onClosed() }}>
-      <div aria-hidden className="release-glow" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-40 overflow-hidden"><div className="release-glow" /></div>
       <div className="relative flex items-start justify-between gap-3">
         <span className="release-icon relative flex size-12 items-center justify-center rounded-2xl bg-bordeaux-soft text-bordeaux">
           <Sparkles aria-hidden className="size-6" />
