@@ -1,6 +1,6 @@
 import { selectedLanguage, subscribeLanguage } from '../lib/language-transition'
 import { useIsFetching, useQueryClient } from '@tanstack/react-query'
-import { Clock, Delete, GraduationCap, KeyRound, LogOut, Moon, School, SunMedium } from 'lucide-react'
+import { Clock, Delete, GraduationCap, KeyRound, LogOut, Megaphone, School } from 'lucide-react'
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
@@ -19,11 +19,13 @@ import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
 import { locale } from '../lib/format'
 import type { ClassInfo } from '../types'
-import { animateTheme, getTheme, type ThemeChoice } from '../lib/theme'
+import { animateTheme, getTheme, subscribeTheme } from '../lib/theme'
 import { takeCelebrate } from '../lib/celebrate'
 import { flushPendingWork } from '../lib/pendingWork'
 import { sectionIndex } from '../lib/sections'
 import { markTourSeen, tourSeen } from '../lib/tour'
+import { demoReleaseAccount, officialReleaseAccount } from '../lib/releases'
+import { ReleasePopup } from './ReleasePopup'
 import { NavIcon, useNavIconMotion } from './NavIcon'
 import { ConfettiBurst } from './Confetti'
 import { ClassNavigation } from './ClassNavigation'
@@ -99,18 +101,19 @@ export function Wordmark({ size = 'md', playing }: { size?: 'sm' | 'md' | 'lg'; 
 
 export function ThemeToggle() {
   const { t } = useTranslation()
-  const [choice, setChoice] = useState<ThemeChoice>(getTheme)
-  const motion = useNavIconMotion()
-  const Icon = choice === 'dark' ? Moon : SunMedium
-  const next = () => {
-    const value: ThemeChoice = choice === 'dark' ? 'light' : 'dark'
-    setChoice(value)
-    animateTheme(value)
-  }
+  const choice = useSyncExternalStore(subscribeTheme, getTheme)
+  const next = () => animateTheme(choice === 'dark' ? 'light' : 'dark')
   const label = t('theme.label', { mode: t(`theme.${choice}`) })
   return (
-    <button onClick={next} {...motion.triggers} className="flex size-8 items-center justify-center rounded-full border border-line bg-surface text-muted hover:text-ink" title={label} aria-label={label}>
-      <NavIcon icon={Icon} motion={choice === 'dark' ? 'moon' : 'theme'} playing={motion.playing} className="size-4" />
+    <button type="button" onClick={next} data-theme={choice} className="theme-toggle grid size-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface" title={label} aria-label={label}>
+      {/* Uiverse: santosh-sarkar / terrible-mole-8, from Creatlydev / massive-quail-70.
+          Adapted SVGs and animation; the full MIT notice is beside the styles in index.css. */}
+      <svg className="theme-icon theme-icon--moon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+        <path fillRule="evenodd" clipRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" />
+      </svg>
+      <svg className="theme-icon theme-icon--sun" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+        <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+      </svg>
     </button>
   )
 }
@@ -307,6 +310,11 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
     setPhase('closed')
     onTour()
   }
+  const report = () => {
+    handoff.current = true
+    setPhase('closed')
+    navigate(`/c/${info.code}/segnala`, { state: { from: location.pathname } })
+  }
   const toggle = () => setPhase((current) => (current === 'open' ? 'closing' : 'open'))
   const row = 'profile-row profile-action flex min-h-11 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm'
   return (
@@ -356,7 +364,10 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
           <button role="menuitem" onClick={replay} className={row} style={{ '--i': 2 } as CSSProperties}>
             <GraduationCap className="size-4" /> <span className="language-text">{t('tour.replay')}</span>
           </button>
-          <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 3 } as CSSProperties}>
+          <button role="menuitem" onClick={report} className={row} style={{ '--i': 3 } as CSSProperties}>
+            <Megaphone className="size-4" /> <span className="language-text">{t('report.menu')}</span>
+          </button>
+          <div className="profile-row flex items-center justify-between gap-2 px-2 py-2 sm:hidden" style={{ '--i': 4 } as CSSProperties}>
             <ThemeToggle />
             <LangToggle />
           </div>
@@ -507,6 +518,9 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
         <ClassNavigation code={info.code} mobile />
       </div>
       {tourOpen && <Tour demo={info.is_demo} onClose={closeTour} />}
+      {info.viewer.member && <ReleasePopup key={`member-${info.viewer.member.id}`}
+        account={info.is_demo ? demoReleaseAccount : officialReleaseAccount('member', info.viewer.member.id)}
+        firstVisit={!tourSeen(info)} suspended={tourOpen} />}
       {party && <ConfettiBurst onDone={stopParty} />}
     </div>
   )

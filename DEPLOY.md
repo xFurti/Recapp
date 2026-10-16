@@ -83,6 +83,11 @@ All'ultimo minuto `tryrecapp.xyz` ha dato problemi di verifica. Per stabilità e
 
 ## 7. Verifica finale (STOP 5)
 
+La build include le note della pagina Novità: prima del merge verificare il nuovo
+file in `release-notes/`, come descritto in [Note di rilascio](docs/release-notes.md).
+Non serve configurare webhook o nuove chiavi Render. Note e app vengono
+distribuite insieme; un rollback ripristina anche lo storico.
+
 - [ ] `https://bassaleo.xyz/api/healthz` risponde `{"ok": true, "env": "prod", "ocr": "featherless", "runner": "render"}`
 - [ ] "Prova la demo" funziona
 - [ ] Primo accesso del rappresentante 4BI con l'invito, poi aggiunta di 2 compagni

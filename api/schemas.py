@@ -2,7 +2,7 @@ import re
 from datetime import date
 from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 ItemType = Literal["compito", "verifica", "evento", "lab"]
 ItemSource = Literal["detto in classe", "ClasseViva", "Classroom", "Campus", "altro"]
@@ -122,12 +122,13 @@ class CardIn(BaseModel):
     attachment_ids: list[int] = Field(default_factory=list, max_length=6)
 
 
-class UpcomingPatch(BaseModel):
+class ItemPatchFields(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     type: Optional[ItemType] = None
     subject_code: Optional[str] = Field(None, max_length=8)
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     due_date: Optional[date] = None
-    due_time: Optional[str] = None
     source: Optional[ItemSource] = None
     link: Optional[str] = None
 
@@ -135,6 +136,34 @@ class UpcomingPatch(BaseModel):
     @classmethod
     def _link(cls, v: Optional[str]) -> Optional[str]:
         return None if v is None else _clean_link(v)
+
+
+class UpcomingPatch(ItemPatchFields):
+    due_time: Optional[str] = None
+
+
+class ItemCorrectionIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    proposed: ItemPatchFields
+    reason: str = Field(min_length=1, max_length=500)
+
+    @field_validator("reason")
+    @classmethod
+    def _reason(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("Scrivi un motivo")
+        return v.strip()
+
+
+class ItemCorrectionDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    action: Literal["accept", "reject", "already_fixed"]
+    note: str = Field("", max_length=500)
+
+    @field_validator("note")
+    @classmethod
+    def _note(cls, v: str) -> str:
+        return v.strip()
 
 
 class SlotIn(BaseModel):

@@ -11,7 +11,7 @@ import argparse
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
-from sqlmodel import Session, col, delete, select
+from sqlmodel import Session, col, delete, select, update
 
 from . import db
 from .auth import check_secret, hash_secret, new_class_code, new_invite_code, random_code
@@ -27,6 +27,7 @@ from .models import (
     Member,
     OcrJob,
     Owner,
+    Report,
     ScribeOverride,
     Subject,
     SubjectEntry,
@@ -181,8 +182,17 @@ def _wipe_demo(session: Session, classroom: Classroom) -> None:
     session.exec(delete(ScribeOverride).where(ScribeOverride.class_id == cid))
     session.exec(delete(TimetableSlot).where(TimetableSlot.class_id == cid))
     session.exec(delete(Subject).where(Subject.class_id == cid))
+    _detach_reports(session, Member.class_id == cid, col(Member.nick).not_in(DEMO_NICKS))
     session.exec(delete(Member).where(Member.class_id == cid, col(Member.nick).not_in(DEMO_NICKS)))
     session.flush()
+
+
+def _detach_reports(session: Session, *where) -> None:
+    """Reports outlive demo members. Without an author, a later member that
+    reuses the same id cannot read them."""
+    gone = session.exec(select(Member.id).where(*where)).all()
+    if gone:
+        session.exec(update(Report).where(col(Report.member_id).in_(gone)).values(member_id=None))
 
 
 def _restore_demo_members(session: Session, classroom: Classroom) -> list[Member]:
@@ -324,6 +334,7 @@ def purge_private_demos(session: Session) -> None:
     ).all()
     for classroom in rows:
         _wipe_demo(session, classroom)
+        _detach_reports(session, Member.class_id == classroom.id)
         session.exec(delete(Member).where(Member.class_id == classroom.id))
         session.delete(classroom)
     session.commit()

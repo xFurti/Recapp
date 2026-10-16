@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api'
 import { emptyItem, ItemForm, type ItemInput } from '../components/ItemForm'
+import { CorrectionInbox, ItemCorrectionsProvider } from '../components/ItemCorrections'
 import { ItemRow, TYPE_STYLE } from '../components/items'
 import { Button, Card, Chip, EmptyState, ErrorBox, Segmented, Spinner, useDismiss } from '../components/ui'
 import { useDone } from '../lib/done'
@@ -110,7 +111,7 @@ export default function Upcoming() {
     enabled: showPast,
   })
 
-  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['upcoming', 'today', 'card'].includes(String(q.queryKey[0])) })
+  const refresh = () => qc.invalidateQueries({ predicate: (q) => ['upcoming', 'today', 'card', 'correction-inbox', 'item-corrections'].includes(String(q.queryKey[0])) })
   const saveItem = useMutation({
     mutationFn: (item: ItemInput) => {
       const body = { type: item.type, subject_code: item.subject_code, title: item.title, due_date: item.due_date, due_time: null, source: item.source, link: item.link }
@@ -168,6 +169,7 @@ export default function Upcoming() {
               key={it.id}
               item={it}
               subjects={info.subjects}
+              corrections
               done={done.has(it.id)}
               onToggleDone={() => toggle(it.id)}
               onOpen={it.can_edit ? () => openEdit(it) : undefined}
@@ -179,7 +181,7 @@ export default function Upcoming() {
     })
 
   return (
-    <div>
+    <ItemCorrectionsProvider><div>
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('upcoming.title')}</span></h1>
         {canAdd && (
@@ -189,6 +191,7 @@ export default function Upcoming() {
         )}
       </div>
 
+      <CorrectionInbox />
       <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1">
         <Chip active={type === null} onClick={() => setType(null)}>
           <span className="language-text">{t('upcoming.all')}</span>
@@ -269,6 +272,6 @@ export default function Upcoming() {
         busy={saveItem.isPending || deleteItem.isPending}
         error={(saveItem.error as Error | null)?.message ?? (deleteItem.error as Error | null)?.message}
       />
-    </div>
+    </div></ItemCorrectionsProvider>
   )
 }

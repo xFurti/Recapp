@@ -9,7 +9,7 @@ export const info: ClassInfo = {
   viewer: { kind: 'member', member: { id: 1, nick: 'Leo', color: '#347c91', role: 'admin' }, can_manage: true, read_only: false, tour_seen: true },
 }
 export const card: Card = {
-  id: 1, day: '2026-10-02', status: 'draft', author: info.viewer.member, scribe: info.viewer.member,
+  id: 1, day: '2026-10-02', status: 'draft', author: info.viewer.member, updated_by: null, scribe: info.viewer.member,
   notes: 'Portare il computer', revision: 1, published_at: null, updated_at: '2026-10-02T15:00:00',
   entries: [
     { subject_code: 'INI', hours: '1-2', room: 'LAB 1', is_lab: true, lesson_status: 'supplenza', bullets: ['API e database'], lab: { goal: 'Salvare i dati', repo_url: 'https://example.com/lab', pitfall: 'Controllare la connessione', bring: 'Computer' }, attachment_ids: [7] },

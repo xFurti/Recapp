@@ -300,10 +300,14 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
     const me = info.viewer.member
     const payload = toPayload(state)
     const card: Card = {
-      id: 0, day, status: 'draft', author: me, scribe: null, notes: state.notes, revision: 0, published_at: null, updated_at: null,
+      id: page.card?.id ?? 0, day, status: published ? 'published' : 'draft',
+      author: published ? page.card?.author ?? null : me, updated_by: published ? page.card?.updated_by ?? null : null,
+      scribe: page.card?.scribe ?? null, notes: state.notes, revision: page.card?.revision ?? 0,
+      published_at: page.card?.published_at ?? null, updated_at: page.card?.updated_at ?? null,
       entries: payload.entries,
       items: state.items.map((i, idx) => ({
-        ...i, id: i.id ?? -idx - 1, author: me, status: 'draft', card_day: day, attachment_id: i.attachment_id ?? null,
+        ...i, id: i.id ?? -idx - 1, author: page.card?.items.find(item => item.id === i.id)?.author ?? me,
+        status: published ? 'published' : 'draft', card_day: day, attachment_id: i.attachment_id ?? null,
       })),
       attachments: state.attachment_ids.map((id) => ({ id, width: 0, height: 0 })),
     }

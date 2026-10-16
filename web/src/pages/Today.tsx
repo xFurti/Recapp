@@ -9,6 +9,7 @@ import { ConfirmationDialog } from '../components/ConfirmationDialog'
 import { DayCardView, LessonsStrip } from '../components/day'
 import { Feedback } from '../components/Feedback'
 import { ItemRow } from '../components/items'
+import { CorrectionInbox, ItemCorrectionsProvider } from '../components/ItemCorrections'
 import { Avatar, Button, Card, ErrorBox, Spinner } from '../components/ui'
 import { parseDay } from '../lib/clock'
 import { capitalize, longDay, shortDay, timeOf } from '../lib/format'
@@ -64,6 +65,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
     case 'published':
       tone = 'bg-verde-soft border-verde/30'
       title = <TranslatedMessage message="banner.published" values={{ nick: data.card?.author?.nick ?? nick, time: timeOf(data.card?.published_at, lang) }} />
+      sub = data.card?.updated_by && <TranslatedMessage message="day.updated_by" values={{ nick: data.card.updated_by.nick }} />
       actions = data.can_write && (
         <Button variant="secondary" size="sm" onClick={write} data-tour="write">
           <Pencil className="size-4" /> <span className="language-text">{t('banner.edit')}</span>
@@ -219,7 +221,7 @@ export default function Today() {
   if (today.error) return <ErrorBox error={today.error} onRetry={() => today.refetch()} />
   const data = today.data!
   return (
-    <div className="space-y-6">
+    <ItemCorrectionsProvider><div className="space-y-6">
       <div>
         <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux"><span className="language-text">{t('nav.today')}</span></p>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{capitalize(longDay(data.day, i18n.language))}</h1>
@@ -228,6 +230,7 @@ export default function Today() {
       {info.is_demo && isWeekend(data.day) && <DemoWeekendNote />}
 
       <ScribeBanner data={data} />
+      <CorrectionInbox />
 
       {data.is_school_day && (
         <section>
@@ -255,11 +258,11 @@ export default function Today() {
         ) : (
           <div className="space-y-2">
             {data.upcoming_soon.map((it) => (
-              <ItemRow key={it.id} item={it} subjects={info.subjects} />
+              <ItemRow key={it.id} item={it} subjects={info.subjects} corrections />
             ))}
           </div>
         )}
       </section>
-    </div>
+    </div></ItemCorrectionsProvider>
   )
 }

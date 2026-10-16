@@ -466,3 +466,86 @@ def test_render_hostname_allowed(monkeypatch):
     assert app_module._origin_allowed("https://www.tryrecapp.xyz")
     assert not app_module._origin_allowed("https://evil.example")
     assert not app_module._origin_allowed("http://localhost:5173")
+
+
+def test_missed_days_are_visible_and_recoverable(client):
+    """Issue #76: an unpublished school day is shown in Yesterday and the history, and admins can recover it."""
+    from sqlmodel import Session, select
+
+    from api import db
+    from api.models import Classroom, DayCard
+
+    owner = make_client()
+    assert owner.post("/api/owner/login", json={"username": "preside", "password": "test-password"}).status_code == 200
+    created = owner.post("/api/owner/classes", json={"name": "4MI", "label": "Missed", "admin_nick": "capo", "timetable_from": "4BI"}).json()
+    code = created["code"]
+    admin = make_client()
+    assert admin.post(
+        f"/api/classes/{code}/activate",
+        json={"member_id": created["admin"]["member_id"], "invite": created["admin"]["invite"], "pin": "111111"},
+    ).status_code == 200
+    gianni = admin.post(f"/api/classes/{code}/members", json={"nick": "gianni"}).json()
+    student = make_client()
+    assert student.post(f"/api/classes/{code}/activate", json={"member_id": gianni["member_id"], "invite": gianni["invite"], "pin": "222222"}).status_code == 200
+    # Thursday 3 December 2026; Monday 7 and Tuesday 8 are school holidays.
+    with Session(db.engine) as s:
+        room = s.exec(select(Classroom).where(Classroom.code == code)).one()
+        room.created_at = datetime(2026, 12, 3, 7, 0)
+        s.add(room)
+        s.commit()
+
+    base = f"/api/classes/{code}"
+    body = {"entries": [{"subject_code": "INI", "bullets": ["recap"]}], "notes": "", "items": []}
+    thu, fri, wed, thu2 = date(2026, 12, 3), date(2026, 12, 4), date(2026, 12, 9), date(2026, 12, 10)
+
+    def publish(day, now):
+        rev = admin.get(f"{base}/cards/{day}", headers=now).json()["card"]
+        payload = {**body, "revision": rev["revision"] if rev else None}
+        assert admin.put(f"{base}/cards/{day}", json=payload, headers=now).status_code == 200
+        assert admin.post(f"{base}/cards/{day}/publish", headers=now).status_code == 200
+
+    # No recap at all yet: Yesterday still points to the missed school day.
+    assert admin.get(f"{base}/latest", headers=at(9, day=fri)).json() == {"day": thu.isoformat(), "missing": True, "has_draft": False}
+
+    publish(thu, at(16, day=fri))
+    # Wednesday after the weekend and two holidays: Friday was skipped, not Thursday's older recap.
+    latest = admin.get(f"{base}/latest", headers=at(9, day=wed)).json()
+    assert latest == {"day": fri.isoformat(), "missing": True, "has_draft": False}
+    page = admin.get(f"{base}/cards/{fri}", headers=at(9, day=wed)).json()
+    assert page["card"] is None and page["state"]["can_write"] and page["prev_published"] == thu.isoformat()
+    assert admin.get(f"{base}/cards/{thu}", headers=at(9, day=wed)).json()["next_published"] == fri.isoformat()
+
+    # A draft left on Wednesday, two days later.
+    draft = {**body, "entries": [{"subject_code": "INI", "bullets": ["half-written"]}]}
+    assert admin.put(f"{base}/cards/{wed}", json=draft, headers=at(15, day=wed)).status_code == 200
+    now = at(9, day=date(2026, 12, 11))
+    listed = admin.get(f"{base}/cards", headers=now).json()
+    assert [(c["day"], c["missing"], c.get("has_draft")) for c in listed] == [
+        (thu2.isoformat(), True, False),
+        (wed.isoformat(), True, True),
+        (fri.isoformat(), True, False),
+        (thu.isoformat(), False, None),
+    ], "weekends, holidays and days before the class joined are not missed"
+    assert all(c["can_write"] for c in listed if c["missing"])
+    resumed = admin.get(f"{base}/cards/{wed}", headers=now).json()
+    assert resumed["state"]["has_draft"] and resumed["card"]["entries"][0]["bullets"] == ["half-written"]
+
+    # Members see the gap; only who may already write that day gets the action.
+    for row in student.get(f"{base}/cards", headers=now).json():
+        if row["missing"]:
+            allowed = student.put(f"{base}/cards/{row['day']}", json=body, headers=now).status_code == 200
+            assert row["can_write"] == allowed
+    assert not any(c.get("can_write") for c in owner.get(f"{base}/cards", headers=now).json())
+    assert owner.put(f"{base}/cards/{fri}", json=body, headers=now).status_code == 403
+
+    # Recovering Friday a week later keeps its date and creates no duplicate.
+    later = at(9, day=date(2026, 12, 11))
+    publish(fri, later)
+    days = [c["day"] for c in admin.get(f"{base}/cards", headers=later).json()]
+    assert days.count(fri.isoformat()) == 1
+    assert next(c for c in admin.get(f"{base}/cards", headers=later).json() if c["day"] == fri.isoformat())["missing"] is False
+    with Session(db.engine) as s:
+        room = s.exec(select(Classroom).where(Classroom.code == code)).one()
+        assert len(s.exec(select(DayCard).where(DayCard.class_id == room.id, DayCard.day == fri)).all()) == 1
+    assert admin.get(f"{base}/latest", headers=at(9, day=wed)).json() == {"day": fri.isoformat(), "missing": False, "has_draft": False}
+    assert make_client().get(f"{base}/cards", headers=later).status_code == 401
