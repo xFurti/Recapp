@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowUpRight, ChevronDown, Crown, Heart, Info, LocateFixed, Medal, Sparkles } from 'lucide-react'
-import { useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { StreakDays, StreakHeadline, StreakLegend, StreakNote, StreakPanel } from '../components/contributions'
@@ -39,11 +39,6 @@ function Row({ row, ranked, podium = false, index = 0 }: { row: ContributionRow;
           {row.tied && <p className="contribution-tie language-text">{t('contributions.tied')}</p>}
         </div>}
         <span className="contribution-avatar">
-          {podium && <svg className="podium-orbit" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-            <circle cx="50" cy="50" r="46" stroke="currentColor" strokeDasharray="2 7" />
-            <path d="M17 74A40 40 0 0 1 16 29M83 74A40 40 0 0 0 84 29" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            <path d="m17 61-8-4 1 8 9 6m-5-24-7-6-1 8 8 7m4-22-5-7-3 8 5 8m68 18 8-4-1 8-9 6m5-24 7-6 1 8-8 7m-4-22 5-7 3 8-5 8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>}
           <Avatar nick={row.member.nick} color={row.member.color} />
         </span>
       </div>
@@ -66,23 +61,6 @@ function Row({ row, ranked, podium = false, index = 0 }: { row: ContributionRow;
   )
 }
 
-// Pointer effects update only CSS variables; no React render or continuous animation loop.
-function shine(event: ReactPointerEvent<HTMLDivElement>) {
-  if (event.pointerType !== 'mouse' || reducedMotion()) return
-  const target = event.currentTarget
-  const bounds = target.getBoundingClientRect()
-  const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width))
-  const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height))
-  target.style.setProperty('--shine-x', `${x * 100}%`)
-  target.style.setProperty('--shine-y', `${y * 100}%`)
-  target.style.setProperty('--tilt-x', `${(0.5 - y) * 5}deg`)
-  target.style.setProperty('--tilt-y', `${(x - 0.5) * 5}deg`)
-}
-
-function resetShine(event: ReactPointerEvent<HTMLDivElement>) {
-  for (const property of ['--shine-x', '--shine-y', '--tilt-x', '--tilt-y']) event.currentTarget.style.removeProperty(property)
-}
-
 function PodiumStep({ rows }: { rows: ContributionRow[] }) {
   const { t } = useTranslation()
   const position = usePosition()
@@ -91,11 +69,9 @@ function PodiumStep({ rows }: { rows: ContributionRow[] }) {
   const members = <ol className="podium-members">{rows.map(row => <Row key={row.member.id} row={row} ranked podium />)}</ol>
   return (
     <div className="podium-step" data-position={rows[0].position} data-has-me={rows.some(row => row.is_me) || undefined}
-      onPointerMove={shine} onPointerLeave={resetShine}
       style={{ '--contribution-delay': `${(3 - rows[0].position) * 100}ms` } as CSSProperties}>
       <div className="podium-card-top" aria-hidden="true">
         <span className="podium-recognition">{first ? <Crown /> : <Medal />}</span>
-        <span className="podium-serial">0{rows[0].position}</span>
       </div>
       {rows.length > 2 ? (
         <details className="podium-group">
@@ -125,14 +101,8 @@ function Ranking({ ranking, allZero }: { ranking: ContributionRow[]; allZero: bo
   return (
     <div ref={ref} className="contribution-ranking">
       {!allZero && <div className="ranking-stage">
-        <div className="ranking-constellation" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
-        <div className="ranking-stage-heading">
-          <p className="ranking-eyebrow"><Sparkles aria-hidden="true" /><span className="language-text">{t('contributions.stage_eyebrow')}</span></p>
-          <h3 className="language-text">{t('contributions.stage_title')}</h3>
-          <p className="language-text ranking-stage-note">{t('contributions.stage_note')}</p>
-        </div>
         <div className="contribution-podium" role="group" aria-label={t('contributions.podium')}>{groups.map(rows => <PodiumStep key={rows[0].position} rows={rows} />)}</div>
-        <p className="ranking-stage-footer"><Heart aria-hidden="true" /><span className="language-text">{t('contributions.stage_footer')}</span></p>
+
       </div>}
       {remaining.length > 0 && <div className="contribution-list-section">
         {!allZero && <div className="contribution-list-heading"><h3 className="language-text">{t('contributions.list_title')}</h3><span className="language-text">{t('contributions.group_members', { count: remaining.length })}</span></div>}

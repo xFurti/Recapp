@@ -1,5 +1,7 @@
 # Carte premio e traguardo personale — issue #101
 
+La versione finale alleggerita è documentata in [../refined/README.md](../refined/README.md). Questa cartella conserva il confronto della revisione a `1bd35ec`.
+
 Catture dell'interfaccia reale in Chromium con dati di prova e risposte HTTP simulate da `web/tests/contributions.spec.ts`. Nessun dato di classe reale e nessuna scrittura sul backend. Sia il prima sia il dopo usano build di produzione e il carattere Inter distribuito con l'app.
 
 ## Confronto

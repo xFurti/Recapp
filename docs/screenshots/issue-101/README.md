@@ -1,6 +1,6 @@
 # Issue #101 — classifica e podio
 
-Le acquisizioni e le verifiche della revisione finale sono in [redesign/README.md](redesign/README.md). Le immagini qui sotto documentano la prima iterazione a `d6f978b`.
+Le acquisizioni e le verifiche della revisione finale sono in [refined/README.md](refined/README.md). Le immagini qui sotto documentano la prima iterazione a `d6f978b`.
 
 Catture dell'applicazione reale in Chromium con risposte HTTP simulate dalla fixture di `web/tests/contributions.spec.ts`. Le identità e i conteggi sono dati di prova. Screenshot e video non verificano il backend: il cambiamento riguarda esclusivamente la presentazione della classifica.
 

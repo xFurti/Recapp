@@ -693,24 +693,6 @@ test('a zero-Grazie member has a real next milestone, while an all-zero class ha
   await expect(page.locator('.ranking-stage')).toHaveCount(0)
 })
 
-test('the card light follows a mouse, ignores touch, resets on leave and respects reduced motion', async ({ page }) => {
-  await setup(page, { width: 1280 })
-  await page.goto('/c/TEST/classe/contributi')
-  const card = page.locator('.podium-step').first()
-  await card.scrollIntoViewIfNeeded()
-  const bounds = (await card.boundingBox())!
-  await card.dispatchEvent('pointermove', { pointerType: 'touch', clientX: bounds.x + 10, clientY: bounds.y + 10 })
-  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
-  await page.mouse.move(bounds.x + 10, bounds.y + 10)
-  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).not.toBe('')
-  await page.mouse.move(1, 1)
-  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.mouse.move(bounds.x + 10, bounds.y + 10)
-  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
-  expect(await card.evaluate(element => getComputedStyle(element).transform)).toBe('none')
-})
-
 for (const width of [320, 1280]) test(`multi-digit statistics remain on one line in the actual page font (${width}px)`, async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await setup(page, { width, data: podiumData([

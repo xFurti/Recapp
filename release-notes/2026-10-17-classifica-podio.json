@@ -8,12 +8,12 @@
   },
   "summary": [
     {
-      "it": "Il podio diventa una vetrina con carte premio, aloni sugli avatar e finiture oro, argento e bronzo.",
-      "en": "The podium becomes a showcase with award cards, avatar halos, and gold, silver and bronze finishes."
+      "it": "Il podio ha schede più ordinate, con accenti oro, argento e bronzo e i Grazie in evidenza.",
+      "en": "The podium has clearer cards, with gold, silver and bronze accents and thanks in the spotlight."
     },
     {
-      "it": "Luci e riflessi seguono il puntatore; gradini e corona accompagnano l’ingresso in classifica.",
-      "en": "Light and reflections follow your pointer; steps and crown animate as you enter the ranking."
+      "it": "Gradini e corona accompagnano l’ingresso con animazioni brevi e discrete.",
+      "en": "Steps and crown arrive with brief, subtle animations."
     },
     {
       "it": "Il tuo prossimo traguardo mostra quanti Grazie mancano per condividere la posizione successiva.",
@@ -35,12 +35,12 @@
     {
       "category": "improvement",
       "title": {
-        "it": "Una vetrina per chi dà una mano",
-        "en": "A showcase for people who help"
+        "it": "Un podio più curato e leggero",
+        "en": "A more polished, lighter podium"
       },
       "body": {
-        "it": "Il podio ha una scena dedicata, con stelle, orbite e carte premio che si illuminano e si inclinano al passaggio del mouse. Oro, argento e bronzo distinguono le posizioni; aloni e corona valorizzano gli avatar. Sotto, la classifica continua con schede più leggibili. Il podio precede la serie delle giornate e si adatta a uno, due o tre gradini. Gli effetti rispettano il movimento ridotto e lasciano i contenuti leggibili sui dispositivi touch.",
-        "en": "The podium has its own stage, with stars, orbits and award cards that light up and tilt as your mouse moves. Gold, silver and bronze distinguish positions, while halos and a crown frame the avatars. Below, the ranking continues with clearer cards. The podium comes before the class streak and adapts to one, two or three steps. Effects respect reduced motion and keep content readable on touch devices."
+        "it": "Le schede del podio seguono il tema chiaro o scuro di Recapp, con accenti oro, argento e bronzo, avatar incorniciati e una corona per il primo posto. L’ingresso dei gradini è breve e il movimento ridotto disattiva gli effetti. La classifica continua con schede leggibili e si adatta a uno, due o tre gradini.",
+        "en": "Podium cards follow Recapp’s light or dark theme, with gold, silver and bronze accents, framed avatars and a crown for first place. Steps have a brief entrance, and reduced motion disables effects. The ranking continues with readable cards and adapts to one, two or three steps."
       }
     },
     {
