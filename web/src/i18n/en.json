@@ -62,7 +62,7 @@
     }
   },
   "landing": {
-    "title": "Missed a day?",
+    "title": "Missed a <day>day</day>?",
     "subtitle": "Open Recapp: what we did in class and in the lab, and what's due next. Written by classmates who were there.",
     "code_label": "Class code",
     "code_placeholder": "e.g. 4BI-K7Q2",

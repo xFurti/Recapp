@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.17.1",
+  "published_at": "2026-10-17T18:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Una home che racconta Recapp",
+    "en": "A home page that tells the Recapp story"
+  },
+  "summary": [
+    {
+      "it": "Nel titolo della home la parola «giorno» arriva su un foglietto e si incastra al suo posto.",
+      "en": "On the home page the word “day” arrives on a paper slip and drops into the title."
+    },
+    {
+      "it": "Le icone di Ieri, In arrivo e del verbalista sono diventate adesivi.",
+      "en": "The Yesterday, Upcoming and note-taker icons are now stickers."
+    },
+    {
+      "it": "Con le animazioni ridotte vedi subito il titolo completo e gli adesivi restano fermi.",
+      "en": "With reduced motion you see the finished title straight away and the stickers stay still."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Il giorno perso torna al suo posto",
+        "en": "The missed day comes back"
+      },
+      "body": {
+        "it": "Entrando nella home, nel titolo «Ti sei perso un giorno?» resta uno spazio vuoto: un foglietto arriva inclinato, si gira e si incastra con la parola «giorno». Dura circa un secondo e puoi inserire il codice classe o aprire la demo anche mentre si muove. Con le animazioni ridotte vedi subito il titolo completo.",
+        "en": "When you open the home page, the title “Missed a day?” has an empty gap: a paper slip flies in, flips over and drops into place with the word “day”. It takes about a second and you can type your class code or open the demo while it moves. With reduced motion you see the finished title straight away."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Adesivi da toccare",
+        "en": "Stickers to play with"
+      },
+      "body": {
+        "it": "Passando sopra le icone di Ieri, In arrivo e Un verbalista al giorno, un angolo si solleva come un adesivo. Premendo reagiscono, e con il mouse puoi tirarle di qualche pixel prima che tornino al loro posto. Sul telefono rispondono al tocco senza bloccare lo scorrimento.",
+        "en": "Hover the Yesterday, Upcoming and One note-taker a day icons and a corner peels up like a sticker. They react when pressed, and with a mouse you can tug them a few pixels before they spring back. On a phone they respond to a tap without getting in the way of scrolling."
+      }
+    }
+  ]
+}

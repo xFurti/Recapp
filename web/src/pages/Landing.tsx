@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
 import { LangToggle, RECAPP_MARK_MS, SchoolBadge, ThemeToggle, Wordmark } from '../components/shell'
 import { useNavIconMotion } from '../components/NavIcon'
+import { MissedDayTitle, Sticker } from '../components/LandingArt'
 import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
 import { getRecent, rememberClass } from '../lib/recent'
@@ -84,15 +85,15 @@ export default function Landing() {
         <div className="contents md:block">
           <section>
             <div className="mb-5" {...hero.triggers}><Wordmark size="lg" playing={hero.playing} /></div>
-            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl"><span className="language-text">{t('landing.title')}</span></h1>
+            <MissedDayTitle className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl" />
             <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg"><span className="language-text">{t('landing.subtitle')}</span></p>
           </section>
           <ul className="order-2 space-y-4 md:order-none md:mt-8">
             {features.map((f, index) => (
               <li key={index} className="flex gap-3">
-                <span className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${f.color}`}>
+                <Sticker className={`flex size-10 items-center justify-center rounded-xl ${f.color}`}>
                   <f.icon className="size-5" />
-                </span>
+                </Sticker>
                 <div>
                   <p className="language-text font-bold">{f.title}</p>
                   <p className="text-sm text-muted"><span className="language-text">{f.text}</span></p>

@@ -62,7 +62,7 @@
     }
   },
   "landing": {
-    "title": "Ti sei perso un giorno?",
+    "title": "Ti sei perso un <day>giorno</day>?",
     "subtitle": "Apri Recapp: cosa abbiamo fatto in classe e in lab, e cosa c'è in arrivo. Scritto da chi c'era.",
     "code_label": "Codice classe",
     "code_placeholder": "es. 4BI-K7Q2",
