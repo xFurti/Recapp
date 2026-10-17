@@ -59,8 +59,9 @@ for (const demo of [false, true]) {
         const banner = page.locator('section[aria-live="polite"]')
         await expect(banner).toContainText(lang === 'it' ? 'Pubblicata da Ada alle 14:10' : 'Published by Ada at 14:10')
         await expect(banner).toContainText(updated)
-        await expect(page.locator('article header')).toContainText(lang === 'it' ? 'di Ada' : 'by Ada')
-        await expect(page.locator('article header')).toContainText(updated)
+        // Today names publisher and updater once, in its header: no second card heading repeats them.
+        await expect(page.getByText(updated, { exact: true })).toHaveCount(1)
+        await expect(page.locator('main').getByText(/Ada/)).toHaveCount(1)
         // The original author still sees Share even without admin or current-scribe rights.
         await expect(page.getByRole('button', { name: lang === 'it' ? 'Condividi' : 'Share', exact: true })).toBeVisible()
         await expect(page.getByRole('button', { name: lang === 'it' ? 'Modifica' : 'Edit', exact: true })).toBeVisible()

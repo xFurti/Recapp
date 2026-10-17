@@ -134,7 +134,30 @@
     "no_lessons": "No lessons on the timetable today",
     "soon": "Next 3 days",
     "soon_empty": "Nothing due in the next 3 days.",
-    "all_upcoming": "All upcoming"
+    "all_upcoming": "All upcoming",
+    "lessons_notes": "Lessons and notes",
+    "now": "Now",
+    "stub_in": "in",
+    "stub_days": "days",
+    "new_today": "New today",
+    "see_deadline": "Go to the deadline",
+    "attachment": "Open attachment",
+    "invite_yours": "The notes you write will appear here, hour by hour.",
+    "invite_waiting": "When {{nick}} publishes the day, you'll find the notes for each hour here.",
+    "invite_future": "Notes for each hour will appear here after the lessons.",
+    "back_to_school": "Back to school",
+    "next_scribe": "Written by <b>{{nick}}</b>",
+    "next_no_scribe": "No note-taker assigned",
+    "state": {
+      "published": "Published",
+      "draft": "Draft",
+      "mine": "Your turn",
+      "open": "Turn open",
+      "no_school": "No school",
+      "future": "Not yet",
+      "waiting": "Not written yet",
+      "taken": "Turn taken"
+    }
   },
   "banner": {
     "not_started": "<b>{{nick}}</b> is today's note-taker.",

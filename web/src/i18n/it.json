@@ -134,7 +134,30 @@
     "no_lessons": "Nessuna lezione in orario oggi",
     "soon": "Nei prossimi 3 giorni",
     "soon_empty": "Niente in scadenza nei prossimi 3 giorni.",
-    "all_upcoming": "Tutto In arrivo"
+    "all_upcoming": "Tutto In arrivo",
+    "lessons_notes": "Lezioni e appunti",
+    "now": "Adesso",
+    "stub_in": "tra",
+    "stub_days": "giorni",
+    "new_today": "Nuovo oggi",
+    "see_deadline": "Vai alla scadenza",
+    "attachment": "Apri allegato",
+    "invite_yours": "Gli appunti che scrivi compariranno qui, ora per ora.",
+    "invite_waiting": "Quando {{nick}} pubblica la giornata, qui trovi gli appunti di ogni ora.",
+    "invite_future": "Qui compariranno gli appunti di ogni ora, dopo le lezioni.",
+    "back_to_school": "Si torna a scuola",
+    "next_scribe": "Scrive <b>{{nick}}</b>",
+    "next_no_scribe": "Nessun verbalista assegnato",
+    "state": {
+      "published": "Pubblicata",
+      "draft": "Bozza",
+      "mine": "Tocca a te",
+      "open": "Turno scoperto",
+      "no_school": "Niente scuola",
+      "future": "Non ancora",
+      "waiting": "Da scrivere",
+      "taken": "Turno preso"
+    }
   },
   "banner": {
     "not_started": "<b>{{nick}}</b> è il redattore di oggi.",

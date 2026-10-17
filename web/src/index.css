@@ -1459,3 +1459,258 @@ html[data-language-transition='out'] textarea::placeholder {
     cursor: auto !important;
   }
 }
+
+/* Oggi (#96): cards side by side on a computer, deadlines first on a phone. The final layout
+   is in place from the first frame; the entrance only fades and nudges it, once per visit. */
+.today-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+@media (min-width: 1280px) {
+  .today-grid { grid-template-columns: minmax(0, 1fr) 21rem; gap: 1.5rem; align-items: start; }
+  .today-side { grid-column: 2; grid-row: 1; }
+  .today-main { grid-column: 1; grid-row: 1; }
+}
+.today-enter {
+  animation: today-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 10) * 60ms);
+}
+@keyframes today-enter {
+  from { opacity: 0; translate: 0 10px; }
+}
+.today-date-word {
+  display: inline-block;
+  animation: today-word 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--w, 0) * 70ms);
+}
+@keyframes today-word {
+  from { opacity: 0; filter: blur(8px); translate: 0 0.2em; }
+}
+.today-page[data-settled] .today-enter,
+.today-page[data-settled] .today-date-word { animation: none; }
+
+/* Cards: a soft glow follows the mouse; it is decoration only. */
+.today-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+.today-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(28rem circle at var(--mx, 50%) var(--my, 0), color-mix(in srgb, var(--color-bordeaux) 7%, transparent), transparent 65%);
+  transition: opacity 240ms ease;
+}
+@media (hover: hover) {
+  .today-card:hover { border-color: color-mix(in srgb, var(--color-bordeaux) 22%, var(--color-line)); box-shadow: 0 6px 22px rgb(29 27 30 / 0.06); }
+  .today-card:hover::before { opacity: 1; }
+}
+
+/* State of the day: one compact label. */
+.today-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.75rem;
+  padding: 0 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+  color: var(--color-ink);
+}
+.today-status[data-tone='published'] { background: var(--color-verde-soft); color: var(--color-verde-ink); }
+.today-status[data-tone='draft'] { background: var(--color-giallo-soft); color: var(--color-ink); }
+.today-status[data-tone='mine'] { background: var(--color-bordeaux-soft); color: var(--color-bordeaux); }
+.today-status[data-tone='open'] { background: var(--color-rosa-soft); color: var(--color-rosa-ink); }
+.today-status[data-tone='no_school'] { background: var(--color-azzurro-soft); color: var(--color-azzurro-ink); }
+.today-status[data-tone='taken'] { background: var(--color-viola-soft); color: var(--color-viola-ink); }
+.today-status-check path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: done-check-draw 420ms cubic-bezier(0.22, 1, 0.36, 1) 320ms both;
+}
+.today-status[data-tone='published'] { animation: done-check-pop 460ms cubic-bezier(0.34, 1.45, 0.64, 1) 300ms both; }
+.today-status-dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+.today-status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  animation: today-ping 1.8s cubic-bezier(0, 0, 0.2, 1) 3;
+}
+@keyframes today-ping {
+  75%, 100% { transform: scale(2.4); opacity: 0; }
+}
+.today-page[data-settled] .today-status,
+.today-page[data-settled] .today-status-check path { animation: none; }
+
+/* Timeline: one stop per hour, in the subject's color. */
+.today-stop { position: relative; display: flex; gap: 0.875rem; padding-bottom: 1.25rem; }
+.today-stop:last-child { padding-bottom: 0; }
+.today-stop::before {
+  content: '';
+  position: absolute;
+  left: calc(0.75rem - 1px);
+  top: 1.75rem;
+  bottom: 0.25rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-line);
+}
+.today-stop:last-child::before { display: none; }
+.today-stop[data-phase='past']::before { background: color-mix(in srgb, var(--subject) 45%, var(--color-line)); }
+.today-stop-marker {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: -0.0625rem;
+  border: 3px solid var(--subject);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: #fff;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.today-stop[data-phase='past'] .today-stop-marker,
+.today-stop[data-phase='now'] .today-stop-marker { background: var(--subject); }
+.today-stop[data-phase='now'] .today-stop-marker::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 2px solid var(--subject);
+  animation: today-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.today-stop[data-phase='next'] .today-stop-head { opacity: 0.72; }
+@media (hover: hover) {
+  .today-stop:hover .today-stop-marker { transform: scale(1.15); }
+}
+
+.today-invite { border-color: var(--color-line); color: var(--color-muted); }
+.today-invite[data-kind='yours'] { border-color: color-mix(in srgb, var(--color-bordeaux) 35%, transparent); background: var(--color-bordeaux-soft); color: var(--color-bordeaux); }
+
+.today-pointer { transition: border-color 160ms ease, background-color 160ms ease; }
+.today-pointer:hover { border-color: var(--color-bordeaux); background: color-mix(in srgb, var(--color-bordeaux) 5%, transparent); }
+.today-pointer-arrow { transition: translate 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+.today-pointer:hover .today-pointer-arrow { translate: 0 2px; }
+@media (min-width: 1280px) {
+  .today-pointer:hover .today-pointer-arrow { translate: 2px 0; }
+}
+.today-more svg { transition: translate 180ms cubic-bezier(0.22, 1, 0.36, 1); }
+.today-more:hover svg { translate: 3px 0; }
+
+/* Deadlines: a ticket with the countdown on the stub, perforated from the details. */
+.today-ticket {
+  --ticket: var(--color-azzurro);
+  --ticket-soft: var(--color-azzurro-soft);
+  --ticket-ink: var(--color-azzurro-ink);
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  scroll-margin-block: 7rem 8rem;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+.today-ticket[data-urgency='now'] { --ticket: var(--color-rosa); --ticket-soft: var(--color-rosa-soft); --ticket-ink: var(--color-rosa-ink); }
+.today-ticket[data-urgency='soon'] { --ticket: var(--color-giallo); --ticket-soft: var(--color-giallo-soft); --ticket-ink: color-mix(in srgb, var(--color-giallo) 45%, var(--color-ink)); }
+.today-ticket:focus-visible { outline: 3px solid var(--color-azzurro); outline-offset: 2px; }
+.today-ticket:focus { outline: none; }
+@media (hover: hover) {
+  /* No transform here: it would trap the fixed toast of the calendar and Grazie actions inside the ticket. */
+  .today-ticket:hover { border-color: color-mix(in srgb, var(--ticket) 40%, var(--color-line)); box-shadow: 0 8px 20px rgb(29 27 30 / 0.07); }
+}
+.today-ticket.is-flashing { animation: today-ticket-flash 1.2s ease; }
+@keyframes today-ticket-flash {
+  30% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--ticket) 45%, transparent); }
+}
+.today-ticket-stub {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  padding: 0.75rem 0.25rem;
+  background: var(--ticket-soft);
+  color: var(--ticket-ink);
+  border-right: 2px dashed color-mix(in srgb, var(--ticket) 40%, transparent);
+  text-align: center;
+}
+.today-ticket-stub::before,
+.today-ticket-stub::after {
+  content: '';
+  position: absolute;
+  right: -0.5625rem;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-paper);
+}
+.today-ticket-stub::before { top: -0.5625rem; }
+.today-ticket-stub::after { bottom: -0.5625rem; }
+.today-icon-action {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  color: var(--color-muted);
+  transition: background-color 160ms ease, color 160ms ease, scale 120ms ease;
+}
+.today-icon-action:hover { background: color-mix(in srgb, var(--color-ink) 6%, transparent); color: var(--color-ink); }
+.today-icon-action:active { scale: 0.92; }
+.today-icon-action[data-correction='pending'] { color: var(--color-ink); background: var(--color-giallo-soft); }
+.today-icon-action[data-correction='accepted'] { color: var(--color-verde-ink); background: var(--color-verde-soft); }
+.today-icon-action[data-correction='rejected'] { color: var(--color-rosa-ink); background: var(--color-rosa-soft); }
+
+/* Grazie beats once under the pointer. */
+@media (hover: hover) {
+  .today-page .t-like:hover .t-like-heart { animation: today-heartbeat 700ms ease-in-out; }
+}
+@keyframes today-heartbeat {
+  15% { scale: 1.22; }
+  30% { scale: 0.96; }
+  45% { scale: 1.12; }
+}
+
+.today-rest-count { background: var(--color-azzurro-soft); color: var(--color-azzurro-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .today-enter,
+  .today-date-word,
+  .today-status,
+  .today-status-check path,
+  .today-status-dot::after,
+  .today-stop-marker::after,
+  .today-ticket.is-flashing,
+  .today-page .t-like:hover .t-like-heart { animation: none !important; }
+  .today-card::before { display: none; }
+  .today-stop:hover .today-stop-marker,
+  .today-pointer:hover .today-pointer-arrow,
+  .today-more:hover svg { translate: none; transform: none; }
+}

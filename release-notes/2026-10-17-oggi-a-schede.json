@@ -1,0 +1,51 @@
+{
+  "id": "2026.10.17.2",
+  "published_at": "2026-10-17T19:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "La pagina Oggi si legge a colpo d’occhio",
+    "en": "The Today page at a glance"
+  },
+  "summary": [
+    {
+      "it": "Data, stato della giornata e azione principale stanno in alto, una volta sola.",
+      "en": "The date, the state of the day and the main action sit at the top, once."
+    },
+    {
+      "it": "Le scadenze dei prossimi giorni vengono prima degli appunti, come biglietti con il conto alla rovescia.",
+      "en": "Deadlines for the next days come before the notes, as tickets with a countdown."
+    },
+    {
+      "it": "Lezioni e appunti sono un’unica linea del tempo, con l’ora in corso evidenziata.",
+      "en": "Lessons and notes form a single timeline, with the current hour highlighted."
+    },
+    {
+      "it": "Al computer le schede stanno affiancate e nel weekend vedi quanto manca al prossimo giorno di scuola.",
+      "en": "On a computer the cards sit side by side, and at the weekend you see how long until the next school day."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Prima le cose che servono",
+        "en": "What you need comes first"
+      },
+      "body": {
+        "it": "In cima a Oggi trovi la data, un’etichetta con lo stato della giornata (pubblicata, bozza, tocca a te, turno scoperto, niente scuola) e il pulsante per scrivere, continuare o modificare. Subito sotto ci sono le scadenze dei prossimi tre giorni, raggruppate per giorno: ognuna è un biglietto con il conto alla rovescia colorato secondo l’urgenza, e calendario, Grazie e segnalazione raccolti su una sola riga.",
+        "en": "At the top of Today you find the date, a label with the state of the day (published, draft, your turn, turn open, no school) and the button to write, continue or edit. Right below are the deadlines for the next three days, grouped by day: each is a ticket with a countdown coloured by urgency, with calendar, Thanks and report on a single row."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Una linea del tempo per la giornata",
+        "en": "One timeline for the day"
+      },
+      "body": {
+        "it": "Ogni ora è una tappa con orario, aula e colore della materia, e sotto ci sono i suoi appunti e i compiti assegnati. Durante le lezioni l’ora in corso è evidenziata. I compiti che scadono a breve compaiono una volta sola, tra le scadenze, e dalla materia un rimando ti porta lì. Al computer la pagina usa tutta la larghezza; con le animazioni ridotte vedi subito tutto, senza movimenti.",
+        "en": "Each hour is a stop with time, room and subject colour, with its notes and the homework given in it. During lessons the current hour is highlighted. Homework due soon appears only once, among the deadlines, and a link under the subject takes you there. On a computer the page uses the full width; with reduced motion you see everything at once, without movement."
+      }
+    }
+  ]
+}
