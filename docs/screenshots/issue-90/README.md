@@ -25,3 +25,7 @@ Le immagini a pagina completa includono la barra mobile fissata al fondo della v
 Le scintille richiedono una nuova pubblicazione puntuale e un record maggiore del massimo già osservato per classe e periodo. Il primo caricamento senza osservazioni precedenti stabilisce la base; refetch, navigazione, reload e un record ricalcolato che ritorna al massimo precedente non ripetono l'effetto. La memoria locale ha un ripiego in memoria se lo storage non è disponibile. I contatori espongono subito il testo finale agli screen reader e non usano annunci live; movimento ridotto disattiva gli effetti e visualizza subito i valori finali.
 
 Il browser GitHub disponibile nella sessione non ha un account connesso, quindi l'upload diretto degli allegati non è disponibile. I media usano le cartelle già previste dal repository e vengono incorporati nella PR con link fissati al commit, senza scadenza.
+
+## Review
+
+`review/` confronta la PR a `f698a47` (prima) con la correzione della review (dopo) in una classe dove solo Ada ha ricevuto Grazie: telefono 390 px in italiano e tema chiaro, desktop 1280 px in inglese e tema scuro. Prima i sei membri a 0 Grazie formavano un gradino d'argento; dopo restano nella lista con la posizione reale. Catture Playwright di Chromium con risposte HTTP simulate dalla fixture di `contributions.spec.ts` e movimento ridotto per fissare lo stato finale.

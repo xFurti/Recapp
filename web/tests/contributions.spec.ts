@@ -581,3 +581,31 @@ test('reduced motion shows final numbers and disables entrances, FLIP and record
   await page.getByRole('button', { name: 'Go to your position' }).click()
   await expect(page.locator('#contributions-me')).toBeFocused()
 })
+
+test('members without Grazie stay in the list, even when fewer than three have any', async ({ page }) => {
+  const rows = [row(2, 'Ada', 1, false, 3), row(3, 'Sara', 2, true, 0), row(1, 'Leo', 2, true, 0), row(4, 'Marta', 2, true, 0)]
+  await setup(page, { data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const podium = page.getByRole('group', { name: 'Il podio della classe' })
+  await expect(podium.locator('.podium-step')).toHaveCount(1)
+  await expect(podium.locator('[data-contributor]')).toHaveCount(1)
+  await expect(podium.locator('[data-contributor="2"]')).toHaveCount(1)
+  await expect(page.locator('[data-contributor]')).toHaveCount(4)
+  for (const id of [1, 3, 4]) await expect(page.locator(`ol:not(.podium-members) > [data-contributor="${id}"]`)).toHaveAttribute('value', '2')
+  await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+})
+
+test('a ranking update does not pull focus back to a row the user already left', async ({ page }) => {
+  const rows = [row(2, 'Ada', 1, false, 8), row(3, 'Sara', 2, false, 6), row(4, 'Marta', 3, false, 4), row(1, 'Leo', 4, false, 2)]
+  const server = await setup(page, { width: 1280, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+  // Leaving the row without focusing anything else (e.g. a click on blank page) fires no focusin.
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  server.update(podiumData([rows[0], rows[1], rows[2], { ...rows[3], thanks: 3 }]))
+  await refresh(page)
+  await expect(page.locator('#contributions-me .contribution-number[data-value="3"]')).toHaveCount(1)
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true)
+})

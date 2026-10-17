@@ -49,11 +49,11 @@ export function useStreakFeedback(scope: string, streak?: StreakInfo) {
 export function useRankingMotion(ref: RefObject<HTMLElement | null>, signature: string) {
   const reduced = useReducedMotion()
   const before = useRef(new Map<string, { x: number; y: number; width: number }>())
-  const focused = useRef<string | undefined>(undefined)
+  const focused = useRef<HTMLElement | undefined>(undefined)
   useEffect(() => {
     const track = (event: FocusEvent) => {
       const member = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-contributor]') : null
-      focused.current = member && ref.current?.contains(member) ? member.dataset.contributor : undefined
+      focused.current = member && ref.current?.contains(member) ? member : undefined
     }
     document.addEventListener('focusin', track)
     return () => document.removeEventListener('focusin', track)
@@ -61,8 +61,11 @@ export function useRankingMotion(ref: RefObject<HTMLElement | null>, signature: 
   useLayoutEffect(() => {
     const elements = ref.current?.querySelectorAll<HTMLElement>('[data-contributor]') ?? []
     // Moving between the podium and the list changes the React parent and replaces the node.
-    if (focused.current && document.activeElement === document.body) {
-      const target = Array.from(elements).find(element => element.dataset.contributor === focused.current)
+    // Only a replaced node is restored: a row the user left behind keeps its node and stays unfocused.
+    if (focused.current && !focused.current.isConnected && document.activeElement === document.body) {
+      const id = focused.current.dataset.contributor
+      focused.current = undefined
+      const target = Array.from(elements).find(element => element.dataset.contributor === id)
       const group = target?.closest('details')
       if (group) group.open = true
       target?.focus({ preventScroll: true })

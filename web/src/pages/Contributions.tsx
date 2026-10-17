@@ -95,8 +95,10 @@ function Ranking({ ranking, allZero }: { ranking: ContributionRow[]; allZero: bo
   const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   useRankingMotion(ref, ranking.map(row => `${row.member.id}:${row.position}:${row.thanks}`).join(','))
-  const groups = [1, 2, 3].map(position => ranking.filter(row => row.position === position)).filter(rows => rows.length)
-  const remaining = allZero ? ranking : ranking.filter(row => row.position > 3)
+  // Only Grazie earn a step: members still at zero stay in the list with their real position.
+  const onPodium = (row: ContributionRow) => !allZero && row.position <= 3 && row.thanks > 0
+  const groups = [1, 2, 3].map(position => ranking.filter(row => row.position === position && onPodium(row))).filter(rows => rows.length)
+  const remaining = ranking.filter(row => !onPodium(row))
   const List = allZero ? 'ul' : 'ol'
   return (
     <div ref={ref} className="contribution-ranking">
