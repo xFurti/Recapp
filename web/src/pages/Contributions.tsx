@@ -30,36 +30,38 @@ function Row({ row, ranked, podium = false, index = 0 }: { row: ContributionRow;
       value={ranked ? row.position : undefined}
       data-contributor={row.member.id}
       style={{ '--contribution-delay': `${Math.min(index, 8) * 35}ms` } as CSSProperties}
-      className={`contribution-row contribution-enter ${podium ? 'podium-member' : 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-4'} outline-offset-[-3px] ${row.is_me ? 'bg-bordeaux-soft' : ''}`}
+      className={`contribution-row contribution-enter ${podium ? 'podium-member' : 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-4'} outline-offset-[-3px] ${row.is_me && !podium ? 'bg-bordeaux-soft' : ''}`}
       data-me={row.is_me || undefined}
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-3">
+      <div className="contribution-person flex min-w-0 flex-wrap items-center gap-3">
         {ranked && (
           <div className={podium ? 'sr-only' : 'w-12 max-w-full text-center sm:w-16'}>
             <p className="text-lg font-extrabold tabular-nums leading-tight"><span className="language-text">{position(row)}</span></p>
             {row.tied && <p className="text-[11px] font-semibold leading-tight text-muted"><span className="language-text">{t('contributions.tied')}</span></p>}
           </div>
         )}
-        <Avatar nick={row.member.nick} color={row.member.color} />
+        <span className="contribution-avatar"><Avatar nick={row.member.nick} color={row.member.color} /></span>
       </div>
-      <div className="col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
-        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-semibold">
-          <span className="min-w-0 break-words">{row.member.nick}</span>
-          {row.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
-          {first && (
-            <Badge className={`${podium ? 'sr-only' : ''} bg-giallo text-[#1d1b1e]`}>
+      <div className="contribution-details col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
+        <p className="contribution-name flex flex-wrap items-center gap-x-1.5 gap-y-1 font-semibold">
+          <span className="contribution-nick min-w-0 break-words">{row.member.nick}</span>
+          {row.is_me && <span className="contribution-self text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
+          {first && (podium ? (
+            <span className="sr-only">{t(row.tied ? 'contributions.first_tied' : 'contributions.first')}</span>
+          ) : (
+            <Badge className="bg-giallo text-[#1d1b1e]">
               <Trophy className="size-3" aria-hidden /> <span className="language-text">{t(row.tied ? 'contributions.first_tied' : 'contributions.first')}</span>
             </Badge>
-          )}
+          ))}
         </p>
-        <p className="flex flex-wrap gap-x-1.5 text-xs text-muted">
-          <span><span className="language-text"><ContributionCount value={row.days_published} text={t('contributions.days', { count: row.days_published })} /></span><span className="contribution-separator" aria-hidden> ·</span></span>
-          <span><span className="language-text"><ContributionCount value={row.items_added} text={t('contributions.items', { count: row.items_added })} /></span></span>
+        <p className="contribution-stats flex flex-wrap gap-x-1.5 text-xs text-muted">
+          <span className="contribution-stat"><span className="language-text"><ContributionCount value={row.days_published} text={t('contributions.days', { count: row.days_published })} /></span><span className="contribution-separator" aria-hidden> ·</span></span>
+          <span className="contribution-stat"><span className="language-text"><ContributionCount value={row.items_added} text={t('contributions.items', { count: row.items_added })} /></span></span>
         </p>
       </div>
-      <p className="col-start-2 row-start-1 text-right sm:col-start-3">
-        <span className="block text-lg font-extrabold tabular-nums leading-tight"><ContributionCount value={row.thanks} /></span>
-        <span className="language-text block text-xs font-semibold text-muted">{t('contributions.thanks_label', { count: row.thanks })}</span>
+      <p className="contribution-score col-start-2 row-start-1 text-right sm:col-start-3">
+        <span className="contribution-score-value block text-lg font-extrabold tabular-nums leading-tight"><ContributionCount value={row.thanks} /></span>
+        <span className="contribution-score-label language-text block text-xs font-semibold text-muted">{t('contributions.thanks_label', { count: row.thanks })}</span>
       </p>
     </li>
   )
@@ -72,7 +74,7 @@ function PodiumStep({ rows }: { rows: ContributionRow[] }) {
   const label = `${position(rows[0])}${rows[0].tied ? ` · ${t('contributions.tied')}` : ''}`
   const members = <ol className="podium-members">{rows.map(row => <Row key={row.member.id} row={row} ranked podium />)}</ol>
   return (
-    <div className="podium-step contribution-enter" data-position={rows[0].position} data-has-me={rows.some(row => row.is_me) || undefined} style={{ '--contribution-delay': `${rows[0].position * 55}ms` } as CSSProperties}>
+    <div className="podium-step" data-position={rows[0].position} data-has-me={rows.some(row => row.is_me) || undefined} style={{ '--contribution-delay': `${(3 - rows[0].position) * 90}ms` } as CSSProperties}>
       <div className="podium-recognition" aria-hidden="true">{first ? <Crown className="size-6" /> : <Trophy className="size-5" />}</div>
       {rows.length > 2 ? (
         <details className="podium-group">
@@ -103,7 +105,7 @@ function Ranking({ ranking, allZero }: { ranking: ContributionRow[]; allZero: bo
   return (
     <div ref={ref} className="contribution-ranking">
       {!allZero && <div className="contribution-podium" role="group" aria-label={t('contributions.podium')}>{groups.map(rows => <PodiumStep key={rows[0].position} rows={rows} />)}</div>}
-      {remaining.length > 0 && <List start={allZero ? undefined : remaining[0].position} className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+      {remaining.length > 0 && <List start={allZero ? undefined : remaining[0].position} className="contribution-list space-y-2">
         {remaining.map((row, index) => <Row key={row.member.id} row={row} ranked={!allZero} index={index} />)}
       </List>}
     </div>

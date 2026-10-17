@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.17.5",
+  "published_at": "2026-10-17T20:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Un nuovo podio per i contributi della classe",
+    "en": "A new podium for class contributions"
+  },
+  "summary": [
+    {
+      "it": "Il podio ha schede più ordinate, con i Grazie in evidenza e le statistiche separate.",
+      "en": "The podium has clearer cards, with thanks in the spotlight and separate statistics."
+    },
+    {
+      "it": "I gradini entrano in sequenza e la corona del primo posto si anima all'apertura.",
+      "en": "The steps arrive in sequence and the first-place crown animates when you open the page."
+    },
+    {
+      "it": "Anche con due soli partecipanti sul podio, la classifica usa tutto lo spazio disponibile.",
+      "en": "Even with just two people on the podium, the ranking uses all the available space."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Statistiche senza righe fuori posto",
+        "en": "Statistics without stray lines"
+      },
+      "body": {
+        "it": "Le schede del podio separano nome, posizione, Grazie, giornate pubblicate ed elementi aggiunti. I dati restano leggibili anche con nomi lunghi e testo ingrandito.",
+        "en": "Podium cards separate names, positions, thanks, published days and added items. The information stays readable with long names and enlarged text."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Una classifica più chiara e un podio animato",
+        "en": "A clearer ranking and an animated podium"
+      },
+      "body": {
+        "it": "Oro, argento e bronzo distinguono le posizioni, le schede della lista sono separate e il podio si adatta a uno, due o tre gradini. All'apertura i gradini compaiono in sequenza e la corona accompagna il primo posto. Gli effetti rispettano la preferenza di movimento ridotto; parità e regole di conteggio restano le stesse.",
+        "en": "Gold, silver and bronze distinguish the positions, list cards are separated, and the podium adapts to one, two or three steps. On opening, the steps appear in sequence and the crown marks first place. Effects respect reduced-motion preferences; ties and counting rules stay the same."
+      }
+    }
+  ]
+}
