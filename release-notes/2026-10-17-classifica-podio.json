@@ -3,21 +3,21 @@
   "published_at": "2026-10-17T20:00:00Z",
   "visibility": "public",
   "title": {
-    "it": "Un nuovo podio per i contributi della classe",
-    "en": "A new podium for class contributions"
+    "it": "Il tuo aiuto lascia il segno",
+    "en": "Your help leaves a mark"
   },
   "summary": [
     {
-      "it": "Il podio ha schede più ordinate, con i Grazie in evidenza e le statistiche separate.",
-      "en": "The podium has clearer cards, with thanks in the spotlight and separate statistics."
+      "it": "Il podio diventa una vetrina con carte premio, aloni sugli avatar e finiture oro, argento e bronzo.",
+      "en": "The podium becomes a showcase with award cards, avatar halos, and gold, silver and bronze finishes."
     },
     {
-      "it": "I gradini entrano in sequenza e la corona del primo posto si anima all'apertura.",
-      "en": "The steps arrive in sequence and the first-place crown animates when you open the page."
+      "it": "Luci e riflessi seguono il puntatore; gradini e corona accompagnano l’ingresso in classifica.",
+      "en": "Light and reflections follow your pointer; steps and crown animate as you enter the ranking."
     },
     {
-      "it": "Anche con due soli partecipanti sul podio, la classifica usa tutto lo spazio disponibile.",
-      "en": "Even with just two people on the podium, the ranking uses all the available space."
+      "it": "Il tuo prossimo traguardo mostra quanti Grazie mancano per condividere la posizione successiva.",
+      "en": "Your next milestone shows how many more thanks you need to share the next position."
     }
   ],
   "entries": [
@@ -28,19 +28,30 @@
         "en": "Statistics without stray lines"
       },
       "body": {
-        "it": "Le schede del podio separano nome, posizione, Grazie, giornate pubblicate ed elementi aggiunti. I dati restano leggibili anche con nomi lunghi e testo ingrandito.",
-        "en": "Podium cards separate names, positions, thanks, published days and added items. The information stays readable with long names and enlarged text."
+        "it": "I contatori riservano lo spazio alle cifre effettive nel carattere usato dalla pagina. I numeri a due o più cifre non si spezzano più creando righe isolate tra giornate pubblicate ed elementi aggiunti. Le nuove schede separano chiaramente identità, posizione, Grazie e statistiche.",
+        "en": "Counters reserve room for the actual digits in the page’s font. Numbers with two or more digits no longer split into stray lines between published days and added items. The new cards clearly separate identity, position, thanks and statistics."
       }
     },
     {
       "category": "improvement",
       "title": {
-        "it": "Una classifica più chiara e un podio animato",
-        "en": "A clearer ranking and an animated podium"
+        "it": "Una vetrina per chi dà una mano",
+        "en": "A showcase for people who help"
       },
       "body": {
-        "it": "Oro, argento e bronzo distinguono le posizioni, le schede della lista sono separate e il podio si adatta a uno, due o tre gradini. All'apertura i gradini compaiono in sequenza e la corona accompagna il primo posto. Gli effetti rispettano la preferenza di movimento ridotto; parità e regole di conteggio restano le stesse.",
-        "en": "Gold, silver and bronze distinguish the positions, list cards are separated, and the podium adapts to one, two or three steps. On opening, the steps appear in sequence and the crown marks first place. Effects respect reduced-motion preferences; ties and counting rules stay the same."
+        "it": "Il podio ha una scena dedicata, con stelle, orbite e carte premio che si illuminano e si inclinano al passaggio del mouse. Oro, argento e bronzo distinguono le posizioni; aloni e corona valorizzano gli avatar. Sotto, la classifica continua con schede più leggibili. Il podio precede la serie delle giornate e si adatta a uno, due o tre gradini. Gli effetti rispettano il movimento ridotto e lasciano i contenuti leggibili sui dispositivi touch.",
+        "en": "The podium has its own stage, with stars, orbits and award cards that light up and tilt as your mouse moves. Gold, silver and bronze distinguish positions, while halos and a crown frame the avatars. Below, the ranking continues with clearer cards. The podium comes before the class streak and adapts to one, two or three steps. Effects respect reduced motion and keep content readable on touch devices."
+      }
+    },
+    {
+      "category": "feature",
+      "title": {
+        "it": "Il tuo prossimo traguardo",
+        "en": "Your next milestone"
+      },
+      "body": {
+        "it": "La tua scheda mostra quanti Grazie ti separano dalla posizione successiva, con una barra basata sui conteggi attuali. Le parità sono condivise: chi è già al primo posto riceve un messaggio dedicato, mentre una classe ancora a zero viene invitata a cominciare. Le regole di conteggio restano le stesse.",
+        "en": "Your card shows how many thanks separate you from the next position, with a bar based on current totals. Ties are shared: people already in first place get a dedicated message, while a class still at zero is invited to get started. Counting rules stay the same."
       }
     }
   ]

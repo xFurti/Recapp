@@ -30,7 +30,7 @@ export function ContributionCount({ value, text = String(value) }: { value: numb
     <span className="contribution-count">
       <span className="sr-only">{text}</span>
       <span aria-hidden="true">
-        {text.slice(0, at)}<span className="contribution-number" style={{ width: `${String(value).length}ch` }} data-value={reduced ? value : displayed} />{text.slice(at + String(value).length)}
+        {text.slice(0, at)}<span className="contribution-number" data-final={value} data-value={reduced ? value : displayed} />{text.slice(at + String(value).length)}
       </span>
     </span>
   )

@@ -466,7 +466,7 @@ test('podium steps and crown animate once, settle, and stop when reduced motion 
     const state = window as unknown as { podiumAnimations: string[] }
     state.podiumAnimations = []
     document.addEventListener('animationstart', event => {
-      if (event.animationName.startsWith('podium-')) state.podiumAnimations.push(event.animationName)
+      if (event.animationName === 'podium-rise' || event.animationName === 'podium-crown') state.podiumAnimations.push(event.animationName)
     })
   })
   await setup(page, { width: 1280, data: podiumData([row(1, 'Leo', 1, false, 8), row(2, 'Ada', 2, false, 5), row(3, 'Sara', 3, false, 3)]) })
@@ -660,4 +660,72 @@ test('a ranking update does not pull focus back to a row the user already left',
   await refresh(page)
   await expect(page.locator('#contributions-me .contribution-number[data-value="3"]')).toHaveCount(1)
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true)
+})
+
+test('the personal milestone uses the next distinct total and updates when sharing first place', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const rows = [row(2, 'Ada', 1, false, 8), row(1, 'Leo', 2, true, 5), row(3, 'Nora', 2, true, 5), row(4, 'Milo', 4, false, 2)]
+  const server = await setup(page, { data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const goal = page.locator('.contribution-goal')
+  await expect(goal).toContainText('3 Grazie per condividere il 1° posto.')
+  const progress = goal.getByRole('progressbar', { name: 'Verso il 1° posto' })
+  await expect(progress).toHaveAttribute('aria-valuenow', '5')
+  await expect(progress).toHaveAttribute('aria-valuemax', '8')
+  server.update(podiumData([{ ...rows[0], tied: true }, { ...rows[1], position: 1, thanks: 8 }, { ...rows[2], position: 3, tied: false }, rows[3]]))
+  await refresh(page)
+  await expect(goal).toContainText('La classe ti ringrazia')
+  await expect(goal.getByRole('progressbar')).toHaveCount(0)
+})
+
+test('a zero-Grazie member has a real next milestone, while an all-zero class has no position target', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const rows = [row(2, 'Ada', 1, false, 8), row(3, 'Nora', 2, true, 1), row(4, 'Milo', 2, true, 1), row(1, 'Leo', 4, false, 0)]
+  const server = await setup(page, { lang: 'en', width: 320, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const goal = page.locator('.contribution-goal')
+  await expect(goal).toContainText('1 more thanks to share 2nd place.')
+  await expect(goal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0')
+  server.update(podiumData(rows.map(member => ({ ...member, thanks: 0, position: 1, tied: true }))))
+  await refresh(page)
+  await expect(goal).toContainText('The first thanks could be yours')
+  await expect(goal.getByRole('progressbar')).toHaveCount(0)
+  await expect(page.locator('.ranking-stage')).toHaveCount(0)
+})
+
+test('the card light follows a mouse, ignores touch, resets on leave and respects reduced motion', async ({ page }) => {
+  await setup(page, { width: 1280 })
+  await page.goto('/c/TEST/classe/contributi')
+  const card = page.locator('.podium-step').first()
+  await card.scrollIntoViewIfNeeded()
+  const bounds = (await card.boundingBox())!
+  await card.dispatchEvent('pointermove', { pointerType: 'touch', clientX: bounds.x + 10, clientY: bounds.y + 10 })
+  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
+  await page.mouse.move(bounds.x + 10, bounds.y + 10)
+  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).not.toBe('')
+  await page.mouse.move(1, 1)
+  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.mouse.move(bounds.x + 10, bounds.y + 10)
+  expect(await card.evaluate(element => element.style.getPropertyValue('--shine-x'))).toBe('')
+  expect(await card.evaluate(element => getComputedStyle(element).transform)).toBe('none')
+})
+
+for (const width of [320, 1280]) test(`multi-digit statistics remain on one line in the actual page font (${width}px)`, async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await setup(page, { width, data: podiumData([
+    row(2, 'Ada', 1, false, 1207, 12, 24), row(1, 'Leo', 2, false, 111, 17, 21), row(3, 'Nora', 3, false, 31, 11, 120),
+  ]) })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.locator('.podium-step')).toHaveCount(3)
+  await page.evaluate(() => document.fonts.ready)
+  const issues = await page.locator('.podium-member .contribution-number').evaluateAll(numbers => numbers.flatMap(number => {
+    const style = getComputedStyle(number)
+    const rect = number.getBoundingClientRect()
+    const line = parseFloat(style.lineHeight)
+    return rect.height > line + 1
+      ? [`${number.getAttribute('data-value')} wrapped to ${rect.height}px (line ${line}px)`] : []
+  }))
+  expect(issues).toEqual([])
+  await noOverflow(page)
 })

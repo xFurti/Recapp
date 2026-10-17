@@ -1,5 +1,7 @@
 # Issue #101 — classifica e podio
 
+Le acquisizioni e le verifiche della revisione finale sono in [redesign/README.md](redesign/README.md). Le immagini qui sotto documentano la prima iterazione a `d6f978b`.
+
 Catture dell'applicazione reale in Chromium con risposte HTTP simulate dalla fixture di `web/tests/contributions.spec.ts`. Le identità e i conteggi sono dati di prova. Screenshot e video non verificano il backend: il cambiamento riguarda esclusivamente la presentazione della classifica.
 
 ## Prima e dopo
@@ -19,7 +21,7 @@ Le coppie conservano dati, lingua, tema e viewport: Luca ha 4 Grazie, Leonardo-B
 
 Le catture a pagina completa mantengono la barra mobile nella posizione della viewport iniziale. Le immagini `ranking-*` mostrano la posizione reale della barra nella viewport dopo lo scorrimento.
 
-La riga numerica isolata segnalata negli allegati dell'issue non si riproduce nella cattura locale della base. Il restyle sostituisce le regole posizionali del podio con classi dedicate per identità, Grazie e statistiche; le nuove schede non mostrano righe numeriche fuori posto. I test di leggibilità verificano anche contatori e testi visibili delle statistiche, prima esclusi dai controlli geometrici perché racchiusi in `aria-hidden`.
+La riga numerica isolata non si riproduceva in queste prime catture con valori a una cifra. Il confronto finale in produzione con statistiche a più cifre ne ha poi confermato la causa e verificato la correzione; vedere il registro in `redesign/`. Il restyle sostituisce le regole posizionali del podio con classi dedicate per identità, Grazie e statistiche; le nuove schede non mostrano righe numeriche fuori posto. I test di leggibilità verificano anche contatori e testi visibili delle statistiche, prima esclusi dai controlli geometrici perché racchiusi in `aria-hidden`.
 
 ## Movimento
 
