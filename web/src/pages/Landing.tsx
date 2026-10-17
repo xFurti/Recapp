@@ -1,6 +1,6 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, CalendarClock, History, School, Users } from 'lucide-react'
+import { ArrowRight, CalendarClock, History, MessageCircle, Newspaper, School, Users } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
@@ -11,6 +11,8 @@ import { MissedDayTitle, Sticker } from '../components/LandingArt'
 import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
 import { getRecent, rememberClass } from '../lib/recent'
+
+const footerLinkClass = 'inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-sm font-medium underline-offset-4 hover:text-ink hover:underline focus-visible:text-ink focus-visible:underline'
 
 export default function Landing() {
   const { t } = useTranslation()
@@ -147,13 +149,23 @@ export default function Landing() {
       </main>
 
       <footer className="border-t border-line bg-surface/60 pb-[env(safe-area-inset-bottom)]">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 py-4 text-xs text-muted">
-          <span><span className="language-text">{t('landing.footer')}</span></span>
-          <nav aria-label={t('landing.info_links')} className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <Link to="/privacy" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('landing.privacy')}</span></Link>
-            <Link to="/novita" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('news.title')}</span></Link>
-            <Link to="/faq" className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('about.title')}</span></Link>
-            <Link to="/segnala" state={{ from: '/' }} className="inline-flex min-h-11 items-center font-semibold underline"><span className="language-text">{t('report.link')}</span></Link>
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-5 py-4 text-center text-xs text-muted lg:flex-row lg:justify-between lg:gap-6 lg:text-left">
+          <p className="max-w-md leading-relaxed"><span className="language-text">{t('landing.footer')}</span></p>
+          <nav aria-label={t('landing.info_links')} className="flex flex-wrap items-center justify-center gap-x-5 lg:justify-end">
+            <div className="flex flex-wrap items-center justify-center gap-x-4">
+              <Link to="/privacy" className={footerLinkClass}><span className="language-text">{t('landing.privacy')}</span></Link>
+              <Link to="/faq" className={footerLinkClass}><span className="language-text">{t('about.title')}</span></Link>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-4 sm:border-l sm:border-line sm:pl-5">
+              <Link to="/novita" className={footerLinkClass}>
+                <Newspaper className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                <span className="language-text">{t('news.title')}</span>
+              </Link>
+              <Link to="/segnala" state={{ from: '/' }} aria-label={t('report.link')} className={footerLinkClass}>
+                <MessageCircle className="size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                <span className="language-text">{t('landing.report')}</span>
+              </Link>
+            </div>
           </nav>
         </div>
       </footer>
