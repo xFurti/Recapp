@@ -117,3 +117,9 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --conf
 ```
 
 Install WebKit with `npx playwright install webkit`, or set `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH` to an existing launcher. Browser fixtures simulate HTTP responses only; they do not change counting rules. Issue #90 screenshots and video use production builds with the real local API and an isolated SQLite demo database. The recording includes a real Grazie changing the podium and a real publication advancing the streak and record; no HTTP responses are mocked in those captures. See `docs/screenshots/issue-90/README.md` for the original base and capture details.
+
+## Animated landing (issue #91)
+
+`landing-art.spec.ts` opens the real landing page with only HTTP responses mocked. It checks that the missing-day entrance finishes within about a second while the class code field already takes input; that typing, switching theme and switching language neither restart it nor remount the week (the day letters follow the language); that reduced motion shows the final composition with no animations and still stickers; that the three feature stickers are hidden from screen readers, contain nothing focusable, peel on hover, clamp a mouse tug to 8px and spring back to their exact position, and react to a tap with `touch-action: manipulation` so scrolling stays free. Layout runs at 320px, 390px, 1024px and 1280px in Italian/English, light/dark and 100%/200% text: the week stays inside the main column and never overlaps the title, subtitle, class code field or feature list, sitting beside the title from 1024px and under the subtitle below that. At 320px with 200% text the header and logo already overflow on main; that is not changed here.
+
+Run `npm run test:e2e -- tests/landing-art.spec.ts`. PR screenshots and the recording come from the production build with mocked API responses.

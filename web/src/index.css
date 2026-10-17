@@ -1314,3 +1314,166 @@ html[data-language-transition='out'] textarea::placeholder {
   .report-kind-pill, .report-drop, .report-send-icon { transition: none; }
   .report-sent-check circle, .report-sent-check path { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Landing week (issue #91): a missing day flips back into its slot and a line joins the week.
+   Every rule below is the final composition; the entrance only fills backwards, so reduced
+   motion or a finished entrance leave the same picture. The flip (~260–740ms) overlaps the
+   logo's page flip, which Landing starts at 350ms. */
+.missed-week {
+  --week-delay: 200ms;
+  display: grid;
+  grid-template-columns: repeat(5, 34px);
+  grid-template-rows: 42px 10px;
+  column-gap: 6px;
+  row-gap: 8px;
+  width: max-content;
+  user-select: none;
+  pointer-events: none;
+}
+.missed-week-tile {
+  position: relative;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--color-line);
+  border-radius: 9px;
+  background: var(--color-surface);
+  box-shadow: 0 1px 2px rgb(29 27 30 / 0.08), 0 3px 8px rgb(29 27 30 / 0.06);
+  transform: rotate(var(--tilt, 0deg));
+}
+.missed-week-tile b { margin-bottom: 2px; font-size: 10px; font-weight: 800; line-height: 1; color: var(--color-muted); }
+.missed-week-tile i { display: block; height: 3px; border-radius: 2px; background: var(--accent, var(--color-line)); }
+.missed-week-tile i + i { width: 60%; background: var(--color-line); }
+.missed-week-slot {
+  position: relative;
+  grid-row: 1;
+  border: 1.5px dashed color-mix(in srgb, var(--color-muted) 60%, transparent);
+  border-radius: 9px;
+}
+.missed-week-found { position: absolute; inset: -1.5px; perspective: 260px; animation: week-arrive 720ms var(--week-delay) cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+.missed-week-flip { position: absolute; inset: 0; transform-style: preserve-3d; animation: week-flip 480ms calc(var(--week-delay) + 60ms) cubic-bezier(0.45, 0, 0.25, 1) backwards; }
+.missed-week-flip > .missed-week-tile { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.missed-week-tile--front { border-color: var(--color-bordeaux); background: var(--color-bordeaux); box-shadow: 0 2px 4px rgb(160 40 72 / 0.25), 0 6px 14px rgb(160 40 72 / 0.18); }
+.missed-week-tile--front b { color: #fff; }
+.missed-week-tile--front i, .missed-week-tile--front i + i { background: rgb(255 255 255 / 0.6); }
+.missed-week-tile--back {
+  transform: rotateY(180deg);
+  border-color: var(--color-giallo);
+  background: repeating-linear-gradient(135deg, var(--color-giallo) 0 5px, color-mix(in srgb, var(--color-giallo) 80%, #fff) 5px 10px);
+}
+.missed-week-line {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  align-self: center;
+  height: 2px;
+  margin-inline: 17px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--color-azzurro), var(--color-verde), var(--color-bordeaux), var(--color-giallo), var(--color-viola));
+  transform-origin: left;
+  animation: week-line 340ms calc(var(--week-delay) + 560ms) cubic-bezier(0.33, 1, 0.68, 1) backwards;
+}
+.missed-week-dot {
+  z-index: 1;
+  grid-row: 2;
+  place-self: center;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--color-paper);
+}
+.missed-week-dot--found { background: var(--color-bordeaux); animation: week-dot 280ms calc(var(--week-delay) + 760ms) ease-out backwards; }
+
+@keyframes week-arrive {
+  0% { opacity: 0; transform: translate(30px, -26px) rotate(18deg) scale(0.9); }
+  25% { opacity: 1; }
+  70% { transform: translate(0, -4px) rotate(-4deg) scale(1.05); }
+  86% { transform: translate(0, 1px) rotate(1deg) scale(0.98); }
+}
+@keyframes week-flip {
+  from { transform: rotateY(180deg); }
+}
+@keyframes week-line {
+  from { transform: scaleX(0); }
+}
+@keyframes week-dot {
+  from { transform: scale(0.5); background: var(--color-paper); }
+  60% { transform: scale(1.35); }
+}
+
+/* Landing feature icons as stickers: the corner peels on hover, they squeeze when pressed
+   and spring back. Sticker sets --drag-x/--drag-y while a mouse or pen tugs it. */
+@property --peel {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+.sticker {
+  --peel: 0px;
+  --drag-x: 0px;
+  --drag-y: 0px;
+  --sticker-edge: #fff;
+  --sticker-back: #fbf8f9;
+  --sticker-back-2: #d8cfd4;
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-self: flex-start;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transform: translate(var(--drag-x), var(--drag-y)) rotate(var(--sticker-tilt, 0deg)) scale(var(--sticker-scale, 1));
+  filter: drop-shadow(0 1px 1px rgb(29 27 30 / 0.16)) drop-shadow(0 2px 3px rgb(29 27 30 / 0.06));
+  transition: transform 460ms cubic-bezier(0.34, 1.56, 0.64, 1), --peel 220ms ease, filter 220ms ease;
+}
+.dark .sticker {
+  --sticker-edge: #3f3945;
+  --sticker-back: #5a5262;
+  --sticker-back-2: #2b262f;
+}
+.sticker-face {
+  box-sizing: border-box;
+  border: 2px solid var(--sticker-edge);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--peel)), calc(100% - var(--peel)) 100%, 0 100%);
+}
+.sticker-fold {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--peel);
+  height: var(--peel);
+  border-top-left-radius: 3px;
+  background: linear-gradient(135deg, var(--sticker-back) 15%, var(--sticker-back-2) 50%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sticker { cursor: grab; }
+  .sticker:hover {
+    --peel: 14px;
+    filter: drop-shadow(0 2px 2px rgb(29 27 30 / 0.18)) drop-shadow(0 5px 8px rgb(29 27 30 / 0.12));
+  }
+}
+.sticker[data-pressed] {
+  --peel: 18px;
+  --sticker-scale: 0.9;
+  --sticker-tilt: -6deg;
+  transition-duration: 140ms;
+}
+.sticker[data-dragging] {
+  cursor: grabbing;
+  transition: --peel 140ms ease, filter 140ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .missed-week *, .missed-week::before, .missed-week::after { animation: none !important; }
+  .sticker, .sticker:hover, .sticker[data-pressed] {
+    --peel: 0px !important;
+    transform: none !important;
+    transition: none !important;
+    cursor: auto !important;
+  }
+}
