@@ -1,55 +1,31 @@
-import { useEffect, useRef, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { useEffect, useRef, type PointerEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** The day that goes missing, then flips back into place. */
-const MISSING = 2
-const TILT = ['-3deg', '2deg', '0deg', '-1.5deg', '2.5deg']
-const ACCENT = ['azzurro', 'verde', 'bordeaux', 'giallo', 'viola'].map(color => `var(--color-${color})`)
-
-function Day({ letter }: { letter: string }) {
-  return (
-    <>
-      <b>{letter}</b>
-      <i />
-      <i />
-    </>
-  )
-}
-
 /**
- * Decorative week on the landing page: one day is missing and returns to its slot.
- * The entrance is plain CSS, so it plays once per mount and re-renders (typing, data,
- * language, theme) never restart it. The resting styles are the final composition,
- * which is what reduced motion shows.
+ * Landing title with the missed day on a paper slip: the word's slot starts empty, then the
+ * slip flies in, flips and lands in the sentence. The entrance is plain CSS on elements that
+ * keep their identity across re-renders, so typing, data, language and theme never restart it.
+ * The resting styles are the final composition, which is what reduced motion shows.
  */
-export function MissedDayWeek({ className = '' }: { className?: string }) {
+export function MissedDayTitle({ className = '' }: { className?: string }) {
   const { t } = useTranslation()
-  const days = t('landing.week_days').split(' ')
+  const title = t('landing.title')
+  const [, before = '', day = '', after = ''] = /^(.*)<day>(.*)<\/day>(.*)$/s.exec(title) ?? []
+  // The slip is an inline-block, which would add a stray space before "?" in the accessible name.
   return (
-    <div className={`missed-week ${className}`} aria-hidden="true" data-testid="missed-week">
-      {days.map((letter, index) =>
-        index === MISSING ? (
-          <span key={index} className="missed-week-slot">
-            <span className="missed-week-found">
-              <span className="missed-week-flip">
-                <span className="missed-week-tile missed-week-tile--front"><Day letter={letter} /></span>
-                <span className="missed-week-tile missed-week-tile--back" />
-              </span>
-            </span>
+    <h1 className={className} aria-label={title.replace(/<\/?day>/g, '')}>
+      <span className="language-text">{before}</span>
+      <span className="whitespace-nowrap">
+        <span className="title-day" data-testid="title-day">
+          <span className="title-day-fly">
+            <span className="title-day-slip"><span className="language-text">{day}</span></span>
           </span>
-        ) : (
-          <span key={index} className="missed-week-tile" style={{ '--tilt': TILT[index], '--accent': ACCENT[index] } as CSSProperties}>
-            <Day letter={letter} />
-          </span>
-        ),
-      )}
-      <span className="missed-week-line" />
-      {days.map((_, index) => (
-        <span key={index} className={`missed-week-dot${index === MISSING ? ' missed-week-dot--found' : ''}`} style={{ gridColumn: index + 1, '--accent': ACCENT[index] } as CSSProperties} />
-      ))}
-    </div>
+        </span>
+        <span className="language-text">{after}</span>
+      </span>
+    </h1>
   )
 }
 

@@ -8,16 +8,16 @@
   },
   "summary": [
     {
-      "it": "Il giorno che ti sei perso torna al suo posto nella settimana.",
-      "en": "The day you missed slides back into its place in the week."
+      "it": "Nel titolo della home la parola «giorno» arriva su un foglietto e si incastra al suo posto.",
+      "en": "On the home page the word “day” arrives on a paper slip and drops into the title."
     },
     {
       "it": "Le icone di Ieri, In arrivo e del verbalista sono diventate adesivi.",
       "en": "The Yesterday, Upcoming and note-taker icons are now stickers."
     },
     {
-      "it": "Con le animazioni ridotte vedi subito la settimana completa e gli adesivi restano fermi.",
-      "en": "With reduced motion you see the finished week straight away and the stickers stay still."
+      "it": "Con le animazioni ridotte vedi subito il titolo completo e gli adesivi restano fermi.",
+      "en": "With reduced motion you see the finished title straight away and the stickers stay still."
     }
   ],
   "entries": [
@@ -28,8 +28,8 @@
         "en": "The missed day comes back"
       },
       "body": {
-        "it": "Accanto al titolo della home c’è una piccola settimana con un giorno mancante: entrando, la tessera arriva, si gira e si incastra, poi una linea unisce i giorni. Dura circa un secondo e puoi inserire il codice classe o aprire la demo anche mentre si muove. Con le animazioni ridotte vedi subito la settimana completa.",
-        "en": "Next to the home page title there’s a small week with a day missing: when you arrive, the tile flies in, flips and clicks into place, then a line joins the days. It takes about a second and you can type your class code or open the demo while it moves. With reduced motion you see the finished week straight away."
+        "it": "Entrando nella home, nel titolo «Ti sei perso un giorno?» resta uno spazio vuoto: un foglietto arriva inclinato, si gira e si incastra con la parola «giorno». Dura circa un secondo e puoi inserire il codice classe o aprire la demo anche mentre si muove. Con le animazioni ridotte vedi subito il titolo completo.",
+        "en": "When you open the home page, the title “Missed a day?” has an empty gap: a paper slip flies in, flips over and drops into place with the word “day”. It takes about a second and you can type your class code or open the demo while it moves. With reduced motion you see the finished title straight away."
       }
     },
     {

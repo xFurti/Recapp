@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router'
 import { api, ApiError } from '../api'
 import { LangToggle, RECAPP_MARK_MS, SchoolBadge, ThemeToggle, Wordmark } from '../components/shell'
 import { useNavIconMotion } from '../components/NavIcon'
-import { MissedDayWeek, Sticker } from '../components/LandingArt'
+import { MissedDayTitle, Sticker } from '../components/LandingArt'
 import { Button, inputClass } from '../components/ui'
 import { useMe } from '../queries'
 import { getRecent, rememberClass } from '../lib/recent'
@@ -83,12 +83,10 @@ export default function Landing() {
       <main className="mx-auto grid w-full max-w-5xl flex-1 items-start gap-8 px-5 pb-10 pt-6 md:grid-cols-[1.1fr_1fr] md:items-center md:gap-10">
         {/* `contents` on the phone so the join card can sit between the title and the feature list. */}
         <div className="contents md:block">
-          {/* One column on the phone (the week follows the subtitle); beside the title from lg. */}
-          <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-x-6">
-            <div className="mb-5 lg:col-span-2" {...hero.triggers}><Wordmark size="lg" playing={hero.playing} /></div>
-            <h1 className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl"><span className="language-text">{t('landing.title')}</span></h1>
-            <MissedDayWeek className="order-1 mt-5 lg:order-none lg:mt-0 lg:self-center" />
-            <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg lg:col-span-2"><span className="language-text">{t('landing.subtitle')}</span></p>
+          <section>
+            <div className="mb-5" {...hero.triggers}><Wordmark size="lg" playing={hero.playing} /></div>
+            <MissedDayTitle className="text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl" />
+            <p className="mt-3 max-w-lg text-base text-muted sm:mt-4 sm:text-lg"><span className="language-text">{t('landing.subtitle')}</span></p>
           </section>
           <ul className="order-2 space-y-4 md:order-none md:mt-8">
             {features.map((f, index) => (
