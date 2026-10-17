@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.17.2",
+  "published_at": "2026-10-17T18:15:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "I link utili della home, più ordinati",
+    "en": "A tidier home page footer"
+  },
+  "summary": [
+    {
+      "it": "Privacy e FAQ e creatori sono raccolti accanto ai collegamenti a Novità e Segnala.",
+      "en": "Privacy and FAQ and creators are grouped beside the What's new and Report links."
+    },
+    {
+      "it": "Due piccole icone aiutano a riconoscere Novità e Segnala.",
+      "en": "Small icons help you recognise What's new and Report."
+    },
+    {
+      "it": "I collegamenti si dispongono su più righe quando serve e restano evidenti quando usi la tastiera.",
+      "en": "Links wrap onto extra rows when needed and stay clearly highlighted when using a keyboard."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un fondo pagina più leggero",
+        "en": "A lighter footer"
+      },
+      "body": {
+        "it": "In fondo alla home trovi Privacy e FAQ e creatori in un gruppo, Novità e Segnala in un altro. Novità ha l'icona di un giornale, Segnala quella di un fumetto e un nome più breve. I link si sottolineano al passaggio del puntatore e quando li raggiungi con la tastiera. Sul telefono la descrizione del progetto precede i collegamenti, che vanno a capo quando lo spazio è ridotto.",
+        "en": "At the bottom of the home page, Privacy and FAQ and creators form one group, with What's new and Report in another. What's new has a newspaper icon, while Report has a speech bubble and a shorter label. Links are underlined on hover and when focused with a keyboard. On phones, the project description sits above the links, which wrap when space is limited."
+      }
+    }
+  ]
+}

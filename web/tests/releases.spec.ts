@@ -46,10 +46,9 @@ test('public home link, direct URL, history, categories, images and protected li
   const withImage = { ...release, entries: [{ ...release.entries[0], image: { src: '/favicon.png', alt: { it: 'Immagine del rilascio', en: 'Release image' } }, link: { href: '/c/TEST/in-arrivo', label: { it: 'Apri la funzione', en: 'Open feature' }, requires_login: true } }] }
   await page.route('**/api/releases', route => route.fulfill({ json: { version: 'notes-e2e', current: release.id, releases: [withImage, oldRelease] } }))
   await page.goto('/')
-  const links = page.getByRole('navigation', { name: 'Informazioni' }).getByRole('link')
-  await expect(links.nth(0)).toHaveText('Privacy')
-  await expect(links.nth(1)).toHaveText('Novità')
-  await links.nth(1).click()
+  const links = page.getByRole('navigation', { name: 'Informazioni' })
+  await expect(links.getByRole('link', { name: 'Privacy', exact: true })).toBeVisible()
+  await links.getByRole('link', { name: 'Novità', exact: true }).click()
   await expect(page).toHaveURL(/\/novita$/)
   await expect(page.getByRole('heading', { name: 'Novità', exact: true })).toBeVisible()
   await expect(page.locator('article').first()).toHaveAttribute('id', `release-${release.id}`)
