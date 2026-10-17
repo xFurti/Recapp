@@ -1,11 +1,14 @@
 import { Check, ChevronRight, Flame, History, Hourglass, X, type LucideIcon } from 'lucide-react'
+import { type CSSProperties, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { parseDay } from '../lib/clock'
 import { capitalize, locale, longDay } from '../lib/format'
+import { useStreakFeedback } from '../lib/contribution-motion'
 import { useClass, useContributions } from '../queries'
 import type { StreakDayStatus, StreakInfo } from '../types'
 import { ErrorBox } from './ui'
+import { ContributionCount } from './ContributionCount'
 
 /** Every status has its own icon and text, so the sequence reads without color. */
 const STREAK_STATUS: Record<StreakDayStatus, { icon: LucideIcon; tile: string }> = {
@@ -23,17 +26,17 @@ export function StreakDays({ streak }: { streak: StreakInfo }) {
   const weekday = new Intl.DateTimeFormat(locale(i18n.language), { weekday: 'short' })
   return (
     <ol className="grid grid-cols-[repeat(auto-fit,minmax(2rem,1fr))] gap-x-1 gap-y-3" aria-label={t('contributions.streak_days')}>
-      {streak.days.map(({ day, status }) => {
+      {streak.days.map(({ day, status }, index) => {
         const style = STREAK_STATUS[status]
         const Icon = style.icon
         const today = day === streak.today
         const label = t('contributions.day_status', { day: capitalize(longDay(day, i18n.language)), status: t(`contributions.status_${status}`) })
         return (
-          <li key={day} title={label} className="flex min-w-0 flex-col items-center gap-1 text-center" data-status={status}>
+          <li key={day} title={label} className="streak-day contribution-enter flex min-w-0 flex-col items-center gap-1 text-center" style={{ '--contribution-delay': `${80 + index * 30}ms` } as CSSProperties} data-status={status}>
             <span aria-hidden className={`max-w-full truncate text-[11px] font-semibold leading-none ${today ? 'text-ink' : 'text-muted'}`}>
               <span className={today ? 'language-text' : ''}>{today ? t('contributions.today_short') : weekday.format(parseDay(day)).replace(/\./g, '')}</span>
             </span>
-            <span aria-hidden className={`flex size-8 items-center justify-center rounded-full border-2 ${style.tile}`}>
+            <span key={status} aria-hidden className={`streak-day-icon flex size-8 items-center justify-center rounded-full border-2 ${style.tile}`}>
               <Icon className="size-4" strokeWidth={2.5} />
             </span>
             <span aria-hidden className="text-xs font-semibold tabular-nums leading-none">{parseDay(day).getDate()}</span>
@@ -71,14 +74,14 @@ export function StreakHeadline({ streak, level = 'h2' }: { streak: StreakInfo; l
   const Heading = level
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-3">
-      <span aria-hidden className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${streak.current > 0 ? 'bg-bordeaux-soft text-bordeaux' : 'bg-ink/5 text-muted'}`}>
+      <span aria-hidden className={`streak-flame flex size-11 shrink-0 items-center justify-center rounded-2xl ${streak.current > 0 ? 'bg-bordeaux-soft text-bordeaux' : 'bg-ink/5 text-muted'}`}>
         <Flame className="size-6" />
       </span>
       <div className="min-w-0 flex-1 basis-40">
         <Heading className="text-xl font-extrabold leading-tight tracking-tight">
-          <span className="language-text">{streak.has_published || streak.current > 0 ? t('contributions.streak_count', { count: streak.current }) : t('contributions.streak_empty')}</span>
+          <span className="language-text">{streak.has_published || streak.current > 0 ? <ContributionCount value={streak.current} text={t('contributions.streak_count', { count: streak.current })} /> : t('contributions.streak_empty')}</span>
         </Heading>
-        <p className="text-sm font-semibold text-muted"><span className="language-text">{t('contributions.streak_record', { count: streak.record })}</span></p>
+        <p className="text-sm font-semibold text-muted"><span className="language-text"><ContributionCount value={streak.record} text={t('contributions.streak_record', { count: streak.record })} /></span></p>
       </div>
     </div>
   )
@@ -91,13 +94,23 @@ export function StreakNote({ streak }: { streak: StreakInfo }) {
   return null
 }
 
+export function StreakPanel({ streak, scope, children, className = '', labelledBy }: { streak?: StreakInfo; scope: string; children: ReactNode; className?: string; labelledBy?: string }) {
+  const feedback = useStreakFeedback(scope, streak)
+  return (
+    <section aria-labelledby={labelledBy} className={`streak-panel contribution-enter relative isolate rounded-2xl border border-line bg-surface p-4 sm:p-5 ${className}`} data-feedback={feedback}>
+      {children}
+      {feedback === 'record' && <span className="streak-sparks" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} style={{ '--spark-angle': `${index * 30}deg`, '--spark-delay': `${index % 3 * 45}ms` } as CSSProperties} />)}</span>}
+    </section>
+  )
+}
+
 /** Compact summary at the top of Classe. The full ranking lives in its own view. */
 export function StreakCard() {
   const info = useClass()
   const { t } = useTranslation()
   const data = useContributions(info.code)
   return (
-    <section aria-labelledby="streak-card-title" className="mb-5 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+    <StreakPanel labelledBy="streak-card-title" className="mb-5" scope={`${info.code}.${data.data?.period.start || ''}`} streak={data.data?.streak}>
       <p id="streak-card-title" className="mb-3 text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('contributions.streak_title')}</span></p>
       {data.isLoading && (
         <div role="status" className="space-y-3" aria-label={t('common.loading')}>
@@ -113,10 +126,10 @@ export function StreakCard() {
           <StreakNote streak={data.data.streak} />
         </div>
       )}
-      <Link to={contributionsPath(info.code)} className="-mx-2 mt-2 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 font-semibold text-bordeaux hover:bg-bordeaux-soft" data-contributions-link>
+      <Link to={contributionsPath(info.code)} className="contribution-action -mx-2 mt-2 inline-flex min-h-11 items-center gap-1 rounded-xl px-2 font-semibold text-bordeaux hover:bg-bordeaux-soft" data-contributions-link>
         <span className="language-text">{t('contributions.link')}</span>
         <ChevronRight className="size-4" aria-hidden />
       </Link>
-    </section>
+    </StreakPanel>
   )
 }

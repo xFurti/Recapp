@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.16.15",
+  "published_at": "2026-10-16T22:30:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Un podio per i contributi della classe",
+    "en": "A podium for class contributions"
+  },
+  "summary": [
+    {
+      "it": "Le prime posizioni hanno un podio con oro, argento e bronzo, anche a pari merito.",
+      "en": "The top positions have a gold, silver and bronze podium, including ties."
+    },
+    {
+      "it": "Serie, record e contatori si animano brevemente; i nuovi record hanno una piccola festa.",
+      "en": "Streaks, records and counters animate briefly, with a small celebration for new records."
+    },
+    {
+      "it": "Raggiungi la tua posizione anche nei gruppi del podio. Gli effetti rispettano il movimento ridotto.",
+      "en": "Reach your position even in podium groups. Effects respect reduced motion."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Il podio della classe",
+        "en": "The class podium"
+      },
+      "body": {
+        "it": "Contributi della classe mostra il primo posto al centro, il secondo a sinistra e il terzo a destra, con avatar, Grazie e contributi. I pari merito condividono il gradino; i gruppi numerosi si aprono per vedere tutti i nomi. La tua posizione resta riconoscibile e raggiungibile da tastiera. Senza Grazie non ci sono vincitori.",
+        "en": "Class contributions places first in the centre, second on the left and third on the right, with avatars, thanks and contributions. Tied members share a step; large groups expand to show every name. Your position remains recognisable and reachable by keyboard. With no thanks, there are no winners."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Piccoli progressi, più visibili",
+        "en": "Small steps, more visible"
+      },
+      "body": {
+        "it": "La scheda delle giornate di fila, i contatori e la classifica hanno ingressi coordinati e brevi riscontri agli aggiornamenti. Una pubblicazione che supera un record già osservato attiva scintille nella scheda: riaperture e aggiornamenti identici non ripetono la festa. Con movimento ridotto i valori finali sono subito visibili, senza effetti decorativi. Le regole di conteggio restano le stesse.",
+        "en": "The days-in-a-row card, counters and ranking have coordinated entrances and brief feedback on updates. A publication exceeding a previously observed record triggers sparks within the card: reopening and unchanged refreshes do not replay the celebration. With reduced motion, final values appear immediately without decorative effects. Counting rules remain the same."
+      }
+    }
+  ]
+}

@@ -873,7 +873,12 @@
     "rule_credit": "Drafts and autosaves don't count. Editing or republishing someone's content doesn't take their credit; a new item belongs to whoever adds it. Notes and photos are part of the day.",
     "rule_order": "Order: by thanks received. Ties share a position and follow nickname order. Days and items stay separate numbers: there's no score, and role or turns give no advantage.",
     "rule_streak": "Days in a row: every school day published by midnight, class time, counts. Weekends, holidays and breaks don't break the streak. A day caught up later stays in the archive but doesn't extend the streak. Today stays open until the day ends: 18:00 only opens the takeover.",
-    "rule_members": "People who leave the class aren't ranked; their content and thanks stay."
+    "rule_members": "People who leave the class aren't ranked; their content and thanks stay.",
+    "podium": "The class podium",
+    "group_members_one": "{{count}} member",
+    "group_members_other": "{{count}} members",
+    "group_open": "Show / hide names",
+    "group_me": "You are in this group"
   },
   "thanks": {
     "item_aria": "Thanks for “{{title}}” · {{count}} thanks",

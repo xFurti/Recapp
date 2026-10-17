@@ -106,7 +106,7 @@ async function setup(page: Page, { lang = 'it', width = 390, dark = false, data 
     }
     return route.fulfill(path in routes ? { json: routes[path] } : { status: 404, json: { detail: `Unexpected test request: ${path}` } })
   })
-  return calls
+  return Object.assign(calls, { update: (next: ContributionsInfo) => { contributions = structuredClone(next) }, recover: () => { failing = 0 } })
 }
 
 const T = {
@@ -197,7 +197,7 @@ test('all at zero: no winner, no positions, contributions still counted', async 
 
 for (const lang of ['it', 'en'] as const) for (const width of [320, 390, 1280]) for (const scale of [1, 2]) {
   test(`ranking content stays readable (${lang}, ${width}px, ${scale * 100}% text)`, async ({ page }) => {
-    await setup(page, { lang, width, dark: lang === 'en' })
+    await setup(page, { lang, width, dark: lang === 'en', data: { ...full, ranking: ranking.map(r => ({ ...r, member: { ...r.member, nick: `${r.member.nick}NomeMoltoLungoSenzaSpazi` } })) } })
     await page.goto('/c/TEST/classe/contributi')
     const rows = page.getByRole('region', { name: T[lang].ranking }).getByRole('listitem')
     await expect(rows).toHaveCount(ranking.length)
@@ -310,19 +310,22 @@ test('a class with nothing published yet invites to start, on Classe and in Cont
 })
 
 test('loading errors can be retried on the card and in the view', async ({ page }) => {
-  const calls = await setup(page, { failures: 3 })
+  const calls = await setup(page, { failures: Number.MAX_SAFE_INTEGER })
   await page.goto('/c/TEST/classe')
   const card = page.locator('section[aria-labelledby="streak-card-title"]')
   await expect(card.getByRole('alert')).toContainText('Server non disponibile', { timeout: 15_000 })
   // Partecipanti stay usable while the streak fails.
   await expect(page.getByText('8 partecipanti')).toBeVisible()
+  const beforeRetry = calls.contributions
+  calls.recover()
   await card.getByRole('button', { name: 'Riprova' }).click()
   await expect(card.getByRole('heading', { name: '5 giornate di fila' })).toBeVisible()
-  expect(calls.contributions).toBe(4)
+  expect(calls.contributions).toBeGreaterThan(beforeRetry)
   await page.unroute('**/api/**')
-  await setup(page, { failures: 3 })
+  const next = await setup(page, { failures: Number.MAX_SAFE_INTEGER })
   await page.goto('/c/TEST/classe/contributi')
   await expect(page.getByRole('alert')).toContainText('Server non disponibile', { timeout: 15_000 })
+  next.recover()
   await page.getByRole('button', { name: 'Riprova' }).click()
   await expect(page.getByRole('region', { name: 'Grazie ricevuti' }).getByRole('listitem')).toHaveCount(8)
 })
@@ -347,6 +350,7 @@ for (const width of [320, 390, 1280]) {
       await expect(button).toHaveAttribute('aria-pressed', 'false')
       await expect(button).toHaveText('Grazie')
     }
+    await expect(buttons.first()).not.toHaveAttribute('aria-busy', 'true')
     await page.keyboard.press('Enter')
     await expect(buttons.last()).toHaveAttribute('aria-pressed', 'true')
     expect(calls.thanks).toBe(3)
@@ -391,4 +395,217 @@ test('reduced motion: the heart still fills, without the burst', async ({ page }
   await expect(button).toHaveAttribute('data-liked', 'true')
   const animation = await button.locator('.t-like-icon').evaluate(el => getComputedStyle(el).animationName)
   expect(animation).toBe('none')
+})
+
+const podiumData = (rows: ContributionRow[]): ContributionsInfo => ({ ...full, ranking: rows, totals: totals(rows) })
+const refresh = async (page: Page) => {
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }))
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' })
+    document.dispatchEvent(new Event('visibilitychange', { bubbles: true }))
+  })
+}
+
+for (const size of [1, 2, 3]) {
+  test(`podium with ${size} members uses only real steps, with first central and highest`, async ({ page }) => {
+    const rows = [row(1, 'Leo', 1, false, 8), row(2, 'Ada', 2, false, 5), row(3, 'Sara', 3, false, 3)].slice(0, size)
+    await setup(page, { width: 320, data: podiumData(rows) })
+    await page.goto('/c/TEST/classe/contributi')
+    const podium = page.getByRole('group', { name: 'Il podio della classe' })
+    await expect(podium.locator('.podium-step')).toHaveCount(size)
+    await expect(page.locator('[data-contributor]')).toHaveCount(size)
+    const boxes = await podium.evaluate(element => ({
+      bounds: element.getBoundingClientRect().toJSON(),
+      steps: Object.fromEntries(Array.from(element.querySelectorAll<HTMLElement>('[data-position]'), step => [step.dataset.position, step.getBoundingClientRect().toJSON()])),
+    }))
+    const { bounds, steps: { 1: first, 2: second, 3: third } } = boxes
+    expect(Math.abs(first.x + first.width / 2 - bounds.x - bounds.width / 2)).toBeLessThan(2)
+    if (size > 1) {
+      expect(second.x).toBeLessThan(first.x)
+      expect(second.y).toBeGreaterThan(first.y)
+    }
+    if (size > 2) expect(third.x).toBeGreaterThan(first.x)
+    await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+    await expect(page.locator('#contributions-me')).toBeFocused()
+    await noOverflow(page)
+  })
+}
+
+for (const rows of [
+  [row(2, 'Ada', 1, true, 8), row(3, 'Sara', 1, true, 8), row(1, 'Leo', 3, false, 5), row(4, 'Marta', 4, false, 2)],
+  [row(2, 'Ada', 1, false, 8), row(1, 'Leo', 2, true, 5), row(3, 'Sara', 2, true, 5), row(4, 'Marta', 4, false, 2)],
+  [row(2, 'Ada', 1, false, 8), row(3, 'Sara', 2, false, 5), row(1, 'Leo', 3, true, 2), row(4, 'Marta', 3, true, 2)],
+]) {
+  test(`ties use actual positions without duplicates (${rows.map(r => r.position).join(',')})`, async ({ page }) => {
+    await setup(page, { data: podiumData(rows) })
+    await page.goto('/c/TEST/classe/contributi')
+    await expect(page.locator('[data-contributor]')).toHaveCount(rows.length)
+    for (const r of rows) {
+      const target = page.locator(`[data-contributor="${r.member.id}"]`)
+      await expect(target).toHaveCount(1)
+      await expect(target).toHaveAttribute('value', String(r.position))
+      if (r.position <= 3) await expect(target.locator('xpath=ancestor::*[@data-position][1]')).toHaveAttribute('data-position', String(r.position))
+    }
+    await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+    await expect(page.locator('#contributions-me')).toBeFocused()
+  })
+}
+
+for (const width of [320, 1280]) test(`a large tied group stays compact, expands by keyboard and reveals your position (${width}px)`, async ({ page }) => {
+  const rows = Array.from({ length: 24 }, (_, i) => row(i + 1, i === 0 ? 'Leo' : `Compagno${i}`, 1, true, 5))
+  await setup(page, { width, lang: 'en', dark: true, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const group = page.locator('.podium-group')
+  await expect(group).not.toHaveAttribute('open')
+  await expect(group.getByText('24 members', { exact: true })).toBeVisible()
+  await expect(page.locator('[data-contributor]')).toHaveCount(24)
+  const summary = group.locator('summary')
+  await summary.focus()
+  await page.keyboard.press('Enter')
+  await expect(group).toHaveAttribute('open', '')
+  await page.keyboard.press('Enter')
+  await expect(group).not.toHaveAttribute('open')
+  await page.getByRole('button', { name: 'Go to your position' }).click()
+  await expect(group).toHaveAttribute('open', '')
+  await expect(page.locator('#contributions-me')).toBeFocused()
+  await noOverflow(page)
+})
+
+test('new publications advance the streak; a genuine record celebrates once across refetch, routes and reload', async ({ page }) => {
+  const data: ContributionsInfo = structuredClone(full)
+  const server = await setup(page, { data })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.getByRole('heading', { name: '5 giornate di fila' })).toBeVisible()
+  await expect(page.locator('.streak-sparks')).toHaveCount(0)
+  const advances: string[] = []
+  // Observe even a short effect without timing assertions against screenshot capture.
+  await page.exposeFunction('recordFeedback', (value: string) => advances.push(value))
+  await page.evaluate(() => {
+    new MutationObserver(records => records.forEach(record => {
+      const value = (record.target as HTMLElement).dataset.feedback
+      if (value) (window as unknown as { recordFeedback: (value: string) => void }).recordFeedback(value)
+    })).observe(document.querySelector('.streak-panel')!, { attributes: true, attributeFilter: ['data-feedback'] })
+  })
+  data.streak.current = 6
+  data.streak.days.at(-1)!.status = 'published'
+  server.update(data)
+  await refresh(page)
+  await expect(page.getByRole('heading', { name: '6 giornate di fila' })).toBeVisible()
+  await expect.poll(() => advances).toEqual(['advance'])
+  data.streak.today = '2026-10-15'
+  data.streak.days.push({ day: '2026-10-15', status: 'published' })
+  data.streak.current = data.streak.record = 8
+  server.update(data)
+  await refresh(page)
+  await expect(page.getByRole('heading', { name: '8 giornate di fila' })).toBeVisible()
+  await expect.poll(() => advances).toEqual(['advance', 'record'])
+  await expect(page.locator('.streak-sparks')).toBeVisible()
+  await expect(page.locator('.streak-sparks')).toHaveCount(0)
+  await refresh(page)
+  await page.locator('main').getByRole('link', { name: 'Classe', exact: true }).click()
+  await page.getByRole('link', { name: 'Contributi della classe' }).click()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '8 giornate di fila' })).toBeVisible()
+  await expect(page.locator('.streak-sparks')).toHaveCount(0)
+  // A recalculated lower record returning to the same high watermark is not a new record.
+  data.streak.record = data.streak.current = 6
+  server.update(data)
+  await refresh(page)
+  await expect(page.getByRole('heading', { name: '6 giornate di fila' })).toBeVisible()
+  data.streak.record = data.streak.current = 8
+  server.update(data)
+  await refresh(page)
+  await expect(page.getByRole('heading', { name: '8 giornate di fila' })).toBeVisible()
+  await expect(page.locator('.streak-sparks')).toHaveCount(0)
+})
+
+test('ranking updates move members between podium and list with the correct final counters', async ({ page }) => {
+  const rows = [row(2, 'Ada', 1, false, 8), row(3, 'Sara', 2, false, 6), row(4, 'Marta', 3, false, 4), row(1, 'Leo', 4, false, 2)]
+  const server = await setup(page, { data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.locator('[data-contributor]')).toHaveCount(4)
+  await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+  const beforeY = await page.evaluate(() => {
+    window.scrollTo({ top: 350, behavior: 'instant' })
+    const state = window as unknown as { contributionMotion: { delta: number; finalY: number } | null }
+    state.contributionMotion = null
+    new MutationObserver(() => {
+      const target = document.getElementById('contributions-me')
+      if (!target || target.getAttribute('value') !== '1' || state.contributionMotion) return
+      const flip = target.getAnimations().find(animation => (animation.effect as KeyframeEffect).getKeyframes()[0]?.transform)
+      if (!flip) return
+      const frame = (flip.effect as KeyframeEffect).getKeyframes()[0]
+      state.contributionMotion = {
+        delta: new DOMMatrix(String(frame.transform)).m42,
+        finalY: target.getBoundingClientRect().y + scrollY - new DOMMatrix(getComputedStyle(target).transform).m42,
+      }
+    }).observe(document.querySelector('.contribution-ranking')!, { subtree: true, childList: true, attributes: true })
+    return document.getElementById('contributions-me')!.getBoundingClientRect().y + scrollY
+  })
+  const promoted = [ { ...rows[3], position: 1, thanks: 10 }, ...rows.slice(0, 3).map(r => ({ ...r, position: r.position + 1 })) ]
+  server.update(podiumData(promoted))
+  await refresh(page)
+  await expect(page.locator('#contributions-me')).toHaveAttribute('value', '1')
+  await expect(page.locator('#contributions-me')).toBeFocused()
+  const motion = await page.evaluate(() => (window as unknown as { contributionMotion: { delta: number; finalY: number } | null }).contributionMotion)
+  expect(motion).not.toBeNull()
+  expect(Math.abs(motion!.delta - (beforeY - motion!.finalY))).toBeLessThan(16)
+  await expect(page.locator('[data-position="1"]')).toContainText('Leo')
+  await expect(page.locator('[data-contributor]')).toHaveCount(4)
+  await expect(page.locator('#contributions-me .contribution-number[data-value="10"]')).toHaveCount(1)
+  await expect(page.locator('#contributions-me [aria-live]')).toHaveCount(0)
+})
+
+test('reduced motion shows final numbers and disables entrances, FLIP and record decorations, including a live preference change', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const data = structuredClone(full)
+  const server = await setup(page, { data, lang: 'en', dark: true, width: 320 })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.getByRole('heading', { name: '5 days in a row' })).toBeVisible()
+  const count = page.locator('h2 .contribution-number').first()
+  await expect(count).toHaveAttribute('data-value', '5')
+  data.streak.current = data.streak.record = 8
+  data.streak.days.at(-1)!.status = 'published'
+  server.update(data)
+  await refresh(page)
+  await expect(count).toHaveAttribute('data-value', '8')
+  await expect(page.locator('.streak-sparks')).toHaveCount(0)
+  expect(await page.locator('.contribution-enter').evaluateAll(elements => elements.every(el => getComputedStyle(el).animationName === 'none'))).toBe(true)
+  expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running' && (a.effect as KeyframeEffect).target instanceof Element && ((a.effect as KeyframeEffect).target as Element).closest('.contributions-page')).length)).toBe(0)
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await expect(count).toHaveAttribute('data-value', '8')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(count).toHaveAttribute('data-value', '8')
+  await page.getByRole('button', { name: 'Go to your position' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+})
+
+test('members without Grazie stay in the list, even when fewer than three have any', async ({ page }) => {
+  const rows = [row(2, 'Ada', 1, false, 3), row(3, 'Sara', 2, true, 0), row(1, 'Leo', 2, true, 0), row(4, 'Marta', 2, true, 0)]
+  await setup(page, { data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const podium = page.getByRole('group', { name: 'Il podio della classe' })
+  await expect(podium.locator('.podium-step')).toHaveCount(1)
+  await expect(podium.locator('[data-contributor]')).toHaveCount(1)
+  await expect(podium.locator('[data-contributor="2"]')).toHaveCount(1)
+  await expect(page.locator('[data-contributor]')).toHaveCount(4)
+  for (const id of [1, 3, 4]) await expect(page.locator(`ol:not(.podium-members) > [data-contributor="${id}"]`)).toHaveAttribute('value', '2')
+  await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+})
+
+test('a ranking update does not pull focus back to a row the user already left', async ({ page }) => {
+  const rows = [row(2, 'Ada', 1, false, 8), row(3, 'Sara', 2, false, 6), row(4, 'Marta', 3, false, 4), row(1, 'Leo', 4, false, 2)]
+  const server = await setup(page, { width: 1280, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  await page.getByRole('button', { name: 'Vai alla tua posizione' }).click()
+  await expect(page.locator('#contributions-me')).toBeFocused()
+  // Leaving the row without focusing anything else (e.g. a click on blank page) fires no focusin.
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  server.update(podiumData([rows[0], rows[1], rows[2], { ...rows[3], thanks: 3 }]))
+  await refresh(page)
+  await expect(page.locator('#contributions-me .contribution-number[data-value="3"]')).toHaveCount(1)
+  expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true)
 })
