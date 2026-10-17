@@ -201,21 +201,36 @@ function CorrectionProposalForm({ item, pending, onClose, onSubmit, busy, error 
     }} busy={busy} error={error} />
 }
 
-export function ItemCorrectionControls({ item }: { item: Item }) {
+export function ItemCorrectionControls({ item, compact }: { item: Item; compact?: boolean }) {
   const { t } = useTranslation()
   const open = useContext(CorrectionPanelContext)
   const review = item.can_review_corrections && (item.correction_count ?? 0) > 0
   if (!item.can_request_correction && !item.my_correction && !review) return null
+  const requests = item.pending_corrections ? t('item_corrections.pending_count', { count: item.pending_corrections }) : t('item_corrections.requests')
+  const report = t(item.my_correction ? `item_corrections.mine_${item.my_correction.status}` : 'item_corrections.report')
+  // Compact rows keep every control on one line: icons with their full text as accessible name and tooltip.
+  if (compact) return (
+    <div className="flex items-center gap-1">
+      {review && <button type="button" onClick={() => open(item)} title={requests} aria-label={requests} className="today-icon-action relative text-bordeaux">
+        <MessageSquareWarning className="size-4" aria-hidden />
+        {!!item.pending_corrections && <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-giallo px-1 text-[0.65rem] font-bold leading-4 text-[#1d1b1e]" aria-hidden>{item.pending_corrections}</span>}
+      </button>}
+      {(item.can_request_correction || item.my_correction) && <button type="button" onClick={() => open(item, !item.my_correction)} title={report} aria-label={report}
+        className="today-icon-action" data-correction={item.my_correction?.status}>
+        <MessageSquareWarning className="size-4" aria-hidden />
+      </button>}
+    </div>
+  )
   return (
     <div className={`flex flex-wrap items-center gap-2 ${review ? 'mt-2 border-t border-line pt-2' : 'mt-1'}`}>
       {review && <Button variant="soft" size="sm" onClick={() => open(item)}>
         <MessageSquareWarning className="size-4" aria-hidden />
-        {item.pending_corrections ? t('item_corrections.pending_count', { count: item.pending_corrections }) : t('item_corrections.requests')}
+        {requests}
       </Button>}
       {(item.can_request_correction || item.my_correction) && <button type="button" onClick={() => open(item, !item.my_correction)}
         className="-ml-1 inline-flex min-h-9 items-center gap-1.5 rounded-lg px-1 text-xs font-semibold text-muted transition-colors hover:text-bordeaux focus-visible:outline-2 focus-visible:outline-bordeaux">
         <MessageSquareWarning className="size-3.5" aria-hidden />
-        {t(item.my_correction ? `item_corrections.mine_${item.my_correction.status}` : 'item_corrections.report')}
+        {report}
       </button>}
     </div>
   )

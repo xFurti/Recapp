@@ -249,7 +249,8 @@ test('pending Grazie is shared between copies of an item and survives navigating
   await page.goto('/c/TEST')
   const name = /^Grazie per «Esercizi 1–5 pagina 112»/
   const buttons = page.getByRole('button', { name })
-  await expect(buttons).toHaveCount(2)
+  // Today shows one full card per item (#96); the second copy is the one on In arrivo.
+  await expect(buttons).toHaveCount(1)
   await buttons.first().click()
   await expect.poll(() => requests).toBe(1)
   for (const button of [buttons.first(), buttons.last()]) await expect(button).toHaveAttribute('aria-busy', 'true')
@@ -281,7 +282,7 @@ test('a lost response after saving a Grazie reconciles all copies with the serve
   const calls = await setup(page, { thanksResponseError: true })
   await page.goto('/c/TEST')
   const buttons = page.getByRole('button', { name: /^Grazie per «Esercizi 1–5 pagina 112»/ })
-  await expect(buttons).toHaveCount(2)
+  await expect(buttons).toHaveCount(1)
   await buttons.first().click()
   await expect(page.getByRole('status').filter({ hasText: 'Risposta interrotta' })).toBeVisible()
   for (const button of [buttons.first(), buttons.last()]) {
@@ -334,9 +335,9 @@ for (const width of [320, 390, 1280]) {
   test(`Grazie on an item: one counter in every view, keyboard toggle, never on your own content (${width}px)`, async ({ page }) => {
     const calls = await setup(page, { width })
     await page.goto('/c/TEST')
-    // Item 1 is both in today's day and in "soon": two buttons, one counter.
+    // Item 1 is both in today's day and in "soon": one full card among the deadlines, a pointer under its subject.
     const buttons = page.getByRole('button', { name: /^Grazie per «Esercizi 1–5 pagina 112»/ })
-    await expect(buttons).toHaveCount(2)
+    await expect(buttons).toHaveCount(1)
     await expect(buttons.first()).toHaveAttribute('aria-pressed', 'false')
     await buttons.first().focus()
     await page.keyboard.press('Enter')
@@ -363,7 +364,7 @@ for (const width of [320, 390, 1280]) {
     await expect(page.getByRole('button', { name: /Ringrazia chi ha pubblicato la giornata · 1 grazie/ })).toBeVisible()
 
     // Next to the calendar action without overlapping, and no horizontal scrolling.
-    const row = page.locator('div.rounded-xl', { has: page.getByText('Ripasso derivate', { exact: true }) }).last()
+    const row = page.locator('.today-ticket', { has: page.getByText('Ripasso derivate', { exact: true }) })
     const heart = (await row.getByRole('button', { name: /^Grazie per/ }).boundingBox())!
     const calendar = (await row.getByRole('button', { name: 'Aggiungi al calendario' }).boundingBox())!
     const apart = heart.x >= calendar.x + calendar.width || calendar.x >= heart.x + heart.width || heart.y >= calendar.y + calendar.height || calendar.y >= heart.y + heart.height

@@ -434,6 +434,8 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const barRef = useRef<HTMLDivElement>(null)
   // One page per first segment after the class: filters, days and subjects stay on the same page.
   const page = location.pathname.toLowerCase().split('/')[3] ?? ''
+  // Today lays its cards side by side on a computer; every other page keeps the reading column.
+  const width = page === '' ? 'max-w-3xl xl:max-w-6xl' : 'max-w-3xl'
 
   useEffect(() => {
     if (takeCelebrate()) setParty(true)
@@ -491,7 +493,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
               <Link to="/scuola" className="underline"><span className="language-text">{t('shell.back_school')}</span></Link>
             </div>
           )}
-          <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
+          <div className={`mx-auto flex h-14 ${width} items-center gap-2 px-4`}>
             <Link to={base} className="flex h-7 shrink-0 md:hidden" aria-label="Recapp" {...topMark.triggers}>
               <RecappMark playing={topMark.playing} className="h-7" />
             </Link>
@@ -509,7 +511,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className={`mx-auto ${width} px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12`}>
           {children}
         </PageFrame>
       </div>

@@ -143,7 +143,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
 
       {!readOnly && (
         <form onSubmit={submit} className="mt-4 space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(['comment', 'correction'] as const).map((k) => (
               <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
                 {k === 'correction' && <TriangleAlert className="size-3.5" />} <span className="language-text">{t(`feedback.kind_${k}`)}</span>
