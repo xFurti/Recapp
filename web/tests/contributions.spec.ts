@@ -197,6 +197,7 @@ test('all at zero: no winner, no positions, contributions still counted', async 
 
 for (const lang of ['it', 'en'] as const) for (const width of [320, 390, 1280]) for (const scale of [1, 2]) {
   test(`ranking content stays readable (${lang}, ${width}px, ${scale * 100}% text)`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     await setup(page, { lang, width, dark: lang === 'en', data: { ...full, ranking: ranking.map(r => ({ ...r, member: { ...r.member, nick: `${r.member.nick}NomeMoltoLungoSenzaSpazi` } })) } })
     await page.goto('/c/TEST/classe/contributi')
     const rows = page.getByRole('region', { name: T[lang].ranking }).getByRole('listitem')
@@ -210,12 +211,18 @@ for (const lang of ['it', 'en'] as const) for (const width of [320, 390, 1280]) 
       const boxes: { text: string; rect: DOMRect }[] = []
       let node: Node | null
       while ((node = walker.nextNode())) {
-        if (!node.textContent?.trim() || node.parentElement?.closest('[aria-hidden="true"], .sr-only')) continue
+        if (!node.textContent?.trim() || node.parentElement?.closest('.sr-only, svg')) continue
+        if (node.parentElement?.closest('[aria-hidden="true"]') && !node.parentElement.closest('.contribution-count')) continue
         const range = document.createRange()
         range.selectNodeContents(node)
         for (const rect of range.getClientRects()) {
           if (rect.width > 0 && rect.height > 0) boxes.push({ text: node.textContent, rect })
         }
+      }
+      // Counters render through ::after. Include their real boxes and the visible labels,
+      // rather than checking only the accessible text hidden by .sr-only.
+      for (const number of element.querySelectorAll('.contribution-number')) {
+        boxes.push({ text: number.getAttribute('data-value')!, rect: number.getBoundingClientRect() })
       }
       const clipped = boxes.filter(({ rect }) => rect.left < row.left - 1 || rect.right > row.right + 1 || rect.top < row.top - 1 || rect.bottom > row.bottom + 1)
       const overlaps = boxes.flatMap((a, index) => boxes.slice(index + 1).filter(b =>
@@ -408,7 +415,8 @@ const refresh = async (page: Page) => {
 }
 
 for (const size of [1, 2, 3]) {
-  test(`podium with ${size} members uses only real steps, with first central and highest`, async ({ page }) => {
+  test(`podium with ${size} members uses only real steps and fills its width`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     const rows = [row(1, 'Leo', 1, false, 8), row(2, 'Ada', 2, false, 5), row(3, 'Sara', 3, false, 3)].slice(0, size)
     await setup(page, { width: 320, data: podiumData(rows) })
     await page.goto('/c/TEST/classe/contributi')
@@ -420,7 +428,12 @@ for (const size of [1, 2, 3]) {
       steps: Object.fromEntries(Array.from(element.querySelectorAll<HTMLElement>('[data-position]'), step => [step.dataset.position, step.getBoundingClientRect().toJSON()])),
     }))
     const { bounds, steps: { 1: first, 2: second, 3: third } } = boxes
-    expect(Math.abs(first.x + first.width / 2 - bounds.x - bounds.width / 2)).toBeLessThan(2)
+    if (size !== 2) expect(Math.abs(first.x + first.width / 2 - bounds.x - bounds.width / 2)).toBeLessThan(2)
+    else {
+      expect(Math.abs(second.x - bounds.x)).toBeLessThan(2)
+      expect(Math.abs(first.right - bounds.right)).toBeLessThan(2)
+      expect(first.width).toBeCloseTo(second.width, 0)
+    }
     if (size > 1) {
       expect(second.x).toBeLessThan(first.x)
       expect(second.y).toBeGreaterThan(first.y)
@@ -431,6 +444,45 @@ for (const size of [1, 2, 3]) {
     await noOverflow(page)
   })
 }
+
+test('a shared first place and third place fill two columns without a phantom step', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const rows = [row(2, 'Ada', 1, true, 8), row(3, 'Sara', 1, true, 8), row(1, 'Leo', 3, false, 5)]
+  await setup(page, { width: 390, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.locator('.podium-step')).toHaveCount(2)
+  await expect(page.locator('[data-position="2"]')).toHaveCount(0)
+  const bounds = await page.locator('.contribution-podium').boundingBox()
+  const first = await page.locator('[data-position="1"]').boundingBox()
+  const third = await page.locator('[data-position="3"]').boundingBox()
+  expect(Math.abs(third!.x - bounds!.x)).toBeLessThan(2)
+  expect(Math.abs(first!.x + first!.width - bounds!.x - bounds!.width)).toBeLessThan(2)
+  expect(first!.width).toBeCloseTo(third!.width, 0)
+  await noOverflow(page)
+})
+
+test('podium steps and crown animate once, settle, and stop when reduced motion is enabled', async ({ page }) => {
+  await page.addInitScript(() => {
+    const state = window as unknown as { podiumAnimations: string[] }
+    state.podiumAnimations = []
+    document.addEventListener('animationstart', event => {
+      if (event.animationName === 'podium-rise' || event.animationName === 'podium-crown') state.podiumAnimations.push(event.animationName)
+    })
+  })
+  await setup(page, { width: 1280, data: podiumData([row(1, 'Leo', 1, false, 8), row(2, 'Ada', 2, false, 5), row(3, 'Sara', 3, false, 3)]) })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect.poll(() => page.evaluate(() => (window as unknown as { podiumAnimations: string[] }).podiumAnimations.sort())).toEqual(['podium-crown', 'podium-rise', 'podium-rise', 'podium-rise'])
+  await page.locator('.contribution-podium').evaluate(async element => {
+    await Promise.all(element.getAnimations({ subtree: true }).map(animation => animation.finished))
+  })
+  expect(await page.locator('.podium-step').evaluateAll(elements => elements.every(element => {
+    const style = getComputedStyle(element)
+    return style.translate === '0px' || style.translate === '0px 0px'
+  }))).toBe(true)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  expect(await page.locator('.contribution-podium').evaluate(element => element.getAnimations({ subtree: true }).length)).toBe(0)
+  await expect(page.locator('#contributions-me .contribution-score-value')).toHaveText('8')
+})
 
 for (const rows of [
   [row(2, 'Ada', 1, true, 8), row(3, 'Sara', 1, true, 8), row(1, 'Leo', 3, false, 5), row(4, 'Marta', 4, false, 2)],
@@ -608,4 +660,54 @@ test('a ranking update does not pull focus back to a row the user already left',
   await refresh(page)
   await expect(page.locator('#contributions-me .contribution-number[data-value="3"]')).toHaveCount(1)
   expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true)
+})
+
+test('the personal milestone uses the next distinct total and updates when sharing first place', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const rows = [row(2, 'Ada', 1, false, 8), row(1, 'Leo', 2, true, 5), row(3, 'Nora', 2, true, 5), row(4, 'Milo', 4, false, 2)]
+  const server = await setup(page, { data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const goal = page.locator('.contribution-goal')
+  await expect(goal).toContainText('3 Grazie per condividere il 1° posto.')
+  const progress = goal.getByRole('progressbar', { name: 'Verso il 1° posto' })
+  await expect(progress).toHaveAttribute('aria-valuenow', '5')
+  await expect(progress).toHaveAttribute('aria-valuemax', '8')
+  server.update(podiumData([{ ...rows[0], tied: true }, { ...rows[1], position: 1, thanks: 8 }, { ...rows[2], position: 3, tied: false }, rows[3]]))
+  await refresh(page)
+  await expect(goal).toContainText('La classe ti ringrazia')
+  await expect(goal.getByRole('progressbar')).toHaveCount(0)
+})
+
+test('a zero-Grazie member has a real next milestone, while an all-zero class has no position target', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const rows = [row(2, 'Ada', 1, false, 8), row(3, 'Nora', 2, true, 1), row(4, 'Milo', 2, true, 1), row(1, 'Leo', 4, false, 0)]
+  const server = await setup(page, { lang: 'en', width: 320, data: podiumData(rows) })
+  await page.goto('/c/TEST/classe/contributi')
+  const goal = page.locator('.contribution-goal')
+  await expect(goal).toContainText('1 more thanks to share 2nd place.')
+  await expect(goal.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0')
+  server.update(podiumData(rows.map(member => ({ ...member, thanks: 0, position: 1, tied: true }))))
+  await refresh(page)
+  await expect(goal).toContainText('The first thanks could be yours')
+  await expect(goal.getByRole('progressbar')).toHaveCount(0)
+  await expect(page.locator('.ranking-stage')).toHaveCount(0)
+})
+
+for (const width of [320, 1280]) test(`multi-digit statistics remain on one line in the actual page font (${width}px)`, async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await setup(page, { width, data: podiumData([
+    row(2, 'Ada', 1, false, 1207, 12, 24), row(1, 'Leo', 2, false, 111, 17, 21), row(3, 'Nora', 3, false, 31, 11, 120),
+  ]) })
+  await page.goto('/c/TEST/classe/contributi')
+  await expect(page.locator('.podium-step')).toHaveCount(3)
+  await page.evaluate(() => document.fonts.ready)
+  const issues = await page.locator('.podium-member .contribution-number').evaluateAll(numbers => numbers.flatMap(number => {
+    const style = getComputedStyle(number)
+    const rect = number.getBoundingClientRect()
+    const line = parseFloat(style.lineHeight)
+    return rect.height > line + 1
+      ? [`${number.getAttribute('data-value')} wrapped to ${rect.height}px (line ${line}px)`] : []
+  }))
+  expect(issues).toEqual([])
+  await noOverflow(page)
 })

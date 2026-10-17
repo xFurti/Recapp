@@ -831,7 +831,7 @@
     "title": "Class contributions",
     "link": "Class contributions",
     "back": "Class",
-    "intro": "Who helps the class: thanks received from classmates, days published and items added to Upcoming. It isn't a grade: helping is what counts.",
+    "intro": "Every bit of help counts. These are your classmates’ thanks, not grades.",
     "period": "School year {{label}}",
     "period_range": "{{start}} – {{end}}",
     "streak_title": "Class days in a row",
@@ -883,7 +883,16 @@
     "group_members_one": "{{count}} member",
     "group_members_other": "{{count}} members",
     "group_open": "Show / hide names",
-    "group_me": "You are in this group"
+    "group_me": "You are in this group",
+    "list_title": "More people making a difference",
+    "goal_next": "Your next milestone",
+    "goal_gap_one": "{{count}} more thanks to share {{position}} place.",
+    "goal_gap_other": "{{count}} more thanks to share {{position}} place.",
+    "goal_progress": "Towards {{position}} place",
+    "goal_first": "Your class appreciates you",
+    "goal_first_note": "You’re at the top. Keep making someone’s day a little easier.",
+    "goal_start": "The first thanks could be yours",
+    "goal_start_note": "A useful note or a well-written recap can make a difference."
   },
   "thanks": {
     "item_aria": "Thanks for “{{title}}” · {{count}} thanks",

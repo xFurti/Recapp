@@ -1,0 +1,58 @@
+{
+  "id": "2026.10.17.5",
+  "published_at": "2026-10-17T20:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Il tuo aiuto lascia il segno",
+    "en": "Your help leaves a mark"
+  },
+  "summary": [
+    {
+      "it": "Il podio ha schede più ordinate, con accenti oro, argento e bronzo e i Grazie in evidenza.",
+      "en": "The podium has clearer cards, with gold, silver and bronze accents and thanks in the spotlight."
+    },
+    {
+      "it": "Gradini e corona accompagnano l’ingresso con animazioni brevi e discrete.",
+      "en": "Steps and crown arrive with brief, subtle animations."
+    },
+    {
+      "it": "Il tuo prossimo traguardo mostra quanti Grazie mancano per condividere la posizione successiva.",
+      "en": "Your next milestone shows how many more thanks you need to share the next position."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Statistiche senza righe fuori posto",
+        "en": "Statistics without stray lines"
+      },
+      "body": {
+        "it": "I contatori riservano lo spazio alle cifre effettive nel carattere usato dalla pagina. I numeri a due o più cifre non si spezzano più creando righe isolate tra giornate pubblicate ed elementi aggiunti. Le nuove schede separano chiaramente identità, posizione, Grazie e statistiche.",
+        "en": "Counters reserve room for the actual digits in the page’s font. Numbers with two or more digits no longer split into stray lines between published days and added items. The new cards clearly separate identity, position, thanks and statistics."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un podio più curato e leggero",
+        "en": "A more polished, lighter podium"
+      },
+      "body": {
+        "it": "Le schede del podio seguono il tema chiaro o scuro di Recapp, con accenti oro, argento e bronzo, avatar incorniciati e una corona per il primo posto. L’ingresso dei gradini è breve e il movimento ridotto disattiva gli effetti. La classifica continua con schede leggibili e si adatta a uno, due o tre gradini.",
+        "en": "Podium cards follow Recapp’s light or dark theme, with gold, silver and bronze accents, framed avatars and a crown for first place. Steps have a brief entrance, and reduced motion disables effects. The ranking continues with readable cards and adapts to one, two or three steps."
+      }
+    },
+    {
+      "category": "feature",
+      "title": {
+        "it": "Il tuo prossimo traguardo",
+        "en": "Your next milestone"
+      },
+      "body": {
+        "it": "La tua scheda mostra quanti Grazie ti separano dalla posizione successiva, con una barra basata sui conteggi attuali. Le parità sono condivise: chi è già al primo posto riceve un messaggio dedicato, mentre una classe ancora a zero viene invitata a cominciare. Le regole di conteggio restano le stesse.",
+        "en": "Your card shows how many thanks separate you from the next position, with a bar based on current totals. Ties are shared: people already in first place get a dedicated message, while a class still at zero is invited to get started. Counting rules stay the same."
+      }
+    }
+  ]
+}

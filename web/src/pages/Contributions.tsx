@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronDown, Crown, Info, LocateFixed, Trophy } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, ChevronDown, Crown, Heart, Info, LocateFixed, Medal, Sparkles } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -30,36 +30,32 @@ function Row({ row, ranked, podium = false, index = 0 }: { row: ContributionRow;
       value={ranked ? row.position : undefined}
       data-contributor={row.member.id}
       style={{ '--contribution-delay': `${Math.min(index, 8) * 35}ms` } as CSSProperties}
-      className={`contribution-row contribution-enter ${podium ? 'podium-member' : 'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-3 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:px-4'} outline-offset-[-3px] ${row.is_me ? 'bg-bordeaux-soft' : ''}`}
+      className={`contribution-row contribution-enter ${podium ? 'podium-member' : 'contribution-list-row'}`}
       data-me={row.is_me || undefined}
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-3">
-        {ranked && (
-          <div className={podium ? 'sr-only' : 'w-12 max-w-full text-center sm:w-16'}>
-            <p className="text-lg font-extrabold tabular-nums leading-tight"><span className="language-text">{position(row)}</span></p>
-            {row.tied && <p className="text-[11px] font-semibold leading-tight text-muted"><span className="language-text">{t('contributions.tied')}</span></p>}
-          </div>
-        )}
-        <Avatar nick={row.member.nick} color={row.member.color} />
+      <div className="contribution-person">
+        {ranked && <div className={podium ? 'sr-only' : 'contribution-rank'}>
+          <p className="font-extrabold tabular-nums"><span className="language-text">{position(row)}</span></p>
+          {row.tied && <p className="contribution-tie language-text">{t('contributions.tied')}</p>}
+        </div>}
+        <span className="contribution-avatar">
+          <Avatar nick={row.member.nick} color={row.member.color} />
+        </span>
       </div>
-      <div className="col-span-2 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
-        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-semibold">
-          <span className="min-w-0 break-words">{row.member.nick}</span>
-          {row.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
-          {first && (
-            <Badge className={`${podium ? 'sr-only' : ''} bg-giallo text-[#1d1b1e]`}>
-              <Trophy className="size-3" aria-hidden /> <span className="language-text">{t(row.tied ? 'contributions.first_tied' : 'contributions.first')}</span>
-            </Badge>
-          )}
+      <div className="contribution-details">
+        <p className="contribution-name">
+          <span className="contribution-nick">{row.member.nick}</span>
+          {row.is_me && <span className="contribution-self">(<span className="language-text">{t('common.you')}</span>)</span>}
+          {first && <span className="sr-only">{t(row.tied ? 'contributions.first_tied' : 'contributions.first')}</span>}
         </p>
-        <p className="flex flex-wrap gap-x-1.5 text-xs text-muted">
-          <span><span className="language-text"><ContributionCount value={row.days_published} text={t('contributions.days', { count: row.days_published })} /></span><span className="contribution-separator" aria-hidden> ·</span></span>
-          <span><span className="language-text"><ContributionCount value={row.items_added} text={t('contributions.items', { count: row.items_added })} /></span></span>
+        <p className="contribution-stats">
+          <span className="contribution-stat"><span className="language-text"><ContributionCount value={row.days_published} text={t('contributions.days', { count: row.days_published })} /></span></span>
+          <span className="contribution-stat"><span className="language-text"><ContributionCount value={row.items_added} text={t('contributions.items', { count: row.items_added })} /></span></span>
         </p>
       </div>
-      <p className="col-start-2 row-start-1 text-right sm:col-start-3">
-        <span className="block text-lg font-extrabold tabular-nums leading-tight"><ContributionCount value={row.thanks} /></span>
-        <span className="language-text block text-xs font-semibold text-muted">{t('contributions.thanks_label', { count: row.thanks })}</span>
+      <p className="contribution-score">
+        <span className="contribution-score-value"><Heart aria-hidden="true" /><ContributionCount value={row.thanks} /></span>
+        <span className="contribution-score-label language-text">{t('contributions.thanks_label', { count: row.thanks })}</span>
       </p>
     </li>
   )
@@ -72,8 +68,11 @@ function PodiumStep({ rows }: { rows: ContributionRow[] }) {
   const label = `${position(rows[0])}${rows[0].tied ? ` · ${t('contributions.tied')}` : ''}`
   const members = <ol className="podium-members">{rows.map(row => <Row key={row.member.id} row={row} ranked podium />)}</ol>
   return (
-    <div className="podium-step contribution-enter" data-position={rows[0].position} data-has-me={rows.some(row => row.is_me) || undefined} style={{ '--contribution-delay': `${rows[0].position * 55}ms` } as CSSProperties}>
-      <div className="podium-recognition" aria-hidden="true">{first ? <Crown className="size-6" /> : <Trophy className="size-5" />}</div>
+    <div className="podium-step" data-position={rows[0].position} data-has-me={rows.some(row => row.is_me) || undefined}
+      style={{ '--contribution-delay': `${(3 - rows[0].position) * 100}ms` } as CSSProperties}>
+      <div className="podium-card-top" aria-hidden="true">
+        <span className="podium-recognition">{first ? <Crown /> : <Medal />}</span>
+      </div>
       {rows.length > 2 ? (
         <details className="podium-group">
           <summary className="contribution-action">
@@ -95,17 +94,22 @@ function Ranking({ ranking, allZero }: { ranking: ContributionRow[]; allZero: bo
   const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   useRankingMotion(ref, ranking.map(row => `${row.member.id}:${row.position}:${row.thanks}`).join(','))
-  // Only Grazie earn a step: members still at zero stay in the list with their real position.
   const onPodium = (row: ContributionRow) => !allZero && row.position <= 3 && row.thanks > 0
   const groups = [1, 2, 3].map(position => ranking.filter(row => row.position === position && onPodium(row))).filter(rows => rows.length)
   const remaining = ranking.filter(row => !onPodium(row))
   const List = allZero ? 'ul' : 'ol'
   return (
     <div ref={ref} className="contribution-ranking">
-      {!allZero && <div className="contribution-podium" role="group" aria-label={t('contributions.podium')}>{groups.map(rows => <PodiumStep key={rows[0].position} rows={rows} />)}</div>}
-      {remaining.length > 0 && <List start={allZero ? undefined : remaining[0].position} className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
-        {remaining.map((row, index) => <Row key={row.member.id} row={row} ranked={!allZero} index={index} />)}
-      </List>}
+      {!allZero && <div className="ranking-stage">
+        <div className="contribution-podium" role="group" aria-label={t('contributions.podium')}>{groups.map(rows => <PodiumStep key={rows[0].position} rows={rows} />)}</div>
+
+      </div>}
+      {remaining.length > 0 && <div className="contribution-list-section">
+        {!allZero && <div className="contribution-list-heading"><h3 className="language-text">{t('contributions.list_title')}</h3><span className="language-text">{t('contributions.group_members', { count: remaining.length })}</span></div>}
+        <List start={allZero ? undefined : remaining[0].position} className="contribution-list">
+          {remaining.map((row, index) => <Row key={row.member.id} row={row} ranked={!allZero} index={index} />)}
+        </List>
+      </div>}
     </div>
   )
 }
@@ -136,9 +140,11 @@ function Rules({ period }: { period: ContributionsInfo['period'] }) {
   )
 }
 
-function MyPosition({ row, allZero }: { row: ContributionRow; allZero: boolean }) {
+function MyPosition({ row, allZero, ranking }: { row: ContributionRow; allZero: boolean; ranking: ContributionRow[] }) {
   const { t } = useTranslation()
   const position = usePosition()
+  const next = ranking.filter(member => member.thanks > row.thanks).at(-1)
+  const gap = next ? next.thanks - row.thanks : 0
   const go = () => {
     const target = document.getElementById('contributions-me')
     if (!target) return
@@ -149,7 +155,7 @@ function MyPosition({ row, allZero }: { row: ContributionRow; allZero: boolean }
     if (!reducedMotion()) target.animate([{ boxShadow: 'inset 0 0 0 3px var(--color-azzurro)' }, { boxShadow: 'inset 0 0 0 0 transparent' }], { duration: 900 })
   }
   return (
-    <Card className="flex flex-wrap items-center gap-x-3 gap-y-2 border-bordeaux/30">
+    <Card className="contribution-passport">
       <Avatar nick={row.member.nick} color={row.member.color} />
       <div className="min-w-0 flex-1 basis-44">
         <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('contributions.me')}</span></p>
@@ -166,8 +172,18 @@ function MyPosition({ row, allZero }: { row: ContributionRow; allZero: boolean }
         </p>
       </div>
       <button type="button" onClick={go} className="contribution-action -ml-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux-soft sm:ml-0">
-        <LocateFixed className="size-4" aria-hidden /> <span className="language-text">{t('contributions.go_to_me')}</span>
+        <LocateFixed className="size-4" aria-hidden /> <span className="language-text">{t('contributions.go_to_me')}</span><ArrowUpRight className="size-3.5" aria-hidden />
       </button>
+      <div className="contribution-goal">
+        <span className="contribution-goal-icon" aria-hidden="true">{next ? <ArrowUpRight /> : <Sparkles />}</span>
+        <div>
+          <p className="contribution-goal-title language-text">{t(allZero ? 'contributions.goal_start' : next ? 'contributions.goal_next' : 'contributions.goal_first')}</p>
+          <p className="contribution-goal-detail language-text">{next ? t('contributions.goal_gap', { count: gap, position: position(next) }) : t(allZero ? 'contributions.goal_start_note' : 'contributions.goal_first_note')}</p>
+        </div>
+        {next && <div className="contribution-goal-track" role="progressbar" aria-label={t('contributions.goal_progress', { position: position(next) })} aria-valuemin={0} aria-valuemax={next.thanks} aria-valuenow={row.thanks}>
+          <span style={{ width: `${row.thanks / next.thanks * 100}%` }} />
+        </div>}
+      </div>
     </Card>
   )
 }
@@ -200,12 +216,7 @@ export default function ContributionsPage() {
           <span className="text-muted"><span className="language-text">{t('contributions.period_range', { start: dates.format(parseDay(period.start)), end: dates.format(parseDay(period.end)) })}</span></span>
         </p>
 
-        <StreakPanel className="space-y-3" streak={streak} scope={`${info.code}.${period.start}`}>
-          <StreakHeadline streak={streak} />
-          <StreakDays streak={streak} />
-          <StreakNote streak={streak} />
-          {streak.days.length > 0 && <StreakLegend statuses={(['published', 'late', 'missed', 'today_open'] as const).filter((s) => seen.has(s) || s !== 'today_open')} />}
-        </StreakPanel>
+
 
         {nothing ? (
           <Card>
@@ -213,7 +224,7 @@ export default function ContributionsPage() {
           </Card>
         ) : (
           <>
-            {me && <MyPosition row={me} allZero={allZero} />}
+            {me && <MyPosition row={me} allZero={allZero} ranking={ranking} />}
             <section aria-labelledby="ranking-title">
               <h2 id="ranking-title" className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('contributions.ranking_title')}</span></h2>
               {allZero && (
@@ -227,6 +238,13 @@ export default function ContributionsPage() {
             </section>
           </>
         )}
+
+        <StreakPanel className="space-y-3" streak={streak} scope={`${info.code}.${period.start}`}>
+          <StreakHeadline streak={streak} />
+          <StreakDays streak={streak} />
+          <StreakNote streak={streak} />
+          {streak.days.length > 0 && <StreakLegend statuses={(['published', 'late', 'missed', 'today_open'] as const).filter((s) => seen.has(s) || s !== 'today_open')} />}
+        </StreakPanel>
 
         <Rules period={period} />
       </div>
