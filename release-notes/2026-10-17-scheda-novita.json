@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.17.4",
+  "published_at": "2026-10-17T19:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "La scheda delle novità non blocca più la classe",
+    "en": "The what's new card no longer stalls the class"
+  },
+  "summary": [
+    {
+      "it": "Quando rientri in classe, la scheda delle novità si apre senza fermare la pagina.",
+      "en": "When you come back to class, the what's new card opens without stopping the page."
+    },
+    {
+      "it": "Lo sfondo si scurisce e resta fermo, invece di sfocare tutto lo schermo.",
+      "en": "The background dims and stays still, instead of blurring the whole screen."
+    },
+    {
+      "it": "L'ingresso della scheda e l'elenco dei punti restano animati.",
+      "en": "The card's entrance and the list of points stay animated."
+    }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": {
+        "it": "Una scheda più leggera al rientro",
+        "en": "A lighter card when you return"
+      },
+      "body": {
+        "it": "Aprendo le novità sopra la giornata, Recapp non sfoca più l'intera pagina e non tiene in movimento il riflesso colorato in alto. La scheda compare comunque con il suo ingresso, i punti e i pulsanti Ho capito e Leggi tutte le novità. Lo sfondo della classe resta visibile, solo più scuro.",
+        "en": "Opening what's new over the day no longer blurs the whole page or keeps the coloured highlight at the top moving. The card still arrives with its entrance, the points, and the Got it and Read all updates buttons. The class page stays visible behind it, only darker."
+      }
+    }
+  ]
+}

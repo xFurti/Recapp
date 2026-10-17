@@ -993,14 +993,15 @@ html[data-language-transition='out'] textarea::placeholder {
 }
 
 /* What's new popup: native modality keeps the page inert. It rises in under a soft
-   glow in the logo colours, the points follow one by one, and it settles out on close. */
+   glow in the logo colours, the points follow one by one, and it settles out on close.
+   The dim is flat on purpose. The class page already blurs its header and phone bar;
+   a second blur over that whole page, kept dirty by the glow, stalls the card on open. */
 .release-dialog {
   animation: release-in 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .release-dialog:focus { outline: none; }
 .release-dialog::backdrop {
-  background: rgb(0 0 0 / 0.45);
-  backdrop-filter: blur(3px);
+  background: rgb(0 0 0 / 0.72);
   animation: confirmation-backdrop-in 240ms ease-out both;
 }
 .release-dialog[data-closing] { animation: release-out 180ms ease-in both; }
@@ -1014,7 +1015,6 @@ html[data-language-transition='out'] textarea::placeholder {
     radial-gradient(55% 100% at 12% 0%, color-mix(in srgb, var(--color-bordeaux) 20%, transparent), transparent 70%),
     radial-gradient(45% 90% at 88% 0%, color-mix(in srgb, var(--color-giallo) 22%, transparent), transparent 70%),
     radial-gradient(40% 80% at 50% 0%, color-mix(in srgb, var(--color-azzurro) 12%, transparent), transparent 70%);
-  animation: release-glow 6s ease-in-out infinite alternate;
 }
 .release-icon svg { animation: tour-pop 520ms 120ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
 .release-twinkle { animation: release-twinkle 2.4s 600ms ease-in-out infinite; }
@@ -1039,10 +1039,6 @@ html[data-language-transition='out'] textarea::placeholder {
 @keyframes release-twinkle {
   0%, 100% { opacity: 0; transform: scale(0.4); }
   45%, 60% { opacity: 1; transform: scale(1); }
-}
-@keyframes release-glow {
-  from { opacity: 0.75; transform: translateX(-4%); }
-  to { opacity: 1; transform: translateX(4%); }
 }
 
 /* What's new page: releases hang off a timeline; the latest pulses and the cards rise in.

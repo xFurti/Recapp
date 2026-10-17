@@ -21,6 +21,10 @@ export function ReleasePopup({ account, firstVisit, suspended = false }: {
   const fetching = useIsFetching()
   const mutating = useIsMutating()
   const { pathname } = useLocation()
+  // Read the latest blockers from the interval. Depending on the fetch count rebuilt
+  // this effect on every class request and threw away the quiet period mid-load.
+  const blockers = useRef({ suspended, pathname, fetching, mutating })
+  blockers.current = { suspended, pathname, fetching, mutating }
   const baseline = useRef(firstVisit)
   const accountKey = account.key
   const localAccount = account.local
@@ -47,8 +51,9 @@ export function ReleasePopup({ account, firstVisit, suspended = false }: {
     }
     let safeSince = 0
     const check = () => {
+      const now = blockers.current
       const focused = document.activeElement
-      const blocked = suspended || pathname.includes('/scrivi/') || fetching > 0 || mutating > 0 || hasPendingWork()
+      const blocked = now.suspended || now.pathname.includes('/scrivi/') || now.fetching > 0 || now.mutating > 0 || hasPendingWork()
         || document.visibilityState !== 'visible'
         || !!document.querySelector('dialog[open], [role="dialog"], [role="menu"], [aria-busy="true"], .page-curtain:not([hidden]), button:disabled .animate-spin')
         || (focused instanceof HTMLElement && !!focused.closest('input, textarea, select, [contenteditable="true"]'))
@@ -58,7 +63,7 @@ export function ReleasePopup({ account, firstVisit, suspended = false }: {
     }
     const timer = window.setInterval(check, 200)
     return () => window.clearInterval(timer)
-  }, [accountKey, localAccount, release, matchesBuild, preference.isSuccess, preference.data, suspended, fetching, mutating, pathname, dismissed])
+  }, [accountKey, localAccount, release, matchesBuild, preference.isSuccess, preference.data, dismissed])
 
   const visible = open && matchesBuild && open.id === notes.data?.current ? open : null
   // Remember as soon as the person dismisses; unmount once the exit animation ends.
