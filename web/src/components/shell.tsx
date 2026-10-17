@@ -8,12 +8,6 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { api } from '../api'
 import logo from '../assets/marconi-logo.png'
 import logoDark from '../assets/marconi-logo-dark.png'
-import page1 from '../assets/recapp-page-1.png'
-import page2 from '../assets/recapp-page-2.png'
-import page3 from '../assets/recapp-page-3.png'
-import page4 from '../assets/recapp-page-4.png'
-import page5 from '../assets/recapp-page-5.png'
-import page6 from '../assets/recapp-page-6.png'
 import recappWord from '../assets/recapp-wordmark.png'
 import { setLanguage } from '../i18n'
 import { addDays, getSimulatedNow, setSimulatedNow, todayIso } from '../lib/clock'
@@ -32,7 +26,10 @@ import { ClassNavigation } from './ClassNavigation'
 import { PageFrame } from './PageTransition'
 import { Tour } from './Tour'
 import { UpdateNotice } from './UpdateNotice'
+import { RECAPP_MARK_MS, RecappMark } from './RecappMark'
 import { Avatar, Button, Field, inputClass, Modal } from './ui'
+
+export { RECAPP_MARK_MS } from './RecappMark'
 
 const SCHOOL_SITE = 'https://www.marconiverona.edu.it/'
 
@@ -66,26 +63,6 @@ export function SchoolBadge() {
       <img src={logoDark} alt="" className="logo-dark h-8 w-auto shrink-0" />
       <span className="min-w-0"><span className="language-text">{t('landing.pilot_badge')}</span></span>
     </a>
-  )
-}
-
-/** One full flip of all pages; the keyframes in index.css are written as fractions of it. */
-export const RECAPP_MARK_MS = 560
-
-/**
- * The Recapp icon as one layer per page (cut by scripts/split_recapp_icon.py), front page first.
- * `spine` is each page's left edge as a share of the icon width: the page turns around it.
- */
-const PAGES = [page1, page2, page3, page4, page5, page6].map((src, i) => ({ src, spine: [0, 14, 27.6, 41.3, 56.2, 72.8][i] }))
-
-/** The Recapp mark; `playing` flips its pages from the last to the first, like thumbing through a notebook. */
-function RecappMark({ playing = false, className }: { playing?: boolean; className: string }) {
-  return (
-    <span className={`nav-icon recapp-mark ${className}`} data-motion="logo" data-playing={playing || undefined} style={{ '--nav-icon-ms': `${RECAPP_MARK_MS}ms` } as CSSProperties}>
-      {[...PAGES].reverse().map(({ src, spine }, turn) => (
-        <img key={src} src={src} alt="" style={{ '--turn': turn, '--spine': `${spine}%` } as CSSProperties} />
-      ))}
-    </span>
   )
 }
 
@@ -507,8 +484,8 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
             <ProfileMenu info={info} onTour={startTour} />
           </div>
           {showClock && <SimBar />}
-          <UpdateNotice />
         </header>
+        <UpdateNotice headerRef={headerRef} />
         <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
           {children}
         </PageFrame>

@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.17.3",
+  "published_at": "2026-10-17T18:30:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Gli aggiornamenti hanno un nuovo avviso",
+    "en": "A fresh look for update notices"
+  },
+  "summary": [
+    {
+      "it": "Una piccola capsula ti avvisa quando un aggiornamento è in preparazione, senza spostare la pagina.",
+      "en": "A small floating notice tells you when an update is being prepared, without moving the page."
+    },
+    {
+      "it": "Quando la nuova versione è pronta, la capsula si espande con i pulsanti Aggiorna ora e Più tardi.",
+      "en": "When the new version is ready, the notice expands with Update now and Later buttons."
+    },
+    {
+      "it": "Il logo animato e un breve riflesso accompagnano il passaggio; le animazioni rispettano la preferenza per il movimento ridotto.",
+      "en": "An animated logo and a brief highlight mark the transition; animations respect your reduced motion preference."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un avviso più curato per le nuove versioni",
+        "en": "A more polished notice for new versions"
+      },
+      "body": {
+        "it": "Le barre degli aggiornamenti lasciano il posto a una capsula sotto l'intestazione, con il logo di Recapp e un accento azzurro durante la preparazione. Quando l'aggiornamento è pronto, lo stesso avviso si espande in una card bordeaux con Aggiorna ora e Più tardi. Si adatta a telefono e computer, nei temi chiaro e scuro, e non sposta il contenuto della pagina. La pagina si ricarica solo quando lo scegli e dopo il salvataggio delle modifiche: se il salvataggio non riesce, resta aperta e puoi riprovare.",
+        "en": "Update banners are replaced by a floating notice below the header, with the Recapp logo and a blue accent while the update is being prepared. When it is ready, the same notice expands into a burgundy card with Update now and Later. It adapts to phones and computers, in light and dark themes, without shifting the page content. The page refreshes only when you choose to update and after saving your changes: if saving fails, it stays open and you can retry."
+      }
+    }
+  ]
+}

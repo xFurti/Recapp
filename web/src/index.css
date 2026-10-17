@@ -1459,3 +1459,109 @@ html[data-language-transition='out'] textarea::placeholder {
     cursor: auto !important;
   }
 }
+
+/* Update notices float below the page header without changing its height.
+   Original CSS: entrance / edge-light inspiration from React Bits; toast hierarchy from Uiverse. */
+.update-notice-host {
+  position: fixed;
+  z-index: 35;
+  top: max(var(--update-notice-top, 0px), calc(env(safe-area-inset-top) + 0.75rem));
+  right: max(0.75rem, env(safe-area-inset-right));
+  width: min(23rem, calc(100% - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  pointer-events: none;
+}
+.update-notice {
+  --update-accent: var(--color-bordeaux);
+  position: relative;
+  width: 100%;
+  max-height: calc(100dvh - max(var(--update-notice-top, 0px), env(safe-area-inset-top)) - env(safe-area-inset-bottom) - 1.5rem);
+  margin-left: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid color-mix(in srgb, var(--update-accent) 32%, var(--color-line));
+  border-radius: 1.4rem;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  box-shadow: 0 14px 38px rgb(29 15 30 / 0.16), 0 2px 6px rgb(29 15 30 / 0.04);
+  pointer-events: auto;
+  animation: update-notice-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: width 400ms cubic-bezier(0.22, 0.8, 0.22, 1), border-radius 400ms, border-color 300ms;
+}
+.update-notice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 10% 0%, color-mix(in srgb, var(--update-accent) 9%, transparent), transparent 72%);
+  pointer-events: none;
+}
+.update-notice[data-state='preparing'] {
+  --update-accent: var(--color-azzurro-ink);
+  width: min(21rem, 100%);
+  border-radius: 1.2rem;
+}
+.update-notice[data-state='ready']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 32%, color-mix(in srgb, var(--update-accent) 60%, white) 49%, transparent 66%) border-box;
+  background-size: 280% 100%;
+  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: update-notice-glint 1100ms ease-out both;
+}
+.update-notice-heading { position: relative; display: flex; align-items: center; gap: 0.75rem; padding: 1rem; }
+.update-notice-icon {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.9rem;
+  background: var(--color-bordeaux-soft);
+  transition: background 350ms;
+}
+.update-notice[data-state='preparing'] .update-notice-icon { background: var(--color-azzurro-soft); }
+.update-notice-logo { height: 1.9rem; }
+.update-notice-dot { position: absolute; right: -2px; bottom: -2px; width: 0.65rem; height: 0.65rem; border: 2px solid var(--color-surface); border-radius: 50%; background: var(--color-verde); }
+.update-notice[data-state='preparing'] .update-notice-dot { background: var(--color-azzurro-ink); }
+.update-notice[data-state='preparing'] .recapp-mark img {
+  animation: update-notice-page 1400ms ease-in-out 3;
+  animation-delay: calc(var(--turn) * 70ms);
+}
+.update-notice-copy { flex: 1; min-width: 0; animation: update-notice-copy 280ms ease-out both; }
+.update-notice-copy h2 { font-size: 0.875rem; line-height: 1.4; letter-spacing: -0.015em; }
+.update-notice-dismiss {
+  display: grid;
+  flex-shrink: 0;
+  align-self: flex-start;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.5rem -0.5rem -0.5rem -0.5rem;
+  border-radius: 50%;
+  color: var(--color-muted);
+  transition: background 150ms;
+}
+.update-notice-dismiss:hover { background: color-mix(in srgb, var(--color-ink) 6%, transparent); }
+.update-notice-dismiss:disabled { cursor: wait; opacity: 0.5; }
+.update-notice-details { position: relative; display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 400ms cubic-bezier(0.22, 0.8, 0.22, 1), opacity 250ms; }
+.update-notice[data-state='preparing'] .update-notice-details { grid-template-rows: 0fr; opacity: 0; }
+.update-notice-details-inner { min-height: 0; overflow: hidden; }
+.update-notice-message { margin: 0 1rem 0.75rem; }
+.update-notice-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.375rem; padding: 0 1rem 1rem; }
+.update-notice-actions .btn-spring { min-height: 2.75rem; height: auto; padding-top: 0.625rem; padding-bottom: 0.625rem; }
+@media (min-width: 768px) { .update-notice-host { right: max(1.5rem, env(safe-area-inset-right)); } }
+@keyframes update-notice-in { from { opacity: 0; transform: translateY(-8px) scale(0.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes update-notice-copy { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes update-notice-page { 0%, 85%, 100% { transform: rotateY(0); } 40% { transform: rotateY(-20deg) translateY(-1px); } }
+@keyframes update-notice-glint { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .update-notice, .update-notice[data-state='ready']::after, .update-notice-copy,
+  .update-notice[data-state='preparing'] .recapp-mark[data-playing] img { animation: none; }
+  .update-notice, .update-notice-details, .update-notice-icon, .update-notice-dismiss { transition: none; }
+}
