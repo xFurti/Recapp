@@ -134,7 +134,9 @@
     "no_lessons": "No lessons on the timetable today",
     "soon": "Next 3 days",
     "soon_empty": "Nothing due in the next 3 days.",
-    "all_upcoming": "All upcoming"
+    "all_upcoming": "All upcoming",
+    "notes": "Notes",
+    "assigned_in": "Assigned in {{subject}}"
   },
   "banner": {
     "not_started": "<b>{{nick}}</b> is today's note-taker.",
@@ -173,6 +175,16 @@
     "next_scribe": "note-taker {{nick}}",
     "future": "This day hasn't come yet.",
     "demo_weekend": "In the demo Saturday and Sunday are school days too, so you can always try it. Real classes skip weekends and holidays."
+  },
+  "stamp": {
+    "published": "Published",
+    "draft": "Draft",
+    "yours": "Your turn",
+    "no_school": "No school",
+    "open": "Open turn",
+    "waiting": "Not written yet",
+    "taken": "Turn taken",
+    "future": "Not yet"
   },
   "day": {
     "by": "by {{nick}}",

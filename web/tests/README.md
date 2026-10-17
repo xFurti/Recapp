@@ -117,3 +117,13 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --conf
 ```
 
 Install WebKit with `npx playwright install webkit`, or set `PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH` to an existing launcher. Browser fixtures simulate HTTP responses only; they do not change counting rules. Issue #90 screenshots and video use production builds with the real local API and an isolated SQLite demo database. The recording includes a real Grazie changing the podium and a real publication advancing the streak and record; no HTTP responses are mocked in those captures. See `docs/screenshots/issue-90/README.md` for the original base and capture details.
+
+## Today sheet (issue #93)
+
+`today.html` mounts the real Today page inside AppShell; only HTTP responses are mocked (`today-fixture.ts`). `today.spec.ts` covers every day state with its stamp, actions and the invitation in the sheet body (your turn, your draft, someone else's draft, open turn, passed turn, takeover, not started, future, admin, no school with the next school day and its note-taker). It checks that date, primary action and first ticket fit above the tab bar on a 320×568 phone in Italian and English; that phone and desktop keep the same block order; that the desktop sheet is wide, with four tickets in a row and notes no wider than 44rem; that date and publisher appear once; that each assignment stays under its subject, with class notes, Grazie, comments, Listen and Share still on the sheet; that zero deadlines give one line; passing and taking over the turn; the tour's write anchor; the opening page turn (about a second, ignores the pointer, never replays after a refetch, a theme change or a language change); reduced motion; silent decorations and keyboard scrolling of the tickets; and overflow at 320px and desktop with dark theme, long names and 200% text.
+
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- tests/today.spec.ts
+```
+
+Issue #93 screenshots and the intro recordings in `docs/screenshots/issue-93/` come from the same fixture on the dev build (mocked HTTP responses, simulated time bar visible).

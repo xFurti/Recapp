@@ -363,7 +363,7 @@ for (const width of [320, 390, 1280]) {
     await expect(page.getByRole('button', { name: /Ringrazia chi ha pubblicato la giornata · 1 grazie/ })).toBeVisible()
 
     // Next to the calendar action without overlapping, and no horizontal scrolling.
-    const row = page.locator('div.rounded-xl', { has: page.getByText('Ripasso derivate', { exact: true }) }).last()
+    const row = page.locator('[data-ticket]', { has: page.getByText('Ripasso derivate', { exact: true }) })
     const heart = (await row.getByRole('button', { name: /^Grazie per/ }).boundingBox())!
     const calendar = (await row.getByRole('button', { name: 'Aggiungi al calendario' }).boundingBox())!
     const apart = heart.x >= calendar.x + calendar.width || calendar.x >= heart.x + heart.width || heart.y >= calendar.y + calendar.height || calendar.y >= heart.y + heart.height

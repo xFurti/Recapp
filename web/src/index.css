@@ -1314,3 +1314,234 @@ html[data-language-transition='out'] textarea::placeholder {
   .report-kind-pill, .report-drop, .report-send-icon { transition: none; }
   .report-sent-check circle, .report-sent-check path { animation: none; stroke-dashoffset: 0; }
 }
+
+/* Today: one notebook sheet with a bordeaux margin. The same blocks in the same order on every width;
+   on wide screens the sheet and its margins grow while the notes keep a short measure. */
+.today-page { --sheet-pad: 1rem; --margin: 0.875rem; margin: -0.75rem -1rem 0; overflow-x: clip; container-type: inline-size; }
+@media (min-width: 40rem) {
+  .today-page { --sheet-pad: 1.5rem; --margin: 2rem; margin: 0; }
+  .today-sheet { padding-top: 1.25rem; }
+}
+@media (min-width: 64rem) { .today-page { --sheet-pad: 2.5rem; --margin: 3.5rem; } }
+
+.today-sheet {
+  position: relative;
+  border: 1px solid var(--color-line);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  padding: 0.75rem var(--sheet-pad) 1.5rem calc(var(--margin) + 0.75rem);
+  box-shadow: 0 1px 0 var(--color-line), 0 10px 30px -18px color-mix(in srgb, var(--color-ink) 30%, transparent);
+}
+/* Phones: the sheet runs edge to edge. */
+@media (max-width: 39.99rem) { .today-sheet { border-inline: 0; border-radius: 0; } }
+.today-sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--margin);
+  width: 2px;
+  background: color-mix(in srgb, var(--color-bordeaux) 55%, transparent);
+  pointer-events: none;
+}
+.today-sheet > * + * { margin-top: 1rem; }
+@container (min-width: 48rem) { .today-sheet > * + * { margin-top: 1.75rem; } }
+.today-sheet > .today-leaf + * { margin-top: 0; }
+.today-block:empty { display: none; }
+.today-measure, .today-invite, .today-entry { max-width: 44rem; }
+
+/* Header: date and stamp on one line with the action on wide screens; on phones the action is full width below. */
+.today-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'date date' 'actions actions' 'secondary status' 'error error';
+  align-items: start;
+  column-gap: 0.75rem;
+}
+.today-eyebrow { grid-area: eyebrow; align-self: center; }
+.today-date { grid-area: date; align-self: center; }
+@container (min-width: 48rem) { .today-date { margin-top: 0.25rem; } }
+.today-status { grid-area: status; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; margin-top: 0.625rem; }
+.today-secondary { grid-area: secondary; align-self: center; margin-top: 0.625rem; }
+.today-actions { grid-area: actions; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.625rem; }
+.today-action { width: 100%; height: 3rem; }
+.today-pass { height: auto; min-height: 2.25rem; margin-left: -0.75rem; padding-block: 0.25rem; justify-content: flex-start; text-align: start; }
+.today-error { grid-area: error; margin-top: 0.5rem; }
+@container (min-width: 48rem) {
+  .today-head {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    grid-template-areas: 'eyebrow eyebrow eyebrow status' 'date secondary actions status' 'error error error error';
+    column-gap: 1rem;
+  }
+  .today-actions { flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-self: center; margin-top: 0.25rem; }
+  .today-secondary { margin-top: 0.25rem; }
+  .today-status { margin-top: 0; }
+  .today-pass { margin-left: 0; }
+  .today-action { width: auto; height: 3.25rem; }
+}
+
+/* The stamp: a rubber-stamp label in the corner, tinted by the day's state. */
+.today-stamp {
+  --stamp: var(--color-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 9rem;
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--stamp);
+  border-radius: 0.5rem;
+  color: var(--stamp);
+  background: color-mix(in srgb, var(--stamp) 8%, var(--color-surface));
+  text-align: end;
+  rotate: -2.5deg;
+  overflow-wrap: anywhere;
+}
+@container (min-width: 48rem) { .today-stamp { max-width: 13rem; padding: 0.375rem 0.625rem; } }
+.today-stamp-label { font-size: 0.8125rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1.2; }
+.today-stamp-line { display: block; font-size: 0.75rem; line-height: 1.3; color: var(--color-ink); }
+.today-sheet[data-tone='published'] .today-stamp { --stamp: var(--color-verde-ink); }
+.today-sheet[data-tone='draft'] .today-stamp { --stamp: #9a6a00; }
+.dark .today-sheet[data-tone='draft'] .today-stamp { --stamp: var(--color-giallo); }
+.today-sheet[data-tone='yours'] .today-stamp { --stamp: var(--color-bordeaux); }
+.today-sheet[data-tone='no_school'] .today-stamp { --stamp: var(--color-azzurro-ink); }
+
+/* Lessons: coloured tabs on the top edge of the sheet. All visible on desktop; on phones they scroll sideways. */
+.today-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0 -1px;
+  padding: 0 0 0 calc(var(--margin) + 0.25rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline-start: calc(var(--margin) + 0.25rem);
+  scrollbar-width: none;
+  position: relative;
+  z-index: 1;
+}
+.today-tabs::-webkit-scrollbar { display: none; }
+.today-tab {
+  flex: 0 0 auto;
+  padding: 0.375rem 0.625rem;
+  white-space: nowrap;
+  border: 1px solid var(--color-line);
+  border-top: 4px solid var(--subject);
+  border-bottom: 0;
+  border-radius: 0.625rem 0.625rem 0 0;
+  background: color-mix(in srgb, var(--subject) 12%, var(--color-surface));
+  scroll-snap-align: start;
+}
+@container (min-width: 48rem) { .today-tab { flex: 1 1 0; min-width: 6.5rem; max-width: 13rem; padding: 0.375rem 0.625rem 0.5rem; white-space: normal; } }
+.today-tab-hour { margin-right: 0.25rem; }
+.today-tab-name { display: inline; white-space: nowrap; }
+.today-tab-room { display: none; }
+@container (min-width: 48rem) {
+  .today-tab-hour, .today-tab-name { display: block; margin: 0; }
+  .today-tab-name { white-space: normal; overflow-wrap: anywhere; }
+  .today-tab-room { display: flex; }
+}
+.today-tabs-empty { margin: 0 0 0.5rem calc(var(--margin) + 0.25rem); font-size: 0.875rem; color: var(--color-muted); }
+.today-tabs:focus-visible { outline-offset: -3px; }
+
+/* Deadlines as tickets: nearly full width on phones with the next one peeking in, up to four in a row on desktop. */
+.today-tickets {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-right: calc(-1 * var(--sheet-pad));
+  padding: 0.25rem var(--sheet-pad) 0.5rem 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+.today-tickets:focus-visible { outline-offset: 2px; }
+.today-ticket {
+  --ticket: var(--color-azzurro);
+  position: relative;
+  display: flex;
+  flex: 0 0 90%;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--color-line);
+  border-radius: 0.875rem;
+  background: color-mix(in srgb, var(--ticket) 5%, var(--color-surface));
+  scroll-snap-align: start;
+}
+.today-tickets > .today-ticket:only-child { flex-basis: 100%; }
+@container (min-width: 40rem) { .today-ticket { flex-basis: calc((100% - 0.75rem) / 2); } }
+@container (min-width: 64rem) {
+  .today-tickets { align-items: stretch; margin-right: 0; padding-right: 0; }
+  .today-ticket, .today-tickets > .today-ticket:only-child { flex-basis: calc((100% - 2.25rem) / 4); }
+}
+.today-ticket-stub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0 0.25rem 0 0.875rem;
+  border-top: 4px solid var(--ticket);
+  border-radius: 0.875rem 0.875rem 0 0;
+}
+/* The perforation: a dashed tear with a notch on each side. */
+.today-ticket[data-urgent] .today-ticket-stub { color: var(--color-rosa-ink); }
+.today-ticket-tear { position: relative; height: 0; border-top: 2px dashed color-mix(in srgb, var(--ticket) 35%, var(--color-line)); margin: 0 0.75rem; }
+.today-ticket-tear::before, .today-ticket-tear::after {
+  content: '';
+  position: absolute;
+  top: -0.5625rem;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
+}
+.today-ticket-tear::before { left: -1.3125rem; clip-path: inset(0 0 0 50%); }
+.today-ticket-tear::after { right: -1.3125rem; clip-path: inset(0 50% 0 0); }
+.today-ticket-body { display: flex; flex: 1; flex-direction: column; padding: 0.5rem 0.875rem 0.625rem; }
+
+/* Notes sit inside the margin, each with its subject's coloured bar. */
+.today-notes > * + * { margin-top: 1rem; }
+.today-entry { position: relative; padding-left: 1rem; }
+.today-entry::before {
+  content: '';
+  position: absolute;
+  top: 0.125rem;
+  bottom: 0.125rem;
+  left: 0;
+  width: 0.3125rem;
+  border-radius: 999px;
+  background: var(--subject, var(--color-line));
+}
+.today-invite { padding: 0.5rem 0 0.25rem; }
+
+/* Opening: one page turn around the spine, like the logo, then the tickets slide out from under the
+   edge and the stamp lands once. Nothing is held back: the leaf ignores the pointer and the page under it is complete. */
+.today-leaf { display: none; }
+.today-sheet[data-intro] .today-leaf {
+  display: block;
+  position: absolute;
+  inset: -1px;
+  z-index: 5;
+  margin: 0;
+  border: 1px solid var(--color-line);
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent calc(var(--margin) + 1px), color-mix(in srgb, var(--color-bordeaux) 55%, transparent) calc(var(--margin) + 1px) calc(var(--margin) + 3px), transparent 0),
+    linear-gradient(90deg, var(--color-surface) 40%, color-mix(in srgb, var(--color-ink) 7%, var(--color-surface)));
+  transform-origin: 0 50%;
+  backface-visibility: hidden;
+  pointer-events: none;
+  animation: today-leaf 950ms cubic-bezier(0.3, 0.15, 0.3, 1) both;
+}
+@keyframes today-leaf {
+  from { transform: perspective(4000px) rotateY(0deg); }
+  to { transform: perspective(4000px) rotateY(-180deg); }
+}
+.today-sheet[data-intro] .today-ticket { animation: today-ticket 420ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards; animation-delay: calc(420ms + var(--i, 0) * 70ms); }
+@keyframes today-ticket { from { translate: 0 -1.5rem; opacity: 0; } }
+.today-sheet[data-intro] .today-stamp { animation: today-stamp 360ms cubic-bezier(0.3, 1.5, 0.5, 1) 560ms backwards; }
+@keyframes today-stamp { from { scale: 1.35; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .today-sheet[data-intro] .today-leaf { display: none; }
+  .today-sheet[data-intro] .today-ticket, .today-sheet[data-intro] .today-stamp { animation: none; }
+}

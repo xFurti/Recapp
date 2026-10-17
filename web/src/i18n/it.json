@@ -134,7 +134,9 @@
     "no_lessons": "Nessuna lezione in orario oggi",
     "soon": "Nei prossimi 3 giorni",
     "soon_empty": "Niente in scadenza nei prossimi 3 giorni.",
-    "all_upcoming": "Tutto In arrivo"
+    "all_upcoming": "Tutto In arrivo",
+    "notes": "Appunti",
+    "assigned_in": "Assegnato in {{subject}}"
   },
   "banner": {
     "not_started": "<b>{{nick}}</b> è il redattore di oggi.",
@@ -173,6 +175,16 @@
     "next_scribe": "verbalista {{nick}}",
     "future": "Questo giorno deve ancora arrivare.",
     "demo_weekend": "Nella demo anche sabato e domenica sono giorni di scuola, per poterla provare sempre. Nelle classi vere weekend e festività vengono saltati."
+  },
+  "stamp": {
+    "published": "Pubblicata",
+    "draft": "Bozza",
+    "yours": "Tocca a te",
+    "no_school": "Niente scuola",
+    "open": "Turno libero",
+    "waiting": "Da scrivere",
+    "taken": "Turno preso",
+    "future": "Non ancora"
   },
   "day": {
     "by": "di {{nick}}",

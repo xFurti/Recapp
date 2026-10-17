@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.17.2",
+  "published_at": "2026-10-17T12:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Oggi diventa il foglio del giorno",
+    "en": "Today becomes the day's sheet"
+  },
+  "summary": [
+    {
+      "it": "La data è scritta una sola volta; chi ha pubblicato, e a che ora, è un timbro colorato nell’angolo.",
+      "en": "The date is written once; who published it, and when, is a coloured stamp in the corner."
+    },
+    {
+      "it": "Le scadenze dei prossimi giorni sono biglietti subito sotto, prima degli appunti.",
+      "en": "The deadlines of the next days are tickets right below, before the notes."
+    },
+    {
+      "it": "Ore e appunti stanno nello stesso foglio, uguale su telefono e computer.",
+      "en": "Lessons and notes share one sheet, the same on phone and computer."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un foglio di quaderno per la giornata",
+        "en": "A notebook sheet for the day"
+      },
+      "body": {
+        "it": "La pagina Oggi è un unico foglio con il margine bordeaux. In alto ci sono le ore come linguette colorate, poi la data e il pulsante per scrivere, continuare o modificare la giornata. Il timbro è verde se la giornata è pubblicata, giallo se c’è una bozza, bordeaux se tocca a te e azzurro se non c’è scuola. Sotto trovi le scadenze dei prossimi giorni come biglietti e poi gli appunti, con i compiti sotto la loro materia. Su un computer il foglio usa tutta la larghezza, ma le righe degli appunti restano brevi e facili da leggere.",
+        "en": "The Today page is a single sheet with a bordeaux margin. Lessons sit along the top as coloured tabs, then come the date and the button to write, continue or edit the day. The stamp is green when the day is published, yellow for a draft, bordeaux when it's your turn and blue when there's no school. Below you'll find the next days' deadlines as tickets, then the notes, with homework under its subject. On a computer the sheet uses the full width, while note lines stay short and easy to read."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un solo giro di pagina",
+        "en": "One page turn"
+      },
+      "body": {
+        "it": "All’apertura il foglio fa un giro di pagina di circa un secondo, poi resta fermo. I pulsanti funzionano già durante l’animazione, che non riparte quando arrivano dati nuovi o cambi lingua o tema. Se nel dispositivo hai ridotto le animazioni, il foglio compare già fermo.",
+        "en": "When it opens, the sheet turns like a page for about a second, then stays still. Buttons already work during the animation, which doesn't restart when new data arrives or when you change language or theme. If you've reduced motion on your device, the sheet appears already still."
+      }
+    }
+  ]
+}

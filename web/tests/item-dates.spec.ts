@@ -133,7 +133,7 @@ test('editing legacy homework clears its time and Today shows only the date', as
     due_date: legacy.due_date, due_time: null, source: legacy.source, link: legacy.link,
   } }])
   await page.goto('/tests/item-dates.html?view=today')
-  const todayRow = page.locator('main').getByRole('button', { name: legacy.title, exact: true }).locator('../..')
+  const todayRow = page.locator('main [data-ticket]', { hasText: legacy.title })
   await expect(todayRow).toContainText('Domani')
   await expect(todayRow).not.toContainText(/\d{2}:\d{2}/)
 })

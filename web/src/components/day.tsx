@@ -1,5 +1,5 @@
 import { FlaskConical, Link as LinkIcon, Pause, Play, Square, StickyNote } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { attachmentUrl } from '../api'
@@ -166,6 +166,88 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
         </section>
       )}
     </article>
+  )
+}
+
+/** The published notes as they sit on the Today sheet: one subject after another, each with what it assigned. */
+export function DayNotes({ card, subjects, actions }: { card: Card; subjects: Subject[]; actions?: ReactNode }) {
+  const { t, i18n } = useTranslation()
+  const [zoom, setZoom] = useState<number | null>(null)
+  const entries = card.entries.filter((e) => hasEntrySummary(e) || e.lesson_status !== 'svolta')
+  const shown = new Set(entries.map((e) => e.subject_code))
+  const loose = card.items.filter((it) => !it.subject_code || !shown.has(it.subject_code))
+  const placed = new Set<string>()
+  return (
+    <section aria-labelledby="today-notes-title" className="today-notes">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="today-notes-title" className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('today.notes')}</span></h2>
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      </div>
+      {entries.length === 0 && <p className="mt-3 text-muted"><span className="language-text">{t('day.nothing_written')}</span></p>}
+      {entries.map((e, i) => {
+        // A subject taught in two blocks lists its assignments once, under the first block.
+        const own = placed.has(e.subject_code) ? [] : card.items.filter((it) => it.subject_code === e.subject_code)
+        placed.add(e.subject_code)
+        return (
+          <section key={`${e.subject_code}-${i}`} className="today-entry" style={{ '--subject': subjectColor(subjects, e.subject_code) } as CSSProperties}>
+            <h3 className="flex flex-wrap items-center gap-2">
+              <span className="font-bold">{subjectName(subjects, e.subject_code, i18n.language)}</span>
+              {e.hours && <span className="text-xs text-muted"><span className="language-text">{e.hours.includes('-') ? t('day.hours', { h: e.hours }) : t('day.hour', { h: e.hours })}</span></span>}
+              {e.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {e.room}</Badge>}
+              {e.lesson_status !== 'svolta' && <Badge className="bg-giallo-soft text-ink"><span className="language-text">{t(`day.status_${e.lesson_status}`)}</span></Badge>}
+            </h3>
+            {e.bullets.length > 0 && (
+              <ul className="mt-1.5 list-disc space-y-1 pl-5 text-[15px] leading-relaxed marker:text-muted">
+                {e.bullets.map((b, j) => <li key={j}>{b}</li>)}
+              </ul>
+            )}
+            <EntryPhotos ids={e.attachment_ids ?? []} />
+            <LabBox entry={e} />
+            {own.length > 0 && (
+              <div className="mt-3 space-y-2" role="group" aria-label={t('today.assigned_in', { subject: subjectName(subjects, e.subject_code, i18n.language) })}>
+                {own.map((it) => <ItemRow key={it.id} item={it} subjects={subjects} compact />)}
+              </div>
+            )}
+          </section>
+        )
+      })}
+
+      {loose.length > 0 && (
+        <section className="today-entry">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.assigned')}</span></h3>
+          <div className="mt-2 space-y-2">
+            {loose.map((it) => <ItemRow key={it.id} item={it} subjects={subjects} compact />)}
+          </div>
+        </section>
+      )}
+
+      {card.notes && (
+        <section className="today-entry">
+          <div className="rounded-xl bg-giallo-soft p-3">
+            <p className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+              <StickyNote className="size-4" aria-hidden /> <span className="language-text">{t('day.notes')}</span>
+            </p>
+            <p className="whitespace-pre-line text-[15px]">{card.notes}</p>
+          </div>
+        </section>
+      )}
+
+      {card.attachments.length > 0 && (
+        <section className="today-entry">
+          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.attachments')}</span></h3>
+          <div className="flex flex-wrap gap-2">
+            {card.attachments.map((a) => (
+              <button key={a.id} onClick={() => setZoom(a.id)} className="overflow-hidden rounded-lg border border-line" aria-label={t('day.photo_open')}>
+                <img src={attachmentUrl(a.id)} alt="" className="h-24 w-auto object-cover" loading="lazy" />
+              </button>
+            ))}
+          </div>
+          <Modal open={zoom !== null} onClose={() => setZoom(null)} title={t('day.attachments')} wide>
+            {zoom !== null && <img src={attachmentUrl(zoom)} alt="" className="w-full rounded-lg" />}
+          </Modal>
+        </section>
+      )}
+    </section>
   )
 }
 

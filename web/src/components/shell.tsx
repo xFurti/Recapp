@@ -509,7 +509,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
           <UpdateNotice />
         </header>
-        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className={`mx-auto ${page === '' ? 'max-w-6xl' : 'max-w-3xl'} px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12`}>
           {children}
         </PageFrame>
       </div>

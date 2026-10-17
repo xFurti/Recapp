@@ -56,11 +56,12 @@ for (const demo of [false, true]) {
         await setup(page, { demo, lang })
         const updated = lang === 'it' ? 'Aggiornata da Leo' : 'Updated by Leo'
         await page.goto('/c/TEST')
-        const banner = page.locator('section[aria-live="polite"]')
-        await expect(banner).toContainText(lang === 'it' ? 'Pubblicata da Ada alle 14:10' : 'Published by Ada at 14:10')
-        await expect(banner).toContainText(updated)
-        await expect(page.locator('article header')).toContainText(lang === 'it' ? 'di Ada' : 'by Ada')
-        await expect(page.locator('article header')).toContainText(updated)
+        // Today names the publisher and the latest editor once, in the stamp.
+        const stamp = page.locator('.today-stamp')
+        await expect(stamp).toContainText(lang === 'it' ? 'Pubblicata' : 'Published')
+        await expect(stamp).toContainText('Ada · 14:10')
+        await expect(stamp).toContainText(updated)
+        await expect(page.locator('article.today-sheet').getByText(updated)).toHaveCount(1)
         // The original author still sees Share even without admin or current-scribe rights.
         await expect(page.getByRole('button', { name: lang === 'it' ? 'Condividi' : 'Share', exact: true })).toBeVisible()
         await expect(page.getByRole('button', { name: lang === 'it' ? 'Modifica' : 'Edit', exact: true })).toBeVisible()
@@ -127,7 +128,7 @@ for (const lang of ['it', 'en']) {
   test(`author's own edit has one attribution and draft credits current writer (${lang})`, async ({ page }) => {
     await setup(page, { lang, card: { ...published, updated_by: null } })
     await page.goto('/c/TEST')
-    await expect(page.locator('section[aria-live="polite"]')).toContainText(lang === 'it' ? 'Pubblicata da Ada' : 'Published by Ada')
+    await expect(page.locator('.today-stamp')).toContainText('Ada · 14:10')
     await expect(page.getByText(lang === 'it' ? /Aggiornata da/ : /Updated by/)).toHaveCount(0)
     await page.unroute('**/api/**')
     await setup(page, { lang, card: { ...published, status: 'draft', author: leo, updated_by: null, published_at: null }, viewer: leo, admin: true })
