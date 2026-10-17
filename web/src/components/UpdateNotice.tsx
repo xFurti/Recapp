@@ -1,69 +1,119 @@
-import { Info, RefreshCw, X } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowRight, X } from 'lucide-react'
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 import { flushPendingWork } from '../lib/pendingWork'
 import { dismissUpdate, useUpdateNotice } from '../lib/updates'
+import { RecappMark } from './RecappMark'
 import { Button } from './ui'
 
-/** Never reloads on its own and never takes focus: the live region only announces politely. */
-export function UpdateNotice() {
+/** Follow the current page header, including lazy routes and the class simulation bar. */
+function useNoticeTop(visible: boolean, headerRef?: RefObject<HTMLElement | null>) {
+  const { pathname } = useLocation()
+  const [top, setTop] = useState<number>()
+  useLayoutEffect(() => {
+    if (!visible) return
+    let header: HTMLElement | null = null
+    let frame = 0
+    const position = () => {
+      frame = 0
+      setTop(Math.max(12, (header?.getBoundingClientRect().bottom ?? 0) + 12))
+    }
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(position) }
+    const resize = new ResizeObserver(schedule)
+    const attach = () => {
+      const next = headerRef?.current ?? Array.from(document.querySelectorAll<HTMLElement>('#root header')).find(element => element.getClientRects().length > 0) ?? null
+      if (next !== header) {
+        resize.disconnect()
+        header = next
+        if (header) resize.observe(header)
+      }
+      position()
+    }
+    const mutation = new MutationObserver(attach)
+    const root = document.getElementById('root')
+    if (root) mutation.observe(root, { childList: true, subtree: true })
+    attach()
+    addEventListener('resize', schedule)
+    addEventListener('scroll', schedule, { passive: true })
+    return () => {
+      mutation.disconnect()
+      resize.disconnect()
+      cancelAnimationFrame(frame)
+      removeEventListener('resize', schedule)
+      removeEventListener('scroll', schedule)
+    }
+  }, [visible, pathname, headerRef])
+  return top
+}
+
+/** A polite, persistent notice: no automatic reload, focus change or layout shift. */
+export function UpdateNotice({ headerRef }: { headerRef?: RefObject<HTMLElement | null> }) {
   const { t } = useTranslation()
   const notice = useUpdateNotice()
-  const [reloading, setReloading] = useState<'idle' | 'saving' | 'failed'>('idle')
+  const top = useNoticeTop(!!notice, headerRef)
+  const id = useId()
+  const saving = useRef(false)
+  const [attempt, setAttempt] = useState<{ key: string; status: 'saving' | 'failed' }>()
+  const reloading = attempt?.key === notice?.key ? attempt?.status : undefined
+  const preparing = notice?.kind === 'preparing'
+  const title = t(preparing ? 'update.preparing' : 'update.ready')
+  const subtitle = t(preparing ? 'update.preparing_description' : 'update.ready_description')
+  const message = reloading === 'failed' ? t('update.save_failed') : reloading === 'saving' ? t('update.saving') : ''
 
   const updateNow = async () => {
-    setReloading('saving')
+    if (!notice || preparing || saving.current) return
+    const key = notice.key
+    saving.current = true
+    setAttempt({ key, status: 'saving' })
     try {
       await flushPendingWork()
       window.location.reload()
     } catch {
-      setReloading('failed')
+      setAttempt({ key, status: 'failed' })
+    } finally {
+      saving.current = false
     }
   }
 
-  return (
-    <div role="status" aria-live="polite">
-      {notice?.kind === 'preparing' && (
-        <div className="bg-azzurro-soft text-azzurro-ink">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-1.5 text-xs font-semibold sm:text-sm">
-            <Info className="size-4 shrink-0" aria-hidden />
-            <p className="min-w-0 flex-1"><span className="language-text">{t('update.preparing')}</span></p>
-            <button onClick={() => dismissUpdate(notice.key)} className="-mr-1.5 shrink-0 rounded-full p-1.5 hover:bg-azzurro-ink/10" aria-label={t('update.dismiss')}>
-              <X className="size-4" />
-            </button>
+  return createPortal(
+    <div className="update-notice-host" style={{ '--update-notice-top': top === undefined ? undefined : `${top}px` } as CSSProperties}>
+      <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+        {notice && `${title}. ${subtitle}${message ? ` ${message}` : ''}`}
+      </div>
+      {notice && <section className="update-notice" data-state={notice.kind} aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`}>
+        <div className="update-notice-heading">
+          <div className="update-notice-icon" aria-hidden>
+            <RecappMark playing={preparing} className="update-notice-logo" />
+            <span className="update-notice-dot" />
           </div>
+          <div key={notice.kind} className="update-notice-copy">
+            <h2 id={`${id}-title`} className="language-text font-bold">{title}</h2>
+            <p id={`${id}-description`} className="language-text mt-1 text-xs leading-relaxed text-muted">{subtitle}</p>
+          </div>
+          <button type="button" className="update-notice-dismiss" onClick={() => dismissUpdate(notice.key)} disabled={reloading === 'saving'} aria-label={t('update.dismiss')}>
+            <X className="size-4" aria-hidden />
+          </button>
         </div>
-      )}
-      {notice?.kind === 'ready' && (
-        <div className="bg-bordeaux-soft text-ink">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 text-sm">
-            <RefreshCw className="size-4 shrink-0 text-bordeaux" aria-hidden />
-            <p className="min-w-0 flex-1 font-semibold">
-              <span className="language-text">{t('update.ready')}</span>
-              {reloading === 'failed' && <span className="mt-0.5 block text-xs font-medium text-rosa-ink"><span className="language-text">{t('update.save_failed')}</span></span>}
-            </p>
-            <div className="flex shrink-0 gap-2">
+        <div className="update-notice-details" inert={preparing} aria-hidden={preparing}>
+          <div className="update-notice-details-inner">
+            {message && <p className={`update-notice-message language-text text-xs leading-relaxed ${reloading === 'failed' ? 'text-rosa-ink' : 'text-muted'}`}>{message}</p>}
+            <div className="update-notice-actions">
+              <Button size="sm" variant="ghost" onClick={() => dismissUpdate(notice.key)} disabled={reloading === 'saving'}><span className="language-text">{t('update.later')}</span></Button>
               <Button size="sm" onClick={updateNow} loading={reloading === 'saving'}>
-                <span className="language-text">{reloading === 'failed' ? t('common.retry') : t('update.now')}</span>
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => dismissUpdate(notice.key)} disabled={reloading === 'saving'}>
-                <span className="language-text">{t('update.later')}</span>
+                <span className="language-text">{reloading === 'saving' ? t('update.saving_short') : reloading === 'failed' ? t('common.retry') : t('update.now')}</span>
+                {reloading !== 'saving' && <ArrowRight className="size-4" aria-hidden />}
               </Button>
             </div>
           </div>
         </div>
-      )}
-    </div>
+      </section>}
+    </div>, document.body,
   )
 }
 
-/** Pages without the class shell show the notice at the top of the page. */
+/** Public pages use their own header as the floating notice's anchor. */
 export function WithUpdateNotice() {
-  return (
-    <>
-      <UpdateNotice />
-      <Outlet />
-    </>
-  )
+  return <><Outlet /><UpdateNotice /></>
 }

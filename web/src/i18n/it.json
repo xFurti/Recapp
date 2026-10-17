@@ -599,9 +599,13 @@
     "delete_error": "Non è stato possibile eliminare il messaggio. Riprova o chiudi questa finestra."
   },
   "update": {
-    "preparing": "Stiamo preparando un aggiornamento. Puoi continuare a usare Recapp.",
+    "saving_short": "Salvataggio…",
+    "saving": "Salviamo le modifiche prima di aggiornare la pagina…",
+    "ready_description": "Aggiorna la pagina per iniziare a usarla.",
+    "preparing_description": "Puoi continuare a usare Recapp.",
+    "preparing": "Un aggiornamento è in arrivo",
     "dismiss": "Chiudi avviso",
-    "ready": "È disponibile una nuova versione di Recapp.",
+    "ready": "Una nuova versione è pronta",
     "now": "Aggiorna ora",
     "later": "Più tardi",
     "save_failed": "Non sono riuscito a salvare le modifiche, quindi la pagina resta aperta. Riprova tra poco."

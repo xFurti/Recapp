@@ -599,9 +599,13 @@
     "delete_error": "The message could not be deleted. Try again or close this dialog."
   },
   "update": {
-    "preparing": "We're preparing an update. You can keep using Recapp.",
+    "saving_short": "Saving…",
+    "saving": "Saving your changes before refreshing the page…",
+    "ready_description": "Refresh the page to start using it.",
+    "preparing_description": "You can keep using Recapp.",
+    "preparing": "An update is on the way",
     "dismiss": "Dismiss notice",
-    "ready": "A new version of Recapp is available.",
+    "ready": "A new version is ready",
     "now": "Update now",
     "later": "Later",
     "save_failed": "Your changes couldn't be saved, so the page stays open. Try again in a moment."
