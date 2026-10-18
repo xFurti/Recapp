@@ -4,7 +4,8 @@ import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } f
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
-import { api, ApiError, attachmentUrl } from '../api'
+import { api, ApiError } from '../api'
+import { AttachmentGallery } from '../components/AttachmentGallery'
 import { DayCardView, EntryPhotos } from '../components/day'
 import { EmptyPublishDialog } from '../components/EmptyPublishDialog'
 import { LessonStatusSelector } from '../components/LessonStatusSelector'
@@ -394,21 +395,8 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       {state.attachment_ids.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
-          <div className="flex flex-wrap gap-2">
-            {state.attachment_ids.map((id) => (
-              <div key={id} className="relative">
-                <img src={attachmentUrl(id)} alt="" className="h-24 rounded-lg border border-line object-cover" />
-                <button
-                  onClick={() => update((s) => ({ ...s, attachment_ids: s.attachment_ids.filter((a) => a !== id) }))}
-                  className="absolute -right-2 -top-2 rounded-full bg-ink p-1 text-paper"
-                  aria-label={t('editor.remove_item')}
-                >
-                  <X className="size-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
+          <AttachmentGallery ids={state.attachment_ids} title={t('editor.attachments')}
+            onRemove={(id) => update((s) => ({ ...s, attachment_ids: s.attachment_ids.filter((a) => a !== id) }))} />
         </section>
       )}
 
@@ -559,9 +547,9 @@ function EntryEditor({
               />
             )}
             {entry.is_lab && (
-              <div className="space-y-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
+              <div className="lab-note space-y-3">
                 <label className="block" htmlFor={`${labId}-notes`}>
-                  <span className="language-text mb-1 block text-sm font-bold text-verde-ink">{t('day.lab_notes')}</span>
+                  <span className="mb-1 flex items-center gap-2 text-sm font-bold text-verde-ink"><FlaskConical className="size-4 shrink-0" aria-hidden /><span className="language-text min-w-0 [overflow-wrap:anywhere]">{t('day.lab_notes')}</span></span>
                 </label>
                 <p id={`${labId}-hint`} className="text-sm text-muted"><span className="language-text">{t('editor.lab_hint')}</span></p>
                 <textarea id={`${labId}-notes`} aria-describedby={`${labId}-hint`} className={inputClass} rows={4} maxLength={3000}

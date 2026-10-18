@@ -1,0 +1,47 @@
+{
+  "id": "2026.10.18.139",
+  "published_at": "2026-10-18T14:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Note di laboratorio più leggere",
+    "en": "Lighter lab notes"
+  },
+  "summary": [
+    {
+      "it": "Le note di laboratorio hanno una superficie più leggera e un testo più comodo da leggere.",
+      "en": "Lab notes have a lighter surface and text that is more comfortable to read."
+    },
+    {
+      "it": "Le foto degli appunti hanno miniature uniformi, proporzioni rispettate e un contatore delle immagini.",
+      "en": "Notes photos have consistent thumbnails, preserved proportions and an image count."
+    },
+    {
+      "it": "Il visualizzatore distingue il caricamento dagli errori e permette di riprovare ad aprire una foto.",
+      "en": "The viewer distinguishes loading from errors and lets you retry opening a photo."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Laboratori riconoscibili, pagine più tranquille",
+        "en": "Recognisable labs, calmer pages"
+      },
+      "body": {
+        "it": "Icona, intestazione e accento verde continuano a distinguere i laboratori, con una superficie più discreta e maggiore spazio tra le righe. Giornata, materia e anteprima mostrano le stesse note, mantenendo i paragrafi e i contenuti dei vecchi laboratori.",
+        "en": "The icon, heading and green accent still distinguish labs, with a quieter surface and more space between lines. Day, subject and preview show the same notes, preserving paragraphs and content from older labs."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Foto degli appunti più ordinate",
+        "en": "Tidier notes photos"
+      },
+      "body": {
+        "it": "Le miniature hanno dimensioni uniformi e mostrano l’intera immagine senza deformarla. Il numero delle immagini e la posizione della foto aperta sono visibili; il caricamento e le immagini non disponibili hanno stati distinti, con un comando per riprovare nel visualizzatore.",
+        "en": "Thumbnails have consistent dimensions and show the whole image without distorting it. The image count and the position of the open photo are visible; loading and unavailable images have distinct states, with a retry action in the viewer."
+      }
+    }
+  ]
+}

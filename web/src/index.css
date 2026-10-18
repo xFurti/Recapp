@@ -1618,3 +1618,28 @@ html[data-language-transition='out'] textarea::placeholder {
   .update-notice[data-state='preparing'] .recapp-mark[data-playing] img { animation: none; }
   .update-notice, .update-notice-details, .update-notice-icon, .update-notice-dismiss { transition: none; }
 }
+
+/* Lab notes use the ordinary reading surface; green marks identity at the edge. */
+.lab-note {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  padding: 0.875rem;
+  border: 1px solid var(--color-line);
+  border-inline-start: 3px solid var(--color-verde-ink);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-verde) 3%, var(--color-surface));
+}
+
+.attachment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(6.25rem, 100%), 1fr)); gap: 0.5rem; max-width: 28rem; }
+.attachment-open { display: block; width: 100%; min-width: 0; overflow: hidden; border: 1px solid var(--color-line); border-radius: 0.65rem; background: var(--color-paper); }
+.attachment-open:hover { border-color: var(--color-muted); }
+.attachment-open:focus-visible { outline-offset: -3px; }
+.attachment-image { position: relative; overflow: hidden; background: var(--color-paper); }
+.attachment-thumb { aspect-ratio: 4 / 3; }
+.attachment-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.attachment-full { min-height: 8rem; border: 1px solid var(--color-line); border-radius: 0.75rem; }
+.attachment-image-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem; color: var(--color-muted); text-align: center; overflow-wrap: anywhere; }
+
+.attachment-gallery { overflow-wrap: anywhere; }
+
+.attachment-full img { height: auto; }

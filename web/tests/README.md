@@ -135,3 +135,9 @@ Issue #101 extends the layout checks to include the visible statistic labels and
 The final issue #101 captures in `docs/screenshots/issue-101/redesign/README.md` compare production builds using Inter in both versions. The new counter regression checks the actual line height of multi-digit numbers; the baseline split 12, 24 and 17, while final counters reserve the width of their real final glyphs.
 
 The final lighter presentation is captured in `docs/screenshots/issue-101/refined/README.md`. The pointer light/tilt feature and its dedicated test were removed; the remaining 47 cases cover the functional behavior, brief entrances, milestones and counter regression.
+
+## Lab presentation (issue #139, in progress)
+
+`lab-presentation.spec.ts` mounts the real day card, subject page and editor in AppShell using `lab-presentation.html`. Only HTTP responses and synthetic attachment images are simulated. It covers 320/390/1280px, IT/EN, light/dark, reduced motion, 100%/200% root text size, uniform thumbnails with portrait/panoramic/square images, counts, opening and focus containment/restoration, loading/error/retry using the original attachment URLs, legacy notes, preview and scoped removal of day attachments. The existing `lab-notes.spec.ts` covers editing, autosave, reopening, publishing and legacy conversion/clearing.
+
+Run `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- lab-presentation.spec.ts`. See `docs/screenshots/issue-139/README.md` for screenshot provenance and the current limits. Link presentation and gallery navigation remain pending user choices.
