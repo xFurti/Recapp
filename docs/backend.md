@@ -93,6 +93,32 @@ i testi originali e il link restano modificabili. Al salvataggio i vecchi campi 
 svuotati per evitare duplicazioni. Nessun materiale diventa una scadenza automaticamente.
 La migrazione aggiunge solo la colonna nullable `labblock.notes`, senza alterare lo storico.
 
+### Permessi degli allegati
+
+Lettura e associazione condividono i controlli in `services.py`: la sola appartenenza alla
+classe non autorizza a pubblicare una foto. Si considerano sia `Attachment.card_id` sia gli
+elementi che la usano, comprese le foto presenti soltanto nei compiti di una bozza.
+
+| Contesto | Lettura | Associazione a un contenuto |
+| --- | --- | --- |
+| Caricamento non collegato | Autore del caricamento, admin della classe, account scuola | Autore del caricamento e admin della classe |
+| Allegato di una bozza | Come sopra, più chi può modificare la giornata d'origine | Autore del caricamento e admin; gli altri redattori possono usarlo soltanto nella giornata d'origine |
+| Materiale pubblicato | Membri della stessa classe e account scuola | Membri della stessa classe, rispettando i permessi del contenuto di destinazione |
+
+Il subentrante può completare e pubblicare la bozza con le sue foto, comprese quelle dei compiti,
+senza acquisire il diritto di esportare foto private altrui in altre giornate o elementi autonomi.
+L'account scuola conserva la lettura globale: non ottiene la scrittura riservata ai membri.
+Un admin non può associare materiale di un'altra classe. Gli id inesistenti o di un'altra classe
+restituiscono 400, gli utilizzi non autorizzati 403, prima di modificare dati o revisioni.
+
+Il riutilizzo non sposta il materiale dalla giornata originale. Poiché `Attachment.card_id`
+ammette una sola giornata, una foto già collegata altrove viene copiata quando serve come foto
+generale o di una materia nella destinazione; l'API restituisce i nuovi id. Dati dell'immagine
+e autore del caricamento sono conservati. Gli elementi possono condividere un allegato senza
+modificarne l'associazione originale. Nessun salvataggio aggiorna implicitamente un'altra giornata.
+Il salvataggio degli elementi nell'editor usa gli stessi controlli; il PATCH degli elementi autonomi
+continua a rifiutare modifiche al campo `attachment_id` con 422.
+
 ## Conflitti di salvataggio
 
 `PUT /cards/{day}` richiede `revision`, la revisione su cui si basa il client. Il server fa un

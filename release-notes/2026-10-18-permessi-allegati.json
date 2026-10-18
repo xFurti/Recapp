@@ -1,0 +1,29 @@
+{
+  "id": "2026.10.18.103",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Più tutela per le foto private", "en": "Better protection for private photos" },
+  "summary": [
+    { "it": "Le foto private possono essere pubblicate soltanto da chi ha i permessi necessari.", "en": "Private photos can only be published by people with the required permissions." },
+    { "it": "Chi subentra può completare la bozza con le foto già presenti nella giornata.", "en": "Someone taking over can complete the draft with the photos already in that day." },
+    { "it": "Riutilizzare una foto pubblicata in un'altra giornata conserva anche l'originale.", "en": "Reusing a published photo in another day also preserves the original." }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": { "it": "Allegati privati protetti", "en": "Private attachments protected" },
+      "body": {
+        "it": "Collegare una foto a un compito, a una giornata o agli appunti di una materia ora richiede anche il permesso di usarla. Chi subentra può completare e pubblicare la giornata con le foto della bozza, senza poterle esportare altrove mentre sono private. Gli autori dei caricamenti e gli admin conservano i loro permessi nella classe.",
+        "en": "Linking a photo to a task, a day or subject notes now also requires permission to use it. Someone taking over can complete and publish the day with its draft photos, without exporting them elsewhere while they are private. Uploaders and admins keep their permissions within the class."
+      }
+    },
+    {
+      "category": "fix",
+      "title": { "it": "Il riutilizzo conserva la giornata originale", "en": "Reuse preserves the original day" },
+      "body": {
+        "it": "Il materiale già pubblicato resta riutilizzabile nella stessa classe. Collegarlo a un'altra giornata non rimuove più la foto da quella di origine. Un tentativo non autorizzato lascia invariati contenuti, associazioni e visibilità.",
+        "en": "Published material can still be reused within the same class. Linking it to another day no longer removes the photo from its original day. An unauthorized attempt leaves content, links and visibility unchanged."
+      }
+    }
+  ]
+}
