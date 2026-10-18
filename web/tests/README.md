@@ -3,8 +3,9 @@
 `surfaces.spec.ts` opens the real production routes for Today, a published day and
 Upcoming with only HTTP responses simulated by `surfaces-fixture.ts`. Its 29 cases
 cover 320/390/1440px, both languages and themes, long unbroken author/subject/title
-text at 200%, the actual glyph bounds inside affected surfaces, ordinary notices,
-action prompts, warnings and retry after an error, keyboard Tab order, calendar dismissal/focus restoration,
+text at 200% (every computed font size, including px utilities), the actual glyph
+bounds inside affected surfaces, ordinary notices, action prompts, warnings and
+retry after an error, keyboard Tab order, calendar dismissal/focus restoration,
 Grazie, correction reporting, subject filtering, done controls and reduced motion.
 Existing calendar, attribution, lab, feedback and correction suites check the full
 behavior of those shared components separately.

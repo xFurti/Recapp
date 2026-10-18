@@ -52,7 +52,14 @@ test.describe('accessibility and preserved controls', () => {
       for (const [index, path] of surfacePaths.entries()) {
         await page.goto(path)
         await ready(page)
-        await page.addStyleTag({ content: 'html { font-size: 200% !important; }' })
+        // Double every computed text size, including legacy px-based utilities.
+        // Snapshot first so inherited sizes are not doubled again in descendants.
+        await page.evaluate(() => {
+          const sizes = Array.from(document.querySelectorAll<HTMLElement>('html, body, body *'))
+            .filter(el => el.style)
+            .map(el => [el, parseFloat(getComputedStyle(el).fontSize)] as const)
+          for (const [el, size] of sizes) el.style.setProperty('font-size', `${size * 2}px`, 'important')
+        })
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
         // Inspect actual glyphs, including authored unbroken words and author names.
         const clipped = await page.locator('main .surface-primary, main .surface-support, main .notice-info, main .notice-warning').evaluateAll(surfaces => {
