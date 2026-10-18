@@ -186,6 +186,7 @@ export interface CardPage {
 }
 
 export interface SubjectEntryRow {
+  id: number
   day: string
   author: MemberBrief | null
   updated_by: MemberBrief | null

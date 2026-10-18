@@ -1,4 +1,11 @@
 {
+  "archive": {
+    "day_results": "Days in history", "subject_results": "Lessons in history", "empty": "No days in this period.",
+    "filters": "History filters", "period": "Period", "week": "Last week", "2weeks": "Last two weeks", "all": "All history", "month": "Month", "custom": "Date range",
+    "prev_month": "Previous month", "next_month": "Next month", "from": "From", "to": "To", "apply": "Apply range",
+    "invalid_dates": "Enter valid dates, with the start date no later than the end date.",
+    "load_more": "Load more", "loading": "Loading history…", "loaded": "{{count}} results loaded", "end": "End of results · {{count}} loaded", "back_results": "Back to results"
+  },
   "common": {
     "app_name": "Recapp",
     "tagline": "Your class, summarized",

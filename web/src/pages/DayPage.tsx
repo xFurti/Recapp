@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, FlaskConical, List, PenLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { api } from '../api'
 import { DayCardView } from '../components/day'
 import { Feedback } from '../components/Feedback'
+import { ArchiveControls, ArchivePagination } from '../components/ArchiveControls'
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { SubjectTag } from '../components/items'
 import { Avatar, Badge, Button, Card, EmptyState, ErrorBox, Spinner } from '../components/ui'
-import { todayIso } from '../lib/clock'
-import { capitalize, longDay, relativeDay, shortDay } from '../lib/format'
+import { parseDay, todayIso } from '../lib/clock'
+import { useArchive, type ArchiveReturnState } from '../lib/archive'
+import { capitalize, locale, longDay, relativeDay, shortDay } from '../lib/format'
 import { classPath, useClass } from '../queries'
 import type { CardPage, CardSummary } from '../types'
 import { SubjectMenu, useRestoreReturnScroll } from './SubjectPage'
@@ -17,8 +19,11 @@ import { SubjectMenu, useRestoreReturnScroll } from './SubjectPage'
 function DayView({ day }: { day: string }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
+  const location = useLocation()
+  const archiveFrom = (location.state as ArchiveReturnState | null)?.archiveFrom
+  const returnTo = archiveFrom?.startsWith(`/c/${info.code}/`) ? archiveFrom : null
   const page = useQuery({ queryKey: ['card', info.code, day], queryFn: () => api.get<CardPage>(classPath(info.code, `/cards/${day}`)) })
-  useRestoreReturnScroll()
+  useRestoreReturnScroll(!!page.data)
   const base = `/c/${info.code}`
   if (page.isLoading) return <Spinner />
   if (page.error) return <ErrorBox error={page.error} onRetry={() => page.refetch()} />
@@ -34,8 +39,8 @@ function DayView({ day }: { day: string }) {
         <DayArrow to={data.next_published ? `${base}/giorno/${data.next_published}` : null} label={t('day.next')} dir="next" />
       </div>
       <div className="flex justify-center">
-        <Link to={`${base}/giorni`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
-          <List className="size-4" /> <span className="language-text">{t('day.all_days')}</span>
+        <Link to={returnTo ?? `${base}/giorni`} state={{ from: (location.state as ArchiveReturnState | null)?.from }} className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
+          <List className="size-4" /> <span className="language-text">{t(returnTo ? 'archive.back_results' : 'day.all_days')}</span>
         </Link>
       </div>
       <SubjectMenu />
@@ -76,11 +81,12 @@ function RecoverButton({ day, hasDraft, size = 'md' }: { day: string; hasDraft: 
 }
 
 function DayArrow({ to, label, dir }: { to: string | null; label: string; dir: 'prev' | 'next' }) {
+  const location = useLocation()
   const Icon = dir === 'prev' ? ChevronLeft : ChevronRight
   const cls = 'flex size-11 shrink-0 items-center justify-center rounded-full border border-line bg-surface'
   if (!to) return <span className={`${cls} opacity-30`} aria-hidden><Icon className="size-5" /></span>
   return (
-    <Link to={to} className={`${cls} hover:border-ink/30`} aria-label={label} title={label}>
+    <Link to={to} state={location.state} className={`${cls} hover:border-ink/30`} aria-label={label} title={label}>
       <Icon className="size-5" />
     </Link>
   )
@@ -110,30 +116,39 @@ export function DayByDate() {
   return <DayView key={day} day={day} />
 }
 
+function ArchiveDate({ day, lang }: { day: string; lang: string }) {
+  return (
+    <time dateTime={day} className="w-16 shrink-0 text-center">
+      <span className="block text-xs font-semibold uppercase text-muted">{shortDay(day, lang).split(' ')[0]}</span>
+      <span className="block text-2xl font-extrabold leading-none">{Number(day.slice(8, 10))}</span>
+      <span className="mt-1 block text-[10px] font-semibold text-muted">{new Intl.DateTimeFormat(locale(lang), { month: 'short', year: 'numeric' }).format(parseDay(day))}</span>
+    </time>
+  )
+}
+
 export function DaysList() {
   const info = useClass()
   const { t, i18n } = useTranslation()
-  const list = useQuery({ queryKey: ['cards', info.code], queryFn: () => api.get<CardSummary[]>(classPath(info.code, '/cards')) })
-  useRestoreReturnScroll()
+  const list = useArchive<CardSummary>('cards', '/cards', 'all')
+  const location = useLocation()
+  const dayState = { archiveFrom: location.pathname + location.search }
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('day.days_title')}</span></h1>
       <SubjectMenu />
+      <ArchiveControls fallback="all" />
       {list.isLoading && <Spinner />}
-      {list.error && <ErrorBox error={list.error} />}
-      {list.data?.every((c) => c.missing) && (
+      {list.error && !list.data && <ErrorBox error={list.error} onRetry={() => list.refetch()} />}
+      {list.data && list.results.length === 0 && (
         <Card>
-          <EmptyState title={t('day.days_empty')} />
+          <EmptyState title={t('archive.empty')} />
         </Card>
       )}
-      <ul className="space-y-2">
-        {list.data?.map((c) => c.missing ? (
-          <li key={c.day} className="flex items-center gap-3 rounded-2xl border border-dashed border-line bg-surface/60 p-3">
-            <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="w-16 shrink-0 text-center text-muted">
-                <p className="text-xs font-semibold uppercase">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
-                <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>
-              </div>
+      <ul aria-label={t('archive.day_results')} className="space-y-2">
+        {list.results.map((c) => c.missing ? (
+          <li key={c.day} className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-dashed border-line bg-surface/60 p-3">
+            <Link to={`/c/${info.code}/giorno/${c.day}`} state={dayState} className="flex min-w-0 flex-1 basis-full items-center gap-3 sm:basis-0">
+              <ArchiveDate day={c.day} lang={i18n.language} />
               <div className="min-w-0 flex-1">
                 <Badge className="bg-rosa-soft text-rosa-ink">
                   <span className="language-text">{c.has_draft ? t('day.draft_badge') : t('day.missed_badge')}</span>
@@ -141,15 +156,12 @@ export function DaysList() {
                 <p className="language-text mt-1 text-sm text-muted">{t('day.missed_title')}</p>
               </div>
             </Link>
-            {c.can_write && <RecoverButton day={c.day} hasDraft={!!c.has_draft} size="sm" />}
+            {c.can_write && <div className="ml-auto"><RecoverButton day={c.day} hasDraft={!!c.has_draft} size="sm" /></div>}
           </li>
         ) : (
           <li key={c.day}>
-            <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-ink/30">
-              <div className="w-16 shrink-0 text-center">
-                <p className="text-xs font-semibold uppercase text-muted">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
-                <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>
-              </div>
+            <Link to={`/c/${info.code}/giorno/${c.day}`} state={dayState} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-ink/30">
+              <ArchiveDate day={c.day} lang={i18n.language} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   {c.subjects.map((s, i) => (
@@ -172,6 +184,7 @@ export function DaysList() {
           </li>
         ))}
       </ul>
+      {list.data && <ArchivePagination count={list.results.length} hasMore={list.hasMore} loading={list.isFetching || list.restoring} error={list.error} onMore={list.loadMore} />}
     </div>
   )
 }

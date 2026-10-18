@@ -1,7 +1,8 @@
 from datetime import date, datetime, timedelta, timezone
 from typing import Literal, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
@@ -152,16 +153,44 @@ def toggle_thanks(day: date, access: ClassAccess = Depends(class_access), sessio
 @router.get("/cards")
 def list_cards(
     request: Request,
-    limit: int = 60,
+    limit: int = Query(60, ge=1, le=200),
+    paged: bool = False,
+    cursor: Optional[date] = None,
+    from_date: Optional[date] = None,
+    to_date: Optional[date] = None,
     access: ClassAccess = Depends(class_access),
     session: Session = Depends(get_session),
 ):
-    cards = session.exec(
-        select(DayCard)
+    if from_date and to_date and from_date > to_date:
+        raise HTTPException(422, "La data iniziale deve precedere quella finale")
+    q = (select(DayCard)
         .where(DayCard.class_id == access.classroom.id, DayCard.status == "published")
         .order_by(DayCard.day.desc())
-        .limit(max(1, min(limit, 200)))
-    ).all()
+    )
+    if from_date:
+        q = q.where(DayCard.day >= from_date)
+    if to_date:
+        q = q.where(DayCard.day <= to_date)
+    if cursor:
+        q = q.where(DayCard.day < cursor)
+    cards = list(session.exec(q.limit(limit + 1 if paged else limit)).all())
+    cal = ClassCalendar(session, access.classroom)
+    end = min(to_date or date.max, cursor - timedelta(days=1) if cursor and cursor > date.min else date.max)
+    if cursor == date.min:
+        missing_days = {}
+    else:
+        missing_days = missed_days(
+            cal, request_now(request, access.classroom).date(), start=from_date, end=end,
+            limit=limit + 1 if paged else None,
+        )
+    # Merge dates before fetching the page's contents: gaps consume the same budget.
+    dates = sorted([c.day for c in cards] + list(missing_days), reverse=True)
+    has_more = paged and len(dates) > limit
+    if paged:
+        dates = dates[:limit]
+        visible = set(dates)
+        cards = [c for c in cards if c.day in visible]
+        missing_days = {d: draft for d, draft in missing_days.items() if d in visible}
     ids = [c.id for c in cards]
     entries: dict[int, list[SubjectEntry]] = {}
     item_counts: dict[int, int] = {}
@@ -184,10 +213,9 @@ def list_cards(
         for c in cards
     ]
     # Missed days stay listed so an admin can still recover them days later.
-    cal = ClassCalendar(session, access.classroom)
     me = access.member
     missing = []
-    for d, has_draft in missed_days(cal, request_now(request, access.classroom).date()).items():
+    for d, has_draft in missing_days.items():
         scribe = cal.scribe(d)[0] if me is not None and not access.is_admin else None
         missing.append({
             "day": d.isoformat(),
@@ -201,7 +229,8 @@ def list_cards(
             "has_draft": has_draft,
             "can_write": me is not None and (access.is_admin or (scribe is not None and scribe.id == me.id)),
         })
-    return sorted(published + missing, key=lambda c: c["day"], reverse=True)
+    results = sorted(published + missing, key=lambda c: c["day"], reverse=True)
+    return {"results": results, "next_cursor": dates[-1].isoformat() if has_more else None} if paged else results
 
 
 @router.get("/cards/{day}")
@@ -260,11 +289,18 @@ def subject_entries(
     subject: str,
     request: Request,
     range: Literal["week", "2weeks", "all"] = "2weeks",
+    paged: bool = False,
+    limit: int = Query(80, ge=1, le=200),
+    cursor: Optional[str] = Query(None, max_length=80),
+    from_date: Optional[date] = None,
+    to_date: Optional[date] = None,
     access: ClassAccess = Depends(class_access),
     session: Session = Depends(get_session),
 ):
     """Published blocks of one subject across days: catch up on a week of absence."""
     today = request_now(request, access.classroom).date()
+    if from_date and to_date and from_date > to_date:
+        raise HTTPException(422, "La data iniziale deve precedere quella finale")
     q = (
         select(SubjectEntry, DayCard)
         .join(DayCard, SubjectEntry.card_id == DayCard.id)
@@ -273,11 +309,30 @@ def subject_entries(
             DayCard.status == "published",
             SubjectEntry.subject_code == subject.upper(),
         )
-        .order_by(DayCard.day.desc(), SubjectEntry.position)
+        .order_by(DayCard.day.desc(), SubjectEntry.position, SubjectEntry.id)
     )
     if range != "all":
         q = q.where(DayCard.day >= today - timedelta(days=7 if range == "week" else 14))
-    rows = session.exec(q.limit(80)).all()
+    if from_date:
+        q = q.where(DayCard.day >= from_date)
+    if to_date:
+        q = q.where(DayCard.day <= to_date)
+    if cursor:
+        try:
+            day_text, position_text, id_text = cursor.split("|")
+            cursor_day, position, entry_id = date.fromisoformat(day_text), int(position_text), int(id_text)
+            if not (-2**31 <= position < 2**31 and 0 < entry_id < 2**63):
+                raise ValueError
+        except ValueError:
+            raise HTTPException(422, "Cursore dell’archivio non valido")
+        q = q.where(or_(
+            DayCard.day < cursor_day,
+            and_(DayCard.day == cursor_day, SubjectEntry.position > position),
+            and_(DayCard.day == cursor_day, SubjectEntry.position == position, SubjectEntry.id > entry_id),
+        ))
+    rows = list(session.exec(q.limit(limit + 1 if paged else limit)).all())
+    has_more = paged and len(rows) > limit
+    rows = rows[:limit]
     card_ids = {c.id for _, c in rows}
     labs = {}
     if rows:
@@ -286,7 +341,13 @@ def subject_entries(
             for l in session.exec(select(LabBlock).where(LabBlock.entry_id.in_([e.id for e, _ in rows]))).all()
         }
     items_by_card: dict[int, list] = {}
+    first_entry: dict[int, int] = {}
     if card_ids:
+        # An item belongs to the first block even if a page splits a day's blocks.
+        for card_id, entry_id in session.exec(select(SubjectEntry.card_id, SubjectEntry.id).where(
+            SubjectEntry.card_id.in_(card_ids), SubjectEntry.subject_code == subject.upper(),
+        ).order_by(SubjectEntry.position, SubjectEntry.id)).all():
+            first_entry.setdefault(card_id, entry_id)
         items = session.exec(
             select(UpcomingItem).where(UpcomingItem.card_id.in_(card_ids), UpcomingItem.subject_code == subject.upper())
         ).all()
@@ -297,6 +358,7 @@ def subject_entries(
     for e, c in rows:
         lab = labs.get(e.id)
         out.append({
+            "id": e.id,
             "day": c.day.isoformat(),
             **card_attribution(c, authors),
             "hours": e.hours,
@@ -306,9 +368,13 @@ def subject_entries(
             "bullets": e.bullets or [],
             "lab": lab_out(lab) if lab else None,
             "attachment_ids": e.attachment_ids or [],
-            "items": items_by_card.pop(c.id, []),
+            "items": items_by_card.get(c.id, []) if first_entry.get(c.id) == e.id else [],
         })
-    return out
+    next_cursor = None
+    if has_more:
+        entry, card = rows[-1]
+        next_cursor = f"{card.day.isoformat()}|{entry.position}|{entry.id}"
+    return {"results": out, "next_cursor": next_cursor} if paged else out
 
 
 @router.get("/latest")

@@ -1,4 +1,11 @@
 {
+  "archive": {
+    "day_results": "Giornate nello storico", "subject_results": "Lezioni nello storico", "empty": "Nessuna giornata in questo periodo.",
+    "filters": "Filtri dello storico", "period": "Periodo", "week": "Ultima settimana", "2weeks": "Ultime due settimane", "all": "Tutto lo storico", "month": "Mese", "custom": "Intervallo di date",
+    "prev_month": "Mese precedente", "next_month": "Mese successivo", "from": "Dal", "to": "Al", "apply": "Applica intervallo",
+    "invalid_dates": "Inserisci date valide, con la data iniziale non successiva a quella finale.",
+    "load_more": "Carica altre", "loading": "Caricamento dello storico…", "loaded": "{{count}} risultati caricati", "end": "Fine dei risultati · {{count}} caricati", "back_results": "Torna ai risultati"
+  },
   "common": {
     "app_name": "Recapp",
     "tagline": "Il riassunto della classe",
