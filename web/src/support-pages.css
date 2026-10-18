@@ -80,3 +80,13 @@
   .support-page .faq-question { padding-inline: 24px; }
   .support-page .faq-answer > div > div { padding-inline: 24px; }
 }
+
+.support-page .report-field-label { flex-wrap: wrap; gap: 8px 12px; }
+.support-page .report-counter { white-space: nowrap; }
+
+/* The report detail is portaled outside the page; keep its heading readable at 200%. */
+.modal-sheet:has(.school-report-detail) { padding: 20px; }
+.modal-sheet:has(.school-report-detail) > div:first-child { top: -20px; margin: -20px -20px 16px; padding: 16px 20px; gap: 16px; align-items: flex-start; }
+.modal-sheet:has(.school-report-detail) > div:first-child h2 { min-width: 0; overflow-wrap: anywhere; }
+.modal-sheet:has(.school-report-detail) > div:first-child button { display: flex; flex-shrink: 0; width: 44px; height: 44px; padding: 0; align-items: center; justify-content: center; }
+.modal-sheet:has(.school-report-detail) > div:first-child button svg { width: 20px; height: 20px; }

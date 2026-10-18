@@ -330,7 +330,7 @@ function ReportModal({ report, onClose }: { report: ReportDetail; onClose: () =>
   const current = status.isPending && status.variables ? status.variables : report.status
   return (
     <Modal open onClose={onClose} title={report.title} wide>
-      <div className="space-y-5">
+      <div className="school-report-detail support-page space-y-5">
         <p className="flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
           <span className="inline-flex items-center gap-1"><KindIcon kind={report.kind} className="size-3.5" /><span className="language-text">{t(`report.kind_${report.kind}`)}</span></span>
           · <time dateTime={report.created_at}>{reportDate(report.created_at, i18n.language)}</time>
@@ -357,7 +357,7 @@ function ReportModal({ report, onClose }: { report: ReportDetail; onClose: () =>
           <legend className="mb-2 text-sm font-bold"><span className="language-text">{t('report.status_label')}</span></legend>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {STATUSES.map((value) => (
-              <label key={value} className={`flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-azzurro ${current === value ? 'border-ink bg-ink text-paper' : 'border-line hover:border-ink/40'}`}>
+              <label key={value} className={`relative flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-azzurro ${current === value ? 'border-ink bg-ink text-paper' : 'border-line hover:border-ink/40'}`}>
                 <input type="radio" name={`status-${report.id}`} value={value} checked={current === value} onChange={() => status.mutate(value)} className="sr-only" />
                 <span className="language-text">{t(`report.status_${value}`)}</span>
               </label>

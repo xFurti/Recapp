@@ -218,7 +218,7 @@ function ReportForm({ from, member, onSent }: { from: string; member: boolean; o
       </fieldset>
 
       <div>
-        <div className="mb-1 flex items-baseline justify-between gap-3">
+        <div className="report-field-label mb-1 flex items-baseline justify-between gap-3">
           <label htmlFor={`${ids}-title`} className="text-sm font-semibold"><span className="language-text">{t('report.title_label')}</span></label>
           <Counter value={titleCount} max={TITLE_MAX} />
         </div>
@@ -240,7 +240,7 @@ function ReportForm({ from, member, onSent }: { from: string; member: boolean; o
       </div>
 
       <div>
-        <div className="mb-1 flex items-baseline justify-between gap-3">
+        <div className="report-field-label mb-1 flex items-baseline justify-between gap-3">
           <label htmlFor={`${ids}-body`} className="text-sm font-semibold"><span className="language-text">{t('report.body_label')}</span></label>
           <Counter value={bodyCount} max={BODY_MAX} />
         </div>
@@ -313,7 +313,7 @@ function ReportForm({ from, member, onSent }: { from: string; member: boolean; o
 function Counter({ value, max }: { value: number; max: number }) {
   const near = value > max * 0.9
   return (
-    <span aria-hidden className={`text-xs tabular-nums ${value > max ? 'font-semibold text-rosa-ink' : near ? 'text-giallo' : 'text-muted'}`}>
+    <span aria-hidden className={`report-counter text-xs tabular-nums ${value > max ? 'font-semibold text-rosa-ink' : near ? 'text-giallo' : 'text-muted'}`}>
       {value}/{max}
     </span>
   )
