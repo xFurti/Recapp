@@ -30,7 +30,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   const [confirmPass, setConfirmPass] = useState(false)
   const [leftTurn, setLeftTurn] = useState(false)
 
-  let tone = 'bg-surface border-line'
+  let tone = 'surface-support'
   let title: ReactNode = null
   let sub: ReactNode = null
   let actions: ReactNode = null
@@ -48,7 +48,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
 
   switch (data.status) {
     case 'no_school':
-      tone = 'bg-azzurro-soft border-azzurro/20'
+      tone = 'notice-info'
       title = <span className="language-text">{t('banner.no_school')}</span>
       sub = (
         <>
@@ -63,7 +63,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       )
       break
     case 'published':
-      tone = 'bg-verde-soft border-verde/30'
+      tone = 'notice-info'
       title = <TranslatedMessage message="banner.published" values={{ nick: data.card?.author?.nick ?? nick, time: timeOf(data.card?.published_at, lang) }} />
       sub = data.card?.updated_by && <TranslatedMessage message="day.updated_by" values={{ nick: data.card.updated_by.nick }} />
       actions = data.can_write && (
@@ -73,7 +73,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       )
       break
     case 'draft':
-      tone = 'bg-giallo-soft border-giallo/40'
+      tone = data.is_me_scribe ? 'notice-action' : 'surface-support'
       title = data.is_me_scribe ? <span className="language-text">{t('banner.me_draft')}</span> : <TranslatedMessage message="banner.draft" values={{ nick }} />
       sub = data.draft_updated_at ? <TranslatedMessage message="banner.draft_sub" values={{ time: timeOf(data.draft_updated_at, lang) }} /> : null
       if (data.is_me_scribe) sub = <>{sub} · <span className="language-text">{t('banner.takeover_hint', { time: data.takeover_at })}</span></>
@@ -85,7 +85,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       )
       break
     case 'open':
-      tone = 'bg-rosa-soft border-rosa/25'
+      tone = 'notice-warning'
       if (data.is_me_scribe) {
         title = <span className="language-text">{t('banner.me_open')}</span>
         actions = <Button onClick={write} data-tour="write"><span className="language-text">{data.has_draft ? t('banner.continue') : t('banner.write')}</span> <ArrowRight className="size-4" /></Button>
@@ -111,7 +111,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       break
     default:
       if (data.is_me_scribe) {
-        tone = 'bg-bordeaux-soft border-bordeaux/20'
+        tone = 'notice-action'
         title = <span className="language-text">{t('banner.me_not_started')}</span>
         sub = <><span className="language-text">{t('banner.me_sub')}</span> <span className="language-text">{t('banner.takeover_hint', { time: data.takeover_at })}</span></>
         actions = (
@@ -133,7 +133,7 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
   return (
     <>
     {leftTurn && (
-      <div role="status" className="mb-4 flex items-start gap-3 rounded-2xl border border-bordeaux/25 bg-bordeaux-soft p-4 text-ink">
+      <div role="status" className="notice-info mb-4 flex items-start gap-3 rounded-2xl border p-4">
         <Hand className="mt-0.5 size-5 shrink-0 text-bordeaux" aria-hidden />
         <p className="min-w-0 flex-1 text-sm leading-relaxed">
           <span className="language-text font-bold">{t('banner.pass_left_title')}</span>{' '}
@@ -147,18 +147,18 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
     <section className={`rounded-2xl border p-4 sm:p-5 ${tone}`} aria-live="polite">
       <div className="flex gap-3">
         {data.status === 'published' ? (
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-verde text-white"><PartyPopper className="size-5" /></span>
+          <span className="flex size-7 shrink-0 items-center justify-center text-verde-ink"><PartyPopper className="size-5" aria-hidden /></span>
         ) : data.scribe ? (
           <Avatar nick={data.scribe.nick} color={data.scribe.color} />
         ) : null}
         <div className="min-w-0 flex-1">
-          <p className="text-lg leading-snug">{title}</p>
-          {sub && <p className="mt-1 text-sm text-ink/70">{sub}</p>}
+          <p className={`${data.status === 'published' ? 'content-metadata text-sm' : 'text-lg'} leading-snug`}>{title}</p>
+          {sub && <p className="content-metadata mt-1 text-sm">{sub}</p>}
         </div>
       </div>
       {data.open_corrections > 0 && data.can_write && (
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-giallo px-3 py-1 text-sm font-bold text-[#1d1b1e]">
-          <TriangleAlert className="size-4" /> <span className="language-text">{t('feedback.open_corrections', { count: data.open_corrections })}</span>
+        <p className="notice-warning mt-3 flex items-start gap-1.5 rounded-xl border px-3 py-2 text-sm font-bold">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden /> <span className="language-text">{t('feedback.open_corrections', { count: data.open_corrections })}</span>
         </p>
       )}
       {actions && <div className="mt-4 flex flex-wrap items-center gap-2">{actions}</div>}
@@ -207,7 +207,7 @@ export function isWeekend(iso: string): boolean {
 export function DemoWeekendNote() {
   const { t } = useTranslation()
   return (
-    <p className="flex gap-2 rounded-xl border border-azzurro/20 bg-azzurro-soft px-3 py-2 text-sm text-azzurro-ink">
+    <p className="notice-info flex gap-2 rounded-xl border px-3 py-2 text-sm">
       <Info className="mt-0.5 size-4 shrink-0" aria-hidden /> <span className="language-text">{t('banner.demo_weekend')}</span>
     </p>
   )
@@ -247,14 +247,14 @@ export default function Today() {
       )}
 
       <section>
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('today.soon')}</span></h2>
           <Link to={`/c/${info.code}/in-arrivo`} className="text-sm font-semibold text-bordeaux hover:underline">
             <span className="language-text">{t('today.all_upcoming')}</span>
           </Link>
         </div>
         {data.upcoming_soon.length === 0 ? (
-          <Card className="text-center text-muted"><span className="language-text">{t('today.soon_empty')}</span></Card>
+          <Card surface="support" className="text-center text-muted"><span className="language-text">{t('today.soon_empty')}</span></Card>
         ) : (
           <div className="space-y-2">
             {data.upcoming_soon.map((it) => (

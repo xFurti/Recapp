@@ -1,0 +1,87 @@
+/* Shared hierarchy: see docs/frontend.md. Colors follow the existing theme tokens. */
+.surface-primary {
+  background: var(--color-surface);
+  border-color: color-mix(in srgb, var(--color-bordeaux) 18%, var(--color-line));
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--color-ink) 4%, transparent);
+  overflow-wrap: anywhere;
+}
+
+.day-sheet {
+  border-top: 3px solid var(--color-bordeaux);
+}
+
+.day-sheet-heading {
+  background: color-mix(in srgb, var(--color-bordeaux) 3%, var(--color-surface));
+}
+
+.surface-support {
+  background: color-mix(in srgb, var(--color-surface) 35%, var(--color-paper));
+  border-color: var(--color-line);
+  box-shadow: none;
+  overflow-wrap: anywhere;
+}
+
+/* Nested support is a margin rule, not another box inside the page. */
+.support-rule,
+.content-row {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow-wrap: anywhere;
+}
+
+.support-rule {
+  border-inline-start: 2px solid var(--color-line);
+}
+
+.content-metadata {
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.content-metadata strong {
+  font-weight: 500;
+}
+
+.notice-info {
+  background: transparent;
+  border-color: var(--color-line);
+  border-inline-start-width: 3px;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.notice-action {
+  background: var(--color-bordeaux-soft);
+  border-color: color-mix(in srgb, var(--color-bordeaux) 35%, var(--color-line));
+  border-inline-start-width: 3px;
+  overflow-wrap: anywhere;
+}
+
+.notice-warning {
+  background: var(--color-giallo-soft);
+  border-color: var(--color-giallo);
+  border-inline-start-width: 3px;
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.notice-error {
+  background: var(--color-rosa-soft);
+  border-color: color-mix(in srgb, var(--color-rosa) 40%, var(--color-line));
+  border-inline-start-width: 3px;
+  color: var(--color-rosa-ink);
+  overflow-wrap: anywhere;
+}
+
+/* Keep primary controls readable when text is enlarged, without constraining their rows. */
+:is(.surface-primary, .surface-support, .notice-info, .notice-action, .notice-warning) .btn-spring {
+  height: auto;
+  min-height: 2.75rem;
+  padding-block: 0.5rem;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: normal;
+  flex-shrink: 0;
+}

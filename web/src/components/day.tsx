@@ -20,7 +20,7 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
       {lessons.map((l) => (
         <li
           key={`${l.subject_code}-${l.hours_label}`}
-          className="flex max-w-full flex-[1_1_7rem] flex-col rounded-xl border border-line bg-surface px-3 py-2"
+          className="surface-support flex max-w-full flex-[1_1_7rem] flex-col rounded-xl border px-3 py-2"
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
           <span className="text-xs font-medium text-muted">
@@ -62,7 +62,7 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   const notes = labNotes(lab, t)
   if (!notes.trim() && !lab.repo_url.trim()) return null
   return (
-    <div className="mt-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
+    <div className="lab-notes support-rule mt-3 p-3">
       {notes.trim() && <>
         <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
           <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_notes')}</span>
@@ -84,19 +84,19 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
   const [zoom, setZoom] = useState<number | null>(null)
   const entries = card.entries.filter((e) => hasEntrySummary(e) || e.lesson_status !== 'svolta')
   return (
-    <article className="overflow-hidden rounded-2xl border border-line bg-surface">
-      <header className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
-        {card.author && <Avatar nick={card.author.nick} color={card.author.color} />}
-        <div className="min-w-[12rem] flex-1">
+    <article className="surface-primary day-sheet overflow-hidden rounded-2xl border">
+      <header className="day-sheet-heading flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
+        {card.author && <Avatar nick={card.author.nick} color={card.author.color} size="sm" />}
+        <div className="min-w-0 flex-1 basis-[12rem]">
           <h2 className="font-bold leading-tight">{capitalize(longDay(card.day, i18n.language))}</h2>
-          <p className="text-sm text-muted">
+          <p className="content-metadata text-sm">
             {[classLabel, card.author && t('day.by', { nick: card.author.nick }), card.published_at && t('day.published_at', { time: timeOf(card.published_at, i18n.language) })]
               .filter(Boolean)
               .join(' · ')}
           </p>
-          {card.updated_by && <p className="text-sm text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: card.updated_by.nick }} /></p>}
+          {card.updated_by && <p className="content-metadata text-sm"><TranslatedMessage message="day.updated_by" values={{ nick: card.updated_by.nick }} /></p>}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex max-w-full flex-wrap items-center gap-2">
           {classInfo && canShare && <ShareButton card={card} info={classInfo} />}
           <ListenButton card={card} subjects={subjects} />
         </div>
@@ -129,7 +129,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
       </div>
 
       {card.items.length > 0 && (
-        <section className="border-t border-line bg-paper/60 px-4 py-4 sm:px-5">
+        <section className="surface-support border-t px-4 py-4 sm:px-5">
           <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.assigned')}</span></h3>
           <div className="space-y-2">
             {card.items.map((it) => (
@@ -141,7 +141,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 
       {card.notes && (
         <section className="border-t border-line px-4 py-4 sm:px-5">
-          <div className="rounded-xl bg-giallo-soft p-3">
+          <div className="day-notes support-rule p-3">
             <p className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
               <StickyNote className="size-4" /> <span className="language-text">{t('day.notes')}</span>
             </p>

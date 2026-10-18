@@ -1,0 +1,24 @@
+{
+  "id": "2026.10.18.128",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Il riepilogo si distingue a colpo d’occhio",
+    "en": "The recap stands out at a glance"
+  },
+  "summary": [
+    { "it": "Il riepilogo della giornata ha una superficie riconoscibile con un margine bordeaux.", "en": "The day’s recap has a distinctive surface with a burgundy edge." },
+    { "it": "Note, risposte e informazioni di contesto hanno un aspetto più discreto.", "en": "Notes, replies and context have a quieter appearance." },
+    { "it": "Correzioni aperte ed errori restano evidenti, nei temi chiaro e scuro.", "en": "Open corrections and errors remain prominent in light and dark themes." }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": { "it": "Prima il contenuto, poi i dettagli", "en": "Content first, details second" },
+      "body": {
+        "it": "In Oggi, nella giornata pubblicata e in In arrivo, il contenuto principale si distingue dalle sezioni di supporto. Autore, aggiornamento e provenienza restano leggibili con un trattamento più discreto. Le note del giorno e di laboratorio usano semplici separatori, mentre gli avvisi che richiedono attenzione conservano un fondo dedicato. Tutte le informazioni e le azioni restano disponibili nei due temi.",
+        "en": "In Today, the published day and Upcoming, main content stands apart from supporting sections. Author, update and source remain readable with a quieter treatment. Day and lab notes use simple separators, while notices requiring attention retain a dedicated background. All information and actions remain available in both themes."
+      }
+    }
+  ]
+}

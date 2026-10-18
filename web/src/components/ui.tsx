@@ -35,8 +35,8 @@ export function Button({
   )
 }
 
-export function Card({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <section className={`rounded-2xl border border-line bg-surface p-4 sm:p-5 ${className}`}>{children}</section>
+export function Card({ className = '', children, surface = 'default' }: { className?: string; children: ReactNode; surface?: 'default' | 'primary' | 'support' }) {
+  return <section className={`rounded-2xl border p-4 sm:p-5 ${surface === 'default' ? 'border-line bg-surface' : `surface-${surface}`} ${className}`}>{children}</section>
 }
 
 export function Spinner({ label }: { label?: string }) {
@@ -53,7 +53,7 @@ export function ErrorBox({ error, onRetry }: { error: unknown; onRetry?: () => v
   const { t } = useTranslation()
   const msg = error instanceof Error ? error.message : t('common.error')
   return (
-    <div className="rounded-xl border border-rosa/30 bg-rosa-soft p-4 text-rosa-ink" role="alert">
+    <div className="notice-error rounded-xl border p-4" role="alert">
       <p className="font-medium">{msg}</p>
       {onRetry && (
         <button className="mt-2 text-sm font-semibold underline" onClick={onRetry}>

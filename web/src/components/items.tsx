@@ -72,7 +72,7 @@ function DoneCheck({ done, onToggle, label }: { done: boolean; onToggle: () => v
 
 export function SourceBadge({ source }: { source: string }) {
   const { t } = useTranslation()
-  return <Badge className="bg-ink/5 text-muted">{t(`sources.${source}`, { defaultValue: source })}</Badge>
+  return <span className="content-metadata text-xs">{t(`sources.${source}`, { defaultValue: source })}</span>
 }
 
 export function ItemRow({
@@ -97,7 +97,7 @@ export function ItemRow({
   const diff = daysBetween(todayIso(), item.due_date)
   const urgent = item.type === 'verifica' && diff >= 0 && diff <= 3
   return (
-    <div className={`relative flex gap-3 rounded-xl border border-line bg-surface p-3 ${done ? 'opacity-60' : ''}`}>
+    <div className={`${compact ? 'content-row' : 'surface-primary'} relative flex gap-3 rounded-xl border p-3 ${done ? 'opacity-60' : ''}`}>
       <span className={`w-1 shrink-0 rounded-full ${s.bar}`} aria-hidden />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -116,7 +116,7 @@ export function ItemRow({
           {item.title}
         </button>
         {!compact && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+          <div className="content-metadata mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <span className="font-medium text-ink/80">
               {relativeDay(item.due_date, t, i18n.language)}
             </span>
@@ -138,7 +138,7 @@ export function ItemRow({
           </div>
         )}
         {compact && (
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+          <div className="content-metadata mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <span>{relativeDay(item.due_date, t, i18n.language)}</span>
             <ItemThanks item={item} />
           </div>

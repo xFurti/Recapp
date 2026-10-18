@@ -1,3 +1,28 @@
+## Surface hierarchy (issue #128)
+
+`surfaces.spec.ts` opens the real production routes for Today, a published day and
+Upcoming with only HTTP responses simulated by `surfaces-fixture.ts`. Its 29 cases
+cover 320/390/1440px, both languages and themes, long unbroken author/subject/title
+text at 200% (every computed font size, including px utilities), the actual glyph
+bounds inside affected surfaces, ordinary notices, action prompts, warnings and
+retry after an error, keyboard Tab order, calendar dismissal/focus restoration,
+Grazie, correction reporting, subject filtering, done controls and reduced motion.
+Existing calendar, attribution, lab, feedback and correction suites check the full
+behavior of those shared components separately.
+
+Run `npm run test:e2e -- --config playwright.surfaces.config.ts` (isolated port 5208).
+For comparable production screenshots, build the untouched base first and serve it
+separately, then build the branch. Run the suite against each preview with
+`SURFACE_BASE_URL=http://127.0.0.1:<port>` and `SURFACE_CAPTURE=before` or `after`.
+`SURFACE_CAPTURE_DIR=/tmp/recapp-128-media` selects the output directory. Before mode
+only captures the original UI; after mode also checks the new hierarchy and captures
+viewport excerpts of long text at 200% and the personal draft prompt. Capture uses reduced motion to keep
+both versions stable. The 72 paired screenshots use the same fictional data and
+960px viewport height; Italian-authored content stays Italian in English UI.
+Full-page phone captures keep the fixed navigation at its initial viewport position.
+Screenshots are attached to the PR, outside Git history. These tests do not verify
+backend permissions, physical devices or external calendar imports.
+
 ## Initial interface language
 
 `initial-language.spec.ts` opens the real landing route and simulates only HTTP responses and browser language preferences. It checks saved-choice priority, ordered browser preferences, regional tags, missing/empty lists, invalid saved values, English fallback, detection on each reload, and manual choices persisting after reload and browser preference changes. A DOM observer checks the heading, selector and document language at the first React render, including mobile dark theme. Automatic detection must leave saved language storage untouched. `language.spec.ts` continues to cover the existing manual transition and preservation of authored text, focus, selection, scroll and open dialogs.
