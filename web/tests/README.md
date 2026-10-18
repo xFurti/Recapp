@@ -135,3 +135,13 @@ Issue #101 extends the layout checks to include the visible statistic labels and
 The final issue #101 captures in `docs/screenshots/issue-101/redesign/README.md` compare production builds using Inter in both versions. The new counter regression checks the actual line height of multi-digit numbers; the baseline split 12, 24 and 17, while final counters reserve the width of their real final glyphs.
 
 The final lighter presentation is captured in `docs/screenshots/issue-101/refined/README.md`. The pointer light/tilt feature and its dedicated test were removed; the remaining 47 cases cover the functional behavior, brief entrances, milestones and counter regression.
+
+## Participants layout (issue #141)
+
+`members.spec.ts` opens the real Class route and AppShell with deterministic HTTP responses for 25 fictional participants. It checks every combination of 320/390/1280px, Italian/English, light/dark and 100%/200% root text size, with reduced motion. Text ranges must stay inside their row without overlapping other text or the 44px action targets; name and menu positions must remain aligned while metadata wraps naturally. Density checks prevent ordinary rows from reserving space for absent states. It covers Admin, today's note-taker, the viewer, pending activation and zero counters, scrolling to the last participant, keyboard entry and Escape focus restoration, the member/admin/school action matrix in official/demo classes, and confirmation before mutations targeting the correct participant.
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test --config playwright.members.config.ts
+```
+
+The opt-in `MEMBERS_CAPTURE=before` / `MEMBERS_CAPTURE=after` runs capture the production build (the original build must be preserved at `/tmp/recapp-141-before-dist` for `before`). They use the same HTTP fixtures and save real browser screenshots to `docs/screenshots/issue-141/`. Finite animations are completed for capture; separate 200% text screenshots use reduced motion. These checks do not replace physical-device or screen-reader testing. Existing API security tests verify server-side permissions independently.

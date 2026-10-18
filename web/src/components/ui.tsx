@@ -321,9 +321,18 @@ export function AnchoredMenu({
   }, [open, anchorEl, onClose])
 
   useLayoutEffect(() => {
-    if (open && style.visibility === 'visible' && initialFocus !== undefined) {
-      menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')[initialFocus]?.focus({ preventScroll: true })
+    if (!open || style.visibility !== 'visible' || initialFocus === undefined) return
+    // Inherited visibility can settle a frame after the panel is placed.
+    // Focus only when the item is visible, including with reduced motion.
+    let frame: number
+    const focusItem = () => {
+      const item = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')[initialFocus]
+      if (!item) return
+      if (getComputedStyle(item).visibility === 'visible') item.focus({ preventScroll: true })
+      else frame = requestAnimationFrame(focusItem)
     }
+    frame = requestAnimationFrame(focusItem)
+    return () => cancelAnimationFrame(frame)
   }, [open, style.visibility, initialFocus])
 
   if (!open) return null
