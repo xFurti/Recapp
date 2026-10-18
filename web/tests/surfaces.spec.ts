@@ -75,7 +75,8 @@ test.describe('accessibility and preserved controls', () => {
         })
         expect(clipped).toEqual([])
         if (capture === 'after' && ((width === 320 && dark && lang === 'en') || (width === 390 && !dark && lang === 'it'))) {
-          await page.screenshot({ path: resolve(mediaDir, `after/long-200-${views[index]}-${width}-${dark ? 'dark' : 'light'}-${lang}.png`), fullPage: true })
+          await page.locator('.surface-primary').first().evaluate(el => el.scrollIntoView({ block: 'start', behavior: 'instant' }))
+          await page.screenshot({ path: resolve(mediaDir, `after/long-200-${views[index]}-${width}-${dark ? 'dark' : 'light'}-${lang}.png`) })
         }
         if (path === surfacePaths[2]) {
           const done = page.getByRole('button', { name: lang === 'it' ? 'Segna come fatto' : 'Mark as done' }).first()

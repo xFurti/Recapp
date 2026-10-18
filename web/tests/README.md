@@ -15,7 +15,7 @@ separately, then build the branch. Run the suite against each preview with
 `SURFACE_BASE_URL=http://127.0.0.1:<port>` and `SURFACE_CAPTURE=before` or `after`.
 `SURFACE_CAPTURE_DIR=/tmp/recapp-128-media` selects the output directory. Before mode
 only captures the original UI; after mode also checks the new hierarchy and captures
-long text at 200% and the personal draft prompt. Capture uses reduced motion to keep
+viewport excerpts of long text at 200% and the personal draft prompt. Capture uses reduced motion to keep
 both versions stable. The 72 paired screenshots use the same fictional data and
 960px viewport height; Italian-authored content stays Italian in English UI.
 Full-page phone captures keep the fixed navigation at its initial viewport position.
