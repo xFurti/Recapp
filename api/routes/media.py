@@ -11,11 +11,11 @@ from ..db import get_session
 from ..images import MAX_INPUT_BYTES, sanitize_image
 from ..jobs import build_payload, ocr_context, refresh_job, start_job
 from ..limits import allow, client_ip
-from ..models import Attachment, Classroom, DayCard, OcrJob, UpcomingItem
+from ..models import Attachment, Classroom, OcrJob, UpcomingItem
 from ..school_data import bell_hours
 from ..schedule import ClassCalendar
 from ..schemas import OcrIn
-from ..services import DayState
+from ..services import can_view_attachment as attachment_visible
 
 router = APIRouter(prefix="/api")
 
@@ -69,27 +69,8 @@ async def upload_attachment(
 
 
 def can_view_attachment(session: Session, request: Request, viewer: Viewer, att: Attachment) -> bool:
-    """Published content is visible to the class; drafts and orphans only to who can edit them."""
-    if viewer.is_owner:
-        return True
-    member = viewer.member
-    if member is None or member.class_id != att.class_id:
-        return False
-    if member.role == "admin" or att.created_by == member.id:
-        return True
-    card = session.get(DayCard, att.card_id) if att.card_id else None
-    if card is not None and card.status == "published":
-        return True
-    published_item = session.exec(
-        select(UpcomingItem.id).where(UpcomingItem.attachment_id == att.id, UpcomingItem.status == "published")
-    ).first()
-    if published_item is not None:
-        return True
-    if card is not None:
-        classroom = session.get(Classroom, att.class_id)
-        state = DayState(ClassAccess(classroom, viewer), ClassCalendar(session, classroom), card.day, request_now(request, classroom))
-        return state.can_write
-    return False
+    classroom = session.get(Classroom, att.class_id)
+    return attachment_visible(session, ClassAccess(classroom, viewer), att, request_now(request, classroom))
 
 
 @router.get("/attachments/{attachment_id}")

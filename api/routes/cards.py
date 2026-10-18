@@ -372,10 +372,10 @@ def upcoming(
 
 
 @router.post("/upcoming")
-def add_upcoming(data: ItemIn, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
+def add_upcoming(data: ItemIn, request: Request, access: ClassAccess = Depends(class_access), session: Session = Depends(get_session)):
     me = access.require_member()
-    if data.attachment_id:
-        check_attachment_ids(session, access.classroom.id, [data.attachment_id])
+    if data.attachment_id is not None:
+        check_attachment_ids(session, access, [data.attachment_id], request_now(request, access.classroom))
     item = UpcomingItem(
         class_id=access.classroom.id,
         type=data.type,

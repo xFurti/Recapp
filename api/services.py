@@ -350,16 +350,97 @@ def touch_item_card(session: Session, item: UpcomingItem) -> None:
         ))
 
 
-def check_attachment_ids(session: Session, class_id: int, ids: list[int]) -> None:
+def _attachment_sources(session: Session, att: Attachment) -> tuple[list[DayCard], bool]:
+    """Resolve day photos and item-only photos without trusting a foreign class's links."""
+    items = session.exec(select(UpcomingItem).where(
+        UpcomingItem.attachment_id == att.id, UpcomingItem.class_id == att.class_id,
+    )).all()
+    card_ids = {item.card_id for item in items if item.card_id is not None}
+    if att.card_id is not None:
+        card_ids.add(att.card_id)
+    cards = list(session.exec(select(DayCard).where(
+        col(DayCard.id).in_(card_ids), DayCard.class_id == att.class_id,
+    )).all()) if card_ids else []
+    published = any(card.status == "published" for card in cards) or any(
+        item.status == "published" and item.card_id is None for item in items
+    )
+    return cards, published
+
+
+def _manages_attachment(access: ClassAccess, att: Attachment) -> bool:
+    member = access.member
+    return access.classroom.id == att.class_id and (
+        access.viewer.is_owner or (
+            member is not None and member.class_id == att.class_id
+            and (access.is_admin or att.created_by == member.id)
+        )
+    )
+
+
+def can_view_attachment(session: Session, access: ClassAccess, att: Attachment, now: datetime) -> bool:
+    if _manages_attachment(access, att):
+        return True
+    if access.member is None or access.member.class_id != att.class_id or access.classroom.id != att.class_id:
+        return False
+    cards, published = _attachment_sources(session, att)
+    if published:
+        return True
+    cal = ClassCalendar(session, access.classroom)
+    return any(DayState(access, cal, card.day, now).can_write for card in cards)
+
+
+def check_attachment_ids(
+    session: Session, access: ClassAccess, ids: list[int], now: datetime, card: Optional[DayCard] = None,
+) -> None:
+    """Reading a private draft does not grant permission to publish it elsewhere."""
     if not ids:
         return
-    found = session.exec(
-        select(func.count()).select_from(Attachment).where(
-            col(Attachment.id).in_(ids), Attachment.class_id == class_id
-        )
-    ).one()
-    if found != len(set(ids)):
+    attachments = session.exec(select(Attachment).where(
+        col(Attachment.id).in_(ids), Attachment.class_id == access.classroom.id,
+    )).all()
+    if len(attachments) != len(set(ids)):
         raise HTTPException(400, "Allegato non valido")
+    for att in attachments:
+        if _manages_attachment(access, att):
+            continue
+        cards, published = _attachment_sources(session, att)
+        if published:
+            continue
+        if card is not None and any(source.id == card.id for source in cards):
+            state = DayState(access, ClassCalendar(session, access.classroom), card.day, now)
+            if state.can_write:
+                continue
+        raise HTTPException(403, "Non puoi usare questo allegato")
+
+
+def _copy_reused_photos(session: Session, card: DayCard, data: CardIn) -> CardIn:
+    """Attachment.card_id has one slot: copy cross-day photos instead of moving the source."""
+    linked = set(data.attachment_ids) | {a for entry in data.entries for a in entry.attachment_ids}
+    replacements = {}
+    for att_id in sorted(linked):
+        att = session.get(Attachment, att_id)
+        assert att is not None  # All ids were authorized before any changes.
+        elsewhere = session.exec(select(UpcomingItem.id).where(
+            UpcomingItem.attachment_id == att_id,
+            (col(UpcomingItem.card_id).is_(None)) | (UpcomingItem.card_id != card.id),
+        )).first()
+        if att.card_id in (None, card.id) and elsewhere is None:
+            continue
+        copied = Attachment(
+            class_id=att.class_id, card_id=card.id, created_by=att.created_by,
+            data=att.data, mime=att.mime, width=att.width, height=att.height,
+        )
+        session.add(copied)
+        session.flush()
+        replacements[att_id] = copied.id
+    if replacements:
+        data = data.model_copy(deep=True)
+        data.attachment_ids = [replacements.get(a, a) for a in data.attachment_ids]
+        for entry in data.entries:
+            entry.attachment_ids = [replacements.get(a, a) for a in entry.attachment_ids]
+        for item in data.items:
+            item.attachment_id = replacements.get(item.attachment_id, item.attachment_id)
+    return data
 
 
 def conflict(session: Session, card: DayCard, viewer: Optional[Member] = None) -> HTTPException:
@@ -377,7 +458,7 @@ def conflict(session: Session, card: DayCard, viewer: Optional[Member] = None) -
 def all_attachment_ids(data: CardIn) -> list[int]:
     ids = list(data.attachment_ids)
     ids += [a for e in data.entries for a in e.attachment_ids]
-    ids += [i.attachment_id for i in data.items if i.attachment_id]
+    ids += [i.attachment_id for i in data.items if i.attachment_id is not None]
     return ids
 
 
@@ -387,7 +468,7 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
     me = state.me
     assert me is not None
     classroom_id = state.cal.classroom.id
-    check_attachment_ids(session, classroom_id, all_attachment_ids(data))
+    check_attachment_ids(session, state.access, all_attachment_ids(data), state.now, state.card)
 
     card = state.card
     now = datetime.now(timezone.utc)
@@ -434,6 +515,7 @@ def save_card(session: Session, state: DayState, data: CardIn) -> DayCard:
             raise conflict(session, card, me)
         session.expire(card)
 
+    data = _copy_reused_photos(session, card, data)
     old_entries = session.exec(select(SubjectEntry.id).where(SubjectEntry.card_id == card.id)).all()
     if old_entries:
         session.exec(delete(LabBlock).where(col(LabBlock.entry_id).in_(old_entries)))
