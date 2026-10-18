@@ -15,7 +15,7 @@ account, classi o dati di produzione. Non è stato eseguito un deploy.
 | `small-phone-month-en.png` | 320 × 740 | Inglese, scuro: mese e navigazione, con azione di recupero su una bozza. |
 | `small-phone-empty-en.png` | 320 × 740 | Inglese, scuro: nessuna giornata prima del periodo di attività della classe. |
 
-La registrazione `docs/media/issue-106/navigation.webm` mostra Carica altre, cambio
+La registrazione `docs/media/issue-106/navigation.mp4` mostra Carica altre, cambio
 del periodo, passaggio alla materia e ritorno dalla giornata, sulla stessa build con
 API reale. Il movimento ridotto fissa il layout nelle prove. Il controllo live ha
 caricato 120 giornate, aperto una giornata e ritrovato tutte le pagine al ritorno e
