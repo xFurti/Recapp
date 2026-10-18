@@ -1,8 +1,6 @@
-import { FlaskConical, Link as LinkIcon, Pause, Play, Square, StickyNote } from 'lucide-react'
-import { useState } from 'react'
+import { ExternalLink, FlaskConical, Link as LinkIcon, Pause, Play, Square, StickyNote } from 'lucide-react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { attachmentUrl } from '../api'
 import { capitalize, longDay, subjectColor, subjectName, timeOf } from '../lib/format'
 import { useSpeech } from '../lib/speech'
 import { hasEntrySummary, labNotes } from '../lib/lab'
@@ -10,7 +8,8 @@ import type { Card, ClassInfo, Entry, Lesson, Subject } from '../types'
 import { ShareButton } from './ShareButton'
 import { TranslatedMessage } from './TranslatedMessage'
 import { ItemRow } from './items'
-import { Avatar, Badge, Modal } from './ui'
+import { Avatar, Badge } from './ui'
+import { AttachmentGallery } from './AttachmentGallery'
 
 export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
@@ -38,19 +37,30 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
 }
 
 export function EntryPhotos({ ids }: { ids: number[] }) {
+  return <AttachmentGallery ids={ids} />
+}
+
+function UsefulLink({ url }: { url: string }) {
   const { t } = useTranslation()
-  const [zoom, setZoom] = useState<number | null>(null)
-  if (!ids.length) return null
+  const domain = (() => {
+    try { return new URL(url).host }
+    catch { return url.split(/[/?#]/)[0] }
+  })()
   return (
-    <div className="mt-2 flex flex-wrap gap-2">
-      {ids.map((id) => (
-        <button key={id} onClick={() => setZoom(id)} className="overflow-hidden rounded-lg border border-line" aria-label={t('day.photo_open')}>
-          <img src={attachmentUrl(id)} alt="" className="h-20 w-auto object-cover" loading="lazy" />
-        </button>
-      ))}
-      <Modal open={zoom !== null} onClose={() => setZoom(null)} title={t('day.photos')} wide>
-        {zoom !== null && <img src={attachmentUrl(zoom)} alt="" className="w-full rounded-lg" />}
-      </Modal>
+    <div className="lab-useful-link mt-3 min-w-0 rounded-lg border border-line bg-surface">
+      <a href={url} target="_blank" rel="noreferrer noopener" title={url}
+        className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-ink/5">
+        <LinkIcon className="size-4 shrink-0 text-verde-ink" aria-hidden />
+        <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+          <span className="language-text block font-semibold text-azzurro-ink underline decoration-azzurro-ink/40 underline-offset-2">{t('day.lab_link')}</span>
+          <span className="block text-muted">{domain}</span>
+        </span>
+        <ExternalLink className="size-4 shrink-0 text-muted" aria-hidden />
+      </a>
+      <details className="border-t border-line px-3 text-xs text-muted">
+        <summary className="language-text min-h-11 cursor-pointer content-center py-2 font-semibold">{t('day.lab_link_address')}</summary>
+        <p className="pb-3 [overflow-wrap:anywhere]">{url}</p>
+      </details>
     </div>
   )
 }
@@ -62,26 +72,18 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   const notes = labNotes(lab, t)
   if (!notes.trim() && !lab.repo_url.trim()) return null
   return (
-    <div className="mt-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
-      {notes.trim() && <>
-        <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
-          <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_notes')}</span>
-        </p>
-        <p className="whitespace-pre-wrap break-words text-sm">{notes}</p>
-      </>}
-      {lab.repo_url.trim() && <p className={`${notes.trim() ? 'mt-3' : ''} flex items-start gap-1.5 text-sm`}>
-        <LinkIcon className="mt-0.5 size-4 shrink-0 text-verde-ink" aria-hidden />
-        <a href={lab.repo_url} target="_blank" rel="noreferrer noopener" className="min-w-0 break-all font-medium text-azzurro-ink underline">
-          <span className="language-text">{t('day.lab_link')}</span> · {lab.repo_url.replace(/^https?:\/\//, '')}
-        </a>
-      </p>}
+    <div className="lab-note mt-3">
+      <p className="mb-2 flex items-center gap-2 text-sm font-bold text-verde-ink">
+        <FlaskConical className="size-4 shrink-0" aria-hidden /> <span className="language-text min-w-0 [overflow-wrap:anywhere]">{t('day.lab_notes')}</span>
+      </p>
+      {notes.trim() && <p className="whitespace-pre-wrap text-[0.9375rem] leading-relaxed [overflow-wrap:anywhere]">{notes}</p>}
+      {lab.repo_url.trim() && <UsefulLink url={lab.repo_url} />}
     </div>
   )
 }
 
 export function DayCardView({ card, subjects, classLabel, classInfo, canShare }: { card: Card; subjects: Subject[]; classLabel?: string; classInfo?: ClassInfo; canShare?: boolean }) {
   const { t, i18n } = useTranslation()
-  const [zoom, setZoom] = useState<number | null>(null)
   const entries = card.entries.filter((e) => hasEntrySummary(e) || e.lesson_status !== 'svolta')
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface">
@@ -152,17 +154,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 
       {card.attachments.length > 0 && (
         <section className="border-t border-line px-4 py-4 sm:px-5">
-          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.attachments')}</span></h3>
-          <div className="flex flex-wrap gap-2">
-            {card.attachments.map((a) => (
-              <button key={a.id} onClick={() => setZoom(a.id)} className="overflow-hidden rounded-lg border border-line">
-                <img src={attachmentUrl(a.id)} alt="" className="h-24 w-auto object-cover" loading="lazy" />
-              </button>
-            ))}
-          </div>
-          <Modal open={zoom !== null} onClose={() => setZoom(null)} title={t('day.attachments')} wide>
-            {zoom !== null && <img src={attachmentUrl(zoom)} alt="" className="w-full rounded-lg" />}
-          </Modal>
+          <AttachmentGallery ids={card.attachments.map(attachment => attachment.id)} title={t('day.attachments')} />
         </section>
       )}
     </article>

@@ -135,3 +135,15 @@ Issue #101 extends the layout checks to include the visible statistic labels and
 The final issue #101 captures in `docs/screenshots/issue-101/redesign/README.md` compare production builds using Inter in both versions. The new counter regression checks the actual line height of multi-digit numbers; the baseline split 12, 24 and 17, while final counters reserve the width of their real final glyphs.
 
 The final lighter presentation is captured in `docs/screenshots/issue-101/refined/README.md`. The pointer light/tilt feature and its dedicated test were removed; the remaining 47 cases cover the functional behavior, brief entrances, milestones and counter regression.
+
+## Lab presentation (issue #139)
+
+`lab-presentation.spec.ts` mounts the real day card, subject page and editor in AppShell using `lab-presentation.html`. Only HTTP responses and synthetic attachment images are simulated. Its 41 cases cover 320/390/1280px, IT/EN, light/dark, reduced motion, 100%/200% root text size, compact link labels with the original destination and keyboard-accessible full address, long multiline/unbroken notes and domain names, uniform portrait/panoramic/square thumbnails, counts, bounded previous/next navigation with buttons and arrow keys (including focus on the modal close button), stable control placement across proportions, single images, loading/error/retry, legacy notes, preview and scoped removal of day attachments. Closing restores the original thumbnail even after navigation. The existing 14 `lab-notes.spec.ts` cases cover editing, autosave, reopening, publishing and legacy conversion/clearing.
+
+Run both suites on a dedicated port:
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --config playwright.lab-presentation.config.ts --workers=3
+```
+
+For the final screenshots and a short real browser recording, run `npm run test:e2e -- --config playwright.lab-presentation.capture.ts` with the same executable override if needed. The capture file ends in `.capture.ts` and is excluded from the default regression suite. See `docs/screenshots/issue-139/README.md` for provenance, parameters and the known baseline/host limits.
