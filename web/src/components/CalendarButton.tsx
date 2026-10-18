@@ -14,7 +14,7 @@ function Choice({ icon: Icon, tile, title, hint, index }: { icon: ComponentType<
       </span>
       <span className="min-w-0">
         <span className="language-text block font-semibold">{title}</span>
-        <span className="language-text block text-xs font-medium text-muted">{hint}</span>
+        <span className="language-text block type-meta text-muted">{hint}</span>
       </span>
     </span>
   )
@@ -90,7 +90,7 @@ export function CalendarButton({ item, subjects, compact }: { item: Item; subjec
         }}
         className={`calendar-trigger inline-flex max-w-full shrink-0 items-center justify-center gap-1.5 transition-colors aria-expanded:bg-azzurro-soft aria-expanded:text-azzurro-ink ${
           added ? 'text-verde-ink' : 'text-muted hover:text-ink'
-        } ${compact ? 'min-h-11 w-11 self-center rounded-xl hover:bg-ink/5' : '-my-1 min-h-8 rounded-full px-2 text-xs font-semibold hover:bg-ink/5'}`}
+        } ${compact ? 'min-h-11 w-11 self-center rounded-xl hover:bg-ink/5' : '-my-1 min-h-8 rounded-full px-2 type-label hover:bg-ink/5'}`}
       >
         <Icon key={added ? 'added' : 'add'} className={`size-4 shrink-0 ${added ? 'calendar-added' : ''}`} aria-hidden />
         {!compact && <span className="language-text text-left">{t('calendar.add')}</span>}

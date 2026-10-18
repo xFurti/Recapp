@@ -28,8 +28,8 @@ function DayView({ day }: { day: string }) {
       <div className="flex items-center gap-2">
         <DayArrow to={data.prev_published ? `${base}/giorno/${data.prev_published}` : null} label={t('day.prev')} dir="prev" />
         <div className="min-w-0 flex-1 text-center">
-          <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux">{relativeDay(day, t, i18n.language)}</p>
-          <h1 className="truncate text-xl font-extrabold tracking-tight sm:text-2xl">{capitalize(longDay(day, i18n.language))}</h1>
+          <p className="type-label text-bordeaux">{relativeDay(day, t, i18n.language)}</p>
+          <h1 className="type-page-title">{capitalize(longDay(day, i18n.language))}</h1>
         </div>
         <DayArrow to={data.next_published ? `${base}/giorno/${data.next_published}` : null} label={t('day.next')} dir="next" />
       </div>
@@ -117,7 +117,7 @@ export function DaysList() {
   useRestoreReturnScroll()
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('day.days_title')}</span></h1>
+      <h1 className="type-page-title"><span className="language-text">{t('day.days_title')}</span></h1>
       <SubjectMenu />
       {list.isLoading && <Spinner />}
       {list.error && <ErrorBox error={list.error} />}
@@ -131,14 +131,14 @@ export function DaysList() {
           <li key={c.day} className="flex items-center gap-3 rounded-2xl border border-dashed border-line bg-surface/60 p-3">
             <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex min-w-0 flex-1 items-center gap-3">
               <div className="w-16 shrink-0 text-center text-muted">
-                <p className="text-xs font-semibold uppercase">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
+                <p className="type-label">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
                 <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>
               </div>
               <div className="min-w-0 flex-1">
                 <Badge className="bg-rosa-soft text-rosa-ink">
                   <span className="language-text">{c.has_draft ? t('day.draft_badge') : t('day.missed_badge')}</span>
                 </Badge>
-                <p className="language-text mt-1 text-sm text-muted">{t('day.missed_title')}</p>
+                <p className="language-text mt-1 type-meta text-muted">{t('day.missed_title')}</p>
               </div>
             </Link>
             {c.can_write && <RecoverButton day={c.day} hasDraft={!!c.has_draft} size="sm" />}
@@ -147,7 +147,7 @@ export function DaysList() {
           <li key={c.day}>
             <Link to={`/c/${info.code}/giorno/${c.day}`} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition hover:border-ink/30">
               <div className="w-16 shrink-0 text-center">
-                <p className="text-xs font-semibold uppercase text-muted">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
+                <p className="type-label text-muted">{shortDay(c.day, i18n.language).split(' ')[0]}</p>
                 <p className="text-2xl font-extrabold leading-none">{Number(c.day.slice(8, 10))}</p>
               </div>
               <div className="min-w-0 flex-1">
@@ -161,11 +161,11 @@ export function DaysList() {
                     </Badge>
                   )}
                 </div>
-                <p className="mt-1 text-sm text-muted">
+                <p className="mt-1 type-meta text-muted">
                   {c.author && t('day.by', { nick: c.author.nick })}
                   {c.items > 0 && ` · ${t('day.n_items', { count: c.items })}`}
                 </p>
-                {c.updated_by && <p className="text-sm text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: c.updated_by.nick }} /></p>}
+                {c.updated_by && <p className="type-meta text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: c.updated_by.nick }} /></p>}
               </div>
               {c.author && <Avatar nick={c.author.nick} color={c.author.color} size="sm" />}
             </Link>

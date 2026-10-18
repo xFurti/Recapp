@@ -35,7 +35,7 @@ export function SubjectTag({ subjects, code }: { subjects: Subject[]; code: stri
   if (!code) return null
   const color = subjectColor(subjects, code)
   return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-bold tracking-wide" title={subjectName(subjects, code, i18n.language)}>
+    <span className="inline-flex items-center gap-1.5 type-label" title={subjectName(subjects, code, i18n.language)}>
       <span className="size-2 rounded-full" style={{ backgroundColor: color }} aria-hidden />
       {code}
     </span>
@@ -97,9 +97,9 @@ export function ItemRow({
   const diff = daysBetween(todayIso(), item.due_date)
   const urgent = item.type === 'verifica' && diff >= 0 && diff <= 3
   return (
-    <div className={`relative flex gap-3 rounded-xl border border-line bg-surface p-3 ${done ? 'opacity-60' : ''}`}>
-      <span className={`w-1 shrink-0 rounded-full ${s.bar}`} aria-hidden />
-      <div className="min-w-0 flex-1">
+    <div className={`relative flex flex-wrap gap-3 rounded-xl border border-line bg-surface p-3 pl-7 ${done ? 'opacity-60' : ''}`}>
+      <span className={`absolute inset-y-3 left-3 w-1 rounded-full ${s.bar}`} aria-hidden />
+      <div className="min-w-0 flex-[1_1_12rem]">
         <div className="flex flex-wrap items-center gap-2">
           <TypeBadge type={item.type} />
           <SubjectTag subjects={subjects} code={item.subject_code} />
@@ -111,25 +111,25 @@ export function ItemRow({
           type="button"
           onClick={onOpen}
           disabled={!onOpen}
-          className={`mt-1 block text-left font-semibold leading-snug ${done ? 'line-through' : ''} ${onOpen ? 'hover:underline' : ''}`}
+          className={`mt-1 block max-w-full text-left type-item-title ${done ? 'line-through' : ''} ${onOpen ? 'hover:underline' : ''}`}
         >
           {item.title}
         </button>
         {!compact && (
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-            <span className="font-medium text-ink/80">
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 type-meta text-muted">
+            <span className="text-ink/80">
               {relativeDay(item.due_date, t, i18n.language)}
             </span>
             <SourceBadge source={item.source} />
             {item.author && <span><TranslatedMessage message={'upcoming.added_by'} values={{ nick: item.author.nick }} /></span>}
             {item.link && (
-              <a href={item.link} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 font-semibold text-azzurro-ink hover:underline">
+              <a href={item.link} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 type-label text-azzurro-ink hover:underline">
                 <ExternalLink className="size-3.5" />
                 <span className="language-text">{t('upcoming.open_link')}</span>
               </a>
             )}
             {item.attachment_id && (
-              <a href={attachmentUrl(item.attachment_id)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-azzurro-ink hover:underline">
+              <a href={attachmentUrl(item.attachment_id)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 type-label text-azzurro-ink hover:underline">
                 <Paperclip className="size-3.5" />
               </a>
             )}
@@ -138,7 +138,7 @@ export function ItemRow({
           </div>
         )}
         {compact && (
-          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 type-meta text-muted">
             <span>{relativeDay(item.due_date, t, i18n.language)}</span>
             <ItemThanks item={item} />
           </div>

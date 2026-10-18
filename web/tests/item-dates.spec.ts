@@ -141,7 +141,7 @@ test('editing legacy homework clears its time and Today shows only the date', as
 test('editor autosave clears legacy times while preserving lesson and attachment data', async ({ page }) => {
   const { saved, cardWrites } = await setup(page, { view: 'editor', width: 320, dark: true })
   expect(cardWrites).toHaveLength(0)
-  await page.locator('input[value="API e database"]').fill('API e database aggiornati')
+  await page.getByRole('textbox', { name: /Informatica.* · 1/ }).fill('API e database aggiornati')
   await expect.poll(() => saved().items[0].due_time).toBeNull()
   expect(saved().items[0]).toMatchObject({ ...legacy, due_time: null })
   expect(saved().entries[0]).toEqual({ ...card.entries[0], lab: convertedLab, bullets: ['API e database aggiornati'] })

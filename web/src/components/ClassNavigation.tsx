@@ -23,8 +23,8 @@ function NavItem({ entry, to, mobile }: { entry: NavEntry; to: string; mobile: b
       to={to}
       end={entry.end}
       className={({ isActive }) => `section-nav-link relative z-10 rounded-xl ${mobile
-        ? 'flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-bold'
-        : 'flex items-center gap-3 px-3 py-2.5 font-semibold'} ${isActive ? 'text-bordeaux' : 'text-muted hover:bg-ink/5 hover:text-ink'}`}
+        ? 'flex flex-col items-center gap-0.5 py-2.5 type-badge text-center'
+        : 'flex items-center gap-3 px-3 py-2.5 type-label'} ${isActive ? 'text-bordeaux' : 'text-muted hover:bg-ink/5 hover:text-ink'}`}
       data-tour={`nav-${entry.motion}`}
       {...triggers}
     >

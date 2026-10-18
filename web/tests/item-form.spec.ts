@@ -157,13 +157,13 @@ test('visual viewport offset and resize keep the sheet reachable, then detach on
   await expect(dialog).toHaveCount(0)
 })
 
-test('desktop keeps 15px controls and a centered sheet; page zoom stays enabled', async ({ page, browserName }) => {
+test('desktop keeps 16px controls and a centered sheet; page zoom stays enabled', async ({ page, browserName }) => {
   const { text } = await setup(page, { width: 1280, editor: true })
   await page.getByRole('button', { name: 'Compito', exact: true }).first().click()
   const dialog = page.getByRole('dialog')
   await dialog.evaluate(el => Promise.all(el.getAnimations().map(animation => animation.finished)))
   for (const control of await dialog.locator('input,select').all()) {
-    expect(await control.evaluate(el => getComputedStyle(el).fontSize)).toBe('15px')
+    expect(await control.evaluate(el => getComputedStyle(el).fontSize)).toBe('16px')
   }
   expect((await dialog.boundingBox())!.width).toBe(448)
   await dialog.getByRole('button', { name: text.close, exact: true }).click()

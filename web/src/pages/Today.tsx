@@ -145,15 +145,15 @@ function ScribeBanner({ data }: { data: TodayInfo }) {
       </div>
     )}
     <section className={`rounded-2xl border p-4 sm:p-5 ${tone}`} aria-live="polite">
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         {data.status === 'published' ? (
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-verde text-white"><PartyPopper className="size-5" /></span>
         ) : data.scribe ? (
           <Avatar nick={data.scribe.nick} color={data.scribe.color} />
         ) : null}
-        <div className="min-w-0 flex-1">
-          <p className="text-lg leading-snug">{title}</p>
-          {sub && <p className="mt-1 text-sm text-ink/70">{sub}</p>}
+        <div className="min-w-0 flex-[1_1_12rem]">
+          <p className="type-section-title">{title}</p>
+          {sub && <p className="mt-1 type-meta text-ink/70">{sub}</p>}
         </div>
       </div>
       {data.open_corrections > 0 && data.can_write && (
@@ -223,8 +223,8 @@ export default function Today() {
   return (
     <ItemCorrectionsProvider><div className="space-y-6">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux"><span className="language-text">{t('nav.today')}</span></p>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{capitalize(longDay(data.day, i18n.language))}</h1>
+        <p className="type-label text-bordeaux"><span className="language-text">{t('nav.today')}</span></p>
+        <h1 className="type-page-title">{capitalize(longDay(data.day, i18n.language))}</h1>
       </div>
 
       {info.is_demo && isWeekend(data.day) && <DemoWeekendNote />}
@@ -234,7 +234,7 @@ export default function Today() {
 
       {data.is_school_day && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('today.lessons')}</span></h2>
+          <h2 className="mb-2 type-section-title text-muted"><span className="language-text">{t('today.lessons')}</span></h2>
           <LessonsStrip lessons={data.lessons} subjects={info.subjects} />
         </section>
       )}
@@ -247,8 +247,8 @@ export default function Today() {
       )}
 
       <section>
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('today.soon')}</span></h2>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="type-section-title text-muted"><span className="language-text">{t('today.soon')}</span></h2>
           <Link to={`/c/${info.code}/in-arrivo`} className="text-sm font-semibold text-bordeaux hover:underline">
             <span className="language-text">{t('today.all_upcoming')}</span>
           </Link>

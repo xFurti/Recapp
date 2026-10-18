@@ -68,7 +68,7 @@ export function SubjectMenu({ active }: { active?: string }) {
   const backTo = subjectReturnPath(info.code, from)
   const current = info.subjects.find((s) => s.code === active)
   const label = current ? subjectName(info.subjects, current.code, i18n.language) : t('subject.by_subject')
-  const option = `flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm font-semibold`
+  const option = `flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left type-label`
   return (
     <div className="relative" ref={ref}>
       <button
@@ -76,14 +76,14 @@ export function SubjectMenu({ active }: { active?: string }) {
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="inline-flex h-10 items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
+        className="inline-flex min-h-10 max-w-full py-1.5 items-center gap-2 rounded-full border border-line bg-surface px-3 type-label hover:border-ink/30"
       >
-        <span className="size-2 rounded-full" style={{ backgroundColor: current?.color ?? 'var(--color-line)' }} aria-hidden />
+        <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: current?.color ?? 'var(--color-line)' }} aria-hidden />
         {label}
         <ChevronDown className={`size-4 text-muted transition ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <ul role="listbox" aria-label={t('subject.by_subject')} className="absolute z-20 mt-2 max-h-80 w-64 overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
+        <ul role="listbox" aria-label={t('subject.by_subject')} className="absolute z-20 mt-2 max-h-80 w-64 max-w-[calc(100vw-2rem)] overflow-auto rounded-2xl border border-line bg-surface p-1.5 shadow-lg">
           <li>
             {active ? (
               <Link to={backTo} role="option" aria-selected={false} onClick={close} className={`${option} hover:bg-ink/5`}>
@@ -110,7 +110,7 @@ export function SubjectMenu({ active }: { active?: string }) {
                 }}
                 className={`${option} ${active === s.code ? 'bg-ink text-paper' : 'hover:bg-ink/5'}`}
               >
-                <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
+                <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: s.color }} aria-hidden />
                 {subjectName(info.subjects, s.code, i18n.language)}
               </Link>
             </li>
@@ -137,14 +137,14 @@ export default function SubjectPage() {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-bordeaux"><span className="language-text">{t('subject.by_subject')}</span></p>
-        <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
-          <span className="size-3 rounded-full" style={{ backgroundColor: color }} aria-hidden />
+        <p className="type-label text-bordeaux"><span className="language-text">{t('subject.by_subject')}</span></p>
+        <h1 className="flex items-center gap-2 type-page-title">
+          <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
           {subjectName(info.subjects, subject, lang)}
         </h1>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Link to={backTo} className="inline-flex h-10 items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink">
+        <Link to={backTo} className="inline-flex min-h-10 max-w-full py-1.5 items-center gap-1.5 type-label text-muted hover:text-ink">
           <ArrowLeft className="size-4" /> <span className="language-text">{t('subject.back_general')}</span>
         </Link>
         <SubjectMenu active={subject} />
@@ -170,16 +170,16 @@ export default function SubjectPage() {
           <li key={`${r.day}-${i}`} className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
             <div className="flex items-center gap-3 border-b border-line px-4 py-2.5">
               <div className="min-w-0 flex-1">
-                <p className="font-bold">
+                <p className="type-item-title">
                   {relativeDay(r.day, t, lang)}
                   <span className="ml-2 font-medium text-muted">{capitalize(shortDay(r.day, lang))}</span>
                 </p>
-                <p className="text-xs text-muted">
+                <p className="type-meta text-muted">
                   {[r.hours && (r.hours.includes('-') ? t('day.hours', { h: r.hours }) : t('day.hour', { h: r.hours })), r.author && t('day.by', { nick: r.author.nick })]
                     .filter(Boolean)
                     .join(' · ')}
                 </p>
-                {r.updated_by && <p className="text-xs text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: r.updated_by.nick }} /></p>}
+                {r.updated_by && <p className="type-meta text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: r.updated_by.nick }} /></p>}
               </div>
               {r.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {r.room}</Badge>}
               {r.author && <Avatar nick={r.author.nick} color={r.author.color} size="sm" />}
@@ -187,7 +187,7 @@ export default function SubjectPage() {
             <div className="px-4 py-3">
               {r.lesson_status !== 'svolta' && <Badge className="mb-2 bg-giallo-soft text-ink"><span className="language-text">{t(`day.status_${r.lesson_status}`)}</span></Badge>}
               {r.bullets.length > 0 ? (
-                <ul className="list-disc space-y-1 pl-5 text-[15px] leading-relaxed marker:text-muted">
+                <ul className="list-disc space-y-1 pl-5 type-prose marker:text-muted">
                   {r.bullets.map((b, j) => (
                     <li key={j}>{b}</li>
                   ))}
@@ -204,7 +204,7 @@ export default function SubjectPage() {
                   ))}
                 </div>
               )}
-              <Link to={`/c/${info.code}/giorno/${r.day}`} className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-bordeaux hover:underline">
+              <Link to={`/c/${info.code}/giorno/${r.day}`} className="mt-3 inline-flex items-center gap-1 type-label text-bordeaux hover:underline">
                 <span className="language-text">{t('subject.open_day')}</span> <ArrowRight className="size-4" />
               </Link>
             </div>

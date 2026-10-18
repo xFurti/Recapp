@@ -14,7 +14,7 @@ import { Avatar, Badge, Modal } from './ui'
 
 export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
-  if (!lessons.length) return <p className="text-sm text-muted"><span className="language-text">{t('today.no_lessons')}</span></p>
+  if (!lessons.length) return <p className="type-meta text-muted"><span className="language-text">{t('today.no_lessons')}</span></p>
   return (
     <ol className="flex flex-wrap gap-2">
       {lessons.map((l) => (
@@ -23,11 +23,11 @@ export function LessonsStrip({ lessons, subjects }: { lessons: Lesson[]; subject
           className="flex max-w-full flex-[1_1_7rem] flex-col rounded-xl border border-line bg-surface px-3 py-2"
           style={{ borderTopColor: subjectColor(subjects, l.subject_code), borderTopWidth: 4 }}
         >
-          <span className="text-xs font-medium text-muted">
+          <span className="type-meta text-muted">
             <span className="language-text">{l.hours.length > 1 ? t('day.hours', { h: l.hours_label }) : t('day.hour', { h: l.hours_label })}</span> · {l.start}
           </span>
-          <span className="font-semibold leading-tight break-words">{subjectName(subjects, l.subject_code, i18n.language)}</span>
-          <span className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+          <span className="type-item-title">{subjectName(subjects, l.subject_code, i18n.language)}</span>
+          <span className="mt-1 flex items-center gap-1.5 type-meta text-muted">
             {l.room}
             {l.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
           </span>
@@ -64,10 +64,10 @@ export function LabBox({ entry }: { entry: Pick<Entry, 'lab'> }) {
   return (
     <div className="mt-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
       {notes.trim() && <>
-        <p className="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-verde-ink">
+        <p className="mb-2 flex items-center gap-1.5 type-label text-verde-ink">
           <FlaskConical className="size-4" /> <span className="language-text">{t('day.lab_notes')}</span>
         </p>
-        <p className="whitespace-pre-wrap break-words text-sm">{notes}</p>
+        <p className="type-prose whitespace-pre-wrap">{notes}</p>
       </>}
       {lab.repo_url.trim() && <p className={`${notes.trim() ? 'mt-3' : ''} flex items-start gap-1.5 text-sm`}>
         <LinkIcon className="mt-0.5 size-4 shrink-0 text-verde-ink" aria-hidden />
@@ -87,16 +87,16 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
     <article className="overflow-hidden rounded-2xl border border-line bg-surface">
       <header className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
         {card.author && <Avatar nick={card.author.nick} color={card.author.color} />}
-        <div className="min-w-[12rem] flex-1">
-          <h2 className="font-bold leading-tight">{capitalize(longDay(card.day, i18n.language))}</h2>
-          <p className="text-sm text-muted">
+        <div className="min-w-0 basis-48 flex-1">
+          <h2 className="type-section-title">{capitalize(longDay(card.day, i18n.language))}</h2>
+          <p className="type-meta text-muted">
             {[classLabel, card.author && t('day.by', { nick: card.author.nick }), card.published_at && t('day.published_at', { time: timeOf(card.published_at, i18n.language) })]
               .filter(Boolean)
               .join(' · ')}
           </p>
-          {card.updated_by && <p className="text-sm text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: card.updated_by.nick }} /></p>}
+          {card.updated_by && <p className="type-meta text-muted"><TranslatedMessage message="day.updated_by" values={{ nick: card.updated_by.nick }} /></p>}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           {classInfo && canShare && <ShareButton card={card} info={classInfo} />}
           <ListenButton card={card} subjects={subjects} />
         </div>
@@ -109,13 +109,13 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
             <span className="w-1.5 shrink-0 rounded-full" style={{ backgroundColor: subjectColor(subjects, e.subject_code) }} aria-hidden />
             <div className="min-w-0 flex-1">
               <h3 className="flex flex-wrap items-center gap-2">
-                <span className="font-bold">{subjectName(subjects, e.subject_code, i18n.language)}</span>
-                {e.hours && <span className="text-xs text-muted"><span className="language-text">{e.hours.includes('-') ? t('day.hours', { h: e.hours }) : t('day.hour', { h: e.hours })}</span></span>}
+                <span className="type-section-title">{subjectName(subjects, e.subject_code, i18n.language)}</span>
+                {e.hours && <span className="type-meta text-muted"><span className="language-text">{e.hours.includes('-') ? t('day.hours', { h: e.hours }) : t('day.hour', { h: e.hours })}</span></span>}
                 {e.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span> {e.room}</Badge>}
                 {e.lesson_status !== 'svolta' && <Badge className="bg-giallo-soft text-ink"><span className="language-text">{t(`day.status_${e.lesson_status}`)}</span></Badge>}
               </h3>
               {e.bullets.length > 0 && (
-                <ul className="mt-1.5 list-disc space-y-1 pl-5 text-[15px] leading-relaxed marker:text-muted">
+                <ul className="mt-1.5 list-disc space-y-1 pl-5 type-prose marker:text-muted">
                   {e.bullets.map((b, j) => (
                     <li key={j}>{b}</li>
                   ))}
@@ -130,7 +130,7 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
 
       {card.items.length > 0 && (
         <section className="border-t border-line bg-paper/60 px-4 py-4 sm:px-5">
-          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.assigned')}</span></h3>
+          <h3 className="mb-2 type-section-title text-muted"><span className="language-text">{t('day.assigned')}</span></h3>
           <div className="space-y-2">
             {card.items.map((it) => (
               <ItemRow key={it.id} item={it} subjects={subjects} compact />
@@ -142,17 +142,17 @@ export function DayCardView({ card, subjects, classLabel, classInfo, canShare }:
       {card.notes && (
         <section className="border-t border-line px-4 py-4 sm:px-5">
           <div className="rounded-xl bg-giallo-soft p-3">
-            <p className="mb-1 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide">
+            <p className="mb-1 flex items-center gap-1.5 type-label">
               <StickyNote className="size-4" /> <span className="language-text">{t('day.notes')}</span>
             </p>
-            <p className="whitespace-pre-line text-[15px]">{card.notes}</p>
+            <p className="type-prose whitespace-pre-line">{card.notes}</p>
           </div>
         </section>
       )}
 
       {card.attachments.length > 0 && (
         <section className="border-t border-line px-4 py-4 sm:px-5">
-          <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('day.attachments')}</span></h3>
+          <h3 className="mb-2 type-section-title text-muted"><span className="language-text">{t('day.attachments')}</span></h3>
           <div className="flex flex-wrap gap-2">
             {card.attachments.map((a) => (
               <button key={a.id} onClick={() => setZoom(a.id)} className="overflow-hidden rounded-lg border border-line">
@@ -200,13 +200,13 @@ export function speechText(card: Card, subjects: Subject[], t: TFunction, lang: 
 export function ListenButton({ card, subjects }: { card: Card; subjects: Subject[] }) {
   const { t, i18n } = useTranslation()
   const speech = useSpeech()
-  if (!speech.supported) return <p role="status" className="text-sm text-muted"><span className="language-text">{t('listen.unsupported')}</span></p>
+  if (!speech.supported) return <p role="status" className="type-meta text-muted"><span className="language-text">{t('listen.unsupported')}</span></p>
   if (speech.state === 'idle') {
     return (
       <div className="flex flex-col items-end gap-1">
         <button
           onClick={() => speech.play(speechText(card, subjects, t, i18n.language), i18n.language)}
-          className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 text-sm font-semibold text-bordeaux hover:bg-bordeaux/15"
+          className="inline-flex min-h-9 max-w-full py-1.5 items-center gap-1.5 rounded-full bg-bordeaux-soft px-3 type-action text-bordeaux hover:bg-bordeaux/15"
         >
           <Play className="size-4" /> <span className="language-text">{t('listen.play')}</span>
         </button>
@@ -219,7 +219,7 @@ export function ListenButton({ card, subjects }: { card: Card; subjects: Subject
       <button
         disabled={speech.state === 'loading'}
         onClick={speech.state === 'playing' ? speech.pause : speech.resume}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full bg-bordeaux px-3 text-sm font-semibold text-white"
+        className="inline-flex min-h-9 max-w-full py-1.5 items-center gap-1.5 rounded-full bg-bordeaux px-3 type-action text-white"
       >
         {speech.state === 'playing' ? <Pause className="size-4" /> : <Play className="size-4" />}
         <span className="language-text">{speech.state === 'loading' ? t('listen.loading') : speech.state === 'playing' ? t('listen.pause') : t('listen.resume')}</span>

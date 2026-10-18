@@ -32,7 +32,7 @@ export default function ClassPage() {
   }, [location.state])
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-extrabold tracking-tight"><span className="language-text">{t('nav.class')}</span></h1>
+      <h1 className="mb-4 type-page-title"><span className="language-text">{t('nav.class')}</span></h1>
       <StreakCard />
       <Segmented
         value={tab}
@@ -278,14 +278,14 @@ function Turns() {
       <Card className="flex items-center gap-3">
         {todayRow?.scribe ? <Avatar nick={todayRow.scribe.nick} color={todayRow.scribe.color} size="lg" /> : null}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_today')}</span></p>
+          <p className="type-label text-muted"><span className="language-text">{t('class.turns_today')}</span></p>
           <p className="text-xl font-extrabold">{todayRow?.scribe?.nick ?? t('class.turns_nobody')}</p>
         </div>
       </Card>
 
       <section>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_next')}</span></h2>
+          <h2 className="type-section-title text-muted"><span className="language-text">{t('class.turns_next')}</span></h2>
           {manage && (
             <Button size="sm" variant={swapMode ? 'primary' : 'secondary'} onClick={() => { setSwapMode((s) => !s); setPicked(null); setMsg(null) }}>
               <ArrowLeftRight className="size-4" /> <span className="language-text">{t('class.swap')}</span>
@@ -310,7 +310,7 @@ function Turns() {
                   {d.scribe ? (
                     <span className="flex min-w-0 flex-1 items-center gap-2">
                       <Avatar nick={d.scribe.nick} color={d.scribe.color} size="sm" />
-                      <span className="truncate font-semibold">{d.scribe.nick}</span>
+                      <span className="type-label">{d.scribe.nick}</span>
                     </span>
                   ) : (
                     <span className="flex-1 text-sm text-muted"><span className="language-text">{t('class.turns_nobody')}</span></span>
@@ -334,7 +334,7 @@ function Turns() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('class.turns_order')}</span></h2>
+        <h2 className="mb-1 type-section-title text-muted"><span className="language-text">{t('class.turns_order')}</span></h2>
         <p className="mb-2 text-sm text-muted"><span className="language-text">{t('class.turns_order_help')}</span></p>
         <ol className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
           {data.order.map((m, i) => (
