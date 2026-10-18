@@ -3,8 +3,8 @@
   "published_at": "2026-10-18T14:00:00Z",
   "visibility": "public",
   "title": {
-    "it": "Note di laboratorio più leggere",
-    "en": "Lighter lab notes"
+    "it": "Note, link e foto più leggibili",
+    "en": "Clearer notes, links and photos"
   },
   "summary": [
     {
@@ -12,12 +12,16 @@
       "en": "Lab notes have a lighter surface and text that is more comfortable to read."
     },
     {
+      "it": "I link utili mostrano il dominio; puoi consultare l’indirizzo completo quando ti serve.",
+      "en": "Useful links show the domain; you can inspect the full address when you need it."
+    },
+    {
       "it": "Le foto degli appunti hanno miniature uniformi, proporzioni rispettate e un contatore delle immagini.",
       "en": "Notes photos have consistent thumbnails, preserved proportions and an image count."
     },
     {
-      "it": "Il visualizzatore distingue il caricamento dagli errori e permette di riprovare ad aprire una foto.",
-      "en": "The viewer distinguishes loading from errors and lets you retry opening a photo."
+      "it": "Sfoglia le foto con i pulsanti o le frecce della tastiera; se un’immagine non si carica, puoi riprovare.",
+      "en": "Browse photos with the buttons or keyboard arrows; if an image fails to load, you can retry."
     }
   ],
   "entries": [
@@ -35,12 +39,23 @@
     {
       "category": "improvement",
       "title": {
+        "it": "Link compatti, destinazione riconoscibile",
+        "en": "Compact links, recognisable destinations"
+      },
+      "body": {
+        "it": "Nei laboratori, i link lunghi sono presentati con l’etichetta Link utile e il dominio. Puoi espandere Indirizzo completo per leggere l’URL originale, anche da telefono o con la tastiera. La destinazione resta la stessa nella giornata, nella materia e nell’anteprima.",
+        "en": "In labs, long links show a Useful link label and the domain. Expand Full address to read the original URL, including on a phone or with the keyboard. The destination stays the same in the day, subject and preview views."
+      }
+    },
+    {
+      "category": "improvement",
+      "title": {
         "it": "Foto degli appunti più ordinate",
         "en": "Tidier notes photos"
       },
       "body": {
-        "it": "Le miniature hanno dimensioni uniformi e mostrano l’intera immagine senza deformarla. Il numero delle immagini e la posizione della foto aperta sono visibili; il caricamento e le immagini non disponibili hanno stati distinti, con un comando per riprovare nel visualizzatore.",
-        "en": "Thumbnails have consistent dimensions and show the whole image without distorting it. The image count and the position of the open photo are visible; loading and unavailable images have distinct states, with a retry action in the viewer."
+        "it": "Le miniature hanno dimensioni uniformi e mostrano l’intera immagine senza deformarla. Il contatore indica la foto aperta; con più immagini puoi usare precedente, successiva e le frecce della tastiera. I comandi restano nella stessa posizione quando cambiano le proporzioni della foto. Caricamento ed errore sono distinti, con un comando per riprovare; chiudendo il visualizzatore torni alla miniatura da cui sei partito.",
+        "en": "Thumbnails have consistent dimensions and show the whole image without distorting it. A counter identifies the open photo; with multiple images, use previous, next and the keyboard arrows. Controls stay in the same place as photo proportions change. Loading and errors have distinct states, with a retry action; closing the viewer returns focus to the thumbnail you started from."
       }
     }
   ]

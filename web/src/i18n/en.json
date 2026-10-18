@@ -224,6 +224,10 @@
     "fill_day": "Fill in the day",
     "complete_draft": "Complete draft",
     "lab_notes": "Lab notes",
+    "lab_link_address": "Full address",
+    "photo_previous": "Previous photo",
+    "photo_next": "Next photo",
+    "photo_gallery": "image gallery",
     "lab_link": "Useful link"
   },
   "listen": {

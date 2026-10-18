@@ -224,6 +224,10 @@
     "fill_day": "Compila giornata",
     "complete_draft": "Completa bozza",
     "lab_notes": "Note di laboratorio",
+    "lab_link_address": "Indirizzo completo",
+    "photo_previous": "Foto precedente",
+    "photo_next": "Foto successiva",
+    "photo_gallery": "galleria di immagini",
     "lab_link": "Link utile"
   },
   "listen": {

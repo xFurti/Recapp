@@ -83,7 +83,7 @@ for (const width of [1280, 320]) for (const english of [false, true]) for (const
     await expect(url).toHaveValue(link + '?version=2')
     await page.getByRole('button', { name: english ? 'Preview' : 'Anteprima', exact: true }).click()
     await expect(page.getByRole('main').getByText(notes, { exact: true })).toBeVisible()
-    await expect(page.getByRole('link', { name: /example.org\/scheda-esperienza/ })).toHaveAttribute('href', link + '?version=2')
+    await expect(page.getByRole('link', { name: /example.org/ })).toHaveAttribute('href', link + '?version=2')
     await page.getByRole('button', { name: english ? 'Publish' : 'Pubblica', exact: true }).click()
     await expect(page).toHaveURL(/\/giorno\/2026-10-02$/)
     await expect(page.getByRole('main').getByText(notes, { exact: true })).toBeVisible()

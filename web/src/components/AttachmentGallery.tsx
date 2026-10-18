@@ -1,5 +1,5 @@
-import { ImageOff, LoaderCircle, Trash2, ZoomIn } from 'lucide-react'
-import { useId, useState } from 'react'
+import { ChevronLeft, ChevronRight, ImageOff, LoaderCircle, Trash2, ZoomIn } from 'lucide-react'
+import { useEffect, useEffectEvent, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { attachmentUrl } from '../api'
 import { Modal } from './ui'
@@ -31,7 +31,26 @@ export function AttachmentGallery({ ids, title, onRemove }: { ids: number[]; tit
   const { t } = useTranslation()
   const labelId = useId()
   const [zoom, setZoom] = useState<number | null>(null)
+  const viewer = useRef<HTMLDivElement>(null)
   const index = zoom === null ? -1 : ids.indexOf(zoom)
+  const open = index >= 0
+  const showPhoto = (next: number) => {
+    if (next < 0 || next >= ids.length) return
+    setZoom(ids[next])
+    viewer.current?.closest('[role="dialog"]')?.scrollTo({ top: 0, behavior: 'instant' })
+  }
+  const onArrow = useEffectEvent((event: KeyboardEvent) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+    event.preventDefault()
+    showPhoto(index + (event.key === 'ArrowLeft' ? -1 : 1))
+  })
+  useEffect(() => {
+    if (!open || ids.length < 2) return
+    const onKey = (event: KeyboardEvent) => onArrow(event)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, ids.length])
   if (!ids.length) return null
   const label = title ?? t('day.photos')
   return (
@@ -54,9 +73,15 @@ export function AttachmentGallery({ ids, title, onRemove }: { ids: number[]; tit
           </li>
         ))}
       </ul>
-      <Modal open={index >= 0} onClose={() => setZoom(null)} title={label} wide>
-        {index >= 0 && <div className="min-w-0">
-          <p className="mb-3 text-center text-sm font-semibold text-muted" aria-live="polite" aria-atomic="true">{t('day.photo_position', { index: index + 1, count: ids.length })}</p>
+      <Modal open={open} onClose={() => setZoom(null)} title={label} wide>
+        {open && <div ref={viewer} className="attachment-viewer min-w-0" role="group" aria-roledescription={t('day.photo_gallery')}>
+          <div className="mb-3 flex items-center gap-2">
+            {ids.length > 1 && <button type="button" className="attachment-step" aria-label={t('day.photo_previous')}
+              aria-keyshortcuts="ArrowLeft" aria-disabled={index === 0} onClick={() => showPhoto(index - 1)}><ChevronLeft className="size-5" aria-hidden /></button>}
+            <p className="min-w-0 flex-1 text-center text-sm font-semibold text-muted" aria-live="polite" aria-atomic="true">{t('day.photo_position', { index: index + 1, count: ids.length })}</p>
+            {ids.length > 1 && <button type="button" className="attachment-step" aria-label={t('day.photo_next')}
+              aria-keyshortcuts="ArrowRight" aria-disabled={index === ids.length - 1} onClick={() => showPhoto(index + 1)}><ChevronRight className="size-5" aria-hidden /></button>}
+          </div>
           <AttachmentImage key={zoom} id={ids[index]} alt={t('day.photo_position', { index: index + 1, count: ids.length })} />
         </div>}
       </Modal>
