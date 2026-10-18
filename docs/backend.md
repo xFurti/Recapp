@@ -127,7 +127,7 @@ Tutte sotto `/api`. Le route `classes/{code}/...` richiedono un membro della cla
 | `PUT /classes/{code}/cards/{day}` · `POST /cards/{day}/publish` | chi può scrivere | Salva bozza (sostituisce tutto) e pubblica |
 | `GET` · `POST /classes/{code}/upcoming` · `PATCH` · `DELETE /upcoming/{id}` | lettura tutti, modifica autore/admin | In arrivo |
 | `POST /classes/{code}/attachments` · `GET /attachments/{id}` | membro | Carica e mostra un ritaglio. Prima della pubblicazione solo chi l'ha caricato, chi può scrivere la giornata e gli admin |
-| `GET /classes/{code}/subjects/{subject}/entries` | membro/owner | Blocchi pubblicati di una materia (settimana, 2 settimane, tutto) |
+| `GET /classes/{code}/subjects/{subject}/entries` | membro/owner | Blocchi pubblicati di una materia, per periodo e con cursore |
 | `GET /classes/{code}/cards/{day}/feedback` | membro/owner | Commenti, correzioni aperte e conteggio dei "grazie" |
 | `POST /classes/{code}/cards/{day}/comments` · `PATCH` · `DELETE /comments/{id}` | membro | Commento o correzione; "risolta" solo autore della giornata o admin; elimina chi l'ha scritta o un admin |
 | `POST /classes/{code}/cards/{day}/thanks` | membro | Aggiunge o toglie il proprio "grazie". 403 sulla propria giornata |
@@ -136,6 +136,23 @@ Tutte sotto `/api`. Le route `classes/{code}/...` richiedono un membro della cla
 | `POST /classes/{code}/ocr` · `GET /ocr/{job_id}` | membro | Avvia e controlla una lettura AI |
 | `GET` · `POST /owner/classes` · `GET` · `POST` · `DELETE /owner/holidays` | owner | Area scuola |
 | `GET /healthz` | tutti | Stato, provider OCR, runner |
+
+L'archivio usa `GET /cards?paged=true&limit=30` e
+`GET /subjects/{subject}/entries?paged=true&limit=30&range=all`.
+La risposta è `{results: [...], next_cursor: string | null}`; `null` indica la fine.
+`cursor` riprende dopo l'ultimo risultato: data decrescente per le giornate;
+data decrescente, posizione crescente e ID crescente per i blocchi. Il limite
+(1–200) comprende sia le pubblicazioni sia le giornate mancanti, prima di caricare
+i contenuti della pagina. Bozze, festività e permessi di recupero seguono il calendario
+della classe. Gli elementi associati a una materia compaiono solo nel primo blocco
+del relativo giorno, anche quando il giorno attraversa due pagine.
+
+Entrambi gli elenchi accettano `from_date` e `to_date` inclusivi e rifiutano
+intervalli invertiti, date e cursori non validi. `range=week|2weeks|all` resta
+disponibile per le materie. Il client converte mese e intervallo nei medesimi limiti
+per entrambe le viste. Senza `paged=true` resta la risposta array per compatibilità
+con i client precedenti (60 giornate / 80 blocchi predefiniti): l'interfaccia corrente
+usa sempre la paginazione. Non ci sono modifiche allo schema del database.
 
 `PUT /cards/{day}` è un "sostituisci tutto": il frontend manda l'intera giornata, il backend
 cancella e ricrea materie e lab, aggiorna gli elementi esistenti (per `id`) e crea i nuovi.

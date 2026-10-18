@@ -29,7 +29,7 @@ async function setup(page: Page, { lang = 'it', demo = false, card = published, 
     const pageData = cardPage(card)
     pageData.state = { ...pageData.state, status: card.status, is_me_scribe: false, can_write: true }
     const summary: CardSummary = { day: card.day, author: card.author, updated_by: card.updated_by, published_at: card.published_at, subjects: ['INI'], has_lab: true, items: 2 }
-    const subject: SubjectEntryRow = { ...card.entries[0], day: card.day, author: card.author, updated_by: card.updated_by, items: card.items }
+    const subject: SubjectEntryRow = { ...card.entries[0], id: 1, day: card.day, author: card.author, updated_by: card.updated_by, items: card.items }
     const today: TodayInfo = {
       ...pageData.state, now: '2026-10-02T18:30:00+02:00', card, lessons: [], next_lessons: {},
       next_school_day: null, upcoming_soon: [], open_corrections: 0,
@@ -38,10 +38,10 @@ async function setup(page: Page, { lang = 'it', demo = false, card = published, 
       '/classes/TEST': info,
       '/me': { kind: 'member', member: info.viewer.member, classroom: info },
       '/classes/TEST/today': today,
-      '/classes/TEST/cards': [summary],
+      '/classes/TEST/cards': { results: [summary], next_cursor: null },
       '/classes/TEST/cards/2026-10-02': pageData,
       '/classes/TEST/cards/2026-10-02/feedback': { thanks: 0, thanked: false, open_corrections: 0, comments: [] },
-      '/classes/TEST/subjects/INI/entries': [subject],
+      '/classes/TEST/subjects/INI/entries': { results: [subject], next_cursor: null },
       '/healthz': { ok: true, version: 'dev' },
     }
     await route.fulfill({ json: routes[path] ?? {} })

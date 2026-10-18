@@ -200,24 +200,32 @@ def recap_start(cal: ClassCalendar) -> date:
     return created.astimezone(class_zone(classroom)).date()
 
 
-def missed_days(cal: ClassCalendar, today: date) -> dict[date, bool]:
+def missed_days(
+    cal: ClassCalendar, today: date, *, start: Optional[date] = None,
+    end: Optional[date] = None, limit: Optional[int] = None,
+) -> dict[date, bool]:
     """Past school days without a published recap, newest first, mapped to whether a draft exists."""
-    start = recap_start(cal)
-    if start >= today:
+    start = max(recap_start(cal), start or date.min)
+    end = min(today - timedelta(days=1), end or date.max)
+    if start > end:
         return {}
     status = {
         d: s
         for d, s in cal.session.exec(
             select(DayCard.day, DayCard.status).where(
-                DayCard.class_id == cal.classroom.id, DayCard.day >= start, DayCard.day < today
+                DayCard.class_id == cal.classroom.id, DayCard.day >= start, DayCard.day <= end
             )
         ).all()
     }
     out: dict[date, bool] = {}
-    d = today - timedelta(days=1)
+    d = end
     while d >= start:
         if cal.is_school_day(d) and status.get(d) != "published":
             out[d] = d in status
+            if limit is not None and len(out) >= limit:
+                break
+        if d == date.min:
+            break
         d -= timedelta(days=1)
     return out
 

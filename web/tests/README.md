@@ -1,3 +1,25 @@
+## Archive history (issue #106)
+
+`archive.spec.ts` opens the real application routes with deterministic HTTP responses:
+250 days (including gaps and drafts) and 454 subject blocks. It traverses every page,
+checks order and uniqueness, loading/next-page errors/retry/end, inclusive month/date
+filters and invalid or empty periods, inherited subject periods, keyboard loading,
+and loaded pages/scroll across day returns, reload and Back/Forward. It also checks
+retry during a multi-page reload and controls at 320/390/1280px in Italian/light and
+English/dark, including long subject names and recovery actions. The API suite
+`api/tests/test_archive.py` uses real requests and database data: over 200 publications,
+tied block positions, missing days/calendar rules, permissions, period boundaries,
+concurrent insertions/recovery, no repeated associated items and class isolation.
+
+```bash
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e -- --config playwright.archive.config.ts --project chromium
+```
+
+The dedicated config also supports WebKit when its host libraries are installed;
+`PLAYWRIGHT_WEBKIT_EXECUTABLE_PATH` can select an existing compatible launcher.
+Evidence in `docs/screenshots/issue-106/` and `docs/media/issue-106/` comes from the
+production build with a real local API and an isolated database, without HTTP mocks.
+
 ## Initial interface language
 
 `initial-language.spec.ts` opens the real landing route and simulates only HTTP responses and browser language preferences. It checks saved-choice priority, ordered browser preferences, regional tags, missing/empty lists, invalid saved values, English fallback, detection on each reload, and manual choices persisting after reload and browser preference changes. A DOM observer checks the heading, selector and document language at the first React render, including mobile dark theme. Automatic detection must leave saved language storage untouched. `language.spec.ts` continues to cover the existing manual transition and preservation of authored text, focus, selection, scroll and open dialogs.

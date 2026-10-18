@@ -16,7 +16,7 @@ async function setup(page: Page, { mobile = false, dark = false, english = false
     const url = route.request().url()
     if (url.includes('/upcoming')) await route.fulfill({ json: items })
     else if (url.includes('/today')) await route.fulfill({ json: today })
-    else if (url.includes('/subjects/')) await route.fulfill({ json: [{ ...card.entries[0], day: card.day, author: card.author, items }] })
+    else if (url.includes('/subjects/')) await route.fulfill({ json: { results: [{ ...card.entries[0], id: 1, day: card.day, author: card.author, items }], next_cursor: null } })
     else await route.fulfill({ json: { version: 'dev', status: 'idle' } })
   })
   await page.goto(`/tests/calendar.html?path=${encodeURIComponent(path)}${demo ? '&demo' : ''}`)

@@ -1,0 +1,23 @@
+{
+  "id": "2026.10.18.106",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Lo storico, fino in fondo", "en": "Your complete history" },
+  "summary": [
+    { "it": "Carica altre giornate e lezioni per raggiungere anche lo storico più vecchio.", "en": "Load more days and lessons to reach your oldest history too." },
+    { "it": "Scegli un mese o un intervallo: anche le giornate mancanti seguono il periodo selezionato.", "en": "Choose a month or date range: missing days follow the same period." },
+    { "it": "Tornando ai risultati ritrovi filtri, pagine caricate e posizione.", "en": "Return to your results with filters, loaded pages and reading position preserved." }
+  ],
+  "entries": [
+    {
+      "category": "fix",
+      "title": { "it": "Tutte le giornate e le lezioni sono raggiungibili", "en": "Every day and lesson is within reach" },
+      "body": { "it": "L’archivio e la vista per materia non si fermano più ai primi risultati. Con Carica altre puoi continuare fino alla fine dello storico. Durante il caricamento o un errore restano visibili i risultati già disponibili e puoi ritentare.", "en": "The archive and subject view no longer stop at the first results. Use Load more to continue to the end of your history. Existing results stay visible while loading or after an error, and you can retry." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Ritrova il periodo che ti serve", "en": "Find the period you need" },
+      "body": { "it": "Puoi navigare mese per mese o scegliere un intervallo di date, inclusi i giorni iniziale e finale. Pubblicazioni e giornate mancanti seguono gli stessi filtri. Aprendo una materia dall’archivio conservi il periodo; tornando da una giornata o usando Indietro, Avanti e Ricarica ritrovi il tuo contesto di lettura.", "en": "Browse month by month or choose a date range, including its first and last days. Published and missing days follow the same filters. Opening a subject from the archive keeps your period; returning from a day or using Back, Forward and Reload restores your reading context." }
+    }
+  ]
+}
