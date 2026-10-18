@@ -502,6 +502,12 @@
     "tt_flag_unclear_hour": "Ora poco chiara"
   },
   "school": {
+    "last_day_stat": "Ultima giornata",
+    "week_stat": "Giornate questa settimana",
+    "members_stat": "Partecipanti attivi / totali",
+    "open_class": "Apri {{label}}",
+    "holiday_day": "Data",
+    "holiday_kind": "Tipo di giorno",
     "title": "Area scuola",
     "sub": "Per dirigenza e collaboratori: vedi tutte le classi e quello che pubblicano.",
     "username": "Utente",

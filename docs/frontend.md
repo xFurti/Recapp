@@ -110,3 +110,19 @@ browser; `api.ts` la manda nell'header `X-Ieri-Now`. Il backend la accetta solo 
 - Componenti base in `components/ui.tsx`: `Button`, `Card`, `Modal`, `Chip`, `Segmented`,
   `Field`, `Avatar`, `Badge`, `EmptyState`, `Stairs` (le "scale" del logo).
 - Aree toccabili di almeno 44 px, focus visibile, `prefers-reduced-motion` rispettato.
+
+## Pagine di supporto e Area scuola (#149)
+
+`SupportPage.tsx` condivide `SupportHeader`, `PageReturn` e `PageIntro` tra Novità,
+FAQ, segnalazioni e Area scuola. `support-pages.css` limita le regole a queste viste:
+colonna di lettura da 48rem, colonna operativa da 64rem, margini interni da 20px stabili con testo ingrandito,
+titoli da 26px sul telefono e 32px sul desktop, introduzioni da 16px con interlinea 1,6.
+`support-panel` raggruppa contenuti principali; separatori e `support-meta` distinguono
+righe e informazioni secondarie. Le classi restano nello stesso ordine restituito dall’API.
+Le statistiche usano elenchi di definizioni e si dispongono su più righe quando serve.
+
+Questi componenti applicano la #149 alla base corrente: non incorporano le PR ancora
+aperte per #128, #129 e #143. I ruoli tipografici e le varianti di superficie potranno
+essere collegati alle rispettive basi condivise quando disponibili, senza modificare
+query, filtri, ancore o permessi. Nelle Novità il pannello strumenti ha un’altezza
+massima e scorre internamente quando testo ingrandito o filtri richiedono più spazio.

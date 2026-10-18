@@ -1,13 +1,13 @@
 import { TranslatedMessage } from '../components/TranslatedMessage'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowRight, CalendarOff, ChevronRight, Eye, EyeOff, LogOut, Megaphone, Plus, Trash2 } from 'lucide-react'
+import { ArrowRight, Building2, CalendarOff, Eye, EyeOff, LogOut, Megaphone, Plus, Trash2 } from 'lucide-react'
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { api } from '../api'
 import { InviteModal } from '../components/InviteModal'
-import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
-import { Badge, Button, Card, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
+import { PageIntro, PageReturn, SupportHeader } from '../components/SupportPage'
+import { Badge, Button, ErrorBox, Field, inputClass, Modal, Segmented, Spinner } from '../components/ui'
 import { capitalize, shortDay } from '../lib/format'
 import { useMe } from '../queries'
 import type { OwnerClass, ReportDetail, ReportStatus } from '../types'
@@ -20,23 +20,13 @@ export default function SchoolArea() {
   const { t } = useTranslation()
   const me = useMe()
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 border-b border-line bg-surface pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
-          <span className="flex min-w-0 items-center gap-2">
-            <Link to="/" aria-label={t('common.app_name')}><Wordmark /></Link>
-            <Logo className="h-7 sm:h-8" />
-          </span>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <ThemeToggle />
-            <LangToggle />
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-4xl px-5 py-8">
+    <div className="support-page min-h-dvh">
+      <SupportHeader operational />
+      <main className="support-width support-operational support-main">
+        <PageReturn to="/">{t('about.home')}</PageReturn>
         {me.isLoading ? <Spinner /> : me.data?.kind === 'owner' ? <Dashboard name={me.data.owner.display_name || me.data.owner.username} /> : <OwnerLogin />}
       </main>
-      <footer className="mx-auto max-w-4xl px-5 pb-8 text-xs text-muted"><span className="language-text">{t('landing.footer')}</span></footer>
+      <footer className="support-width support-operational pb-8 support-meta"><span className="language-text">{t('landing.footer')}</span></footer>
       {me.data?.kind === 'owner' && <ReleasePopup key={me.data.owner.username}
         account={officialReleaseAccount('owner', me.data.owner.username)} firstVisit />}
     </div>
@@ -58,10 +48,9 @@ function OwnerLogin() {
     login.mutate()
   }
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="text-3xl font-extrabold tracking-tight"><span className="language-text">{t('school.title')}</span></h1>
-      <p className="mt-1 text-muted"><span className="language-text">{t('school.sub')}</span></p>
-      <form onSubmit={submit} className="mt-6 space-y-4 rounded-3xl border border-line bg-surface p-6">
+    <div>
+      <PageIntro icon={Building2} title={t('school.title')} description={<span className="language-text">{t('school.sub')}</span>} />
+      <form onSubmit={submit} className="support-panel max-w-sm space-y-4 p-5 sm:p-6">
         <Field label={t('school.username')}>
           <input className={inputClass} value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />
         </Field>
@@ -105,43 +94,48 @@ function Dashboard({ name }: { name: string }) {
   }
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight"><span className="language-text">{t('school.title')}</span></h1>
-          <p className="mt-1 text-muted">{name} · <span className="language-text">{t('school.sub')}</span></p>
-        </div>
-        <Button variant="ghost" size="sm" onClick={logout}><LogOut className="size-4" /> <span className="language-text">{t('school.logout')}</span></Button>
-      </div>
+      <PageIntro icon={Building2} title={t('school.title')}
+        description={<><p className="font-medium text-ink">{name}</p><p className="language-text">{t('school.sub')}</p></>}
+        action={<Button variant="ghost" size="sm" onClick={logout}><LogOut className="size-4 shrink-0" aria-hidden /><span className="language-text">{t('school.logout')}</span></Button>} />
 
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold"><span className="language-text">{t('school.classes')}</span></h2>
+      <section aria-labelledby="school-classes">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="school-classes" className="support-section-title"><span className="language-text">{t('school.classes')}</span></h2>
           <Button size="sm" onClick={() => setCreating(true)}><Plus className="size-4" /> <span className="language-text">{t('school.create')}</span></Button>
         </div>
         {classes.isLoading && <Spinner />}
         {classes.error && <ErrorBox error={classes.error} />}
-        <div className="grid gap-3 sm:grid-cols-2">
+        <ol className="support-panel divide-y divide-line">
           {classes.data?.map((c) => (
-            <Card key={c.code} className="flex flex-col">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-lg font-extrabold">{c.label}</p>
-                  <p className="font-mono text-sm text-muted">{c.code}</p>
+            <li key={c.code} className="school-class">
+              <div className="school-class-identity">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-semibold">{c.label}</h3>
+                  {c.is_demo && <Badge className="bg-viola-soft text-viola-ink"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
                 </div>
-                {c.is_demo && <Badge className="bg-viola-soft text-viola-ink"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
+                <p className="support-meta font-mono">{c.code}</p>
+                {c.admins.length > 0 && <p className="support-meta mt-1"><TranslatedMessage message="school.admins" values={{ list: c.admins.join(', ') }} /></p>}
               </div>
-              <ul className="mt-3 space-y-1 text-sm">
-                <li><span className="language-text">{c.last_published ? t('school.last_published', { day: capitalize(shortDay(c.last_published, i18n.language)) }) : t('school.never')}</span></li>
-                <li><span className="language-text">{t('school.week', { count: c.published_this_week })}</span></li>
-                <li><span className="language-text">{t('school.members', { active: c.members_active, total: c.members_total })}</span></li>
-                {c.admins.length > 0 && <li className="text-muted"><TranslatedMessage message={'school.admins'} values={{ list: c.admins.join(', ') }} /></li>}
-              </ul>
-              <Link to={`/c/${c.code}`} className="mt-4 inline-flex items-center gap-1 self-start text-sm font-bold text-bordeaux hover:underline">
-                <span className="language-text">{t('school.open')}</span> <ArrowRight className="size-4" />
+              <dl className="school-class-stats">
+                <div>
+                  <dt className="language-text">{t('school.last_day_stat')}</dt>
+                  <dd>{c.last_published ? <time dateTime={c.last_published}>{capitalize(shortDay(c.last_published, i18n.language))}</time> : <span className="language-text">{t('school.never')}</span>}</dd>
+                </div>
+                <div>
+                  <dt className="language-text">{t('school.week_stat')}</dt>
+                  <dd>{c.published_this_week}</dd>
+                </div>
+                <div>
+                  <dt className="language-text">{t('school.members_stat')}</dt>
+                  <dd>{c.members_active}<span className="font-normal text-muted"> / {c.members_total}</span></dd>
+                </div>
+              </dl>
+              <Link to={`/c/${c.code}`} className="school-class-open" aria-label={t('school.open_class', { label: c.label })}>
+                <span className="language-text">{t('school.open')}</span><ArrowRight className="size-4 shrink-0" aria-hidden />
               </Link>
-            </Card>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       <Reports />
@@ -219,19 +213,19 @@ function Holidays() {
   const del = useMutation({ mutationFn: (d: string) => api.del(`/owner/holidays/${d}`), onSuccess: refresh })
   return (
     <section>
-      <button onClick={() => setOpen((o) => !o)} className="flex w-full items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-left" aria-expanded={open}>
+      <button onClick={() => setOpen((o) => !o)} className="support-panel flex w-full items-center justify-between gap-3 px-4 py-3 text-left" aria-expanded={open}>
         <span>
-          <span className="flex items-center gap-2 font-bold"><CalendarOff className="size-5 text-azzurro-ink" /> <span className="language-text">{t('school.calendar')}</span></span>
+          <span className="support-section-title flex items-center gap-2"><CalendarOff className="size-5 text-azzurro-ink" /> <span className="language-text">{t('school.calendar')}</span></span>
           <span className="text-sm text-muted"><span className="language-text">{t('school.calendar_sub')}</span></span>
         </span>
         <span className="text-sm font-semibold text-muted">{list.data?.length ?? ''}</span>
       </button>
       {open && (
-        <div className="mt-2 rounded-2xl border border-line bg-surface p-4">
+        <div className="support-panel mt-2 p-4">
           <form onSubmit={(e) => { e.preventDefault(); add.mutate() }} className="mb-4 grid gap-2 sm:grid-cols-[auto_1fr_auto_auto]">
-            <input type="date" className={inputClass} value={day} onChange={(e) => setDay(e.target.value)} required aria-label="Data" />
-            <input className={inputClass} value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('school.holiday_label')} required />
-            <select className={inputClass} value={kind} onChange={(e) => setKind(e.target.value as 'festivita' | 'sospensione')}>
+            <input type="date" className={inputClass} value={day} onChange={(e) => setDay(e.target.value)} required aria-label={t('school.holiday_day')} />
+            <input className={inputClass} value={label} onChange={(e) => setLabel(e.target.value)} placeholder={t('school.holiday_label')} aria-label={t('school.holiday_label')} required />
+            <select className={inputClass} value={kind} aria-label={t('school.holiday_kind')} onChange={(e) => setKind(e.target.value as 'festivita' | 'sospensione')}>
               <option value="festivita">{t('school.kind_festivita')}</option>
               <option value="sospensione">{t('school.kind_sospensione')}</option>
             </select>
@@ -239,11 +233,11 @@ function Holidays() {
           </form>
           <ul className="max-h-80 divide-y divide-line overflow-y-auto text-sm">
             {list.data?.map((h) => (
-              <li key={h.day} className="flex items-center gap-3 py-2">
-                <span className="w-28 shrink-0 font-semibold">{capitalize(shortDay(h.day, i18n.language))} {h.day.slice(0, 4)}</span>
-                <span className="flex-1">{h.label}</span>
+              <li key={h.day} className="flex flex-wrap items-center gap-3 py-3">
+                <span className="min-w-0 basis-28 font-medium">{capitalize(shortDay(h.day, i18n.language))} {h.day.slice(0, 4)}</span>
+                <span className="min-w-0 flex-[1_1_10rem]">{h.label}</span>
                 <Badge className={h.kind === 'festivita' ? 'bg-rosa-soft text-rosa-ink' : 'bg-azzurro-soft text-azzurro-ink'}><span className="language-text">{t(`school.kind_${h.kind}`)}</span></Badge>
-                <button onClick={() => del.mutate(h.day)} className="rounded-full p-1.5 text-muted hover:bg-rosa-soft hover:text-rosa-ink" aria-label={t('common.delete')}>
+                <button onClick={() => del.mutate(h.day)} className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-rosa-soft hover:text-rosa-ink" aria-label={t('common.delete')}>
                   <Trash2 className="size-4" />
                 </button>
               </li>
@@ -269,7 +263,7 @@ function Reports() {
     <section aria-labelledby="school-reports">
       <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="school-reports" className="flex items-center gap-2 text-lg font-bold">
+          <h2 id="school-reports" className="support-section-title flex flex-wrap items-center gap-2">
             <Megaphone className="size-5 text-bordeaux" aria-hidden /><span className="language-text">{t('report.school_title')}</span>
             {fresh > 0 && <Badge className="bg-azzurro-soft text-azzurro-ink"><span className="language-text">{t('report.new_count', { count: fresh })}</span></Badge>}
           </h2>
@@ -289,23 +283,22 @@ function Reports() {
       {list.error && <ErrorBox error={list.error} onRetry={() => list.refetch()} />}
       {list.data && !list.data.length && <p className="rounded-2xl border border-dashed border-line px-4 py-6 text-center text-sm text-muted"><span className="language-text">{t('report.school_empty')}</span></p>}
       {!!list.data?.length && (
-        <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+        <ul className="support-panel divide-y divide-line overflow-hidden">
           {list.data.map((r, i) => (
             <li key={r.id} className="report-row" style={{ '--i': Math.min(i, 8) } as CSSProperties}>
-              <button onClick={() => setOpenId(r.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-ink/[0.03]" aria-label={t('report.open', { title: r.title })}>
+              <button onClick={() => setOpenId(r.id)} className="support-report-row w-full text-left hover:bg-ink/[0.03]" aria-label={t('report.open', { title: r.title })}>
                 <span className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${r.kind === 'bug' ? 'bg-rosa-soft text-rosa-ink' : 'bg-giallo-soft text-ink'}`}>
                   <KindIcon kind={r.kind} />
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">{r.title}</span>
-                  <span className="block truncate text-xs text-muted">
+                <span className="min-w-0">
+                  <span className="block font-medium">{r.title}</span>
+                  <span className="support-meta block mt-1">
                     <span className="language-text">{t(`report.kind_${r.kind}`)}</span> · {reportDate(r.created_at, i18n.language)} · {r.context.class_label ?? <span className="language-text">{t('report.no_class')}</span>}
                     {r.context.nick && <> · {r.context.nick}</>}
                   </span>
+                  {r.is_demo && <Badge className="mt-1 bg-viola-soft text-viola-ink"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
                 </span>
-                {r.is_demo && <Badge className="hidden bg-viola-soft text-viola-ink sm:inline-flex"><span className="language-text">{t('school.demo_badge')}</span></Badge>}
                 <StatusBadge status={r.status} />
-                <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden />
               </button>
             </li>
           ))}
@@ -351,7 +344,7 @@ function ReportModal({ report, onClose }: { report: ReportDetail; onClose: () =>
         )}
         <div>
           <h3 className="mb-2 text-sm font-bold"><span className="language-text">{t('report.detail_context')}</span></h3>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-2xl bg-paper p-3.5 text-sm">
+          <dl className="grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] rounded-2xl bg-paper p-3.5 text-sm">
             {rows.filter(([, value]) => value).map(([key, value]) => (
               <div key={key} className="contents">
                 <dt className="text-muted"><span className="language-text">{t(`report.${key}`)}</span></dt>
@@ -362,7 +355,7 @@ function ReportModal({ report, onClose }: { report: ReportDetail; onClose: () =>
         </div>
         <fieldset>
           <legend className="mb-2 text-sm font-bold"><span className="language-text">{t('report.status_label')}</span></legend>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             {STATUSES.map((value) => (
               <label key={value} className={`flex min-h-11 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold transition has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-azzurro ${current === value ? 'border-ink bg-ink text-paper' : 'border-line hover:border-ink/40'}`}>
                 <input type="radio" name={`status-${report.id}`} value={value} checked={current === value} onChange={() => status.mutate(value)} className="sr-only" />

@@ -135,3 +135,19 @@ Issue #101 extends the layout checks to include the visible statistic labels and
 The final issue #101 captures in `docs/screenshots/issue-101/redesign/README.md` compare production builds using Inter in both versions. The new counter regression checks the actual line height of multi-digit numbers; the baseline split 12, 24 and 17, while final counters reserve the width of their real final glyphs.
 
 The final lighter presentation is captured in `docs/screenshots/issue-101/refined/README.md`. The pointer light/tilt feature and its dedicated test were removed; the remaining 47 cases cover the functional behavior, brief entrances, milestones and counter regression.
+
+## Support pages and school area (#149)
+
+`support-pages.spec.ts` renders the actual FAQ, News, Report and SchoolArea routes,
+with HTTP responses simulated by `support-fixture.ts`. The layout matrix covers
+320px, 390px and 1280px, Italian/English, light/dark, 100%/200% text and reduced motion.
+It checks overflow and clipping, long unbroken class names, aligned statistics,
+report validation/focus, category keyboard navigation, submission payloads, member-only
+lists, school-only actions, report filtering/status changes, dialogs and restored
+focus, public login, FAQ anchors and filtered release deep links. Existing
+`about.spec.ts` and `releases.spec.ts` retain the detailed FAQ/history regressions.
+These browser checks verify UI visibility, not backend authorization.
+
+Run `npm run test:e2e -- tests/support-pages.spec.ts tests/about.spec.ts tests/releases.spec.ts`.
+PR before/after captures use the original and final production builds with the same
+fictitious API responses; the media description identifies that limitation.

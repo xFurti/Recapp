@@ -1,0 +1,82 @@
+/* Secondary pages share an opening and reading measure. School lists use a wider,
+   denser layout. These rules stay local so the other design issues can evolve the shell. */
+.support-width { width: 100%; max-width: 48rem; margin-inline: auto; padding-inline: 20px; }
+.support-operational { max-width: 64rem; }
+.support-brand { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-block: 12px; }
+.support-main { padding-top: 1.25rem; padding-bottom: calc(4rem + env(safe-area-inset-bottom)); }
+.support-page { overflow-wrap: anywhere; }
+.support-return { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; max-width: 100%; margin-bottom: 1.25rem; padding-block: .5rem; font-size: .875rem; font-weight: 500; color: var(--color-muted); }
+.support-return:hover { color: var(--color-bordeaux); }
+.support-intro { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .875rem; padding-bottom: 1.75rem; margin-bottom: 1.75rem; border-bottom: 1px solid var(--color-line); }
+.support-intro-icon { display: inline-flex; flex: none; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: .875rem; background: var(--color-bordeaux-soft); color: var(--color-bordeaux); }
+.support-title { font-size: 1.625rem; font-weight: 700; line-height: 1.2; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.support-description { max-width: 38rem; margin-top: .625rem; color: var(--color-muted); font-size: 1rem; line-height: 1.6; }
+.support-intro > .min-w-0 { flex-basis: 16rem; }
+.support-intro-action { margin-left: auto; }
+.support-panel { border: 1px solid var(--color-line); border-radius: 1rem; background: var(--color-surface); }
+.support-section-title { font-size: 1.125rem; line-height: 1.4; font-weight: 600; }
+.support-meta { font-size: .8125rem; line-height: 1.5; font-weight: 400; color: var(--color-muted); }
+.support-page :is(.btn-spring, .report-status) { height: auto; white-space: normal; overflow-wrap: anywhere; }
+.support-page .btn-spring { min-height: 2.75rem; padding-block: .5rem; }
+.support-page :is(button, a, input, select, textarea):focus-visible { outline: 3px solid var(--color-azzurro); outline-offset: 3px; }
+.support-page :is(input, select, textarea) { min-width: 0; max-width: 100%; }
+.support-page .report-kind-option { min-width: 0; flex-wrap: wrap; padding: .625rem .375rem; text-align: center; font-size: .875rem; font-weight: 600; }
+.support-page .report-kind-option svg { flex-shrink: 0; }
+.support-page .report-status { max-width: 100%; font-size: .8125rem; }
+.support-page .report-status-dot { flex-shrink: 0; }
+.support-report-row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px 14px; padding: 16px; }
+.support-report-row > .report-status { grid-column: 2; justify-self: start; }
+.school-class { display: grid; gap: 1rem; padding: 1rem; }
+.school-class-identity { min-width: 0; }
+.school-class-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: .875rem; }
+.school-class-stats > div { min-width: 0; }
+.school-class-stats dt { font-size: .8125rem; line-height: 1.5; color: var(--color-muted); }
+.school-class-stats dd { margin-top: .125rem; font-size: 1rem; line-height: 1.5; font-weight: 500; font-variant-numeric: tabular-nums; }
+.school-class-open { display: inline-flex; align-items: center; justify-self: start; gap: .5rem; min-height: 2.75rem; padding-block: .5rem; color: var(--color-bordeaux); font-size: .875rem; font-weight: 600; }
+.school-class-open:hover { text-decoration: underline; text-underline-offset: .2em; }
+.support-page .faq-question[data-open='true'] { color: var(--color-bordeaux); background: var(--color-bordeaux-soft); }
+.support-page .faq-answer[data-open='true'] { border-left: 3px solid var(--color-bordeaux); }
+.support-page .release-entry { padding-left: 1.5rem; }
+.support-page .release-head { display: flex; flex-direction: column; gap: .75rem; }
+.support-page .release-title { font-size: 1.25rem; line-height: 1.35; font-weight: 600; letter-spacing: -.015em; }
+.support-page .release-benefit { font-size: 1rem; line-height: 1.6; overflow-wrap: anywhere; }
+.support-page .release-details { font-size: 1rem; line-height: 1.6; }
+.support-page .release-day-label { border: 0; border-radius: .5rem; font-size: .8125rem; font-weight: 400; }
+.support-page .release-month-title { font-size: 1.125rem; font-weight: 600; }
+.support-page .release-count { overflow-wrap: anywhere; }
+@media (min-width: 48rem) {
+  .support-title { font-size: 2rem; }
+  .support-intro { gap: 1rem; }
+  .school-class { grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr) auto; align-items: center; gap: 1.5rem; }
+  .support-report-row { grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+  .support-report-row > .report-status { grid-column: 3; }
+}
+/* Expanded date tools stay scrollable without covering the whole reading viewport. */
+.support-header > [role='search'] { max-height: 45dvh; overflow-y: auto; }
+.support-header [role='search'] label { max-width: 100%; }
+.support-header [role='search'] select { max-width: 100%; }
+.support-page .creator-step-controls { flex-wrap: wrap; max-width: 100%; }
+@media (prefers-reduced-motion: reduce) {
+  .support-page .release-entry { animation: none; }
+}
+/* Text enlargement must not also double branding and consume the reading measure. */
+.support-brand > span { gap: 8px; }
+.support-brand > span > a:first-child > span { height: 32px; gap: 8px; }
+.support-brand .school-logo img { height: 28px; }
+.support-brand > div { gap: 6px; }
+.support-brand .theme-toggle { width: 32px; height: 32px; }
+.support-brand .lang-btn { width: 28px; height: 28px; }
+.support-header [role='search'] label.order-1 { flex-basis: 9rem; }
+.support-intro-icon svg { width: 20px; height: 20px; }
+.support-page .faq-question { gap: 16px; padding-inline: 20px; }
+.support-page .faq-chevron { width: 20px; height: 20px; }
+.support-page .faq-answer > div > div { padding: 16px 20px 20px; }
+.support-page .report-card { padding: 20px; }
+.support-report-row > span:first-child { width: 36px; height: 36px; }
+.support-report-row > span:first-child svg { width: 16px; height: 16px; }
+@media (min-width: 40rem) {
+  .support-brand .school-logo img { height: 32px; }
+  .support-page .report-card { padding: 28px; }
+  .support-page .faq-question { padding-inline: 24px; }
+  .support-page .faq-answer > div > div { padding-inline: 24px; }
+}

@@ -7,6 +7,7 @@ import { BODY_MAX, reportDate, TITLE_MAX } from '../lib/report'
 import { useMe } from '../queries'
 import type { ReportBrief, ReportKind, ReportStatus } from '../types'
 import { Button, inputClass, Spinner } from './ui'
+import { PageIntro } from './SupportPage'
 
 const IMAGE_MAX = 8 * 1024 * 1024
 const KINDS: { value: ReportKind; icon: typeof Bug }[] = [
@@ -49,14 +50,8 @@ export function ReportBody({ from }: { from: string }) {
   const member = me.data?.kind === 'member'
   const [fresh, setFresh] = useState<number | null>(null)
   return (
-    <div className="report-page">
-      <div className="mb-7">
-        <span className="report-hero-icon relative mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-bordeaux-soft text-bordeaux">
-          <Megaphone className="size-6" aria-hidden />
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl"><span className="language-text">{t('report.title')}</span></h1>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-muted sm:text-lg"><span className="language-text">{t('report.intro')}</span></p>
-      </div>
+    <div className="support-page report-page">
+      <PageIntro icon={Megaphone} title={t('report.title')} description={<span className="language-text">{t('report.intro')}</span>} />
       <ReportForm from={from} member={member} onSent={setFresh} />
       {member && <MyReports fresh={fresh} />}
     </div>
@@ -183,7 +178,7 @@ function ReportForm({ from, member, onSent }: { from: string; member: boolean; o
 
   if (sent) {
     return (
-      <div ref={sentRef} tabIndex={-1} role="status" className="report-sent report-card rounded-3xl border border-line bg-surface p-6 text-center outline-none sm:p-8">
+      <div ref={sentRef} tabIndex={-1} role="status" className="report-sent report-card support-panel p-6 text-center outline-none sm:p-8">
         <svg viewBox="0 0 52 52" className="report-sent-check mx-auto size-16" aria-hidden>
           <circle cx="26" cy="26" r="24" pathLength={1} />
           <path d="M15 27 l7 7 l15 -16" pathLength={1} />
@@ -206,7 +201,7 @@ function ReportForm({ from, member, onSent }: { from: string; member: boolean; o
   const bodyCount = body.trim().length
 
   return (
-    <form noValidate onSubmit={submit} onPointerMove={spotlight} className="report-card space-y-6 rounded-3xl border border-line bg-surface p-5 sm:p-7">
+    <form noValidate onSubmit={submit} onPointerMove={spotlight} className="report-card support-panel space-y-6 p-5 sm:p-7">
       <fieldset aria-describedby={helpId}>
         <legend className="mb-2 text-sm font-semibold"><span className="language-text">{t('report.kind_label')}</span></legend>
         <div className="report-kind" data-kind={kind}>
@@ -334,7 +329,7 @@ function MyReports({ fresh }: { fresh: number | null }) {
   const mine = useMyReports(true)
   return (
     <section aria-labelledby="my-reports" className="mt-10">
-      <h2 id="my-reports" className="text-xl font-bold"><span className="language-text">{t('report.mine_title')}</span></h2>
+      <h2 id="my-reports" className="support-section-title"><span className="language-text">{t('report.mine_title')}</span></h2>
       <p className="mt-1 text-sm text-muted"><span className="language-text">{t('report.mine_hint')}</span></p>
       {mine.isLoading && <Spinner />}
       {mine.data && !mine.data.length && (
@@ -345,13 +340,13 @@ function MyReports({ fresh }: { fresh: number | null }) {
       {!!mine.data?.length && (
         <ol className="mt-4 space-y-2">
           {mine.data.map((r, i) => (
-            <li key={r.id} className="report-row flex items-center gap-3 rounded-2xl border border-line bg-surface px-3.5 py-3" data-fresh={r.id === fresh || undefined} style={{ '--i': Math.min(i, 8) } as CSSProperties}>
+            <li key={r.id} className="report-row support-report-row support-panel" data-fresh={r.id === fresh || undefined} style={{ '--i': Math.min(i, 8) } as CSSProperties}>
               <span className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${r.kind === 'bug' ? 'bg-rosa-soft text-rosa-ink' : 'bg-giallo-soft text-ink'}`}>
                 <KindIcon kind={r.kind} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-semibold">{r.title}</p>
-                <p className="text-xs text-muted">
+                <p className="font-medium [overflow-wrap:anywhere]">{r.title}</p>
+                <p className="support-meta">
                   <span className="language-text">{t(`report.kind_${r.kind}`)}</span> · <time dateTime={r.created_at}>{reportDate(r.created_at, i18n.language)}</time>
                 </p>
               </div>
