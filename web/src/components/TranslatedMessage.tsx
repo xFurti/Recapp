@@ -18,7 +18,7 @@ export function TranslatedMessage({ message, values }: { message: string; values
     if (part === '<b>' || part === '</b>') { bold = part === '<b>'; return null }
     const match = /^\uE000(\d+)\uE001$/.exec(part)
     return match
-      ? <Fragment key={`value-${match[1]}`}>{bold ? <strong className="font-extrabold">{interpolations[Number(match[1])]}</strong> : interpolations[Number(match[1])]}</Fragment>
-      : <span key={`text-${index}`} className={`language-text ${bold ? 'font-extrabold' : ''}`}>{part}</span>
+      ? <Fragment key={`value-${match[1]}`}>{bold ? <strong className="font-medium">{interpolations[Number(match[1])]}</strong> : interpolations[Number(match[1])]}</Fragment>
+      : <span key={`text-${index}`} className={`language-text ${bold ? 'font-medium' : ''}`}>{part}</span>
   })}</>
 }

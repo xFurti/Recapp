@@ -1,8 +1,16 @@
 @import 'tailwindcss';
+@import './typography.css';
 
 .lesson-status { container-type: inline-size; }
 @container (min-width: 36rem) {
   .lesson-status-options { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container (max-width: 18rem) {
+  .lesson-status-options { grid-template-columns: minmax(0, 1fr); }
+}
+@container (max-width: 10rem) {
+  .lesson-status-option { flex-wrap: wrap; justify-content: space-between; }
+  .lesson-status-option > span:first-of-type { flex-basis: 100%; order: 1; }
 }
 .lesson-status-option {
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
@@ -260,14 +268,20 @@
 
 /* Editor actions and floating controls sit above that dock. */
 .editor-actions {
-  bottom: calc(5rem + max(0.5rem, env(safe-area-inset-bottom)));
+  bottom: calc(var(--class-dock-height, 5rem) + max(1rem, env(safe-area-inset-bottom)));
 }
 .above-tab-bar {
-  bottom: calc(5.6rem + max(0.5rem, env(safe-area-inset-bottom)));
+  bottom: calc(var(--class-dock-height, 5rem) + max(1.6rem, env(safe-area-inset-bottom)));
 }
 @media (min-width: 768px) {
   .editor-actions { bottom: 0; }
   .above-tab-bar { bottom: 2rem; }
+}
+
+/* At enlarged text sizes a fixed toolbar would leave no room to read the editor. */
+.editor-layout { container: editor / inline-size; }
+@container editor (max-width: 12rem) {
+  .editor-actions { position: static; }
 }
 
 /* Nav icon and Recapp mark micro-animations (see NavIcon.tsx). Only transforms, only on the icon.

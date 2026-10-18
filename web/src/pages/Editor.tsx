@@ -316,8 +316,8 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       attachments: state.attachment_ids.map((id) => ({ id, width: 0, height: 0 })),
     }
     return (
-      <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
-        <h1 className="text-xl font-extrabold"><span className="language-text">{t('editor.preview_title')}</span></h1>
+      <div className="editor-layout space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
+        <h1 className="type-page-title"><span className="language-text">{t('editor.preview_title')}</span></h1>
         <DayCardView card={card} subjects={info.subjects} classLabel={info.label} />
         <ActionBar save={save} published={published} onPreview={() => setPreview(false)} previewLabel={t('editor.back_edit')} onPublish={publish} publishing={publishing} error={publishError} />
         {emptyNotice && <EmptyPublishDialog onComplete={completeEmpty} onClose={() => setEmptyNotice(false)} />}
@@ -328,12 +328,12 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   const writableKey = state.entries.find((entry) => entry.lesson_status !== 'non_svolta')?.key
 
   return (
-    <div className="space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
+    <div className="editor-layout space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
       <div>
         <Link to={`/c/${info.code}`} className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
           <ArrowLeft className="size-4" /> <span className="language-text">{t('nav.today')}</span>
         </Link>
-        <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('editor.title', { day: longDay(day, lang) })}</span></h1>
+        <h1 className="type-page-title"><span className="language-text">{t('editor.title', { day: longDay(day, lang) })}</span></h1>
         <p className="mt-1 text-sm text-muted"><span className="language-text">{t('editor.subtitle')}</span></p>
       </div>
 
@@ -349,7 +349,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       )}
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.lessons')}</span></h2>
+        <h2 className="type-section-title text-muted"><span className="language-text">{t('editor.lessons')}</span></h2>
         {state.entries.length === 0 && <p className="text-sm text-muted"><span className="language-text">{t('editor.no_lessons')}</span></p>}
         {state.entries.map((entry) => (
           <EntryEditor
@@ -383,7 +383,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       {otherItems.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.other_items')}</span></h2>
+          <h2 className="mb-2 type-section-title text-muted"><span className="language-text">{t('editor.other_items')}</span></h2>
           <div className="space-y-2">
             {otherItems.map((it) => (
               <ItemChip key={it.key} item={it} onEdit={() => setForm(it)} onRemove={() => removeItem(it.key)} />
@@ -394,7 +394,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
 
       {state.attachment_ids.length > 0 && (
         <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
+          <h2 className="mb-2 type-section-title text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
           <div className="flex flex-wrap gap-2">
             {state.attachment_ids.map((id) => (
               <div key={id} className="relative">
@@ -413,13 +413,13 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       )}
 
       <section>
-        <label htmlFor="notes" className="mb-2 block text-sm font-bold uppercase tracking-wide text-muted">
+        <label htmlFor="notes" className="mb-2 block type-section-title text-muted">
           <span className="language-text">{t('editor.notes_title')}</span>
         </label>
         <textarea
           id="notes"
           rows={3}
-          className={inputClass}
+          className={`${inputClass} type-prose`}
           placeholder={t('editor.notes_ph')}
           value={state.notes}
           maxLength={1500}
@@ -459,7 +459,7 @@ function EntryEditor({
 }) {
   const info = useClass()
   const { t, i18n } = useTranslation()
-  const refs = useRef<(HTMLInputElement | null)[]>([])
+  const refs = useRef<(HTMLTextAreaElement | null)[]>([])
   const [focusIdx, setFocusIdx] = useState<number | null>(null)
   const [linkOpen, setLinkOpen] = useState(!!entry.lab?.repo_url.trim())
   const linkInput = useRef<HTMLInputElement>(null)
@@ -473,7 +473,7 @@ function EntryEditor({
   }, [focusIdx, entry.bullets.length])
 
   const setBullet = (i: number, v: string) => onChange({ bullets: entry.bullets.map((b, j) => (j === i ? v : b)) })
-  const onKey = (i: number, e: KeyboardEvent<HTMLInputElement>) => {
+  const onKey = (i: number, e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
       if (entry.bullets.length < 5) {
@@ -496,9 +496,9 @@ function EntryEditor({
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h3 className="min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
-        {entry.hours && <span className="text-xs text-muted"><span className="language-text">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span></span>}
-        {entry.room && <span className="text-xs text-muted">· {entry.room}</span>}
+        <h3 className="min-w-0 type-section-title">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
+        {entry.hours && <span className="type-meta text-muted"><span className="language-text">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span></span>}
+        {entry.room && <span className="type-meta text-muted">· {entry.room}</span>}
         {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
         <button onClick={onRemove} className="ml-auto shrink-0 rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_subject')} title={t('editor.remove_subject')}>
           <Trash2 className="size-4" />
@@ -515,13 +515,15 @@ function EntryEditor({
           <>
             <ul className="space-y-1.5">
               {entry.bullets.map((b, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <span className="size-1.5 shrink-0 rounded-full bg-muted/60" aria-hidden />
-                  <input
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-4 size-1.5 shrink-0 rounded-full bg-muted/60" aria-hidden />
+                  <textarea
+                    rows={2}
+                    aria-label={`${subjectName(info.subjects, entry.subject_code, i18n.language)} · ${i + 1}`}
                     ref={(el) => {
                       refs.current[i] = el
                     }}
-                    className="w-full border-0 border-b border-transparent bg-transparent py-1.5 text-[15px] placeholder:text-muted/60 focus:border-azzurro focus:outline-none"
+                    className="type-prose min-w-0 w-full min-h-[3.2em] resize-y [field-sizing:content] border-0 border-b border-transparent bg-transparent py-1.5 placeholder:text-muted/60 focus:border-azzurro focus:outline-none"
                     placeholder={t(entry.is_lab ? 'editor.lab_bullet_ph' : 'editor.bullet_ph')}
                     value={b}
                     data-publish-target={publishTarget && i === 0 ? '' : undefined}
@@ -543,7 +545,7 @@ function EntryEditor({
                 + <span className="language-text">{t('editor.add_bullet')}</span>
               </button>
             ) : (
-              <p className="text-xs text-muted"><span className="language-text">{t('editor.max_bullets')}</span></p>
+              <p className="type-meta text-muted"><span className="language-text">{t('editor.max_bullets')}</span></p>
             )}
 
             <label className="flex w-fit cursor-pointer items-center gap-2 text-sm font-semibold">
@@ -561,15 +563,15 @@ function EntryEditor({
             {entry.is_lab && (
               <div className="space-y-3 rounded-xl border border-verde/30 bg-verde-soft p-3">
                 <label className="block" htmlFor={`${labId}-notes`}>
-                  <span className="language-text mb-1 block text-sm font-bold text-verde-ink">{t('day.lab_notes')}</span>
+                  <span className="language-text mb-1 block type-label text-verde-ink">{t('day.lab_notes')}</span>
                 </label>
                 <p id={`${labId}-hint`} className="text-sm text-muted"><span className="language-text">{t('editor.lab_hint')}</span></p>
-                <textarea id={`${labId}-notes`} aria-describedby={`${labId}-hint`} className={inputClass} rows={4} maxLength={3000}
+                <textarea id={`${labId}-notes`} aria-describedby={`${labId}-hint`} className={`${inputClass} type-prose`} rows={4} maxLength={3000}
                   value={lab.notes ?? ''} placeholder={t('editor.lab_notes_ph')} onChange={(e) => setLab({ notes: e.target.value })} />
                 {linkOpen ? (
                   <div className="flex items-end gap-2">
                     <label className="block min-w-0 flex-1">
-                      <span className="language-text mb-1 block text-sm font-bold text-verde-ink">{t('day.lab_link')}</span>
+                      <span className="language-text mb-1 block type-label text-verde-ink">{t('day.lab_link')}</span>
                       <input ref={linkInput} className={inputClass} inputMode="url" value={lab.repo_url} placeholder={t('editor.lab_link_ph')}
                         maxLength={500} onChange={(e) => setLab({ repo_url: e.target.value })} />
                     </label>
@@ -593,7 +595,7 @@ function EntryEditor({
         )}
 
         <div className="border-t border-dashed border-line pt-3">
-          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.assigned_today')}</span></p>
+          <p className="mb-2 type-label text-muted"><span className="language-text">{t('editor.assigned_today')}</span></p>
           {entry.is_lab && <p className="mb-2 text-sm text-muted"><span className="language-text">{t('editor.lab_items_hint')}</span></p>}
           {items.length > 0 && (
             <div className="mb-2 space-y-2">
@@ -606,7 +608,7 @@ function EntryEditor({
             {QUICK_TYPES.map((ty, index) => {
               const Icon = TYPE_STYLE[ty].icon
               return (
-                <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
+                <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex min-h-9 max-w-full py-1.5 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
                   <Plus className="size-3.5" />
                   <Icon className="size-4" /> <span className="language-text">{t(`editor.add_${ty}`)}</span>
                 </button>
@@ -627,8 +629,8 @@ function ItemChip({ item, onEdit, onRemove }: { item: ItemInput; onEdit: () => v
       <button onClick={onEdit} className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-left">
         <TypeBadge type={item.type} />
         <SubjectTag subjects={info.subjects} code={item.subject_code} />
-        <span className="min-w-0 truncate font-semibold">{item.title}</span>
-        <span className="text-xs text-muted">{relativeDay(item.due_date, t, i18n.language)}</span>
+        <span className="min-w-0 type-item-title">{item.title}</span>
+        <span className="type-meta text-muted">{relativeDay(item.due_date, t, i18n.language)}</span>
       </button>
       <button onClick={onRemove} className="rounded-full p-1.5 text-muted hover:bg-ink/5 hover:text-rosa-ink" aria-label={t('editor.remove_item')}>
         <X className="size-4" />
@@ -665,7 +667,7 @@ function PhotoUpload({ ids, onAdd, onRemove }: { ids: number[]; onAdd: (id: numb
   }
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <label className="flex cursor-pointer items-center gap-2 text-xs text-muted">
+      <label className="flex cursor-pointer items-center gap-2 type-meta text-muted">
         <input type="checkbox" className="size-4 accent-bordeaux" checked={privacy} onChange={(e) => setPrivacy(e.target.checked)} />
         <span className="language-text">{t('editor.privacy_check')}</span>
       </label>
@@ -675,7 +677,7 @@ function PhotoUpload({ ids, onAdd, onRemove }: { ids: number[]; onAdd: (id: numb
           <ImagePlus className="size-4" /> <span className="language-text">{t('day.add_photo')}</span>
         </Button>
       ) : (
-        <span className="text-xs text-muted"><span className="language-text">{t('day.photo_limit')}</span></span>
+        <span className="type-meta text-muted"><span className="language-text">{t('day.photo_limit')}</span></span>
       )}
       {ids.map((id) => (
         <button key={id} onClick={() => onRemove(id)} className="text-xs font-semibold text-muted hover:text-rosa-ink" aria-label={t('editor.remove_item')}>
@@ -693,7 +695,7 @@ function AddSubject({ onAdd, publishTarget }: { onAdd: (code: string) => void; p
   const [open, setOpen] = useState(false)
   if (!open) {
     return (
-      <button data-publish-target={publishTarget ? '' : undefined} onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-line py-3 text-sm font-semibold text-muted hover:border-ink/30 hover:text-ink" title={t('editor.add_subject_title')}>
+      <button data-publish-target={publishTarget ? '' : undefined} onClick={() => setOpen(true)} className="flex min-w-0 w-full items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed border-line py-3 text-sm font-semibold text-muted hover:border-ink/30 hover:text-ink" title={t('editor.add_subject_title')}>
         <Plus className="size-4" /> <span className="language-text">{t('editor.add_subject')}</span>
       </button>
     )
@@ -707,7 +709,7 @@ function AddSubject({ onAdd, publishTarget }: { onAdd: (code: string) => void; p
             onAdd(s.code)
             setOpen(false)
           }}
-          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold hover:border-ink/40"
+          className="inline-flex min-h-9 max-w-full py-1.5 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold hover:border-ink/40"
         >
           <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} />
           {subjectName(info.subjects, s.code, i18n.language)}
@@ -790,7 +792,7 @@ function AiSources({
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">
-      <h2 className="flex items-center gap-2 font-bold">
+      <h2 className="flex items-center gap-2 type-section-title">
         <Sparkles className="size-5 text-viola" /> <span className="language-text">{t('editor.sources_title')}</span>
       </h2>
       <p className="mt-0.5 text-sm text-muted"><span className="language-text">{t('editor.sources_sub')}</span></p>
@@ -822,7 +824,7 @@ function AiSources({
       {drafts.length > 0 && (
         <div className="mt-4">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.drafts_title')}</span></p>
+            <p className="type-label text-muted"><span className="language-text">{t('editor.drafts_title')}</span></p>
             <button
               className="text-sm font-semibold text-bordeaux"
               onClick={() => {
@@ -878,12 +880,12 @@ function ActionBar({
   return (
     <div className="editor-actions fixed inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:left-60">
       <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center">
-        <p className={`text-xs leading-snug sm:min-w-0 sm:flex-1 sm:truncate ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <Button variant="secondary" size="sm" onClick={onPreview} className="w-full sm:w-auto">
+        <p className={`type-meta sm:min-w-0 sm:flex-1 ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
+        <div className="flex flex-wrap gap-2 sm:flex-nowrap">
+          <Button variant="secondary" size="sm" onClick={onPreview} className="flex-[1_1_8rem] sm:flex-none">
             <Eye className="size-4" /> <span className="language-text">{previewLabel}</span>
           </Button>
-          <Button size="sm" onClick={onPublish} loading={publishing} className="w-full sm:w-auto">
+          <Button size="sm" onClick={onPublish} loading={publishing} className="flex-[1_1_8rem] sm:flex-none">
             <span className="language-text">{published ? t('editor.republish') : t('editor.publish')}</span>
           </Button>
         </div>

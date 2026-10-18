@@ -22,12 +22,12 @@ export function Button({
   children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: 'sm' | 'md' | 'lg'; loading?: boolean }) {
-  const sizes = { sm: 'h-9 px-3 text-sm', md: 'h-11 px-4 text-[15px]', lg: 'h-13 px-5 text-base' }
+  const sizes = { sm: 'min-h-9 px-3 py-1.5', md: 'min-h-11 px-4 py-2', lg: 'min-h-13 px-5 py-2.5' }
   return (
     <button
       {...props}
       disabled={props.disabled || loading}
-      className={`btn-spring inline-flex items-center justify-center gap-2 rounded-xl font-semibold disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
+      className={`btn-spring inline-flex items-center justify-center gap-2 rounded-xl type-action min-w-0 max-w-full [&>svg]:shrink-0 disabled:cursor-not-allowed disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${className}`}
     >
       {loading && <LoaderCircle className="size-4 animate-spin" aria-hidden />}
       {children}
@@ -79,7 +79,7 @@ export function Avatar({ nick, color, size = 'md' }: { nick: string; color: stri
 
 export function Badge({ className = '', children }: { className?: string; children: ReactNode }) {
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${className}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 type-badge min-w-0 max-w-full [&>svg]:shrink-0 ${className}`}>
       {children}
     </span>
   )
@@ -89,7 +89,7 @@ export function EmptyState({ title, text, children }: { title: string; text?: st
   return (
     <div className="flex flex-col items-center px-6 py-10 text-center">
       <img src={recappIcon} alt="" className="mb-4 h-20 w-auto" />
-      <p className="language-text text-lg font-semibold">{title}</p>
+      <p className="language-text type-section-title">{title}</p>
       {text && <p className="language-text mt-1 max-w-sm text-muted">{text}</p>}
       {children && <div className="mt-4">{children}</div>}
     </div>
@@ -115,7 +115,7 @@ export function Segmented<T extends string>({
           role="tab"
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
-          className={`min-h-11 rounded-lg px-3 py-1.5 text-sm font-semibold transition md:min-h-0 ${
+          className={`min-h-11 rounded-lg px-3 py-1.5 type-label transition ${
             value === o.value ? 'bg-surface text-ink shadow-sm' : 'text-muted hover:text-ink'
           }`}
         >
@@ -142,7 +142,7 @@ export function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-sm font-semibold transition ${
+      className={`inline-flex min-h-9 py-1.5 max-w-full shrink-0 items-center gap-1.5 rounded-full border px-3 type-label transition ${
         active ? 'border-ink bg-ink text-paper' : 'border-line bg-surface text-ink hover:border-ink/40'
       } ${className}`}
     >
@@ -234,8 +234,8 @@ export function Modal({
         className={`modal-sheet max-h-[92%] min-w-0 w-full overscroll-contain overflow-y-auto rounded-t-3xl bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl sm:rounded-3xl sm:pb-5 ${wide ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}
       >
         <div className="sticky -top-5 z-10 -mx-5 -mt-5 mb-4 flex items-center justify-between gap-4 bg-surface px-5 py-4">
-          <h2 id={titleId} className={typeof title === 'string' ? 'language-text text-lg font-bold' : 'text-lg font-bold'}>{title}</h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-ink/5" aria-label={t('common.close')}>
+          <h2 id={titleId} className={typeof title === 'string' ? 'language-text type-section-title' : 'type-section-title'}>{title}</h2>
+          <button onClick={onClose} className="shrink-0 rounded-full p-2 hover:bg-ink/5" aria-label={t('common.close')}>
             <X className="size-5" />
           </button>
         </div>
@@ -302,7 +302,8 @@ export function AnchoredMenu({
       const width = menu.offsetWidth
       const height = menu.offsetHeight
       // The class pages keep a bottom tab bar on small screens; don't tuck the menu under it.
-      const bottomInset = window.innerWidth < 768 ? 128 : 8
+      const dock = document.querySelector<HTMLElement>('.tab-bar')?.getBoundingClientRect()
+      const bottomInset = dock?.height ? window.innerHeight - dock.top + 8 : 8
       const below = anchor.bottom + gap
       const above = anchor.top - gap - height
       const openAbove = below + height > window.innerHeight - bottomInset && above >= 8
@@ -354,15 +355,15 @@ export function useDismiss(ref: RefObject<HTMLElement | null>, open: boolean, on
 export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="language-text mb-1 block text-sm font-semibold text-ink">{label}</span>
+      <span className="language-text mb-1 block type-label text-ink">{label}</span>
       {children}
-      {hint && <span className="language-text mt-1 block text-xs text-muted">{hint}</span>}
+      {hint && <span className="language-text mt-1 block type-meta text-muted">{hint}</span>}
     </label>
   )
 }
 
 export const inputClass =
-  'min-w-0 max-w-full w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-base sm:text-[15px] text-ink placeholder:text-muted/70 focus:border-azzurro focus:outline-none focus:ring-2 focus:ring-azzurro/20'
+  'min-w-0 max-w-full w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-prose text-ink placeholder:text-muted/70 focus:border-azzurro focus:outline-none focus:ring-2 focus:ring-azzurro/20'
 
 export function Toast({ message, onDone }: { message: string | null; onDone: () => void }) {
   useEffect(() => {

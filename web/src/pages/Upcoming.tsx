@@ -55,10 +55,10 @@ function SubjectFilterMenu({
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label={t('upcoming.subject')}
-        className="inline-flex h-10 max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
+        className="inline-flex min-h-10 py-1.5 max-w-full items-center gap-2 rounded-full border border-line bg-surface px-3 text-sm font-semibold hover:border-ink/30"
       >
         <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: dot }} aria-hidden />
-        <span className="truncate">{label}</span>
+        <span className="min-w-0 text-left [overflow-wrap:anywhere]">{label}</span>
         <ChevronDown className={`size-4 shrink-0 text-muted transition ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
@@ -160,7 +160,7 @@ export default function Upcoming() {
       const full = capitalize(shortDay(day, i18n.language))
       return (
       <section key={day}>
-        <h2 className="mb-2 mt-5 flex items-baseline gap-2 text-sm font-bold">
+        <h2 className="mb-2 mt-5 flex flex-wrap items-baseline gap-2 type-section-title">
           <span>{rel}</span>
           {rel !== full && <span className="font-medium text-muted">{full}</span>}
         </h2>
@@ -183,8 +183,8 @@ export default function Upcoming() {
 
   return (
     <ItemCorrectionsProvider><div>
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-extrabold tracking-tight"><span className="language-text">{t('upcoming.title')}</span></h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="type-page-title"><span className="language-text">{t('upcoming.title')}</span></h1>
         {canAdd && (
           <Button onClick={() => setForm(emptyItem(type ?? 'compito', null, nextLessons))} className="max-sm:hidden">
             <Plus className="size-4" /> <span className="language-text">{t('upcoming.add')}</span>

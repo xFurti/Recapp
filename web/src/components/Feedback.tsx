@@ -88,7 +88,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   return (
     <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 font-bold">
+        <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 type-section-title">
           <MessageCircle className="size-5 text-bordeaux" /> <span className="language-text">{t('feedback.replies')}</span>
         </h3>
         {data?.can_thank === false ? (
@@ -120,10 +120,10 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
                       <TriangleAlert className="size-3" /> <span className="language-text">{c.resolved ? t('feedback.resolved') : t('feedback.kind_correction')}</span>
                     </Badge>
                   )}
-                  <span className="text-xs text-muted">{timeOf(c.created_at, i18n.language)}</span>
+                  <span className="type-meta text-muted">{timeOf(c.created_at, i18n.language)}</span>
                 </p>
-                <p className="mt-0.5 whitespace-pre-line text-[15px]">{c.body}</p>
-                <div className="mt-1 flex gap-3 text-xs font-semibold text-muted">
+                <p className="mt-0.5 type-prose whitespace-pre-line">{c.body}</p>
+                <div className="mt-1 flex flex-wrap gap-3 type-label text-muted">
                   {c.kind === 'correction' && !readOnly && (
                     <button onClick={() => patch.mutate(c)} className="hover:text-ink">
                       <span className="language-text">{c.resolved ? t('feedback.reopen') : t('feedback.resolve')}</span>
@@ -143,15 +143,15 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
 
       {!readOnly && (
         <form onSubmit={submit} className="mt-4 space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(['comment', 'correction'] as const).map((k) => (
               <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
                 {k === 'correction' && <TriangleAlert className="size-3.5" />} <span className="language-text">{t(`feedback.kind_${k}`)}</span>
               </Chip>
             ))}
           </div>
-          <div className="flex gap-2">
-            <input className={inputClass} value={body} onChange={(e) => setBody(e.target.value)} placeholder={t('feedback.placeholder')} maxLength={500} />
+          <div className="flex flex-wrap gap-2">
+            <input className={`${inputClass} flex-[1_1_10rem]`} value={body} onChange={(e) => setBody(e.target.value)} placeholder={t('feedback.placeholder')} maxLength={500} />
             <Button type="submit" loading={send.isPending} disabled={!body.trim()}>
               <span className="language-text">{t('feedback.send')}</span>
             </Button>

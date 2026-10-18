@@ -1,0 +1,78 @@
+/* Shared text roles. Sizes in rem follow the reader's preferred text size. */
+@theme {
+  --text-page-title: 1.625rem;
+  --text-page-title--line-height: 1.2;
+  --text-page-title--font-weight: 700;
+  --text-section-title: 1.125rem;
+  --text-section-title--line-height: 1.4;
+  --text-section-title--font-weight: 600;
+  --text-item-title: 1rem;
+  --text-item-title--line-height: 1.45;
+  --text-item-title--font-weight: 600;
+  --text-prose: 1rem;
+  --text-prose--line-height: 1.6;
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.5;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.5;
+  --text-label--font-weight: 500;
+  --text-badge: 0.8125rem;
+  --text-badge--line-height: 1.4;
+  --text-badge--font-weight: 500;
+  --text-action: 0.9375rem;
+  --text-action--line-height: 1.4;
+  --text-action--font-weight: 500;
+  --reading-measure: 68ch;
+}
+
+@utility type-page-title {
+  font-size: var(--text-page-title);
+  line-height: var(--text-page-title--line-height);
+  font-weight: var(--text-page-title--font-weight);
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+  @media (min-width: 48rem) { font-size: 2rem; }
+}
+@utility type-section-title {
+  font-size: var(--text-section-title);
+  line-height: var(--text-section-title--line-height);
+  font-weight: var(--text-section-title--font-weight);
+  overflow-wrap: anywhere;
+}
+@utility type-item-title {
+  font-size: var(--text-item-title);
+  line-height: var(--text-item-title--line-height);
+  font-weight: var(--text-item-title--font-weight);
+  overflow-wrap: anywhere;
+}
+@utility type-prose {
+  max-width: var(--reading-measure);
+  font-size: var(--text-prose);
+  line-height: var(--text-prose--line-height);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+@utility type-meta {
+  font-size: var(--text-meta);
+  line-height: var(--text-meta--line-height);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+@utility type-label {
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  font-weight: var(--text-label--font-weight);
+  overflow-wrap: anywhere;
+}
+@utility type-badge {
+  font-size: var(--text-badge);
+  line-height: var(--text-badge--line-height);
+  font-weight: var(--text-badge--font-weight);
+  overflow-wrap: anywhere;
+}
+@utility type-action {
+  font-size: var(--text-action);
+  line-height: var(--text-action--line-height);
+  font-weight: var(--text-action--font-weight);
+  overflow-wrap: anywhere;
+}

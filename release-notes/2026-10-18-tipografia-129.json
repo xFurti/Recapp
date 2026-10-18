@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.18.129",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Appunti e titoli più leggibili",
+    "en": "More readable notes and headings"
+  },
+  "summary": [
+    {
+      "it": "Titoli, appunti e dettagli hanno dimensioni e pesi più riconoscibili.",
+      "en": "Headings, notes and details have more distinct sizes and weights."
+    },
+    {
+      "it": "Gli appunti hanno più spazio tra le righe e una lunghezza di lettura contenuta.",
+      "en": "Notes have more space between lines and a comfortable reading width."
+    },
+    {
+      "it": "Titoli lunghi e comandi vanno a capo quando ingrandisci il testo.",
+      "en": "Long headings and controls wrap when you enlarge text."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Una gerarchia più chiara",
+        "en": "A clearer text hierarchy"
+      },
+      "body": {
+        "it": "Le viste di lettura, gli elenchi e l’editor distinguono titoli, contenuti e metadati con una scala coerente. Meno grassetti e maiuscole, appunti con interlinea più ampia e dettagli leggibili aiutano a seguire la giornata. Nell’editor anche i punti degli appunti vanno a capo; Invio continua ad aggiungere un punto. I titoli lunghi e i pulsanti possono occupare più righe con il testo ingrandito.",
+        "en": "Reading views, lists and the editor distinguish headings, content and metadata with a consistent scale. Fewer bold and uppercase labels, more space between lines in notes and readable details help you follow the day. Note bullets also wrap in the editor; Enter still adds a bullet. Long headings and buttons can use multiple lines when text is enlarged."
+      }
+    }
+  ]
+}

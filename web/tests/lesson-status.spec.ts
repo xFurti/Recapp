@@ -47,7 +47,7 @@ test('saved state, autosave, reopening, preview and publication preserve all les
   expect(saves()).toBeGreaterThanOrEqual(3)
   await page.goto('/tests/lesson-status.html')
   await expect(group.getByRole('radio', { name: 'Verifica svolta', exact: true })).toBeChecked()
-  await expect(page.locator('input[value="API e database"]')).toBeVisible()
+  await expect(page.getByRole('textbox', { name: /Informatica.* · 1/ })).toBeVisible()
   await expect(page.getByRole('checkbox', { name: 'Lezione in laboratorio' }).first()).toBeChecked()
   await page.getByRole('button', { name: 'Anteprima', exact: true }).click()
   await expect(page.getByText('Verifica svolta', { exact: true })).toBeVisible()

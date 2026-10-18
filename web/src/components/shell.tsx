@@ -323,8 +323,8 @@ function ProfileMenu({ info, onTour }: { info: ClassInfo; onTour: () => void }) 
           <div className="profile-row flex items-start gap-3 px-2 py-2" style={{ '--i': 0 } as CSSProperties}>
             {member ? <Avatar nick={member.nick} color={member.color} /> : <School className="size-10 text-bordeaux" />}
             <div className="min-w-0 flex-1">
-              <p className="truncate font-bold">{member ? member.nick : t('shell.school_view')}</p>
-              <p className="truncate text-xs text-muted">
+              <p className="type-label">{member ? member.nick : t('shell.school_view')}</p>
+              <p className="type-meta text-muted">
                 {member && <><span className="language-text">{t(`shell.role_${member.role}`)}</span> · </>}{info.label}
                 {info.is_demo && <> · <span className="language-text">{t('shell.demo')}</span></>}
               </p>
@@ -409,6 +409,18 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const autoTried = useRef(false)
   const headerRef = useRef<HTMLElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
+  // Text enlargement can add lines to the dock; fixed controls follow its actual height.
+  useLayoutEffect(() => {
+    const bar = barRef.current
+    const shell = bar?.parentElement
+    if (!bar || !shell) return
+    const update = () => shell.style.setProperty('--class-dock-height', `${bar.getBoundingClientRect().height}px`)
+    const observer = new ResizeObserver(update)
+    observer.observe(bar)
+    update()
+    return () => { observer.disconnect(); shell.style.removeProperty('--class-dock-height') }
+  }, [])
+
   // One page per first segment after the class: filters, days and subjects stay on the same page.
   const page = location.pathname.toLowerCase().split('/')[3] ?? ''
 
@@ -468,13 +480,13 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
               <Link to="/scuola" className="underline"><span className="language-text">{t('shell.back_school')}</span></Link>
             </div>
           )}
-          <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
+          <div className="mx-auto flex min-h-14 max-w-3xl flex-wrap py-2 items-center gap-2 px-4">
             <Link to={base} className="flex h-7 shrink-0 md:hidden" aria-label="Recapp" {...topMark.triggers}>
               <RecappMark playing={topMark.playing} className="h-7" />
             </Link>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold leading-tight">{info.label}</p>
-              <p className="hidden truncate text-xs text-muted sm:block"><span className="language-text">{t('common.app_name')}</span> · <span className="language-text">{t('common.tagline')}</span></p>
+            <div className="min-w-0 flex-[1_1_8rem]">
+              <p className="type-label">{info.label}</p>
+              <p className="hidden type-meta text-muted sm:block"><span className="language-text">{t('common.app_name')}</span> · <span className="language-text">{t('common.tagline')}</span></p>
             </div>
             {showClock && <TimeTravel />}
             <div className="hidden items-center gap-2 sm:flex">
@@ -486,7 +498,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
         </header>
         <UpdateNotice headerRef={headerRef} />
-        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(var(--class-dock-height,5rem)+1.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
           {children}
         </PageFrame>
       </div>
