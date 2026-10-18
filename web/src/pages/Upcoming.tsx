@@ -227,12 +227,12 @@ export default function Upcoming() {
       {list.isLoading && <Spinner />}
       {list.error && <div className="mt-4"><ErrorBox error={list.error} onRetry={() => list.refetch()} /></div>}
       {list.data && visible.length === 0 && !filtersOn && (
-        <Card className="mt-5">
+        <Card surface="support" className="mt-5">
           <EmptyState title={t('upcoming.empty')} text={canAdd ? t('upcoming.empty_sub') : undefined} />
         </Card>
       )}
       {list.data && visible.length === 0 && filtersOn && (
-        <Card className="mt-5">
+        <Card surface="support" className="mt-5">
           <EmptyState title={t('upcoming.no_match')}>
             <div className="flex flex-wrap justify-center gap-2">
               {subject !== 'all' && (

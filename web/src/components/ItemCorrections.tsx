@@ -230,7 +230,7 @@ export function CorrectionInbox() {
   const inbox = useQuery({ queryKey: ['correction-inbox', info.code], queryFn: () => api.get<CorrectionInboxInfo>(classPath(info.code, '/upcoming/corrections')), enabled: !info.viewer.read_only, refetchInterval: 60_000 })
   if (!inbox.data?.pending_count) return null
   return (
-    <section className="correction-reveal mt-4 rounded-2xl border border-giallo/40 bg-giallo-soft p-4">
+    <section className="notice-warning correction-reveal mt-4 rounded-2xl border p-4">
       <button type="button" className="flex min-h-9 w-full items-center gap-2 text-left text-sm font-bold" aria-expanded={expanded} aria-controls={listId} onClick={() => setExpanded(!expanded)}>
         <MessageSquareWarning className="size-5 shrink-0" aria-hidden />
         <span className="flex-1">{t('item_corrections.inbox_count', { count: inbox.data.pending_count })}</span>

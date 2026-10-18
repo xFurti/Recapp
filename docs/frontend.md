@@ -110,3 +110,39 @@ browser; `api.ts` la manda nell'header `X-Ieri-Now`. Il backend la accetta solo 
 - Componenti base in `components/ui.tsx`: `Button`, `Card`, `Modal`, `Chip`, `Segmented`,
   `Field`, `Avatar`, `Badge`, `EmptyState`, `Stairs` (le "scale" del logo).
 - Aree toccabili di almeno 44 px, focus visibile, `prefers-reduced-motion` rispettato.
+
+### Gerarchia delle superfici
+
+Le regole condivise sono in `web/src/surfaces.css`, importato da `index.css`.
+Usano esclusivamente i token del tema esistente: bordeaux, carta calda, inchiostro e
+varianti di avviso si adattano anche al cambio tema animato, senza nuovi colori fissi.
+
+| Livello | Quando usarlo | Trattamento ed esempi |
+| --- | --- | --- |
+| Principale | Il contenuto da leggere o consultare nella vista. | `surface-primary`: superficie piena, bordo appena bordeaux e ombra discreta. `DayCardView` aggiunge `day-sheet` (margine superiore bordeaux) e `day-sheet-heading`; le righe complete di In arrivo conservano colore, icona ed etichetta del tipo. |
+| Supporto | Contenuti complementari, risposte, lezioni previste e stati vuoti. | `surface-support`: carta leggermente schiarita, bordo neutro e nessuna ombra. `Card surface="support"` espone la variante. Dentro una scheda, preferire `support-rule` (solo separatore laterale) per note e laboratorio, oppure `content-row` per gli elementi compatti che hanno già la barra colorata del tipo: evitare riquadri annidati. |
+| Metadati | Autore, ultimo aggiornamento, provenienza e contesto. | `content-metadata`: testo secondario leggibile, senza sfondo né badge. L’attribuzione può andare a capo; le azioni accanto conservano colore, focus e nomi accessibili. Non applicare opacità all’intero gruppo. |
+
+Per una scheda generica `Card` mantiene l’aspetto precedente; `surface="primary"`
+e `surface="support"` sono scelte esplicite. Non trasformare ogni sezione in una
+scheda: se appartiene allo stesso contenuto bastano un separatore o testo secondario.
+
+Gli avvisi usano una gerarchia distinta dai contenuti:
+
+- `notice-info`: testo e margine neutri per conferme ordinarie, pubblicazione e giorni senza scuola;
+- `notice-action`: fondo bordeaux tenue per il proprio turno da scrivere o continuare;
+- `notice-warning`: fondo giallo e margine più marcato per turni scoperti e correzioni aperte;
+- `notice-error`: fondo rosa e testo dedicato per gli errori (`ErrorBox` mantiene `role="alert"`).
+
+Testo e icone continuano a distinguere gli stati anche senza colore. Le note del
+giorno e quelle di laboratorio non diventano avvisi solo perché contengono testo.
+Non si aggiungono animazioni per stabilire la gerarchia.
+
+La #128 applica queste regole a Oggi, giornata pubblicata e In arrivo sulla base
+`6cc6421d909ce58fc4fd887566f326e238573cb1`. La #96 e la PR #99 sono ancora aperte:
+timeline, ordine delle sezioni, griglie e microinterazioni di quel restyling non
+sono importati. Nel loro futuro aggiornamento vanno conservate queste classi nei
+componenti di Oggi. Possibili sovrapposizioni con #129 e #132: `ui.tsx`, `day.tsx`,
+`items.tsx`, `Today.tsx` e l’importazione iniziale in `index.css`; la scala tipografica,
+le larghezze e le griglie restano di competenza di quelle issue. Gli unici adattamenti
+di flusso qui servono a far andare a capo i controlli e le attribuzioni al 200%.

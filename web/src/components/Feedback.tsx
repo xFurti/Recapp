@@ -86,7 +86,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
   }
   const data = fb.data
   return (
-    <section className="rounded-2xl border border-line bg-surface p-4 sm:p-5">
+    <section className="surface-support rounded-2xl border p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 ref={heading} tabIndex={-1} className="flex items-center gap-2 font-bold">
           <MessageCircle className="size-5 text-bordeaux" /> <span className="language-text">{t('feedback.replies')}</span>
@@ -143,7 +143,7 @@ export function Feedback({ code, day, readOnly }: { code: string; day: string; r
 
       {!readOnly && (
         <form onSubmit={submit} className="mt-4 space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(['comment', 'correction'] as const).map((k) => (
               <Chip key={k} active={kind === k} onClick={() => setKind(k)}>
                 {k === 'correction' && <TriangleAlert className="size-3.5" />} <span className="language-text">{t(`feedback.kind_${k}`)}</span>

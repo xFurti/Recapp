@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './surfaces.css';
 
 .lesson-status { container-type: inline-size; }
 @container (min-width: 36rem) {
