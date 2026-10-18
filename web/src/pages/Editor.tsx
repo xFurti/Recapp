@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Eye, FlaskConical, ImagePlus, LoaderCircle, Plus, Sparkles, Trash2, X } from 'lucide-react'
-import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode, type KeyboardEvent } from 'react'
 import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -316,7 +316,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
       attachments: state.attachment_ids.map((id) => ({ id, width: 0, height: 0 })),
     }
     return (
-      <div className="space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
+      <div className="editor-preview mx-auto space-y-4 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-24">
         <h1 className="text-xl font-extrabold"><span className="language-text">{t('editor.preview_title')}</span></h1>
         <DayCardView card={card} subjects={info.subjects} classLabel={info.label} />
         <ActionBar save={save} published={published} onPreview={() => setPreview(false)} previewLabel={t('editor.back_edit')} onPublish={publish} publishing={publishing} error={publishError} />
@@ -328,7 +328,7 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
   const writableKey = state.entries.find((entry) => entry.lesson_status !== 'non_svolta')?.key
 
   return (
-    <div className="space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
+    <div className="editor-page space-y-6 pb-[calc(10rem+env(safe-area-inset-bottom))] md:pb-28">
       <div>
         <Link to={`/c/${info.code}`} className="mb-2 inline-flex items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
           <ArrowLeft className="size-4" /> <span className="language-text">{t('nav.today')}</span>
@@ -337,96 +337,121 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
         <p className="mt-1 text-sm text-muted"><span className="language-text">{t('editor.subtitle')}</span></p>
       </div>
 
-      {conflict && (
-        <div className="rounded-2xl border border-rosa/30 bg-rosa-soft p-4" role="alert">
-          <p className="font-bold text-rosa-ink"><span className="language-text">{t('editor.conflict_title')}</span></p>
-          <p className="mt-1 text-sm"><span className="language-text">{t('editor.conflict_text')}</span></p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" onClick={keepMine}><span className="language-text">{t('editor.conflict_keep')}</span></Button>
-            <Button size="sm" variant="secondary" onClick={loadSaved}><span className="language-text">{t('editor.conflict_reload')}</span></Button>
-          </div>
-        </div>
-      )}
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.lessons')}</span></h2>
-        {state.entries.length === 0 && <p className="text-sm text-muted"><span className="language-text">{t('editor.no_lessons')}</span></p>}
-        {state.entries.map((entry) => (
-          <EntryEditor
-            key={entry.key}
-            entry={entry}
-            publishTarget={entry.key === writableKey}
-            itemTarget={!writableKey && entry.key === state.entries[0]?.key}
-            onChange={(patch) => setEntry(entry.key, patch)}
-            onRemove={() => update((s) => ({ ...s, entries: s.entries.filter((e) => e.key !== entry.key) }))}
-            items={firstBlockOf.get(entry.subject_code) === entry.key ? state.items.filter((i) => i.subject_code === entry.subject_code) : []}
-            onAddItem={(type) => setForm(emptyItem(type, entry.subject_code, page.next_lessons, day))}
-            onEditItem={(item) => setForm(item)}
-            onRemoveItem={(item) => removeItem(item.key)}
-          />
-        ))}
-        <AddSubject publishTarget={state.entries.length === 0}
-          onAdd={(code) =>
-            update((s) => ({ ...s, entries: [...s.entries, { key: newKey(), subject_code: code, hours: '', room: '', is_lab: false, lesson_status: 'svolta', bullets: [''], lab: null, attachment_ids: [] }] }))
-          }
-        />
-      </section>
-
-      <AiSources
-        day={day}
-        onAttach={(id) => update((s) => ({ ...s, attachment_ids: [...s.attachment_ids, id] }))}
-        onAccept={(d, attachmentId) =>
-          update((s) => ({ ...s, items: [...s.items, { key: newKey(), type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId }] }))
-        }
-        onEdit={(d, attachmentId) => setForm({ type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId })}
-      />
-
-      {otherItems.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.other_items')}</span></h2>
-          <div className="space-y-2">
-            {otherItems.map((it) => (
-              <ItemChip key={it.key} item={it} onEdit={() => setForm(it)} onRemove={() => removeItem(it.key)} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {state.attachment_ids.length > 0 && (
-        <section>
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
-          <div className="flex flex-wrap gap-2">
-            {state.attachment_ids.map((id) => (
-              <div key={id} className="relative">
-                <img src={attachmentUrl(id)} alt="" className="h-24 rounded-lg border border-line object-cover" />
-                <button
-                  onClick={() => update((s) => ({ ...s, attachment_ids: s.attachment_ids.filter((a) => a !== id) }))}
-                  className="absolute -right-2 -top-2 rounded-full bg-ink p-1 text-paper"
-                  aria-label={t('editor.remove_item')}
-                >
-                  <X className="size-3.5" />
-                </button>
+      <div className={`editor-workspace ${state.entries.length ? 'editor-workspace--indexed' : ''}`}>
+        {state.entries.length > 0 && (
+          <nav className="editor-index" aria-label={t('editor.index')}>
+            <details open className="rounded-2xl border border-line bg-surface p-4">
+              <summary className="cursor-pointer font-bold">{t('editor.index')}</summary>
+              <ol className="mt-3 space-y-1">
+                {state.entries.map((entry) => (
+                  <li key={entry.key}>
+                    <EditorSectionLink target={`editor-entry-${entry.key}`}>
+                      <span>{subjectName(info.subjects, entry.subject_code, lang)}</span>
+                      {entry.hours && <span className="block text-xs text-muted">{t(entry.hours.includes('-') ? 'day.hours' : 'day.hour', { h: entry.hours })}</span>}
+                    </EditorSectionLink>
+                  </li>
+                ))}
+                <li><EditorSectionLink target="editor-sources">{t('editor.sources_title')}</EditorSectionLink></li>
+                {otherItems.length > 0 && <li><EditorSectionLink target="editor-other-items">{t('editor.other_items')}</EditorSectionLink></li>}
+                {state.attachment_ids.length > 0 && <li><EditorSectionLink target="editor-attachments">{t('editor.attachments')}</EditorSectionLink></li>}
+                <li><EditorSectionLink target="notes">{t('editor.notes_title')}</EditorSectionLink></li>
+              </ol>
+            </details>
+          </nav>
+        )}
+        <div className="editor-body min-w-0 space-y-6">
+          {conflict && (
+            <div className="rounded-2xl border border-rosa/30 bg-rosa-soft p-4" role="alert">
+              <p className="font-bold text-rosa-ink"><span className="language-text">{t('editor.conflict_title')}</span></p>
+              <p className="mt-1 text-sm"><span className="language-text">{t('editor.conflict_text')}</span></p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button size="sm" onClick={keepMine}><span className="language-text">{t('editor.conflict_keep')}</span></Button>
+                <Button size="sm" variant="secondary" onClick={loadSaved}><span className="language-text">{t('editor.conflict_reload')}</span></Button>
               </div>
+            </div>
+          )}
+
+          <section className="space-y-3">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.lessons')}</span></h2>
+            {state.entries.length === 0 && <p className="text-sm text-muted"><span className="language-text">{t('editor.no_lessons')}</span></p>}
+            {state.entries.map((entry) => (
+              <EntryEditor
+                key={entry.key}
+                entry={entry}
+                publishTarget={entry.key === writableKey}
+                itemTarget={!writableKey && entry.key === state.entries[0]?.key}
+                onChange={(patch) => setEntry(entry.key, patch)}
+                onRemove={() => update((s) => ({ ...s, entries: s.entries.filter((e) => e.key !== entry.key) }))}
+                items={firstBlockOf.get(entry.subject_code) === entry.key ? state.items.filter((i) => i.subject_code === entry.subject_code) : []}
+                onAddItem={(type) => setForm(emptyItem(type, entry.subject_code, page.next_lessons, day))}
+                onEditItem={(item) => setForm(item)}
+                onRemoveItem={(item) => removeItem(item.key)}
+              />
             ))}
-          </div>
-        </section>
-      )}
+            <AddSubject publishTarget={state.entries.length === 0}
+              onAdd={(code) =>
+                update((s) => ({ ...s, entries: [...s.entries, { key: newKey(), subject_code: code, hours: '', room: '', is_lab: false, lesson_status: 'svolta', bullets: [''], lab: null, attachment_ids: [] }] }))
+              }
+            />
+          </section>
 
-      <section>
-        <label htmlFor="notes" className="mb-2 block text-sm font-bold uppercase tracking-wide text-muted">
-          <span className="language-text">{t('editor.notes_title')}</span>
-        </label>
-        <textarea
-          id="notes"
-          rows={3}
-          className={inputClass}
-          placeholder={t('editor.notes_ph')}
-          value={state.notes}
-          maxLength={1500}
-          onChange={(e) => update((s) => ({ ...s, notes: e.target.value }))}
-        />
-      </section>
+          <AiSources
+            day={day}
+            onAttach={(id) => update((s) => ({ ...s, attachment_ids: [...s.attachment_ids, id] }))}
+            onAccept={(d, attachmentId) =>
+              update((s) => ({ ...s, items: [...s.items, { key: newKey(), type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId }] }))
+            }
+            onEdit={(d, attachmentId) => setForm({ type: d.type, subject_code: d.subject_code, title: d.title, due_date: d.due_date, due_time: null, source: d.source, link: '', attachment_id: attachmentId })}
+          />
 
+          {otherItems.length > 0 && (
+            <section>
+              <h2 id="editor-other-items" tabIndex={-1} className="editor-target mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.other_items')}</span></h2>
+              <div className="space-y-2">
+                {otherItems.map((it) => (
+                  <ItemChip key={it.key} item={it} onEdit={() => setForm(it)} onRemove={() => removeItem(it.key)} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {state.attachment_ids.length > 0 && (
+            <section>
+              <h2 id="editor-attachments" tabIndex={-1} className="editor-target mb-2 text-sm font-bold uppercase tracking-wide text-muted"><span className="language-text">{t('editor.attachments')}</span></h2>
+              <div className="flex flex-wrap gap-2">
+                {state.attachment_ids.map((id) => (
+                  <div key={id} className="relative">
+                    <img src={attachmentUrl(id)} alt="" className="h-24 rounded-lg border border-line object-cover" />
+                    <button
+                      onClick={() => update((s) => ({ ...s, attachment_ids: s.attachment_ids.filter((a) => a !== id) }))}
+                      className="absolute -right-2 -top-2 rounded-full bg-ink p-1 text-paper"
+                      aria-label={t('editor.remove_item')}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <label htmlFor="notes" className="mb-2 block text-sm font-bold uppercase tracking-wide text-muted">
+              <span className="language-text">{t('editor.notes_title')}</span>
+            </label>
+            <textarea
+              id="notes"
+              rows={3}
+              className={`editor-target ${inputClass}`}
+              placeholder={t('editor.notes_ph')}
+              value={state.notes}
+              maxLength={1500}
+              onChange={(e) => update((s) => ({ ...s, notes: e.target.value }))}
+            />
+          </section>
+
+        </div>
+      </div>
       <ActionBar save={save} published={published} onPreview={() => setPreview(true)} previewLabel={t('editor.preview')} onPublish={publish} publishing={publishing} error={publishError} />
       {emptyNotice && <EmptyPublishDialog onComplete={completeEmpty} onClose={() => setEmptyNotice(false)} />}
 
@@ -441,6 +466,22 @@ function EditorForm({ day, page, onReload }: { day: string; page: CardPage; onRe
         onSubmit={submitItem}
       />
     </div>
+  )
+}
+
+/** Keep focus and the next Tab at the section, without changing the editor URL or losing a draft. */
+function EditorSectionLink({ target, children }: { target: string; children: ReactNode }) {
+  return (
+    <a href={`#${target}`} className="block min-w-0 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-ink/5 focus-visible:outline-2 focus-visible:outline-bordeaux"
+      onClick={(event) => {
+        const section = document.getElementById(target)
+        if (!section) return
+        event.preventDefault()
+        section.focus({ preventScroll: true })
+        section.scrollIntoView({ block: 'start', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' })
+      }}>
+      {children}
+    </a>
   )
 }
 
@@ -496,7 +537,7 @@ function EntryEditor({
   return (
     <article className="overflow-hidden rounded-2xl border border-line bg-surface" style={{ borderLeftColor: color, borderLeftWidth: 5 }}>
       <header className="flex flex-wrap items-center gap-2 px-4 pt-3">
-        <h3 className="min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
+        <h3 id={`editor-entry-${entry.key}`} tabIndex={-1} className="editor-target min-w-0 break-words font-bold">{subjectName(info.subjects, entry.subject_code, i18n.language)}</h3>
         {entry.hours && <span className="text-xs text-muted"><span className="language-text">{entry.hours.includes('-') ? t('day.hours', { h: entry.hours }) : t('day.hour', { h: entry.hours })}</span></span>}
         {entry.room && <span className="text-xs text-muted">· {entry.room}</span>}
         {entry.is_lab && <Badge className="bg-verde-soft text-verde-ink"><span className="language-text">{t('day.lab')}</span></Badge>}
@@ -606,7 +647,7 @@ function EntryEditor({
             {QUICK_TYPES.map((ty, index) => {
               const Icon = TYPE_STYLE[ty].icon
               return (
-                <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
+                <button key={ty} data-publish-target={itemTarget && index === 0 ? '' : undefined} onClick={() => onAddItem(ty)} className={`inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold ${TYPE_STYLE[ty].badge} hover:brightness-95`}>
                   <Plus className="size-3.5" />
                   <Icon className="size-4" /> <span className="language-text">{t(`editor.add_${ty}`)}</span>
                 </button>
@@ -707,9 +748,9 @@ function AddSubject({ onAdd, publishTarget }: { onAdd: (code: string) => void; p
             onAdd(s.code)
             setOpen(false)
           }}
-          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold hover:border-ink/40"
+          className="inline-flex min-h-9 max-w-full items-center gap-1.5 rounded-full border border-line px-3 py-1 text-sm font-semibold hover:border-ink/40"
         >
-          <span className="size-2 rounded-full" style={{ backgroundColor: s.color }} />
+          <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: s.color }} />
           {subjectName(info.subjects, s.code, i18n.language)}
         </button>
       ))}
@@ -790,7 +831,7 @@ function AiSources({
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-4">
-      <h2 className="flex items-center gap-2 font-bold">
+      <h2 id="editor-sources" tabIndex={-1} className="editor-target flex items-center gap-2 font-bold">
         <Sparkles className="size-5 text-viola" /> <span className="language-text">{t('editor.sources_title')}</span>
       </h2>
       <p className="mt-0.5 text-sm text-muted"><span className="language-text">{t('editor.sources_sub')}</span></p>
@@ -876,10 +917,10 @@ function ActionBar({
         : save.kind === 'error' ? t('editor.save_error', { msg: save.msg })
           : ''
   return (
-    <div className="editor-actions fixed inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:left-60">
-      <div className="mx-auto flex max-w-3xl flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center">
+    <div className="editor-actions fixed inset-x-0 z-20 border-t border-line bg-surface/95 backdrop-blur md:left-[240px]">
+      <div className="class-width-operation mx-auto flex flex-col gap-2 px-4 py-2.5 sm:flex-row sm:items-center">
         <p className={`text-xs leading-snug sm:min-w-0 sm:flex-1 sm:truncate ${save.kind === 'error' ? 'font-semibold text-rosa-ink' : 'text-muted'}`}>{error ?? status}</p>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,8.5rem),1fr))] gap-2 sm:flex">
           <Button variant="secondary" size="sm" onClick={onPreview} className="w-full sm:w-auto">
             <Eye className="size-4" /> <span className="language-text">{previewLabel}</span>
           </Button>

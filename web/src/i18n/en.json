@@ -324,6 +324,7 @@
     "add": "Add"
   },
   "editor": {
+    "index": "In this day",
     "lesson_status": "Lesson status",
     "lesson_status_svolta": "Held",
     "lesson_status_non_svolta": "Not held",

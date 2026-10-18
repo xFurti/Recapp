@@ -262,6 +262,14 @@
 .editor-actions {
   bottom: calc(5rem + max(0.5rem, env(safe-area-inset-bottom)));
 }
+/* The page may break long notes, but action labels stay whole words and grow with the text. */
+.editor-actions .class-width-operation { overflow-wrap: normal; }
+.editor-actions button {
+  height: auto;
+  min-height: 2.25rem;
+  padding-block: 0.5rem;
+  white-space: normal;
+}
 .above-tab-bar {
   bottom: calc(5.6rem + max(0.5rem, env(safe-area-inset-bottom)));
 }
@@ -1617,4 +1625,20 @@ html[data-language-transition='out'] textarea::placeholder {
   .update-notice, .update-notice[data-state='ready']::after, .update-notice-copy,
   .update-notice[data-state='preparing'] .recapp-mark[data-playing] img { animation: none; }
   .update-notice, .update-notice-details, .update-notice-icon, .update-notice-dismiss { transition: none; }
+}
+
+/* #132: composition width follows the task; reading text never grows with the desktop. */
+.class-width-reading { width: 100%; max-width: 768px; }
+.class-width-operation { width: 100%; max-width: 1152px; overflow-wrap: anywhere; }
+.class-width-operation [data-contributions-link] { max-width: 100%; }
+.editor-preview { max-width: 736px; }
+.editor-page { container: editor / inline-size; overflow-wrap: anywhere; }
+.editor-workspace { display: grid; grid-template-columns: minmax(0, 736px); justify-content: center; gap: 1.5rem; }
+.editor-index { min-width: 0; }
+.editor-target { scroll-margin-top: 6rem; scroll-margin-bottom: 12rem; }
+.editor-body .lesson-status-option { flex-wrap: wrap; }
+@container editor (min-width: 62rem) {
+  .editor-workspace--indexed { grid-template-columns: minmax(0, 736px) minmax(0, 1fr); }
+  .editor-workspace--indexed .editor-body { grid-column: 1; grid-row: 1; }
+  .editor-index { grid-column: 2; grid-row: 1; align-self: start; position: sticky; top: 6rem; max-height: calc(100dvh - 12rem); overflow-y: auto; }
 }
