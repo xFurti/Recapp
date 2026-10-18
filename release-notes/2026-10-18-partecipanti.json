@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.18.141",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Partecipanti più facili da riconoscere",
+    "en": "Class members are easier to find"
+  },
+  "summary": [
+    {
+      "it": "Nomi, statistiche e menu hanno spazi regolari nell’elenco della classe.",
+      "en": "Names, statistics and menus have consistent spaces in the class list."
+    },
+    {
+      "it": "Il ruolo Admin è sotto il nome; il turno di verbalista ha un’etichetta distinta.",
+      "en": "The Admin role sits below the name; today's note-taker has a separate label."
+    },
+    {
+      "it": "La tua riga ha un accento discreto e i menu sono più facili da toccare e usare da tastiera.",
+      "en": "Your row has a subtle highlight and menus are easier to tap and use with a keyboard."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Un elenco più ordinato, anche sul telefono",
+        "en": "A clearer list, including on phones"
+      },
+      "body": {
+        "it": "Avatar e nomi mantengono lo stesso allineamento con ruoli, turni e stati di attivazione diversi. Le statistiche restano secondarie e i nomi lunghi possono andare a capo. Il ruolo Admin compare sotto il nome, mentre l’incarico temporaneo di verbalista è separato. La tua riga è riconoscibile con uno sfondo leggero. I menu hanno un’area di tocco più ampia e identificano il partecipante anche con un lettore di schermo. Le azioni disponibili e le limitazioni della demo restano quelle previste per ciascun ruolo.",
+        "en": "Avatars and names keep the same alignment across different roles, turns and activation states. Statistics stay secondary and long names can wrap. The Admin role appears below the name, while the temporary note-taking duty is separate. A subtle background identifies your row. Menus have a larger tap target and identify the participant for screen readers too. Available actions and demo restrictions remain those allowed for each role."
+      }
+    }
+  ]
+}

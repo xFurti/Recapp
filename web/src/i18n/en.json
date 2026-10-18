@@ -434,6 +434,7 @@
     "make_admin": "Make admin",
     "make_member": "Remove admin",
     "manage": "Manage",
+    "manage_member": "Manage {{nick}}",
     "members_count": "{{count}} members",
     "turns_today": "Today's note-taker",
     "turns_nobody": "Nobody",

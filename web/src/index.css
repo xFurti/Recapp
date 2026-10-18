@@ -17,6 +17,35 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Participants keep identity, temporary status and counts in their own tracks.
+   Fixed avatar/action tracks leave enlarged text free to wrap in the middle. */
+.member-list { container-type: inline-size; }
+.member-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 44px;
+  column-gap: 10px; row-gap: 6px; align-items: start;
+  min-height: 112px; padding: 14px 12px; overflow-wrap: anywhere;
+}
+.member-row[data-me] { background: color-mix(in srgb, var(--color-bordeaux) 4%, var(--color-surface)); }
+.member-row > [aria-hidden] { grid-column: 1; grid-row: 1; width: 40px; height: 40px; }
+.member-identity { grid-column: 2; grid-row: 1; min-width: 0; min-height: 40px; }
+.member-name { line-height: 1.4; }
+.member-name > .text-xs { display: inline-block; }
+.member-role { display: flex; align-items: center; gap: 4px; margin-top: 3px; }
+.member-status { grid-column: 2 / 4; grid-row: 2; display: flex; flex-wrap: wrap; align-items: start; gap: 6px; min-height: 1.25rem; }
+.member-scribe { display: inline-flex; align-items: start; gap: 5px; padding: 3px 8px; border-radius: 8px; background: var(--color-giallo-soft); color: var(--color-ink); }
+.member-scribe svg { margin-top: 2px; }
+.member-pending { padding-block: 3px; }
+.member-stats { grid-column: 2 / 4; grid-row: 3; display: flex; flex-wrap: wrap; gap: 2px 12px; font-variant-numeric: tabular-nums; }
+.member-stats > p { min-width: 0; }
+.member-menu { grid-column: 3; grid-row: 1; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+.member-menu:focus-visible { outline-offset: -3px; }
+@container (min-width: 42rem) {
+  .member-row { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 9rem) minmax(0, 10rem) 44px; column-gap: 16px; min-height: 80px; padding: 16px; }
+  .member-status { grid-column: 3; grid-row: 1; }
+  .member-stats { grid-column: 4; grid-row: 1; flex-direction: column; }
+  .member-menu { grid-column: 5; }
+}
+
 /* Contributi: the final layout is present throughout the short entrance/FLIP effects. */
 .contribution-enter {
   animation: contribution-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;

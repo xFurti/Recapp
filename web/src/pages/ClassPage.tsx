@@ -62,7 +62,10 @@ function Members() {
   const [invite, setInvite] = useState<Invite | null>(null)
   const [menu, setMenu] = useState<{ id: number; el: HTMLButtonElement } | null>(null)
   const [confirm, setConfirm] = useState<{ kind: 'reset' | 'remove'; member: MemberRow } | null>(null)
-  const closeMenu = useCallback(() => setMenu(null), [])
+  const closeMenu = useCallback(() => {
+    menu?.el.focus({ preventScroll: true })
+    setMenu(null)
+  }, [menu])
   const refresh = () => qc.invalidateQueries({ predicate: (q) => ['members', 'rotation', 'today', 'public', 'contributions'].includes(String(q.queryKey[0])) })
   const act = useMutation({
     mutationFn: async ({ kind, m }: { kind: 'reset' | 'admin' | 'member' | 'remove'; m: MemberRow }) => {
@@ -94,30 +97,33 @@ function Members() {
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="member-toolbar mb-3 flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-semibold text-muted"><span className="language-text">{t('class.members_count', { count: members.length })}</span></p>
         {can_manage && (
-          <Button size="sm" onClick={() => setAdding(true)}>
-            <UserPlus className="size-4" /> <span className="language-text">{t('class.add')}</span>
+          <Button size="sm" className="h-auto min-h-9 max-w-full py-2" onClick={() => setAdding(true)}>
+            <UserPlus aria-hidden className="size-4 shrink-0" /> <span className="language-text min-w-0 [overflow-wrap:anywhere]">{t('class.add')}</span>
           </Button>
         )}
       </div>
       {act.error && <div className="mb-3"><ErrorBox error={act.error} /></div>}
-      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+      <ul aria-label={t('class.tab_members')} className="member-list divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
         {members.map((m) => (
-          <li key={m.id} className="relative flex items-center gap-3 px-4 py-3">
+          <li key={m.id} className="member-row" data-me={m.is_me || undefined}>
             <Avatar nick={m.nick} color={m.color} />
-            <div className="min-w-0 flex-1">
-              <p className="flex flex-wrap items-center gap-1.5 font-semibold">
-                {m.nick}
+            <div className="member-identity">
+              <p className="member-name font-semibold">
+                <span>{m.nick}</span>{' '}
                 {m.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
-                {m.role === 'admin' && <Badge className="bg-bordeaux-soft text-bordeaux"><Crown className="size-3" /> <span className="language-text">{t('class.admin')}</span></Badge>}
-                {m.is_today_scribe && <Badge className="bg-giallo text-[#1d1b1e]"><Pencil className="size-3" /> <span className="language-text">{t('class.scribe_today')}</span></Badge>}
-                {!m.activated && <Badge className="bg-ink/5 text-muted"><span className="language-text">{t('class.not_activated')}</span></Badge>}
               </p>
-              <p className="text-xs text-muted">
-                <span className="language-text">{t('class.days_written', { count: m.days_written })}</span> · <span className="language-text">{t('class.items_added', { count: m.items_added })}</span>
-              </p>
+              {m.role === 'admin' && <p className="member-role text-xs font-medium text-muted"><Crown aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.admin')}</span></p>}
+            </div>
+            <div className="member-status">
+              {m.is_today_scribe && <span className="member-scribe text-xs font-semibold"><Pencil aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.scribe_today')}</span></span>}
+              {!m.activated && <span className="member-pending text-xs text-muted"><span className="language-text">{t('class.not_activated')}</span></span>}
+            </div>
+            <div className="member-stats text-xs text-muted">
+              <p className="language-text">{t('class.days_written', { count: m.days_written })}</p>
+              <p className="language-text">{t('class.items_added', { count: m.items_added })}</p>
             </div>
             {can_manage && (
               <button
@@ -126,19 +132,20 @@ function Members() {
                   const el = e.currentTarget
                   setMenu((cur) => (cur?.id === m.id ? null : { id: m.id, el }))
                 }}
-                className="rounded-full p-2 hover:bg-ink/5"
-                aria-label={t('class.manage')}
+                className="member-menu rounded-xl border border-line text-muted hover:bg-ink/5 hover:text-ink"
+                aria-label={t('class.manage_member', { nick: m.nick })}
                 aria-haspopup="menu"
                 aria-expanded={menu?.id === m.id}
+                aria-controls={menu?.id === m.id ? 'member-actions' : undefined}
               >
-                <MoreVertical className="size-5" />
+                <MoreVertical aria-hidden className="size-5" />
               </button>
             )}
           </li>
         ))}
       </ul>
       {openMember && menu && (
-        <AnchoredMenu open anchorEl={menu.el} onClose={closeMenu}>
+        <AnchoredMenu open id="member-actions" label={t('class.manage_member', { nick: openMember.nick })} initialFocus={0} anchorEl={menu.el} onClose={closeMenu}>
           <MenuItem icon={KeyRound} label={t('class.reset')} hint={t('class.reset_help')} onClick={() => confirmAct('reset', openMember)} />
           {info.is_demo ? (
             <p className="px-3 py-2 text-xs text-muted"><span className="language-text">{t('class.demo_locked')}</span></p>

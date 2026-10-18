@@ -434,6 +434,7 @@
     "make_admin": "Rendi admin",
     "make_member": "Togli admin",
     "manage": "Gestisci",
+    "manage_member": "Gestisci {{nick}}",
     "members_count": "{{count}} partecipanti",
     "turns_today": "Verbalista di oggi",
     "turns_nobody": "Nessuno",
