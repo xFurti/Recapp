@@ -1,0 +1,23 @@
+{
+  "id": "2026.10.18.149",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": { "it": "Più ordine nelle pagine di supporto", "en": "Clearer support pages" },
+  "summary": [
+    { "it": "Novità, FAQ e segnalazioni condividono titoli, spazi e ritorni più coerenti.", "en": "Updates, FAQ and reports share more consistent headings, spacing and back links." },
+    { "it": "I titoli delle segnalazioni si leggono per intero, con lo stato ben distinto.", "en": "Report titles are shown in full, with a clearly separate status." },
+    { "it": "Nell’Area scuola le classi sono in un elenco con statistiche allineate e azioni riconoscibili.", "en": "The School area lists classes with aligned statistics and clear actions." }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": { "it": "Un’apertura comune, contenuti più leggibili", "en": "Consistent openings and easier reading" },
+      "body": { "it": "Novità, FAQ, segnalazioni e Area scuola condividono intestazioni, allineamenti e spazi. Nelle Novità il titolo e il beneficio precedono i dettagli di versione; nelle FAQ la risposta aperta si distingue dalla domanda. Ricerca, filtri, collegamenti e comandi da tastiera restano disponibili.", "en": "Updates, FAQ, reports and the School area share headers, alignment and spacing. Update titles and benefits come before version details; expanded FAQ answers are distinct from questions. Search, filters, links and keyboard controls remain available." }
+    },
+    {
+      "category": "improvement",
+      "title": { "it": "Segnalazioni e classi più facili da consultare", "en": "Reports and classes are easier to scan" },
+      "body": { "it": "Le segnalazioni mostrano i titoli completi, categoria e stato senza sovrapporli. Nell’Area scuola un elenco compatto allinea ultima giornata, pubblicazioni settimanali e partecipanti attivi. Sul telefono le informazioni vanno a capo; accessi e permessi conservano il comportamento attuale.", "en": "Reports show full titles, category and status without overlap. In the School area, a compact list aligns the last published day, weekly publications and active members. Information wraps on phones; access and permissions keep their current behavior." }
+    }
+  ]
+}

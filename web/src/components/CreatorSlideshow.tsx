@@ -58,7 +58,7 @@ export function CreatorSlideshow({ profiles }: { profiles: Creator[] }) {
       </div>
       <p role="status" aria-live="polite" aria-atomic="true" className="mt-5 text-sm text-muted"><TranslatedMessage message="about.profile_status" values={{ name: profiles[active].name, current: active + 1, total: profiles.length }} /></p>
       {profiles.length > 1 && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-        <div className="flex gap-2">
+        <div className="creator-step-controls flex gap-2">
           <button type="button" aria-label={t('about.previous')} onClick={() => select(active - 1)} className="about-action flex size-11 items-center justify-center rounded-xl border border-line hover:bg-paper"><ArrowLeft className="size-5" aria-hidden /></button>
           <button type="button" aria-label={t('about.next')} onClick={() => select(active + 1)} className="about-action flex size-11 items-center justify-center rounded-xl border border-line hover:bg-paper"><ArrowRight className="size-5" aria-hidden /></button>
         </div>

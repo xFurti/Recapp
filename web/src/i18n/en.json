@@ -502,6 +502,12 @@
     "tt_flag_unclear_hour": "Hour unclear"
   },
   "school": {
+    "last_day_stat": "Last published day",
+    "week_stat": "Days published this week",
+    "members_stat": "Active / total members",
+    "open_class": "Open {{label}}",
+    "holiday_day": "Date",
+    "holiday_kind": "Day type",
     "title": "School area",
     "sub": "For the headteacher and staff: see every class and what they publish.",
     "username": "Username",

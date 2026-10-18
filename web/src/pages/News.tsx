@@ -1,8 +1,8 @@
-import { ArrowLeft, ArrowUp, ArrowUpRight, CalendarDays, Check, ChevronDown, Search, Sparkles, Wrench, X } from 'lucide-react'
+import { ArrowUp, ArrowUpRight, CalendarDays, Check, ChevronDown, Search, Sparkles, Wrench, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router'
-import { LangToggle, Logo, ThemeToggle, Wordmark } from '../components/shell'
+import { PageIntro, PageReturn, SupportHeader } from '../components/SupportPage'
 import { Button, inputClass, Segmented, Spinner } from '../components/ui'
 import { appVersion, demoReleaseAccount, localized, officialReleaseAccount, rememberRelease, useReleases, type Release } from '../lib/releases'
 import { useMe } from '../queries'
@@ -237,15 +237,9 @@ export default function News() {
   let order = 0
 
   return (
-    <div className="min-h-dvh" style={{ '--news-top': `${top}px` } as CSSProperties}>
-      <header ref={header} className="sticky top-0 z-30 border-b border-line/70 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-4 py-3">
-          <span className="flex min-w-0 items-center gap-2">
-            <Link to="/" aria-label={t('common.app_name')}><Wordmark /></Link><Logo className="h-7 sm:h-8" />
-          </span>
-          <div className="flex shrink-0 items-center gap-1.5"><ThemeToggle /><LangToggle /></div>
-        </div>
-        {releases.length > 0 && <div role="search" className="mx-auto max-w-3xl px-4 pb-3">
+    <div className="support-page min-h-dvh" style={{ '--news-top': `${top}px` } as CSSProperties}>
+      <SupportHeader headerRef={header}>
+        {releases.length > 0 && <div role="search" className="support-width pb-3">
           <div className="flex flex-wrap items-center gap-x-2 text-sm">
             <label className="relative order-1 min-w-0 flex-1">
               <span className="sr-only">{t('news.search')}</span>
@@ -270,7 +264,7 @@ export default function News() {
               <ArrowUp className="size-4" aria-hidden /><span aria-hidden className="language-text hidden sm:inline">{t('news.latest_short')}</span>
             </button>
             <span aria-hidden className="order-4 h-0 basis-full sm:order-5" />
-            <p role="status" className={`order-5 mt-2 min-w-0 truncate text-muted sm:order-6 ${filtering ? 'basis-full text-xs sm:basis-0 sm:flex-1 sm:text-sm' : 'flex-1'}`}>
+            <p role="status" className={`order-5 release-count mt-2 min-w-0 text-muted sm:order-6 ${filtering ? 'basis-full text-xs sm:basis-0 sm:flex-1 sm:text-sm' : 'flex-1'}`}>
               <span className="language-text">
                 {filtering ? t('news.results', { count: shown.length, total: releases.length }) : t('news.count', { count: releases.length })}
                 {period && <> · <span className="font-semibold text-ink">{period}</span></>}
@@ -302,18 +296,10 @@ export default function News() {
             </div>
           </div>
         </div>}
-      </header>
-      <main className="mx-auto max-w-3xl px-5 pb-16 pt-5">
-        <button onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')} className="mb-6 inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-muted hover:text-ink">
-          <ArrowLeft className="size-4" aria-hidden /><span className="language-text">{t('common.back')}</span>
-        </button>
-        <div className="mb-8">
-          <span className="release-icon relative mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-bordeaux-soft text-bordeaux">
-            <Sparkles className="size-6" aria-hidden /><span aria-hidden className="release-twinkle absolute -right-1 -top-1 size-2.5 rounded-full bg-giallo" />
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight"><span className="language-text">{t('news.title')}</span></h1>
-          <p className="mt-3 max-w-xl text-lg leading-relaxed text-muted"><span className="language-text">{t('news.intro')}</span></p>
-        </div>
+      </SupportHeader>
+      <main className="support-width support-main">
+        <PageReturn onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}>{t('common.back')}</PageReturn>
+        <PageIntro icon={Sparkles} title={t('news.title')} description={<span className="language-text">{t('news.intro')}</span>} />
         {notes.isLoading && <Spinner />}
         {notes.isError && <div role="status" className="rounded-2xl border border-line bg-surface p-5">
           <p><span className="language-text">{t('news.error')}</span></p>
@@ -342,17 +328,9 @@ export default function News() {
                       const matched = matches.get(release.id)
                       return <li key={release.id} className="release-entry" data-latest={release.id === notes.data!.current || undefined} style={{ '--i': order++ } as CSSProperties}>
                         <span aria-hidden className="release-dot" />
-                        <article id={`release-${release.id}`} onPointerMove={spotlight} data-open={open || undefined} className="release-card rounded-3xl border border-line bg-surface">
+                        <article id={`release-${release.id}`} onPointerMove={spotlight} data-open={open || undefined} className="release-card support-panel">
                           <div className="release-head p-5 sm:px-7">
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-semibold text-muted">
-                              <time dateTime={release.published_at}><span className="language-text">{new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(release.published_at))}</span></time>
-                              <span className="rounded-full bg-paper px-2.5 py-1 tabular-nums"><Highlight text={`v${release.id}`} terms={terms} /></span>
-                              {release.id === notes.data!.current && <span className="inline-flex items-center gap-2 rounded-full bg-verde-soft px-2.5 py-1 text-verde-ink">
-                                <span aria-hidden className="release-pulse" /><span className="language-text">{t('news.latest')}</span>
-                              </span>}
-                              {!!matched?.size && <span className="rounded-full bg-giallo-soft px-2.5 py-1 text-ink"><span className="language-text">{t('news.matches', { count: matched.size })}</span></span>}
-                            </div>
-                            <h3 className="mt-3 text-xl font-extrabold tracking-tight sm:text-2xl">
+                            <h3 className="release-title">
                               <button type="button" aria-expanded={open} aria-controls={`release-body-${release.id}`}
                                 onClick={() => setOpened((current) => new Map(current).set(release.id, !open))}
                                 className="release-toggle flex w-full items-start justify-between gap-3 text-left">
@@ -360,7 +338,15 @@ export default function News() {
                                 <ChevronDown aria-hidden className="release-chevron mt-1 size-5 shrink-0 text-muted" />
                               </button>
                             </h3>
-                            {!open && release.summary[0] && <p className="release-preview mt-2 line-clamp-2 text-sm leading-relaxed text-muted"><span className="language-text">{localized(release.summary[0], lang)}</span></p>}
+                            {release.summary[0] && <p className="release-benefit text-muted"><span className="language-text">{localized(release.summary[0], lang)}</span></p>}
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 support-meta">
+                              <time dateTime={release.published_at}><span className="language-text">{new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(release.published_at))}</span></time>
+                              <span className="rounded-full bg-paper px-2.5 py-1 tabular-nums"><Highlight text={`v${release.id}`} terms={terms} /></span>
+                              {release.id === notes.data!.current && <span className="inline-flex items-center gap-2 rounded-full bg-verde-soft px-2.5 py-1 text-verde-ink">
+                                <span aria-hidden className="release-pulse" /><span className="language-text">{t('news.latest')}</span>
+                              </span>}
+                              {!!matched?.size && <span className="rounded-full bg-giallo-soft px-2.5 py-1 text-ink"><span className="language-text">{t('news.matches', { count: matched.size })}</span></span>}
+                            </div>
                           </div>
                           <div id={`release-body-${release.id}`} className="release-collapse" data-open={open || undefined} inert={!open}>
                             <div>
@@ -375,7 +361,7 @@ export default function News() {
                                     <ul className="mt-4 space-y-5">
                                       {entries.map(({ entry, index }) => <li key={index} className="release-note min-w-0" data-match={matched?.has(index) || undefined} data-dim={(matched && !matched.has(index)) || undefined}>
                                         <h5 className="font-bold"><span className="language-text"><Highlight text={localized(entry.title, lang)} terms={terms} /></span></h5>
-                                        <p className="mt-1.5 whitespace-pre-line break-words text-sm leading-relaxed text-muted"><span className="language-text"><Highlight text={localized(entry.body, lang)} terms={terms} /></span></p>
+                                        <p className="mt-1.5 release-details whitespace-pre-line break-words text-muted"><span className="language-text"><Highlight text={localized(entry.body, lang)} terms={terms} /></span></p>
                                         {entry.image && <img src={entry.image.src} alt={localized(entry.image.alt, lang)} loading="lazy" className="mt-4 w-full rounded-xl border border-line" />}
                                         {entry.link && <div className="mt-3">
                                           {entry.link.href.startsWith('/') ? <Link to={entry.link.href} className="release-link inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-bordeaux hover:underline">
