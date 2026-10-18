@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import type { ClassInfo, MemberRow } from '../src/types'
 
-export type MemberOptions = { lang?: 'it' | 'en'; width?: number; dark?: boolean; viewer?: 'member' | 'admin' | 'owner'; demo?: boolean }
+export type MemberOptions = { lang?: 'it' | 'en'; width?: number; dark?: boolean; viewer?: 'member' | 'admin' | 'owner'; demo?: boolean; naturalNames?: boolean }
 
 // Fictional identities: supported 16-character limit, Unicode and unbroken names.
 export const members: MemberRow[] = Array.from({ length: 25 }, (_, index) => ({
@@ -20,18 +20,20 @@ export const members: MemberRow[] = Array.from({ length: 25 }, (_, index) => ({
   is_me: index === 0,
 }))
 
-export async function setupMembers(page: Page, { lang = 'it', width = 390, dark = false, viewer = 'admin', demo = false }: MemberOptions = {}) {
+export async function setupMembers(page: Page, { lang = 'it', width = 390, dark = false, viewer = 'admin', demo = false, naturalNames = false }: MemberOptions = {}) {
   await page.setViewportSize({ width, height: 900 })
   await page.addInitScript(({ lang, dark }) => {
     localStorage.setItem('ieri.lang', lang)
     localStorage.setItem('ieri.theme', dark ? 'dark' : 'light')
     localStorage.setItem('ieri.simulatedNow', '2026-10-14T16:00')
   }, { lang, dark })
+  const nicknames = ['Alessandro', 'Elèonora', 'Francesco', 'Chiara', 'Nicolò', 'Matilde', 'Gabriele', 'Sofia', 'Samuele', 'Alice', 'Tommaso', 'Emma', 'Federico', 'Giulia', 'Lorenzo', 'Viola', 'Davide', 'Beatrice', 'Leonardo', 'Marta', 'Filippo', 'Rebecca', 'Andrea', 'Aurora', 'Riccardo']
+  const roster = naturalNames ? members.map((m, i) => ({ ...m, nick: nicknames[i] })) : members
   const info: ClassInfo = {
     code: 'TEST', name: '4BI', label: '4ª BI · Informatica', is_demo: demo, subjects: [], hours: [],
     viewer: {
       kind: viewer === 'owner' ? 'owner' : 'member',
-      member: viewer === 'owner' ? null : { id: 1, nick: members[0].nick, color: members[0].color, role: viewer },
+      member: viewer === 'owner' ? null : { id: 1, nick: roster[0].nick, color: roster[0].color, role: viewer },
       can_manage: viewer !== 'member', read_only: false, tour_seen: true,
     },
   }
@@ -41,13 +43,13 @@ export async function setupMembers(page: Page, { lang = 'it', width = 390, dark 
     const method = route.request().method()
     if (method !== 'GET') {
       calls.push({ method, path, body: route.request().postDataJSON() })
-      if (path.endsWith('/reset-invite')) return route.fulfill({ json: { member_id: 2, nick: members[1].nick, invite: 'TEST-ONLY', join_url: 'https://example.test/join' } })
+      if (path.endsWith('/reset-invite')) return route.fulfill({ json: { member_id: 2, nick: roster[1].nick, invite: 'TEST-ONLY', join_url: 'https://example.test/join' } })
       return route.fulfill({ json: { ok: true } })
     }
     const routes: Record<string, unknown> = {
       '/classes/TEST': info,
       '/me': viewer === 'owner' ? { kind: 'owner', owner: { username: 'test', display_name: 'Test' } } : { kind: 'member', member: info.viewer.member, classroom: info },
-      '/classes/TEST/members': { members: members.map(m => ({ ...m, is_me: viewer !== 'owner' && m.id === 1 })), can_manage: viewer !== 'member' },
+      '/classes/TEST/members': { members: roster.map(m => ({ ...m, is_me: viewer !== 'owner' && m.id === 1 })), can_manage: viewer !== 'member' },
       '/classes/TEST/contributions': {
         period: { kind: 'school_year', label: '2026/27', start: '2026-09-10', end: '2027-06-08' },
         streak: { current: 0, record: 0, has_published: false, today: '2026-10-14', days: [] },

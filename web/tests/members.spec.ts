@@ -15,6 +15,17 @@ if (capture) for (const width of [320, 390, 1280]) for (const dark of [false, tr
   })
 }
 
+if (capture) for (const width of [390, 1280]) {
+  test(`capture everyday nicknames ${width}px`, async ({ page }) => {
+    await setupMembers(page, { width, naturalNames: true })
+    await page.goto('/c/TEST/classe')
+    await expect(page.getByText('25 partecipanti', { exact: true })).toBeVisible()
+    await page.evaluate(() => document.fonts.ready)
+    await page.locator('main ul').last().evaluate(el => scrollTo(0, el.getBoundingClientRect().top + scrollY - 130))
+    await page.screenshot({ animations: 'disabled', path: `../docs/screenshots/issue-141/${capture}/${width}-usage-it.png` })
+  })
+}
+
 if (!capture) {
   for (const width of [320, 390, 1280]) for (const dark of [false, true]) for (const lang of ['it', 'en'] as const) for (const scale of [1, 2]) {
     test(`25 participants: ${width}px ${dark ? 'dark' : 'light'} ${lang} ${scale * 100}% text`, async ({ page }) => {
@@ -57,13 +68,18 @@ if (!capture) {
         nameY: el.querySelector('.member-name')!.getBoundingClientRect().top - el.getBoundingClientRect().top,
         action: el.querySelector('button')!.getBoundingClientRect().left,
         actionY: el.querySelector('button')!.getBoundingClientRect().top - el.getBoundingClientRect().top,
-        stats: el.querySelector('.member-stats')!.getBoundingClientRect().left,
       })))
       for (const position of positions) expect(position).toEqual(positions[0])
+      // An ordinary participant must not reserve space for absent roles or statuses.
+      if (scale === 1) {
+        expect((await rows.nth(3).boundingBox())!.height).toBeLessThanOrEqual(76)
+        expect((await list.boundingBox())!.height).toBeLessThan(2100)
+      }
       await expect(rows.first().locator('.member-role')).toHaveText('Admin')
       await expect(rows.first().locator('.member-status')).toContainText(lang === 'it' ? 'Verbalista oggi' : 'Note-taker today')
       await expect(rows.nth(2).locator('.member-status')).toHaveText(lang === 'it' ? 'Non attivato' : 'Not activated')
-      await expect(rows.nth(2).locator('.member-stats')).toContainText(lang === 'it' ? '0 giornate scritte' : '0 days written')
+      await expect(rows.nth(2).locator('.member-stats')).toHaveCount(0)
+      await expect(rows.nth(3).locator('.member-stats')).toContainText(lang === 'it' ? '0 giornate' : '0 days')
       await expect(list.locator('[data-me]')).toHaveCount(1)
       // The last participant must still be reachable after scrolling a long class.
       await rows.last().getByRole('button').focus()

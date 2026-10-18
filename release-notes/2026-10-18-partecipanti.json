@@ -8,8 +8,8 @@
   },
   "summary": [
     {
-      "it": "Nomi, statistiche e menu hanno spazi regolari nell’elenco della classe.",
-      "en": "Names, statistics and menus have consistent spaces in the class list."
+      "it": "L’elenco della classe è compatto, con nomi allineati e statistiche più leggere.",
+      "en": "The class list is compact, with aligned names and lighter statistics."
     },
     {
       "it": "Il ruolo Admin è sotto il nome; il turno di verbalista ha un’etichetta distinta.",
@@ -28,8 +28,8 @@
         "en": "A clearer list, including on phones"
       },
       "body": {
-        "it": "Avatar e nomi mantengono lo stesso allineamento con ruoli, turni e stati di attivazione diversi. Le statistiche restano secondarie e i nomi lunghi possono andare a capo. Il ruolo Admin compare sotto il nome, mentre l’incarico temporaneo di verbalista è separato. La tua riga è riconoscibile con uno sfondo leggero. I menu hanno un’area di tocco più ampia e identificano il partecipante anche con un lettore di schermo. Le azioni disponibili e le limitazioni della demo restano quelle previste per ciascun ruolo.",
-        "en": "Avatars and names keep the same alignment across different roles, turns and activation states. Statistics stay secondary and long names can wrap. The Admin role appears below the name, while the temporary note-taking duty is separate. A subtle background identifies your row. Menus have a larger tap target and identify the participant for screen readers too. Available actions and demo restrictions remain those allowed for each role."
+        "it": "Avatar e nomi mantengono lo stesso allineamento con ruoli, turni e stati di attivazione diversi. Le statistiche hanno etichette brevi, senza spazi riservati a stati assenti, e i nomi lunghi possono andare a capo. Il ruolo Admin compare sotto il nome, mentre l’incarico temporaneo di verbalista è separato. La tua riga è riconoscibile con uno sfondo leggero. I menu hanno un’area di tocco più ampia e identificano il partecipante anche con un lettore di schermo. Le azioni disponibili e le limitazioni della demo restano quelle previste per ciascun ruolo.",
+        "en": "Avatars and names keep the same alignment across different roles, turns and activation states. Statistics use short labels with no space reserved for absent states, and long names can wrap. The Admin role appears below the name, while the temporary note-taking duty is separate. A subtle background identifies your row. Menus have a larger tap target and identify the participant for screen readers too. Available actions and demo restrictions remain those allowed for each role."
       }
     }
   ]

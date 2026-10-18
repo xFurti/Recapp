@@ -8,6 +8,8 @@ Il browser condiviso del workspace ha restituito `BrowserHostUnavailable`; le im
 
 ## Prima e dopo
 
+Le viste con nickname comuni mostrano la densità nell’uso quotidiano, scorrendo fino all’elenco con gli stessi controlli visibili: [telefono prima](before/390-usage-it.png), [telefono dopo](after/390-usage-it.png), [desktop prima](before/1280-usage-it.png), [desktop dopo](after/1280-usage-it.png). La matrice sotto mantiene i nomi alla massima lunghezza per verificare i casi più impegnativi.
+
 | Viewport | Tema | Lingua | Prima | Dopo |
 | --- | --- | --- | --- | --- |
 | 320 px | light | it | [Prima](before/320-light-it.png) | [Dopo](after/320-light-it.png) |

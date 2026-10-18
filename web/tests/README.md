@@ -138,7 +138,7 @@ The final lighter presentation is captured in `docs/screenshots/issue-101/refine
 
 ## Participants layout (issue #141)
 
-`members.spec.ts` opens the real Class route and AppShell with deterministic HTTP responses for 25 fictional participants. It checks every combination of 320/390/1280px, Italian/English, light/dark and 100%/200% root text size, with reduced motion. Text ranges must stay inside their row without overlapping other text or the 44px action targets; name, statistics and menu positions must remain aligned. It covers Admin, today's note-taker, the viewer, pending activation and zero counters, scrolling to the last participant, keyboard entry and Escape focus restoration, the member/admin/school action matrix in official/demo classes, and confirmation before mutations targeting the correct participant.
+`members.spec.ts` opens the real Class route and AppShell with deterministic HTTP responses for 25 fictional participants. It checks every combination of 320/390/1280px, Italian/English, light/dark and 100%/200% root text size, with reduced motion. Text ranges must stay inside their row without overlapping other text or the 44px action targets; name and menu positions must remain aligned while metadata wraps naturally. Density checks prevent ordinary rows from reserving space for absent states. It covers Admin, today's note-taker, the viewer, pending activation and zero counters, scrolling to the last participant, keyboard entry and Escape focus restoration, the member/admin/school action matrix in official/demo classes, and confirmation before mutations targeting the correct participant.
 
 ```sh
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test --config playwright.members.config.ts

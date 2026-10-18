@@ -111,19 +111,23 @@ function Members() {
           <li key={m.id} className="member-row" data-me={m.is_me || undefined}>
             <Avatar nick={m.nick} color={m.color} />
             <div className="member-identity">
-              <p className="member-name font-semibold">
-                <span>{m.nick}</span>{' '}
-                {m.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
-              </p>
-              {m.role === 'admin' && <p className="member-role text-xs font-medium text-muted"><Crown aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.admin')}</span></p>}
-            </div>
-            <div className="member-status">
-              {m.is_today_scribe && <span className="member-scribe text-xs font-semibold"><Pencil aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.scribe_today')}</span></span>}
-              {!m.activated && <span className="member-pending text-xs text-muted"><span className="language-text">{t('class.not_activated')}</span></span>}
-            </div>
-            <div className="member-stats text-xs text-muted">
-              <p className="language-text">{t('class.days_written', { count: m.days_written })}</p>
-              <p className="language-text">{t('class.items_added', { count: m.items_added })}</p>
+              <div className="member-heading">
+                <p className="member-name font-semibold">
+                  <span>{m.nick}</span>{' '}
+                  {m.is_me && <span className="text-xs font-medium text-muted">(<span className="language-text">{t('common.you')}</span>)</span>}
+                </p>
+                {m.is_today_scribe && <span className="member-status member-scribe text-xs font-semibold"><Pencil aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.scribe_today')}</span></span>}
+              </div>
+              <div className="member-details text-xs text-muted">
+                {m.role === 'admin' && <span className="member-role font-medium"><Crown aria-hidden className="size-3 shrink-0" /> <span className="language-text">{t('class.admin')}</span></span>}
+                {!m.activated && <span className="member-status member-pending language-text">{t('class.not_activated')}</span>}
+                {(m.activated || m.days_written > 0 || m.items_added > 0) && (
+                  <div className="member-stats">
+                    <p className="language-text" title={t('class.days_written', { count: m.days_written })}>{t('class.member_days', { count: m.days_written })}</p>
+                    <p className="language-text" title={t('class.items_added', { count: m.items_added })}>{t('class.member_items', { count: m.items_added })}</p>
+                  </div>
+                )}
+              </div>
             </div>
             {can_manage && (
               <button
@@ -132,13 +136,13 @@ function Members() {
                   const el = e.currentTarget
                   setMenu((cur) => (cur?.id === m.id ? null : { id: m.id, el }))
                 }}
-                className="member-menu rounded-xl border border-line text-muted hover:bg-ink/5 hover:text-ink"
+                className="member-menu rounded-full text-muted hover:bg-ink/5 hover:text-ink"
                 aria-label={t('class.manage_member', { nick: m.nick })}
                 aria-haspopup="menu"
                 aria-expanded={menu?.id === m.id}
                 aria-controls={menu?.id === m.id ? 'member-actions' : undefined}
               >
-                <MoreVertical aria-hidden className="size-5" />
+                <MoreVertical aria-hidden className="size-[18px]" />
               </button>
             )}
           </li>
