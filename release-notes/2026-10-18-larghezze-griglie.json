@@ -1,0 +1,36 @@
+{
+  "id": "2026.10.18.132",
+  "published_at": "2026-10-18T12:00:00Z",
+  "visibility": "public",
+  "title": {
+    "it": "Più spazio per scrivere e organizzare la classe",
+    "en": "More room to write and organise your class"
+  },
+  "summary": [
+    {
+      "it": "Editor e panoramiche di classe usano meglio lo spazio del computer; le pagine di lettura mantengono righe comode.",
+      "en": "The editor and class overviews make better use of desktop space, while reading pages keep comfortable line lengths."
+    },
+    {
+      "it": "Un indice nell’editor porta alle materie e alle altre sezioni, anche da tastiera e sul telefono.",
+      "en": "An editor index takes you to subjects and other sections, including by keyboard and on your phone."
+    },
+    {
+      "it": "La disposizione si adatta allo schermo e al testo ingrandito, senza allungare le righe degli appunti.",
+      "en": "The layout adapts to screen size and enlarged text without stretching note lines."
+    }
+  ],
+  "entries": [
+    {
+      "category": "improvement",
+      "title": {
+        "it": "Una larghezza adatta a ogni attività",
+        "en": "The right width for each task"
+      },
+      "body": {
+        "it": "L’editor e le panoramiche di classe, compreso l’orario settimanale, hanno più spazio sul computer. Gli appunti e l’anteprima restano in una colonna leggibile. L’indice dell’editor affianca le lezioni quando c’è spazio e passa sopra i contenuti sugli schermi più stretti; puoi richiuderlo e usarlo da tastiera. Le sezioni assenti non lasciano colonne vuote.",
+        "en": "The editor and class overviews, including the weekly timetable, have more room on desktop. Notes and the preview stay in a readable column. The editor index sits beside lessons when there is room and above the content on narrower screens; you can collapse it and use it by keyboard. Missing sections leave no empty columns."
+      }
+    }
+  ]
+}

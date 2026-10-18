@@ -411,6 +411,8 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
   const barRef = useRef<HTMLDivElement>(null)
   // One page per first segment after the class: filters, days and subjects stay on the same page.
   const page = location.pathname.toLowerCase().split('/')[3] ?? ''
+  // Oggi's composition stays in #96 / PR #99; reading routes keep their own measure.
+  const width = page === 'scrivi' || page === 'classe' ? 'class-width-operation' : 'class-width-reading'
 
   useEffect(() => {
     if (takeCelebrate()) setParty(true)
@@ -449,7 +451,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
 
   return (
     <div className="min-h-dvh md:flex">
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
+      <aside className="sticky top-0 hidden h-dvh w-[240px] shrink-0 flex-col border-r border-line bg-surface px-4 py-5 md:flex">
         <div className="mb-6 flex items-center gap-2">
           <Link to={base} {...sideMark.triggers}>
             <Wordmark size="md" playing={sideMark.playing} />
@@ -468,7 +470,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
               <Link to="/scuola" className="underline"><span className="language-text">{t('shell.back_school')}</span></Link>
             </div>
           )}
-          <div className="mx-auto flex h-14 max-w-3xl items-center gap-2 px-4">
+          <div className={`mx-auto flex h-14 ${width} items-center gap-2 px-4`}>
             <Link to={base} className="flex h-7 shrink-0 md:hidden" aria-label="Recapp" {...topMark.triggers}>
               <RecappMark playing={topMark.playing} className="h-7" />
             </Link>
@@ -486,7 +488,7 @@ export function AppShell({ info, children }: { info: ClassInfo; children: ReactN
           {showClock && <SimBar />}
         </header>
         <UpdateNotice headerRef={headerRef} />
-        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className="mx-auto max-w-3xl px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12">
+        <PageFrame page={page} section={sectionIndex(location.pathname, info.code)} header={headerRef} bar={barRef} className={`mx-auto ${width} px-4 pb-[calc(6.5rem+max(0.5rem,env(safe-area-inset-bottom)))] pt-5 outline-none md:pb-12`}>
           {children}
         </PageFrame>
       </div>

@@ -124,6 +124,12 @@ Install WebKit with `npx playwright install webkit`, or set `PLAYWRIGHT_WEBKIT_E
 
 Run `npm run test:e2e -- tests/landing-art.spec.ts`. PR screenshots and the recording come from the production build with mocked API responses.
 
+## Page widths
+
+`page-widths.spec.ts` checks the editor index, timetable and shell widths. The notes column stays at most 736px. The index sits beside the lessons only when the editor container is at least 62rem; otherwise it stays above the content, including at 200% text. Keyboard activation moves focus to the heading without dropping a draft, repeated lessons stay distinct, and an empty day has no index column. The preview keeps the reading measure. At 200% text the action labels stay whole words, are not clipped and stay above the phone dock. The weekly timetable fits the wide desktop column, scrolls inside its own region on a phone, and opens details from the keyboard. Header and content share 1152px on the editor and class pages and 768px on reading routes. Every case checks that the page does not scroll sideways at 320, 390, 768, 1024, 1280 and 1440px.
+
+Run `npm run test:e2e -- tests/page-widths.spec.ts`. Screenshots in `docs/screenshots/issue-132/` come from production builds and the real local API with an isolated demo database.
+
 ## Update notices
 
 `updates.spec.ts` renders the real UpdateNotice, AppShell and public pages under StrictMode, with only HTTP responses simulated. It covers the preparing-to-ready transition without layout shifts or focus changes; persistence, per-version/session dismissal and a fresh notice after preparation is dismissed; saving, failure/retry and reload ordering; header positioning across routes and scrolling; 320px, 390px and desktop layouts in both themes and languages, enlarged text and shortened viewports; and finite animations with reduced motion respected.

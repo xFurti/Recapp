@@ -324,6 +324,7 @@
     "add": "Aggiungi"
   },
   "editor": {
+    "index": "In questa giornata",
     "lesson_status": "Stato della lezione",
     "lesson_status_svolta": "Svolta",
     "lesson_status_non_svolta": "Non svolta",
